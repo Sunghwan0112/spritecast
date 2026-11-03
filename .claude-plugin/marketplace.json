@@ -1,0 +1,16 @@
+{
+  "name": "iso-sprite",
+  "owner": {
+    "name": "Sunghwan Baek"
+  },
+  "plugins": [
+    {
+      "name": "iso-sprite",
+      "source": "./",
+      "description": "Isometric game props at true scale and the exact 2:1 angle, drawn in your art style."
+    }
+  ],
+  "metadata": {
+    "description": "iso-sprite: isometric game props at true scale, drawn in your art style."
+  }
+}

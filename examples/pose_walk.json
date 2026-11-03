@@ -1,0 +1,12 @@
+{
+  "name": "pose_walk",
+  "character": {
+    "height": 1.72,
+    "build": "average",
+    "pose": "walk",
+    "directions": [
+      "south-east"
+    ]
+  },
+  "description": "a young bike courier walking briskly, mid-stride: messy black hair, a red windbreaker, a big square grey delivery backpack, black cycling shorts over leggings, chunky trainers"
+}

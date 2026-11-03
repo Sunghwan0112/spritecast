@@ -1,0 +1,51 @@
+# Setup and the free steps on Windows, macOS and Linux: doctor --fix from a bare Python, the key-less trial (a guide rendered and
+# finished), the characters' AI cut-out on one drawn cell. No keys, nothing paid.
+name: check
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['skills/**', '.github/workflows/check.yml']
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: doctor --fix (a venv, the packages, a browser)
+        run: |
+          python skills/iso-sprite/scripts/doctor.py --fix | tee doctor.txt
+          echo "PY=$(grep '^PYTHON=' doctor.txt | cut -d= -f2-)" >> "$GITHUB_ENV"
+      - name: try (free, no key)
+        run: |
+          "$PY" skills/iso-sprite/scripts/isoprop.py try --out try
+          "$PY" -c "from PIL import Image; im = Image.open('try/reading_armchair/preview.png'); print('preview', im.size); assert im.width > 200"
+      - name: the characters' cut-out (BiRefNet lite, fetched once)
+        run: |
+          "$PY" - <<'PY'
+          import sys, time
+          sys.path.insert(0, 'skills/iso-sprite/scripts'); import charlib as CL
+          from PIL import Image
+          sheet = Image.open('examples/rain_girl/sheet.png').convert('RGB')
+          cell = sheet.crop((0, 0, sheet.width // 9, sheet.height // 8)).resize((512, 512))
+          big = Image.new('RGB', (1024, 1024), 'white'); big.paste(cell, (256, 256))
+          t = time.time(); m = CL.ai_key(big); print('cut-out', m.sum(), 'px in %.1f s' % (time.time() - t)); assert 2000 < m.sum() < 200000
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: try-${{ matrix.os }}
+          path: |
+            doctor.txt
+            try/reading_armchair/preview.png
+            try/reading_armchair/render.png

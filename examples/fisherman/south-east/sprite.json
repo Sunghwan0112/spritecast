@@ -1,0 +1,65 @@
+{
+ "name": "fisherman",
+ "footprint_m": [
+  0.5,
+  0.5
+ ],
+ "px_per_m": 256,
+ "camera": {
+  "pitch": 30,
+  "yaw": 135
+ },
+ "turn": 90,
+ "light": "right",
+ "sprite": {
+  "file": "sprite.png",
+  "size": [
+   142,
+   418
+  ],
+  "anchor": [
+   0.4631,
+   0.9424
+  ],
+  "anchor_px": [
+   65.8,
+   393.9
+  ]
+ },
+ "shadow": {
+  "file": "shadow.png",
+  "from": "drawn",
+  "size": [
+   265,
+   204
+  ],
+  "offset_px": [
+   -140,
+   217
+  ]
+ },
+ "footprint_px": [
+  [
+   -24.7,
+   393.9
+  ],
+  [
+   65.8,
+   348.7
+  ],
+  [
+   156.3,
+   393.9
+  ],
+  [
+   65.8,
+   439.2
+  ]
+ ],
+ "fit": {
+  "ok": true,
+  "proportions_off": -0.05,
+  "outline_overlap": 0.882
+ },
+ "notes": "anchor = the footprint's lowest point on screen (its front corner, or the middle of its front edge when seen square on), as a fraction of the sprite; footprint_px = the ground corners at (0,0), (W,0), (W,D), (0,D) in sprite px; draw shadow.png at offset_px from the sprite's top-left, under everything."
+}

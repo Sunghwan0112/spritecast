@@ -1,0 +1,123 @@
+{
+  "name": "reading_armchair_tripo",
+  "footprint": [
+    0.82,
+    0.86
+  ],
+  "facing": "its seat faces down-left, toward the viewer",
+  "description": "a mid-century reading armchair: plump cognac-tan leather cushions with soft creases and fine piping, wide padded arms, a solid walnut frame on four short tapered walnut legs",
+  "model": {
+    "glb": "reading_armchair_tripo/tripo.glb",
+    "size": [
+      0.82,
+      0.86,
+      0.95
+    ],
+    "yaw": 180
+  },
+  "blocks_draft": [
+    {
+      "box": [
+        0.08,
+        0.74,
+        0.12,
+        0.84,
+        0.12,
+        0.4
+      ],
+      "color": "#b06a3c"
+    },
+    {
+      "box": [
+        0.12,
+        0.7,
+        0.16,
+        0.82,
+        0.4,
+        0.5
+      ],
+      "color": "#c47d4a"
+    },
+    {
+      "box": [
+        0.06,
+        0.76,
+        0.02,
+        0.2,
+        0.12,
+        0.95
+      ],
+      "color": "#b06a3c"
+    },
+    {
+      "box": [
+        0.0,
+        0.14,
+        0.04,
+        0.86,
+        0.12,
+        0.62
+      ],
+      "color": "#b06a3c"
+    },
+    {
+      "box": [
+        0.68,
+        0.82,
+        0.04,
+        0.86,
+        0.12,
+        0.62
+      ],
+      "color": "#b06a3c"
+    },
+    {
+      "box": [
+        0.03,
+        0.09,
+        0.07,
+        0.13,
+        0.0,
+        0.12
+      ],
+      "axis": "h",
+      "color": "#5a3b25"
+    },
+    {
+      "box": [
+        0.73,
+        0.79,
+        0.07,
+        0.13,
+        0.0,
+        0.12
+      ],
+      "axis": "h",
+      "color": "#5a3b25"
+    },
+    {
+      "box": [
+        0.03,
+        0.09,
+        0.77,
+        0.83,
+        0.0,
+        0.12
+      ],
+      "axis": "h",
+      "color": "#5a3b25"
+    },
+    {
+      "box": [
+        0.73,
+        0.79,
+        0.77,
+        0.83,
+        0.0,
+        0.12
+      ],
+      "axis": "h",
+      "color": "#5a3b25"
+    }
+  ]
+}

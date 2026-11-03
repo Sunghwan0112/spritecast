@@ -1,0 +1,118 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>iso-sprite character render</title>
+<script type="importmap">{"imports": {"three": "./vendor/three/three.module.js", "three/addons/": "./vendor/three/addons/"}}</script>
+</head><body style="margin:0;background:transparent">
+<script type="module">
+// A rigged, animated character (a GLB with "walk" and "idle" clips - Tripo's rig and retarget) seen by an isometric camera looking
+// `pitch`° down, turned to 8 facings, frames sampled through a clip, the walk kept on the spot. Toon shading in three hard bands, so the
+// drawing over it has clean shapes to follow. The character is scaled to 1 unit tall; the view is VIEW_H units across.
+// Driven by charpipe.py through Playwright: load(url, pitch, light) → frames(clip, dir, n, t0, t1, headUp, shoulderUp, shoulderWide, shadows);
+// with `shadows`, each frame's 3D shadow too (window.shadowShots).
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const SIZE = 512, VIEW_H = 1.25;
+let PITCH = 30 * Math.PI / 180;
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(SIZE, SIZE); renderer.setPixelRatio(1); renderer.setClearColor(0x000000, 0); renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.add(new THREE.AmbientLight(0xffffff, 2.3));
+const sun = new THREE.DirectionalLight(0xfff4e8, 1.4); sun.position.set(2, 4, 3); scene.add(sun);
+const cam = new THREE.OrthographicCamera(-VIEW_H / 2, VIEW_H / 2, VIEW_H / 2, -VIEW_H / 2, 0.1, 50);
+const aim = () => { cam.position.set(0, 0.5 + 10 * Math.sin(PITCH), 10 * Math.cos(PITCH)); cam.lookAt(0, 0.5, 0); cam.updateProjectionMatrix(); };
+aim();
+// facing → turn about the up axis (south: toward the viewer, east: to the right of the screen)
+const FACING = { 'south': 0, 'south-east': 45, 'east': 90, 'north-east': 135, 'north': 180, 'north-west': -135, 'west': -90, 'south-west': -45 };
+let root, mixer, clips = [], hips = null; const bones = {};
+
+// the whole body pressed flat onto the ground along the light: a point h up lands (dx·h, dz·h) away on the floor (the game's light,
+// the same as render.html's SHADOW for props) - the 3D figure's own shadow, frame by frame, with the feet touching it
+let SHADOW = [-0.42, -0.78];
+function flatMaterial() {
+  const m = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide });
+  m.onBeforeCompile = (sh) => {
+    sh.vertexShader = sh.vertexShader.replace('#include <project_vertex>',
+      `vec4 wp = modelMatrix * vec4(transformed, 1.0); float hy = wp.y; wp.x += ${SHADOW[0].toFixed(5)} * hy; wp.z += ${SHADOW[1].toFixed(5)} * hy; wp.y = 0.0;
+  vec4 mvPosition = viewMatrix * wp; gl_Position = projectionMatrix * mvPosition;`);
+  };
+  return m;
+}
+
+window.load = async (url, pitch = 30, light = 'right') => {
+  if (light === 'left') SHADOW = [0.42, -0.78];
+  PITCH = pitch * Math.PI / 180; aim();
+  const g = await new GLTFLoader().loadAsync(url);
+  root = new THREE.Group(); scene.add(root); const m = g.scene; root.add(m);
+  const box = new THREE.Box3().setFromObject(m); const h = box.max.y - box.min.y;
+  m.scale.setScalar(1 / h); const b2 = new THREE.Box3().setFromObject(m);
+  m.position.set(-(b2.min.x + b2.max.x) / 2, -b2.min.y, -(b2.min.z + b2.max.z) / 2);
+  const steps = new Uint8Array([90, 170, 255]);
+  const ramp = new THREE.DataTexture(steps, 3, 1, THREE.RedFormat); ramp.minFilter = ramp.magFilter = THREE.NearestFilter; ramp.needsUpdate = true;
+  m.traverse((o) => {
+    if (o.isMesh) {
+      const s = Array.isArray(o.material) ? o.material[0] : o.material;
+      o.material = new THREE.MeshToonMaterial({ map: s.map || null, color: s.map ? 0xffffff : (s.color || 0xffffff), gradientMap: ramp });
+      o.userData.toon = o.material; o.userData.flat = flatMaterial();
+      o.frustumCulled = false;
+    }
+    if (o.isBone) { bones[o.name.replace(/^mixamorig:?/i, '')] = o; o.userData.restPos = o.position.clone(); if (!hips && /hip|pelvis/i.test(o.name)) hips = o; }
+  });
+  mixer = new THREE.AnimationMixer(m); clips = g.animations;
+  return { clips: clips.map((c) => ({ name: c.name, duration: c.duration })), height: h, footY: 0.5 + 0.5 * Math.cos(PITCH) / VIEW_H };
+};
+
+// tilt the head (and a little of the neck) up by `deg`, about the character's right axis (a rig's walk looks down a little)
+function headUp(deg) {
+  if (!deg) return;
+  const right = new THREE.Vector3(-1, 0, 0).applyQuaternion(root.getWorldQuaternion(new THREE.Quaternion()));
+  for (const [k, part] of [['neck', 0.4], ['Neck', 0.4], ['Head', 0.6]]) {
+    const b = bones[k]; if (!b) continue;
+    b.parent.updateWorldMatrix(true, false);
+    const axis = right.clone().applyQuaternion(b.parent.getWorldQuaternion(new THREE.Quaternion()).invert()).normalize();
+    b.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(axis, part * deg * Math.PI / 180));
+  }
+}
+
+// square the shoulders: each collar bone turned up by `up`° about the forward axis and the upper arm back by as much (so the arm still
+// hangs as the clip has it), the collar and arm bones set `wide`× further out. A rig built from a design often slopes from the neck;
+// the angle does most of the work (it also carries the arms out, which widens the silhouette), `wide` only a little.
+function shoulders(up, wide) {
+  for (const k of ['LeftShoulder', 'RightShoulder', 'LeftArm', 'RightArm']) {
+    const b = bones[k]; if (!b || !b.userData.restPos) continue; b.position.x = b.userData.restPos.x * wide;
+  }
+  if (!up) return;
+  root.updateMatrixWorld(true);
+  const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(root.getWorldQuaternion(new THREE.Quaternion()));
+  const turn = (k, deg) => {
+    const b = bones[k]; if (!b) return; b.parent.updateWorldMatrix(true, false);
+    const axis = fwd.clone().applyQuaternion(b.parent.getWorldQuaternion(new THREE.Quaternion()).invert()).normalize();
+    b.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(axis, deg * Math.PI / 180));
+  };
+  for (const [k, s] of [['Left', 1], ['Right', -1]]) { turn(`${k}Shoulder`, s * up); root.updateMatrixWorld(true); turn(`${k}Arm`, -s * up); }
+}
+
+window.frames = (clipName, dir, n, t0, t1, head, up = 0, wide = 1, shadows = false) => {
+  window.shadowShots = [];
+  root.rotation.y = FACING[dir] * Math.PI / 180;
+  mixer.stopAllAction();
+  const clip = clips.find((c) => c.name === clipName) || clips[0];
+  const act = mixer.clipAction(clip); act.play();
+  const out = []; let x0 = null, z0 = null;
+  for (let i = 0; i < n; i++) {
+    const t = t0 + (t1 - t0) * i / n;
+    if (hips && x0 === null) { mixer.setTime(t0); x0 = hips.position.x; z0 = hips.position.z; }
+    mixer.setTime(t);
+    if (hips) { hips.position.x = x0; hips.position.z = z0; }      // the walk stays on the spot
+    root.updateMatrixWorld(true); shoulders(up, wide); root.updateMatrixWorld(true); headUp(head); root.updateMatrixWorld(true);
+    renderer.render(scene, cam); out.push(renderer.domElement.toDataURL('image/png'));
+    if (shadows) {                       // the same pose, flat on the ground → window.shadowShots
+      root.traverse((o) => { if (o.isMesh) o.material = o.userData.flat; });
+      renderer.render(scene, cam); window.shadowShots.push(renderer.domElement.toDataURL('image/png'));
+      root.traverse((o) => { if (o.isMesh) o.material = o.userData.toon; });
+    }
+  }
+  return out;
+};
+window.ready = true;
+</script></body></html>

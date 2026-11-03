@@ -1,0 +1,135 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>iso-sprite render</title>
+<script type="importmap">{"imports": {"three": "./vendor/three/three.module.js", "three/addons/": "./vendor/three/addons/"}}</script>
+</head><body style="margin:0;background:transparent">
+<script type="module">
+// A prop at its real size seen by a game's camera: orthographic, looking `pitch`° down at the prop turned `yaw`° (by default 30° and
+// 45°: the 2:1 isometric view, tiles twice as wide as tall). Driven by isoprop.py through Playwright: setup(spec) → shot() / shadowShot()
+// / toCanvas().
+//
+// Spec axes ("game axes"): x runs to the screen's lower right, y to its lower left, h up; metres; the footprint's back (top) corner at
+// x = 0, y = 0. Inside the scene: model x = −(y − D/2), model z = x − W/2, model y = h, and the whole prop turned 45° about the up axis.
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+let PITCH = 30 * Math.PI / 180, YAW = 45;
+// the light the shadows fall by: per metre up, a point lands this far along world x and z (away from the camera and to the left —
+// up and to the left on screen; mirrored for light from the upper left). Fixed to the screen, not to the prop.
+let SHADOW = [-0.42, -0.78];
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setClearColor(0x000000, 0); renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.add(new THREE.AmbientLight(0xffffff, 2.3));
+const sun = new THREE.DirectionalLight(0xfff4e8, 1.4); sun.position.set(2, 4, 3); scene.add(sun);   // light from the upper right
+const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 100);
+const aim = () => { cam.position.set(0, 10 * Math.sin(PITCH), 10 * Math.cos(PITCH)); cam.lookAt(0, 0, 0); };
+aim();
+let prop = null, foot = [1, 1], size = [1, 1];
+
+// three light bands, hard edges: flat, readable shapes for the drawing over them
+const steps = new Uint8Array([90, 170, 255]);
+const ramp = new THREE.DataTexture(steps, 3, 1, THREE.RedFormat); ramp.minFilter = ramp.magFilter = THREE.NearestFilter; ramp.needsUpdate = true;
+const toon = (c) => new THREE.MeshToonMaterial({ color: c, gradientMap: ramp });
+const edges = (geo) => new THREE.LineSegments(new THREE.EdgesGeometry(geo, 30), new THREE.LineBasicMaterial({ color: 0x333333 }));
+const colour = (c) => (typeof c === 'string' ? new THREE.Color(c) : new THREE.Color(c ?? 0xc8ccd2));
+
+// one block of the spec → a mesh in model space. box: [x0, x1, y0, y1, h0, h1]; a cylinder fills its box along `axis` ('x' | 'y' | 'h')
+function block(b, W, D) {
+  if (b.seg) {                                     // a limb: a round segment from one point to another (game axes), radius b.r
+    const [ax, ay, ah, bx, by, bh] = b.seg, A = new THREE.Vector3(-(ay - D / 2), ah, ax - W / 2), B = new THREE.Vector3(-(by - D / 2), bh, bx - W / 2);
+    const len = A.distanceTo(B), geo = new THREE.CylinderGeometry(b.r, b.r, Math.max(len, 1e-3), 24);
+    const m = new THREE.Mesh(geo, toon(colour(b.color)));
+    m.position.copy(A).add(B).multiplyScalar(0.5);
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), B.clone().sub(A).normalize());
+    return m;
+  }
+  const [x0, x1, y0, y1, h0, h1] = b.box;
+  const sx = y1 - y0, sy = h1 - h0, sz = x1 - x0;                          // model x ← game y, model y ← h, model z ← game x
+  let geo;
+  if (b.axis) {
+    const len = { x: sz, y: sx, h: sy }[b.axis];
+    const r = Math.min(...Object.entries({ x: sz, y: sx, h: sy }).filter(([k]) => k !== b.axis).map(([, v]) => v)) / 2;
+    geo = new THREE.CylinderGeometry(r, r, len, 40);
+    if (b.axis === 'x') geo.rotateX(Math.PI / 2); else if (b.axis === 'y') geo.rotateZ(Math.PI / 2);
+  } else if (b.shape === 'sphere') { geo = new THREE.SphereGeometry(0.5, 32, 16); geo.scale(sx, sy, sz); }   // an ellipsoid filling its box
+  else geo = new THREE.BoxGeometry(sx, sy, sz);
+  const m = new THREE.Mesh(geo, toon(colour(b.color)));
+  m.position.set(-((y0 + y1) / 2 - D / 2), (h0 + h1) / 2, (x0 + x1) / 2 - W / 2);
+  m.add(edges(geo)); return m;
+}
+
+async function model(spec) {
+  const { glb, yaw = 0 } = spec.model; const [W, D, H] = spec.model.size;
+  const g = await new GLTFLoader().loadAsync(glb); const m = g.scene;
+  m.traverse((o) => { if (o.isMesh) { const s = Array.isArray(o.material) ? o.material[0] : o.material;
+    o.material = new THREE.MeshToonMaterial({ map: s.map || null, color: s.map ? 0xffffff : (s.color || 0xffffff), gradientMap: ramp }); } });
+  const turn = new THREE.Group(); turn.add(m); turn.rotation.y = yaw * Math.PI / 180; turn.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(turn); const e = box.getSize(new THREE.Vector3());
+  const fit = new THREE.Group(); fit.add(turn);
+  fit.scale.set(D / e.x, H / e.y, W / e.z);                                // model x ← game y (D), model z ← game x (W)
+  fit.position.set(-(box.min.x + box.max.x) / 2 * D / e.x, -box.min.y * H / e.y, -(box.min.z + box.max.z) / 2 * W / e.z);
+  return fit;
+}
+
+// the canvas fitted round the prop and its shadow at `pxm` px per metre (camera space: u = world x, v = y·cos − z·sin)
+function frame(pxm, pad = 0.12) {
+  prop.updateMatrixWorld(true); const box = new THREE.Box3().setFromObject(prop);
+  let u0 = Infinity, u1 = -Infinity, v0 = Infinity, v1 = -Infinity;
+  for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) {
+    for (const [px, py, pz] of [[x, y, z], [x + SHADOW[0] * y, 0, z + SHADOW[1] * y]]) {
+      const u = px, v = py * Math.cos(PITCH) - pz * Math.sin(PITCH);
+      u0 = Math.min(u0, u); u1 = Math.max(u1, u); v0 = Math.min(v0, v); v1 = Math.max(v1, v);
+    }
+  }
+  const w = Math.ceil((u1 - u0 + 2 * pad) * pxm), h = Math.ceil((v1 - v0 + 2 * pad) * pxm);
+  renderer.setSize(w, h);
+  cam.left = u0 - pad; cam.right = cam.left + w / pxm; cam.top = v1 + pad; cam.bottom = cam.top - h / pxm; cam.updateProjectionMatrix();
+  size = [w, h];
+}
+
+window.setup = async (spec) => {
+  if (prop) scene.remove(prop);
+  const c = spec.camera || {}; PITCH = (c.pitch ?? 30) * Math.PI / 180; YAW = c.yaw ?? 45; aim();
+  const side = spec.light === 'left' ? -1 : 1; SHADOW = [-0.42 * side, -0.78]; sun.position.set(2 * side, 4, 3);
+  const [W, D] = spec.footprint; foot = [W, D];
+  prop = new THREE.Group();
+  if (spec.model) prop.add(await model(spec));
+  for (const b of spec.blocks || []) prop.add(block(b, W, D));
+  prop.rotation.y = YAW * Math.PI / 180; scene.add(prop);
+  if (!spec.keepFrame) frame(spec.px_per_m || 256);           // keepFrame: the same canvas as the last setup (a part of the same prop)
+  return { size };
+};
+const draw = async () => { if (renderer.compileAsync) await renderer.compileAsync(scene, cam); renderer.render(scene, cam); renderer.render(scene, cam); };
+window.shot = async () => { await draw(); return renderer.domElement.toDataURL('image/png'); };
+// the prop's shadow on the ground, solid black alone: every point (x, y, z) pressed to (x + dx·y, 0, z + dz·y)
+window.shadowShot = async () => {
+  const P = new THREE.Matrix4().set(1, SHADOW[0], 0, 0, 0, 0, 0, 0.001, 0, SHADOW[1], 1, 0, 0, 0, 0, 1);
+  const wrap = new THREE.Group(); wrap.matrixAutoUpdate = false; wrap.matrix.copy(P);
+  const ghost = prop.clone(true); const black = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide });
+  ghost.traverse((o) => { if (o.isMesh) o.material = black; if (o.isLineSegments) o.visible = false; });
+  wrap.add(ghost); scene.add(wrap); prop.visible = false;
+  await draw(); const url = renderer.domElement.toDataURL('image/png');
+  scene.remove(wrap); prop.visible = true; return url;
+};
+// every pixel's height above the ground (metres, up to `top`) as 16 bits: red the high byte, green the low one; nothing drawn = clear.
+// A point h m up casts its shadow a fixed step (h × the light's offset) away on screen, so this is all a shadow needs.
+window.heightShot = async (top) => {
+  const mat = new THREE.ShaderMaterial({ uniforms: { uTop: { value: top } }, side: THREE.DoubleSide,
+    vertexShader: 'varying float vY; void main() { vec4 w = modelMatrix * vec4(position, 1.0); vY = w.y; gl_Position = projectionMatrix * viewMatrix * w; }',
+    fragmentShader: 'uniform float uTop; varying float vY; void main() { float v = clamp(vY / uTop, 0.0, 1.0) * 65535.0;' +
+      ' gl_FragColor = vec4(floor(v / 256.0) / 255.0, mod(v, 256.0) / 255.0, 0.0, 1.0); }' });
+  const keep = [];
+  prop.traverse((o) => { if (o.isMesh) { keep.push([o, o.material]); o.material = mat; } if (o.isLineSegments) { keep.push([o, null]); o.visible = false; } });
+  await draw(); const url = renderer.domElement.toDataURL('image/png');
+  for (const [o, m] of keep) { if (m) o.material = m; else o.visible = true; }
+  return url;
+};
+// a point in game axes (metres) → canvas px
+window.toCanvas = (x, y, h) => {
+  const [W, D] = foot, mx = -(y - D / 2), mz = x - W / 2, a = YAW * Math.PI / 180, c = Math.cos(a), s = Math.sin(a);
+  const v = new THREE.Vector3(mx * c + mz * s, h, -mx * s + mz * c).project(cam);
+  return [(v.x + 1) / 2 * size[0], (1 - v.y) / 2 * size[1]];
+};
+window.ready = true;
+</script></body></html>

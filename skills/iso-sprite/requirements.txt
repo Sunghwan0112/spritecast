@@ -1,0 +1,5 @@
+numpy
+pillow
+scipy
+playwright
+onnxruntime  # characters: the AI cut-out (BiRefNet); without it a white key is used

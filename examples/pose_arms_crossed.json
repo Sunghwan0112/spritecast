@@ -1,0 +1,12 @@
+{
+  "name": "pose_arms_crossed",
+  "character": {
+    "height": 1.8,
+    "build": "broad",
+    "pose": "arms-crossed",
+    "directions": [
+      "south-east"
+    ]
+  },
+  "description": "a stern gym trainer standing with his arms crossed over his chest: a buzz cut, a fitted black t-shirt, grey joggers, a whistle on a cord round his neck, black trainers"
+}

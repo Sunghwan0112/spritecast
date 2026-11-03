@@ -1,0 +1,17 @@
+{
+  "name": "iso-sprite",
+  "version": "0.3.0",
+  "description": "Game props and characters at their real size and exact camera angle, drawn in your art style - props, standing figures, and 8-direction walking characters (3D-guided).",
+  "author": {
+    "name": "Sunghwan Baek"
+  },
+  "repository": "https://github.com/Sunghwan0112/iso-sprite",
+  "license": "MIT",
+  "keywords": [
+    "isometric",
+    "gamedev",
+    "sprites",
+    "props",
+    "image-generation"
+  ]
+}

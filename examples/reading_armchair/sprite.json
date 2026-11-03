@@ -1,0 +1,62 @@
+{
+ "name": "reading_armchair",
+ "footprint_m": [
+  0.82,
+  0.86
+ ],
+ "px_per_m": 256,
+ "camera": null,
+ "turn": 0,
+ "light": "right",
+ "sprite": {
+  "file": "sprite.png",
+  "size": [
+   299,
+   357
+  ],
+  "anchor": [
+   0.4993,
+   0.9966
+  ],
+  "anchor_px": [
+   149.3,
+   355.8
+  ]
+ },
+ "shadow": {
+  "file": "shadow.png",
+  "from": "guide",
+  "size": [
+   351,
+   233
+  ],
+  "offset_px": [
+   -66,
+   116
+  ]
+ },
+ "footprint_px": [
+  [
+   156.5,
+   203.7
+  ],
+  [
+   305.0,
+   277.9
+  ],
+  [
+   149.3,
+   355.8
+  ],
+  [
+   0.9,
+   281.6
+  ]
+ ],
+ "fit": {
+  "ok": true,
+  "proportions_off": 0.013,
+  "outline_overlap": 0.968
+ },
+ "notes": "anchor = the footprint's lowest point on screen (its front corner, or the middle of its front edge when seen square on), as a fraction of the sprite; footprint_px = the ground corners at (0,0), (W,0), (W,D), (0,D) in sprite px; draw shadow.png at offset_px from the sprite's top-left, under everything."
+}

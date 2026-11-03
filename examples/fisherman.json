@@ -1,0 +1,5 @@
+{
+  "name": "fisherman",
+  "character": {"height": 1.75, "build": "broad", "directions": ["south-east", "south-west", "north-east", "north-west"]},
+  "description": "a sturdy old harbour fisherman: a short grey beard, a weathered face, a navy knit beanie, a bright yellow oilskin rain jacket over a grey wool sweater, dark work trousers tucked into tall black rubber boots"
+}

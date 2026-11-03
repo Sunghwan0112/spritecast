@@ -1,0 +1,12 @@
+{
+  "name": "pose_wave",
+  "character": {
+    "height": 1.75,
+    "build": "broad",
+    "pose": "wave",
+    "directions": [
+      "south-east"
+    ]
+  },
+  "description": "a sturdy old harbour fisherman waving hello with one raised hand, smiling: a short grey beard, a navy knit beanie, a bright yellow oilskin rain jacket over a grey wool sweater, dark work trousers in tall black rubber boots"
+}

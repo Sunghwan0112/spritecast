@@ -1,0 +1,65 @@
+{
+ "name": "potted_monstera",
+ "footprint_m": [
+  0.6,
+  0.6
+ ],
+ "px_per_m": 256,
+ "camera": {
+  "pitch": 30,
+  "yaw": 45
+ },
+ "turn": 0,
+ "light": "right",
+ "sprite": {
+  "file": "sprite.png",
+  "size": [
+   194,
+   372
+  ],
+  "anchor": [
+   0.5038,
+   0.9959
+  ],
+  "anchor_px": [
+   97.7,
+   370.5
+  ]
+ },
+ "shadow": {
+  "file": "shadow.png",
+  "from": "drawn",
+  "size": [
+   288,
+   137
+  ],
+  "offset_px": [
+   -144,
+   204
+  ]
+ },
+ "footprint_px": [
+  [
+   97.7,
+   261.8
+  ],
+  [
+   206.3,
+   316.2
+  ],
+  [
+   97.7,
+   370.5
+  ],
+  [
+   -10.9,
+   316.2
+  ]
+ ],
+ "fit": {
+  "ok": true,
+  "proportions_off": 0.25,
+  "outline_overlap": 0.871
+ },
+ "notes": "anchor = the footprint's lowest point on screen (its front corner, or the middle of its front edge when seen square on), as a fraction of the sprite; footprint_px = the ground corners at (0,0), (W,0), (W,D), (0,D) in sprite px; draw shadow.png at offset_px from the sprite's top-left, under everything."
+}

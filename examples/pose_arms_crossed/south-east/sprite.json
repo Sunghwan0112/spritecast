@@ -1,0 +1,65 @@
+{
+ "name": "pose_arms_crossed",
+ "footprint_m": [
+  0.5,
+  0.5
+ ],
+ "px_per_m": 256,
+ "camera": {
+  "pitch": 30,
+  "yaw": 135
+ },
+ "turn": 90,
+ "light": "right",
+ "sprite": {
+  "file": "sprite.png",
+  "size": [
+   159,
+   430
+  ],
+  "anchor": [
+   0.4071,
+   0.9415
+  ],
+  "anchor_px": [
+   64.7,
+   404.8
+  ]
+ },
+ "shadow": {
+  "file": "shadow.png",
+  "from": "drawn",
+  "size": [
+   278,
+   210
+  ],
+  "offset_px": [
+   -148,
+   223
+  ]
+ },
+ "footprint_px": [
+  [
+   -25.8,
+   404.8
+  ],
+  [
+   64.7,
+   359.6
+  ],
+  [
+   155.2,
+   404.8
+  ],
+  [
+   64.7,
+   450.1
+  ]
+ ],
+ "fit": {
+  "ok": true,
+  "proportions_off": -0.085,
+  "outline_overlap": 0.79
+ },
+ "notes": "anchor = the footprint's lowest point on screen (its front corner, or the middle of its front edge when seen square on), as a fraction of the sprite; footprint_px = the ground corners at (0,0), (W,0), (W,D), (0,D) in sprite px; draw shadow.png at offset_px from the sprite's top-left, under everything."
+}

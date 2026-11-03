@@ -1,0 +1,65 @@
+{
+ "name": "barista",
+ "footprint_m": [
+  0.5,
+  0.5
+ ],
+ "px_per_m": 256,
+ "camera": {
+  "pitch": 30,
+  "yaw": 315
+ },
+ "turn": 270,
+ "light": "right",
+ "sprite": {
+  "file": "sprite.png",
+  "size": [
+   106,
+   376
+  ],
+  "anchor": [
+   0.5391,
+   0.9663
+  ],
+  "anchor_px": [
+   57.1,
+   363.3
+  ]
+ },
+ "shadow": {
+  "file": "shadow.png",
+  "from": "drawn",
+  "size": [
+   229,
+   178
+  ],
+  "offset_px": [
+   -143,
+   200
+  ]
+ },
+ "footprint_px": [
+  [
+   147.7,
+   363.3
+  ],
+  [
+   57.1,
+   408.6
+  ],
+  [
+   -33.4,
+   363.3
+  ],
+  [
+   57.1,
+   318.1
+  ]
+ ],
+ "fit": {
+  "ok": true,
+  "proportions_off": -0.216,
+  "outline_overlap": 0.755
+ },
+ "notes": "anchor = the footprint's lowest point on screen (its front corner, or the middle of its front edge when seen square on), as a fraction of the sprite; footprint_px = the ground corners at (0,0), (W,0), (W,D), (0,D) in sprite px; draw shadow.png at offset_px from the sprite's top-left, under everything."
+}

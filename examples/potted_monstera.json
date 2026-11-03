@@ -1,0 +1,35 @@
+{
+  "name": "potted_monstera",
+  "footprint": [
+    0.6,
+    0.6
+  ],
+  "description": "a big monstera deliciosa in a round terracotta pot: large glossy deep-green split leaves on long stems spilling out over the rim and filling the green volume, dark soil just visible",
+  "blocks": [
+    {
+      "box": [
+        0.12,
+        0.48,
+        0.12,
+        0.48,
+        0.0,
+        0.4
+      ],
+      "axis": "h",
+      "color": "#c56a43"
+    },
+    {
+      "box": [
+        0.0,
+        0.6,
+        0.0,
+        0.6,
+        0.4,
+        1.25
+      ],
+      "axis": "h",
+      "color": "#4f7a43"
+    }
+  ],
+  "loose": true
+}
