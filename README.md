@@ -101,7 +101,7 @@ All in [`examples/`](examples), each with its spec and the files it produced (th
 
 ![four facings and a top-down view](docs/views.png)
 `armchair_four_ways`: `views: [0, 90, 180, 270]`. The later views are drawn with the first one as a reference, so it stays the same
-chair. `arcade_cabinet_topdown`: `camera: "topdown"`. `reading_armchair_tripo`: the same armchair from a Tripo model (below; the model itself isn't in the repo - `isoprop.py model` makes one).
+chair. `arcade_cabinet_topdown`: `camera: "topdown"`. `reading_armchair_tripo`: the same armchair from a Tripo model (below).
 
 ## More detail: a 3D model first (Tripo)
 

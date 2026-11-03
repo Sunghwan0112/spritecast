@@ -507,10 +507,12 @@ def trial(name, out):
     came with it (the only paid step, done once for the example) → preview.png"""
     import shutil
     ex = Path(__file__).resolve().parents[3] / 'examples'
-    def ok(n):   # a single-view example with its drawing, and no 3D model it would need (the Tripo one's isn't in the repo)
-        return (ex / f'{n}.json').exists() and (ex / n / 'drawn.webp').exists() and 'model' not in json.loads((ex / f'{n}.json').read_text())
+    def ok(n):   # a single-view example with its drawing
+        return (ex / f'{n}.json').exists() and (ex / n / 'drawn.webp').exists()
     if not ok(name): sys.exit(f'try: no example "{name}" - one of ' + ', '.join(sorted(p.parent.name for p in ex.glob('*/drawn.webp') if ok(p.parent.name))))
     out = Path(out).resolve(); out.mkdir(parents=True, exist_ok=True); shutil.copy(ex / f'{name}.json', out / f'{name}.json')
+    glb = json.loads((ex / f'{name}.json').read_text()).get('model', {}).get('glb')
+    if glb: (out / glb).parent.mkdir(parents=True, exist_ok=True); shutil.copy(ex / glb, out / glb)   # the Tripo example's 3D model
     spec = load_spec(out / f'{name}.json'); d = out / name; d.mkdir(exist_ok=True)
     print(f'try: {name} - the guide is rendered here (free); the drawing is the one that came with the example')
     render(spec, d); Image.open(ex / name / 'drawn.webp').convert('RGB').save(d / 'drawn.png')   # kept as WebP in the repo (1/8 the size)

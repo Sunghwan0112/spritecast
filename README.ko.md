@@ -100,7 +100,7 @@ setx OPENAI_API_KEY "sk-..."          # Windows (설정 후 새 터미널을 열
 
 ![네 방향과 탑다운](docs/views.png)
 `armchair_four_ways`: `views: [0, 90, 180, 270]`. 두 번째 방향부터는 첫 그림을 레퍼런스로 그려서 같은 의자로 이어져요.
-`arcade_cabinet_topdown`: `camera: "topdown"`. `reading_armchair_tripo`: 같은 안락의자를 Tripo 모델로(아래. 모델 파일은 저장소에 없어요 - `isoprop.py model`로 만들어요).
+`arcade_cabinet_topdown`: `camera: "topdown"`. `reading_armchair_tripo`: 같은 안락의자를 Tripo 모델로(아래).
 
 ## 더 정교하게: 3D 모델을 먼저 (Tripo)
 
