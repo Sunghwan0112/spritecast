@@ -18,7 +18,7 @@
 팔은 다리와 반대로 흔들리지 않고 제멋대로 움찔거리고, 게임의 30° 내려다보는 시점이 아니라
 눈높이에서 봤고, 그림자도 없어요. 두 번 시도한 걸 나온 그대로 보여 줘요.
 
-![GPT만으로 두 번 시도한 것과 iso-sprite: 같은 캐릭터가 남동쪽으로 걷기](docs/gpt-alone-vs-guide.gif)
+![GPT만으로 두 번 시도한 것과 iso-sprite: 같은 캐릭터가 남동쪽으로 걷기](docs/gpt-alone-vs-guide.ko.gif)
 
 iso-sprite는 모델이 잘못 읽을 수 없는 가이드를 줘요.
 1. Claude가 물건을 **실제 크기(미터)**의 블록으로 짜요.
@@ -174,7 +174,7 @@ python isoprop.py render armchair.json        # 그다음은 평소처럼 draw, 
 
 ## 걷는 캐릭터
 
-![일러스트 → 3D → 그린 프레임 → 8방향 걷기](docs/character.png)
+![일러스트 → 3D → 그린 프레임 → 8방향 걷기](docs/character.ko.png)
 
 ![8방향 걷기](docs/character-walk.gif)
 
