@@ -17,8 +17,8 @@ Scripts: `${CLAUDE_SKILL_DIR}/scripts/isoprop.py` (steps `render`, `draw`, `fini
 ## Setup (once)
 1. Run `python3 ${CLAUDE_SKILL_DIR}/scripts/doctor.py` (any Python 3.9+; `python` on Windows). It lists what is there and what each
    thing is for; its last line `PYTHON=<path>` is the interpreter to use for every script below. If it says "not ready", tell the user
-   in a line what is missing and run it again with `--fix` (a venv in ~/.cache/iso-sprite/, the packages, about 10 s; a browser only
-   if there is no Chrome or Edge - Playwright's Chromium, ~150 MB: ask first). For characters add `--characters` (the 224 MB cut-out
+   in a line what is missing and run it again with `--fix` (a venv in ~/.cache/iso-sprite/, the packages, about 10 s). No Chrome or Edge: ask first, then `--fix --browser`
+   (Playwright's Chromium, ~150 MB). For characters add `--characters` (the 224 MB cut-out
    model, once). If it says the Python cannot make a venv, pass on its one-line fix.
 2. Keys in the environment: `OPENAI_API_KEY` for `draw`, `TRIPO_API_KEY` for characters. Never ask the user to paste a key into the
    chat, never write it into a file, never print it.

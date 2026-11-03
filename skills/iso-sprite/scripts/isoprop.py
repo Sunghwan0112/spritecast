@@ -507,12 +507,14 @@ def trial(name, out):
     came with it (the only paid step, done once for the example) → preview.png"""
     import shutil
     ex = Path(__file__).resolve().parents[3] / 'examples'
-    if not (ex / f'{name}.json').exists() or not (ex / name / 'drawn.png').exists():
-        sys.exit(f'try: no example "{name}" - one of ' + ', '.join(sorted(p.parent.name for p in ex.glob('*/drawn.png'))))
+    def ok(n):   # a single-view example with its drawing, and no 3D model it would need (the Tripo one's isn't in the repo)
+        return (ex / f'{n}.json').exists() and (ex / n / 'drawn.webp').exists() and 'model' not in json.loads((ex / f'{n}.json').read_text())
+    if not ok(name): sys.exit(f'try: no example "{name}" - one of ' + ', '.join(sorted(p.parent.name for p in ex.glob('*/drawn.webp') if ok(p.parent.name))))
     out = Path(out).resolve(); out.mkdir(parents=True, exist_ok=True); shutil.copy(ex / f'{name}.json', out / f'{name}.json')
     spec = load_spec(out / f'{name}.json'); d = out / name; d.mkdir(exist_ok=True)
     print(f'try: {name} - the guide is rendered here (free); the drawing is the one that came with the example')
-    render(spec, d); shutil.copy(ex / name / 'drawn.png', d / 'drawn.png'); finish(spec, d); preview(spec, d)
+    render(spec, d); Image.open(ex / name / 'drawn.webp').convert('RGB').save(d / 'drawn.png')   # kept as WebP in the repo (1/8 the size)
+    finish(spec, d); preview(spec, d)
     print(f'try: done - open {d / "preview.png"} (the guide: {d / "render.png"}). Your own prop: write a spec like {out / (name + ".json")}')
 
 

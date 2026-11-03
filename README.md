@@ -92,7 +92,7 @@ Your key stays on your computer. It is only sent to OpenAI, and you pay OpenAI f
 
 ## Examples
 
-All in [`examples/`](examples), each with its spec and every file it produced.
+All in [`examples/`](examples), each with its spec and the files it produced (the raw drawings as WebP, to keep the repo small).
 
 | | | |
 |---|---|---|
@@ -101,7 +101,7 @@ All in [`examples/`](examples), each with its spec and every file it produced.
 
 ![four facings and a top-down view](docs/views.png)
 `armchair_four_ways`: `views: [0, 90, 180, 270]`. The later views are drawn with the first one as a reference, so it stays the same
-chair. `arcade_cabinet_topdown`: `camera: "topdown"`. `reading_armchair_tripo`: the same armchair from a Tripo model (below).
+chair. `arcade_cabinet_topdown`: `camera: "topdown"`. `reading_armchair_tripo`: the same armchair from a Tripo model (below; the model itself isn't in the repo - `isoprop.py model` makes one).
 
 ## More detail: a 3D model first (Tripo)
 
@@ -255,13 +255,37 @@ until you add `--yes`. The spec format is in [reference/spec.md](skills/iso-spri
 
 | problem | fix |
 |---|---|
-| `No module named ...` / no browser | `python skills/iso-sprite/scripts/doctor.py --fix` (Claude runs it for you) |
+| `No module named ...` | `python skills/iso-sprite/scripts/doctor.py --fix` (Claude runs it for you) |
+| no browser | install Chrome, or `doctor.py --fix --browser` (Playwright's Chromium, ~150 MB) |
 | `this Python cannot make a venv` | Debian/Ubuntu: `sudo apt install python3-venv`, or use another Python (python.org, conda) |
 | `draw: set OPENAI_API_KEY` | set the key (above) and restart Claude Code |
 | `HTTP 401` / `403` | the key is wrong, or OpenAI wants your organisation verified before it allows image models (platform.openai.com → Settings → Organization) |
 | `finish: WARNING - the drawing does not follow the guide` | the model drew another angle or shape: make the description say what is seen from this camera, check the guide, draw again with `--again`. For plants and other loose shapes that may spill past their guide, set `"loose": true` |
 | the drawing added things | say what must NOT be there in the description ("no rug, no logos"), then draw again |
 | the shape is off | fix the blocks: the drawing follows the guide |
+
+## What it sends and fetches
+
+Everything runs on your computer except the steps below. Each paid step prints its cost and waits for your OK first.
+
+| when | sent to | what |
+|---|---|---|
+| `draw` | OpenAI (`api.openai.com`) | the guide picture, your style picture and the text description, with your `OPENAI_API_KEY` |
+| characters: `turnaround`, `draw` | OpenAI | the illustration, the turnaround and the 3D renders, with the same key |
+| characters: `3d` | Tripo (`openapi.tripo3d.ai`) | the four turnaround views, with your `TRIPO_API_KEY`; the model, its rig and walk come back |
+| `model` (props, optional) | Tripo | the text description |
+| characters, `"modeler": "meshy"` (optional) | Meshy (`api.meshy.ai`) | the four views, with your `MESHY_API_KEY` |
+
+The keys are read from your environment only, sent only to their own service, and never written to a file or printed. What is downloaded:
+
+| what | from | when |
+|---|---|---|
+| numpy, pillow, scipy, playwright, onnxruntime | PyPI, into its own venv (`~/.cache/iso-sprite/venv`) | `doctor.py --fix`, once |
+| Chromium (~150 MB) | Playwright's servers | only if there is no Chrome or Edge, and only after you say yes |
+| the cut-out model, BiRefNet lite (224 MB, MIT) | [rembg's GitHub release](https://github.com/danielgatis/rembg/releases/tag/v0.0.0), its md5 checked | characters, the first `finish` |
+
+The renders run in a headless browser on your computer with nothing loaded from the internet: three.js is bundled
+(`skills/iso-sprite/scripts/vendor/three/`, MIT).
 
 ## Notes
 - The output is yours.

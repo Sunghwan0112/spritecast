@@ -91,7 +91,7 @@ setx OPENAI_API_KEY "sk-..."          # Windows (설정 후 새 터미널을 열
 
 ## 예시
 
-모두 [`examples/`](examples)에 있고, 사양 파일과 만들어진 파일이 전부 들어 있어요.
+모두 [`examples/`](examples)에 있고, 사양 파일과 만들어진 파일이 들어 있어요(원본 그림은 저장소를 가볍게 하려고 WebP로).
 
 | | | |
 |---|---|---|
@@ -100,7 +100,7 @@ setx OPENAI_API_KEY "sk-..."          # Windows (설정 후 새 터미널을 열
 
 ![네 방향과 탑다운](docs/views.png)
 `armchair_four_ways`: `views: [0, 90, 180, 270]`. 두 번째 방향부터는 첫 그림을 레퍼런스로 그려서 같은 의자로 이어져요.
-`arcade_cabinet_topdown`: `camera: "topdown"`. `reading_armchair_tripo`: 같은 안락의자를 Tripo 모델로(아래).
+`arcade_cabinet_topdown`: `camera: "topdown"`. `reading_armchair_tripo`: 같은 안락의자를 Tripo 모델로(아래. 모델 파일은 저장소에 없어요 - `isoprop.py model`로 만들어요).
 
 ## 더 정교하게: 3D 모델을 먼저 (Tripo)
 
@@ -255,13 +255,37 @@ Tripo만으로 만들었고 그리기 약 $1.7, Tripo 85크레딧이 들었어�
 
 | 문제 | 해결 |
 |---|---|
-| `No module named ...` / 브라우저 없음 | `python skills/iso-sprite/scripts/doctor.py --fix` (Claude가 대신 돌려요) |
+| `No module named ...` | `python skills/iso-sprite/scripts/doctor.py --fix` (Claude가 대신 돌려요) |
+| 브라우저 없음 | Chrome 설치, 또는 `doctor.py --fix --browser` (Playwright의 Chromium, ~150 MB) |
 | `this Python cannot make a venv` | Debian/Ubuntu: `sudo apt install python3-venv`, 또는 다른 Python(python.org, conda) |
 | `draw: set OPENAI_API_KEY` | 키를 설정하고(위) Claude Code를 다시 켜요 |
 | `HTTP 401` / `403` | 키가 틀렸거나, OpenAI가 이미지 모델을 쓰기 전에 조직 인증을 요구해요(platform.openai.com → Settings → Organization) |
 | `finish: WARNING - the drawing does not follow the guide` | 모델이 다른 각도나 모양으로 그렸어요. 이 카메라에서 보이는 모습을 설명에 적고, 가이드를 확인한 뒤 `--again`으로 다시 그려요. 식물처럼 가이드 밖으로 삐져나와도 되는 건 `"loose": true` |
 | 그림에 없던 게 추가됨 | 설명에 들어가면 안 되는 걸 적고("러그 없이, 로고 없이") 다시 그려요 |
 | 모양이 틀림 | 블록을 고쳐요. 그림은 가이드를 따라가요 |
+
+## 무엇을 보내고 받나요
+
+아래 단계를 빼면 전부 내 컴퓨터에서 돌아가요. 돈이 드는 단계는 비용을 먼저 알려 주고 OK를 기다려요.
+
+| 언제 | 어디로 | 무엇을 |
+|---|---|---|
+| `draw` | OpenAI (`api.openai.com`) | 가이드 그림, 그림체 그림, 설명 글, 그리고 `OPENAI_API_KEY` |
+| 캐릭터: `turnaround`, `draw` | OpenAI | 일러스트, 턴어라운드, 3D 렌더, 같은 키 |
+| 캐릭터: `3d` | Tripo (`openapi.tripo3d.ai`) | 턴어라운드 네 면, `TRIPO_API_KEY`. 모델과 리그, 걷기가 돌아와요 |
+| `model` (소품, 선택) | Tripo | 설명 글 |
+| 캐릭터, `"modeler": "meshy"` (선택) | Meshy (`api.meshy.ai`) | 네 면, `MESHY_API_KEY` |
+
+키는 환경변수에서만 읽고, 각자 자기 서비스로만 보내고, 파일에 쓰거나 화면에 찍지 않아요. 내려받는 것:
+
+| 무엇 | 어디서 | 언제 |
+|---|---|---|
+| numpy, pillow, scipy, playwright, onnxruntime | PyPI, 전용 가상환경(`~/.cache/iso-sprite/venv`)으로 | `doctor.py --fix`, 한 번 |
+| Chromium (~150 MB) | Playwright 서버 | Chrome이나 Edge가 없을 때만, 물어본 뒤에 |
+| 오려내기 모델 BiRefNet lite (224 MB, MIT) | [rembg의 GitHub 릴리스](https://github.com/danielgatis/rembg/releases/tag/v0.0.0), md5 확인 | 캐릭터, 첫 `finish` 때 |
+
+렌더는 내 컴퓨터의 헤드리스 브라우저에서 돌고 인터넷에서 아무것도 불러오지 않아요. three.js는 플러그인에 들어 있어요
+(`skills/iso-sprite/scripts/vendor/three/`, MIT).
 
 ## 참고
 - 만든 결과물은 사용자 것이에요.

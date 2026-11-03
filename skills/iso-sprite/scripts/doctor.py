@@ -1,7 +1,8 @@
 """Checks (and with --fix sets up) what iso-sprite needs, and says what each thing is for. Runs on any Python 3.9+, packages or not.
 
     python doctor.py                  what is there, what is missing, the python to use
-    python doctor.py --fix            sets up what is missing: a venv in ~/.cache/iso-sprite/venv with the packages, a browser if none
+    python doctor.py --fix            sets up what is missing: a venv in ~/.cache/iso-sprite/venv with the packages
+    python doctor.py --fix --browser  also Playwright's Chromium (~150 MB) - only needed when there is no Chrome or Edge
     python doctor.py --fix --characters   also the cut-out model for characters (224 MB, once)
 
 The last line is always `PYTHON=<path>`: the interpreter to run isoprop.py / charpipe.py with.
@@ -29,7 +30,7 @@ def line(ok, what, why):
 
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument('--fix', action='store_true'); ap.add_argument('--characters', action='store_true')
+    ap = argparse.ArgumentParser(); ap.add_argument('--fix', action='store_true'); ap.add_argument('--characters', action='store_true'); ap.add_argument('--browser', action='store_true')
     ap.add_argument('--inner', action='store_true', help=argparse.SUPPRESS); a = ap.parse_args()
     if sys.version_info < (3, 9): sys.exit(f'Python 3.9+ is needed (this is {sys.version.split()[0]})')
     py = Path(sys.executable)
@@ -49,7 +50,7 @@ def main():
             subprocess.run([str(py), '-m', 'pip', 'install', '-q', '--upgrade', 'pip'], check=False)
             subprocess.run([str(py), '-m', 'pip', 'install', '-q', '-r', str(REQ)], check=True)
         if py != Path(sys.executable):                   # the rest is checked inside the interpreter that has the packages
-            sys.exit(subprocess.run([str(py), __file__, '--inner'] + (['--fix'] if a.fix else []) + (['--characters'] if a.characters else [])).returncode)
+            sys.exit(subprocess.run([str(py), __file__, '--inner'] + (['--fix'] if a.fix else []) + (['--characters'] if a.characters else []) + (['--browser'] if a.browser else [])).returncode)
     gone = missing(py)
     print(f'iso-sprite setup - Python {sys.version.split()[0]} at {py}')
     print('packages:')
@@ -60,10 +61,10 @@ def main():
     if 'playwright' not in gone:
         sys.path.insert(0, str(HERE)); import browser
         br = browser.which()
-        if not br and a.fix:
+        if not br and a.fix and a.browser:
             print('  no Chrome or Edge found - fetching Playwright\'s Chromium (~150 MB) ...', flush=True)
             subprocess.run([str(py), '-m', 'playwright', 'install', 'chromium'], check=False); br = browser.which()
-    line(bool(br), br or 'none', 'Chrome, Edge or Playwright\'s Chromium - the first one found')
+    line(bool(br), br or 'none - install Chrome, or run with --fix --browser (Chromium, ~150 MB)', 'Chrome, Edge or Playwright\'s Chromium - the first one found')
     ok = ok and bool(br)
     print('cut-out model (characters only):')
     mp = None
