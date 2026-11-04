@@ -17,7 +17,7 @@ renders are the frames - no image model, softer.
     python charpipe.py rig        CHAR.json [--yes]   PAID (Tripo, ~45 credits): rig + walk + idle, made renderable, feet planted; then render
     python charpipe.py render     CHAR.json           free: the walk (frames × 8 facings) and the idle (8 facings), each with its 3D shadow
     python charpipe.py redraw     CHAR.json [--yes]   PAID (~$0.11 a sheet): the sheets with a frame fitting its render under `redo_below`
-                                                      (0.8 a person, 0.75 an animal) drawn again, up to twice; a facing still under it then settled with its
+                                                      (0.75) drawn again, up to twice; a facing still under it then settled with its
                                                       mirror pair (the better of the two flipped onto the other; south / north: low
                                                       frames drawn alone, once); the better drawing kept each time
     python charpipe.py finish     CHAR.json           free: frames fitted, steadied, cleaned → out/ strips, 3D shadows + character.json
@@ -51,7 +51,7 @@ def load(path):
         if s.get(k): s[k] = str((base / s[k]).resolve())
     s.setdefault('white_shoes', False); os.environ['ISO_SPRITE_WHITE_SHOES'] = '1' if s.get('white_shoes') else '0'; s.setdefault('head_up', 24); s.setdefault('shoulder_up', 15); s.setdefault('shoulder_wide', 1.05); s.setdefault('pitch', 30); s.setdefault('frames', 8); s.setdefault('neck', 0.16)
     s.setdefault('walk', {'clip': 'walk', 't0': 0, 't1': 1.1835}); s.setdefault('idle', {'clip': 'idle', 't': 0})
-    s.setdefault('frame_px', 256); s.setdefault('light', 'right'); s.setdefault('shadow', '3d'); s.setdefault('modeler', 'tripo'); s.setdefault('kind', 'person'); s.setdefault('redo_below', 0.8 if s['kind'] == 'person' else 0.75); s.setdefault('draw', True)
+    s.setdefault('frame_px', 256); s.setdefault('light', 'right'); s.setdefault('shadow', '3d'); s.setdefault('modeler', 'tripo'); s.setdefault('kind', 'person'); s.setdefault('redo_below', 0.75); s.setdefault('draw', True)
     m = s.get('mirror', True); m = ['west', 'north-west', 'south-west'] if m is True else (m or [])   # default: the west side flipped from the east
     bad = [x for x in m if x not in PAIR or PAIR[x] in m]
     if bad: sys.exit(f'spec: "mirror" lists facings flipped from their pair (east/west, north-east/north-west, south-east/south-west), not both of a pair: {bad}')

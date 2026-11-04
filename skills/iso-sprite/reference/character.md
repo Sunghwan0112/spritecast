@@ -57,7 +57,7 @@ Three OKs: `turnaround`, `3d` (= `model` + `rig` + `render`), `draw` (then `fini
 | `light` | `"right"` (default: shadows fall up and to the left) or `"left"`, as for props |
 | `shadow` | `"3d"` (default): each frame's shadow from the 3D body; `"none"` leaves them out |
 | `anchor` | `"ground"` (default): the feet are the 3D ground under the character's middle; `"soles"`: the bottom of the shoes standing (2 px under the lowest painted pixel of the standing front). In this view the ground under the middle is 4-7 game px above the near sole, so next to characters anchored on their soles a `"ground"` one stands sunk in |
-| `redo_below` | the overlap under which `finish` names a sheet for `redraw`: 0.8 for a person, 0.75 for an animal (whose height is mostly its tail) |
+| `redo_below` | the overlap under which `finish` names a sheet for `redraw` (0.75). For people 0.8 was tried and was too high: of four outfits the frames that were really wrong scored 0.57-0.74, and the many at 0.75-0.79 looked fine walking - what the score can't see (a head growing and shrinking, ears the wrong way round) shows in `walk-all.mp4` |
 | `head_fit` | `{facing: factor}`: the head rescaled about the neck by that much in `finish`, after the heads are sized to the 3D - written by `facecheck --apply` to match another character, or by hand |
 
 ## Output (`<name>/out/`)
@@ -162,7 +162,7 @@ north-east, north, north-west, west, south-west.
 - **Finishing**: one scale for the whole figure per facing, standing on the render's feet (no upper body over legs, no head steadying).
 - **Clothes**: only snug ones - a vertex is weighted to the bones nearest it, so a cape or a scarf's loose end moves with a leg.
 - Tripo's multiview once gave a cat five feet: look at the renders; make the model again, or use `"modeler": "meshy"`.
-- **Redrawing what doesn't fit** (`redraw`, people too): a sheet with a frame under `redo_below` (0.8 a person, 0.75 an animal) is drawn again, up to twice; a
+- **Redrawing what doesn't fit** (`redraw`, people too): a sheet with a frame under `redo_below` (0.75) is drawn again, up to twice; a
   facing still under it then is mixed with its mirror pair - the pair drawn too if it was being flipped, and each frame of both the better
   of its own drawing and the other's flipped (the cat's north-east 0.63-0.92 and north-west 0.82-0.93 → 0.87-0.92 and 0.85-0.93, each
   its own frames 1-4 and the other's 1-4 flipped; it walked more naturally than either flipped whole); kept in `draw/mirror.json` as

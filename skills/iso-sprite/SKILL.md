@@ -83,8 +83,7 @@ when cost matters more than detail (prototypes, background walkers); say it is s
 if it is NOT the same on both sides (hair over one shoulder, a logo, a bag or a pocket on one side), set `"mirror": false` and tell the
 user why. A facing that stays low after its redraws can be flipped from its pair
 (`"mirror": ["north-east"]`) instead of being drawn frame by frame.
-After `draw` (people and animals alike), `finish` names the sheets with a frame fitting its render under `redo_below` (0.8 for a person,
-0.75 for an animal). Show the user `out/walk-all.mp4` (every facing walking at once; with ffmpeg) - a head that grows and shrinks, a
+After `draw` (people and animals alike), `finish` names the sheets with a frame fitting its render under `redo_below` (0.75). Show the user `out/walk-all.mp4` (every facing walking at once; with ffmpeg) - a head that grows and shrinks, a
 jumping frame or an odd stride shows there, not in the numbers. Look at the back views yourself for anything worn on the head (ears,
 antennae, a bow): each on its side and, from behind, only its back (the 3D model makes such things rough).
 Then, asking for each paid round:
