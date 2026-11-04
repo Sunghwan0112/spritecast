@@ -83,7 +83,10 @@ when cost matters more than detail (prototypes, background walkers); say it is s
 if it is NOT the same on both sides (hair over one shoulder, a logo, a bag or a pocket on one side), set `"mirror": false` and tell the
 user why. A facing that stays low after its redraws can be flipped from its pair
 (`"mirror": ["north-east"]`) instead of being drawn frame by frame.
-After `draw` (people and animals alike), `finish` names the sheets with a frame fitting its render under `redo_below` (0.75).
+After `draw` (people and animals alike), `finish` names the sheets with a frame fitting its render under `redo_below` (0.8 for a person,
+0.75 for an animal). Show the user `out/walk-all.mp4` (every facing walking at once; with ffmpeg) - a head that grows and shrinks, a
+jumping frame or an odd stride shows there, not in the numbers. Look at the back views yourself for anything worn on the head (ears,
+antennae, a bow): each on its side and, from behind, only its back (the 3D model makes such things rough).
 Then, asking for each paid round:
 1. Show the user the renders beside the drawn frames for those facings (the overlap of each frame on it), and the cost.
 2. `redraw --yes`: those sheets drawn again (up to twice each); each keeps whichever drawing fits better.
@@ -94,7 +97,10 @@ Then, asking for each paid round:
 A low score is not always a bad drawing: lay the render's outline over the frame and look. For an animal the size is matched by overlap
 per sheet (its height is mostly the tail), so a low score there is the drawing itself - a head turned another way, legs bunched.
 The output has a shadow per frame from the 3D body (`out/shadows/`, offsets in `character.json`): tell the user to draw it at
-~30 % under the sprites. A rig rendered before this version has no `-s.png`: re-run `render` (free) before `finish`.
+~30 % under the sprites. If their game's other characters stand on the bottom of their shoes, set `"anchor": "soles"` (the default,
+the 3D ground under the middle, stands 4-7 game px lower). **Several characters or outfits that should match** (the same person in
+other clothes): `facecheck REF.json --with A.json,B.json` (free; needs mediapipe, Python 3.9-3.12) compares the face for the height,
+facing by facing, by face landmarks - hair fools any outline measure - and `--apply` writes `head_fit` into their specs for `finish`. A rig rendered before this version has no `-s.png`: re-run `render` (free) before `finish`.
 
 ## Rules
 - Spend money only after the user agreed to that amount. Show the free render before any paid step.

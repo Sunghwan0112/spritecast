@@ -197,6 +197,11 @@ python skills/iso-sprite/scripts/charpipe.py turnaround hero.json --yes   # 그�
 캐릭터 하나에 약 $1.5(OpenAI, `"mirror": false`면 약 $2.2), Tripo 75크레딧(약 $0.75, 동물은 30)이 들어요. 계정은 둘뿐이에요: `OPENAI_API_KEY`, `TRIPO_API_KEY`.
 리그된 GLB가 있으면(`"rig_glb"`) 바로 `render`부터 하면 돼요.
 
+`preview`는 `walk-all.mp4`(8방향이 한꺼번에 걷는 영상, ffmpeg가 있으면)도 만들어요. 머리가 커졌다 작아지거나 프레임이 튀는 게 가장 빨리
+보여요. 같은 사람의 여러 옷은 `charpipe.py facecheck REF.json --with A.json,B.json`(선택, `mediapipe` 필요)으로 키 대비 얼굴 크기를
+방향별로 얼굴 랜드마크로 비교해요(머리숱은 윤곽 측정을 속여요). `--apply`면 `finish`가 쓸 보정값을 적어요. 게임의 다른 캐릭터들이
+신발 바닥에 서 있으면 `"anchor": "soles"`로 기준점을 신발 바닥에 둬요.
+
 **만든 사람의 방식: 모델은 Meshy, 리그는 Tripo.** 이 플러그인이 나온 게임의 주인공들이 이렇게 만들어졌어요. `"modeler": "meshy"`(와 `MESHY_API_KEY`)를 주면
 `model` 단계가 [Meshy](https://www.meshy.ai)로 만들고(약 30 Meshy 크레딧), `rig`는 그대로 Tripo가 해요. 둘 다 돼요. Tripo는 모델마다
 보는 방향을 제멋대로 정하고(하나는 옆, 하나는 뒤 - "얼굴이 검게" 보인 건 뒤통수였어요), 가끔 색 없이 보내요. 둘 다 자동으로 고쳐요:

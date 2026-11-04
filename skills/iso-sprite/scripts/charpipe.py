@@ -17,11 +17,14 @@ renders are the frames - no image model, softer.
     python charpipe.py rig        CHAR.json [--yes]   PAID (Tripo, ~45 credits): rig + walk + idle, made renderable, feet planted; then render
     python charpipe.py render     CHAR.json           free: the walk (frames × 8 facings) and the idle (8 facings), each with its 3D shadow
     python charpipe.py redraw     CHAR.json [--yes]   PAID (~$0.11 a sheet): the sheets with a frame fitting its render under `redo_below`
-                                                      (0.75) drawn again, up to twice; a facing still under it then settled with its
+                                                      (0.8 a person, 0.75 an animal) drawn again, up to twice; a facing still under it then settled with its
                                                       mirror pair (the better of the two flipped onto the other; south / north: low
                                                       frames drawn alone, once); the better drawing kept each time
     python charpipe.py finish     CHAR.json           free: frames fitted, steadied, cleaned → out/ strips, 3D shadows + character.json
-    python charpipe.py preview    CHAR.json           free: out/sheet.png (every frame) and out/walk-<facing>.gif
+    python charpipe.py preview    CHAR.json           free: out/sheet.png (every frame), out/walk-<facing>.gif, out/walk-all.mp4 (ffmpeg)
+    python charpipe.py facecheck  REF.json --with A.json,B.json [--apply]
+                                                      free (needs mediapipe): the head for the height of A, B… against REF's, facing by
+                                                      facing, by face landmarks; --apply writes the factors as "head_fit", then `finish`
 
 Look at each paid step's input before running it (the turnaround before `3d`; the renders before `draw`). Keys in the environment:
 OPENAI_API_KEY and TRIPO_API_KEY (MESHY_API_KEY only with "modeler": "meshy"). Files go to <the spec's folder>/<name>/.
@@ -48,11 +51,13 @@ def load(path):
         if s.get(k): s[k] = str((base / s[k]).resolve())
     s.setdefault('white_shoes', False); os.environ['ISO_SPRITE_WHITE_SHOES'] = '1' if s.get('white_shoes') else '0'; s.setdefault('head_up', 24); s.setdefault('shoulder_up', 15); s.setdefault('shoulder_wide', 1.05); s.setdefault('pitch', 30); s.setdefault('frames', 8); s.setdefault('neck', 0.16)
     s.setdefault('walk', {'clip': 'walk', 't0': 0, 't1': 1.1835}); s.setdefault('idle', {'clip': 'idle', 't': 0})
-    s.setdefault('frame_px', 256); s.setdefault('light', 'right'); s.setdefault('shadow', '3d'); s.setdefault('modeler', 'tripo'); s.setdefault('kind', 'person'); s.setdefault('redo_below', 0.75); s.setdefault('draw', True)
+    s.setdefault('frame_px', 256); s.setdefault('light', 'right'); s.setdefault('shadow', '3d'); s.setdefault('modeler', 'tripo'); s.setdefault('kind', 'person'); s.setdefault('redo_below', 0.8 if s['kind'] == 'person' else 0.75); s.setdefault('draw', True)
     m = s.get('mirror', True); m = ['west', 'north-west', 'south-west'] if m is True else (m or [])   # default: the west side flipped from the east
     bad = [x for x in m if x not in PAIR or PAIR[x] in m]
     if bad: sys.exit(f'spec: "mirror" lists facings flipped from their pair (east/west, north-east/north-west, south-east/south-west), not both of a pair: {bad}')
     if s['kind'] not in ('person', 'animal'): sys.exit('spec: "kind" is "person" or "animal"')
+    s.setdefault('anchor', 'ground')
+    if s['anchor'] not in ('ground', 'soles'): sys.exit('spec: "anchor" is "ground" (the 3D ground under the middle) or "soles" (the bottom of the shoes)')
     d = base / s['name']
     for sub in ('turnaround', 'model', 'rig', 'render', 'draw', 'frames', 'out'): (d / sub).mkdir(parents=True, exist_ok=True)
     s['mix'] = [sorted((x, PAIR[x])) for x in (s.get('mix') or []) if x in PAIR]     # pairs mixed frame by frame (both drawn)
@@ -94,6 +99,10 @@ def gate(args, what):
 
 
 # --- OpenAI images --------------------------------------------------------------------------------------------------------------------
+class Refused(Exception):
+    """OpenAI's safety check turned a picture down three times running (it does now and then, at random, on legs and short skirts)"""
+
+
 def gpt(prompt, imgs, out, size):
     key = need('OPENAI_API_KEY'); model = os.environ.get('ISO_SPRITE_MODEL', 'gpt-image-2.5-sunburst')
     fields = {'model': model, 'prompt': prompt, 'size': size, 'quality': os.environ.get('ISO_SPRITE_QUALITY', 'high'), 'background': 'opaque',
@@ -111,6 +120,9 @@ def gpt(prompt, imgs, out, size):
         except urllib.error.HTTPError as e:
             msg = e.read()[:300].decode(errors='replace')
             if e.code in (429, 500, 502, 503, 504) and attempt < 3: time.sleep(15 * (attempt + 1)); continue
+            if e.code == 400 and 'safety' in msg:                  # the same request often passes the next time
+                if attempt < 2: print(f'  {Path(out).name}: turned down by OpenAI\'s safety check - asking again', flush=True); time.sleep(5); continue
+                raise Refused(msg)
             sys.exit(f'OpenAI HTTP {e.code} {msg}')
     Path(out).write_bytes(base64.b64decode(j['data'][0]['b64_json']))
     u = j.get('usage', {}); i = u.get('input_tokens_details', {})
@@ -358,6 +370,9 @@ def frame_rules(s):
             "The pose must match the render EXACTLY: the same position and size, the same body direction, the same angle of every limb and of "
             "the head, the same camera angle from above - nothing added, nothing held, nothing moved. The feet and shoes exactly as in the render, "
             "flat and rigid. Hair and loose clothes may go a little past the render's outline, nothing else. "
+            "Small or thin things worn on the head or the body (a headband, ears or antennae on it, a bow, a hat's brim, straps) are drawn as "
+            "the turnaround shows them, NOT as the render does - the 3D model makes them rough: seen from behind, only their backs show "
+            "(no faces, eyes or insides of ears), each on the side the turnaround's back view has it. "
             f"The character: {s['description']} " + (s.get('notes') or '') +
             " Plain white background, no shadow on the ground, no text.")
 
@@ -409,7 +424,9 @@ def draw_walk(s, d, dr, again, only_groups=None):
              "keeping the sheet exactly as it is: the same cells, each figure at exactly the same position, size and pose - the legs, the stride, "
              + ("the tail" if who == 'animal' else "the arms") + f" exactly as each cell's render; nothing added between the cells, no borders, no numbers. The same {who} in every cell. "
              f"THE HEAD in every cell: {head_words(dr, who == 'animal')}. {words}\n" + frame_rules(s))
-        (d / f'draw/walk-{dr}-prompt-{g}.txt').write_text(P); cost += gpt(P, [rs] + imgs, out, '1536x1024')
+        (d / f'draw/walk-{dr}-prompt-{g}.txt').write_text(P)
+        try: cost += gpt(P, [rs] + imgs, out, '1536x1024')
+        except Refused: print(f'draw: {out.name} turned down by OpenAI\'s safety check three times - left as it was; run it again later, or say less about skin and length in the description')
     return cost
 
 
@@ -428,7 +445,9 @@ def draw_idle(s, d, again):
              "different way, seen from a game camera from above. Redraw EVERY cell as a finished illustration, keeping the sheet exactly as it is: "
              f"each figure at exactly the same position, size, pose and turn; nothing added between the cells. The same {who} in all 4. "
              f"THE HEADS - {turns}. {words}\n" + frame_rules(s))
-        (d / f'draw/idle-prompt-{g}.txt').write_text(P); cost += gpt(P, [rs] + imgs, out, '1536x1024')
+        (d / f'draw/idle-prompt-{g}.txt').write_text(P)
+        try: cost += gpt(P, [rs] + imgs, out, '1536x1024')
+        except Refused: print(f'draw: {out.name} turned down by OpenAI\'s safety check three times - left as it was; run it again later, or say less about skin and length in the description')
     return cost
 
 
@@ -490,6 +509,39 @@ def finish_3d(s, d):
     pack(s, d, {'draw': False})
 
 
+def even_heads(s, d, report, what):
+    """every facing's head the size of the 3D model's (steady evens them within a facing only): the facings are drawn one by one and
+    came out up to ~10 % apart. Evening them to the front's was tried first - but the front was the big one (a face check said so).
+    The drawn head against the 3D one by the silhouette under the crown (`head_vs_render`, ~ the square root of the head's size: hence
+    the square, measured again after each try), the head and the hair round it rescaled about the neck, at most 15 %"""
+    n = s['frames'] if what == 'walk' else 1
+    path = (lambda x, k, kind: d / f'{kind}/walk-{x}-{k}.png') if what == 'walk' else (lambda x, k, kind: d / f'{kind}/idle-{x}.png')
+    dirs = [x for x in DIRS if x not in s['mirrored'] or what == 'idle']
+    dirs = [x for x in dirs if all(path(x, k, 'frames').exists() for k in range(n))]
+    fix = {}
+    for x in dirs:
+        frames = [Image.open(path(x, k, 'frames')).convert('RGBA') for k in range(n)]; c = 1.0
+        for _ in range(3):
+            now = float(np.median([CL.head_vs_render(CL.rescale_head(f, c, s['neck'], order=1) if c != 1 else f, path(x, k, 'render')) for k, f in enumerate(frames)]))
+            c = min(1.15, max(0.85, c / now ** 2))
+        if abs(c - 1) < 0.015: continue
+        for k, f in enumerate(frames): CL.rescale_head(f, c, s['neck']).save(path(x, k, 'frames'))
+        fix[x] = round(c, 3)
+    report[f'{what} heads to the 3D'] = fix
+    if fix: print(f'finish: {what} heads to the 3D model\'s size: ' + ', '.join(f'{x} x{c}' for x, c in fix.items()), flush=True)
+
+
+def head_fit(s, d, report, what):
+    """`head_fit` in the spec ({facing: factor}, written by `facecheck --apply`): this character's head for its height made another's"""
+    fit = s.get('head_fit') or {}; n = s['frames'] if what == 'walk' else 1
+    for x, c in fit.items():
+        if x not in DIRS or abs(c - 1) < 0.005 or (what == 'walk' and x in s['mirrored']): continue
+        for k in range(n):
+            p = d / (f'frames/walk-{x}-{k}.png' if what == 'walk' else f'frames/idle-{x}.png')
+            if p.exists(): CL.rescale_head(Image.open(p).convert('RGBA'), c, s['neck']).save(p)
+    if fit: report[f'{what} head_fit'] = fit
+
+
 def finish(s, d):
     if not s['draw']: return finish_3d(s, d)
     report = {}
@@ -506,10 +558,13 @@ def finish(s, d):
         if s['kind'] == 'animal': frames, ious = CL.fit_walk(sprites, rens, None, own=single); scales = [1.0] * len(frames)   # one scale a sheet, on the render's feet
         else:
             frames, ious = CL.fit_walk(sprites, rens)      # the upper body at one scale, the legs to the render's feet
+            _, scales = CL.steady(frames, s['neck'])        # each sheet's whole figure to the same size first, then each head
+            frames, ious = CL.fit_walk(sprites, rens, own=single, mult=CL.sheet_scales(scales, single))
             frames, scales = CL.steady(frames, s['neck'])
         for i, f in enumerate(frames): CL.defringe(CL.clear_white_unless_ai(f, Image.open(d / f'render/walk-{dr}-{i}.png'))).save(d / f'frames/walk-{dr}-{i}.png')
         report[dr] = {'overlap': ious, 'head_scale': [round(x, 3) for x in scales]}
         print(f'finish: walk {dr} overlap {min(ious):.2f}-{max(ious):.2f}', '  LOW - look at it' if min(ious) < 0.7 else '', flush=True)
+    if s['kind'] != 'animal': even_heads(s, d, report, 'walk'); head_fit(s, d, report, 'walk')
     for a, b in best_pairs(d, s):
         # both of a pair drawn: each frame the better of its own drawing and the pair's flipped (frame k + n/2 - flipping swaps the legs),
         # by overlap with this frame's render - the good half of each makes up for the other's poor one
@@ -520,7 +575,7 @@ def finish(s, d):
             src = []
             for k in range(n):
                 r = np.asarray(Image.open(d / f'render/walk-{x}-{k}.png'))[..., 3] > 128
-                cands = [(own[x][k], x), (own[y][(k + n // 2) % n].transpose(Image.FLIP_LEFT_RIGHT), y)]
+                cands = [(own[x][k], x), (CL.flip_onto(own[y][(k + n // 2) % n], d / f'render/walk-{x}-{k}.png'), y)]
                 sc = [float(((np.asarray(c)[..., 3] > 127) & r).sum() / max(1, ((np.asarray(c)[..., 3] > 127) | r).sum())) for c, _ in cands]
                 i = int(np.argmax(sc)); cands[i][0].save(d / f'frames/walk-{x}-{k}.png'); report[x]['overlap'][k] = round(sc[i], 3); src.append(cands[i][1])
             report[x]['from'] = src
@@ -533,7 +588,7 @@ def finish(s, d):
         if not (d / f'frames/walk-{src}-0.png').exists(): continue
         ious = []
         for k in range(n):
-            f = Image.open(d / f'frames/walk-{src}-{(k + n // 2) % n}.png').transpose(Image.FLIP_LEFT_RIGHT); f.save(d / f'frames/walk-{dr}-{k}.png')
+            f = CL.flip_onto(Image.open(d / f'frames/walk-{src}-{(k + n // 2) % n}.png'), d / f'render/walk-{dr}-{k}.png'); f.save(d / f'frames/walk-{dr}-{k}.png')
             a = np.asarray(f)[..., 3] > 127; r = np.asarray(Image.open(d / f'render/walk-{dr}-{k}.png'))[..., 3] > 128
             ious.append(float((a & r).sum() / max(1, (a | r).sum())))
         report[dr] = {'overlap': ious, 'head_scale': [1.0] * n, 'mirrored_from': src}
@@ -545,6 +600,7 @@ def finish(s, d):
         for n, x in enumerate(ds):
             f, iou = CL.fit_to_render(cut(d, d / f'draw/idle-drawn-{g}.png', n), Image.open(d / f'render/idle-{x}.png').convert('RGBA'))
             CL.defringe(CL.clear_white_unless_ai(f, Image.open(d / f'render/idle-{x}.png'))).save(d / f'frames/idle-{x}.png'); report[f'idle {x}'] = iou
+    if s['kind'] != 'animal': even_heads(s, d, report, 'idle'); head_fit(s, d, report, 'idle')
     pack(s, d, report)
     low = low_sheets(s, d)
     if low: print(f"finish: {len(low)} sheets have a frame under {s['redo_below']} - look at them; `redraw` tries again (a sheet twice, then its low frames alone), keeping the better")
@@ -581,7 +637,9 @@ def draw_single(s, d, dr, k):
          + ("tail" if who == 'animal' else "arms") + " and the head exactly as the render - and leave the other three cells plain white, nothing in them. "
          f"THE HEAD: {head_words(dr, who == 'animal')}. {words}\n" + frame_rules(s))
     (d / f'draw/walk-{dr}-single-{k}-prompt.txt').write_text(P)
-    return gpt(P, [rs] + imgs, d / f'draw/walk-{dr}-single-{k}.png', '1536x1024')
+    out = d / f'draw/walk-{dr}-single-{k}.png'
+    try: return gpt(P, [rs] + imgs, out, '1536x1024')
+    except Refused: print(f'draw: {out.name} turned down by OpenAI\'s safety check three times - left as it was; run it again later, or say less about skin and length in the description'); return 0
 
 
 def redraw(s, d, args):
@@ -607,13 +665,16 @@ def redraw(s, d, args):
     if n and not gate(args, f'redraw: {n} drawings, about ${n * 0.11:.2f} (OpenAI)'): return
     before = {}
     for dr, g, lo, mean in sheets:
-        f = d / f'draw/walk-{dr}-drawn-{g}.png'; f.replace(f.with_suffix('.prev.png')); before[('sheet', dr, g)] = mean
-        draw_walk(s, d, dr, False, [g]); (d / f'draw/walk-{dr}-drawn-{g}.tried').write_text(str(tries(d, f'walk-{dr}-drawn-{g}') + 1))
+        f = d / f'draw/walk-{dr}-drawn-{g}.png'; f.replace(f.with_suffix('.prev.png'))
+        draw_walk(s, d, dr, False, [g])
+        if not f.exists(): f.with_suffix('.prev.png').replace(f); continue       # turned down: the drawing it had stays, not counted as a try
+        before[('sheet', dr, g)] = mean; (d / f'draw/walk-{dr}-drawn-{g}.tried').write_text(str(tries(d, f'walk-{dr}-drawn-{g}') + 1))
     for p in pairs:
         if pair_sheets[p]: draw_walk(s, d, PAIR[p], False, pair_sheets[p])
         set_mirror(s, d, p, ''); (d / f'draw/pair-{p}.tried').write_text('1')               # both drawn, to compare
     for dr, k, v in singles:
-        draw_single(s, d, dr, k); (d / f'draw/walk-{dr}-single-{k}.tried').write_text('1'); before[('single', dr, k)] = v
+        draw_single(s, d, dr, k)
+        if (d / f'draw/walk-{dr}-single-{k}.png').exists(): (d / f'draw/walk-{dr}-single-{k}.tried').write_text('1'); before[('single', dr, k)] = v
     finish(s, d)
     rep = json.loads((d / 'out/character.json').read_text())['report']; again = False
     for p in pairs:
@@ -632,11 +693,15 @@ def redraw(s, d, args):
 
 
 def pack(s, d, report):
-    """strips at frame_px: one box for every frame, so the feet stay put; the anchor is the ground under the character"""
+    """strips at frame_px: one box for every frame, so the feet stay put; the anchor is the 3D ground under the character's middle, or
+    with "anchor": "soles" the bottom of its shoes standing (what a game whose other characters stand on their soles wants)"""
     files = sorted((d / 'frames').glob('*.png'))
     if not files: sys.exit('finish: nothing drawn yet')
     S = Image.open(files[0]).size[0]; bb = union(files); info = json.loads((d / 'render/render.json').read_text())
-    foot = info['footY'] * S; box = [bb[0] - 4, bb[1] - 4, bb[2] + 4, max(bb[3] + 4, int(foot) + 2)]
+    foot = info['footY'] * S
+    if s['anchor'] == 'soles' and (d / 'frames/idle-south.png').exists():     # the bottom of the shoes standing, not the 3D ground under the
+        foot = float(np.nonzero((np.asarray(Image.open(d / 'frames/idle-south.png'))[..., 3] > 100).any(1))[0][-1]) + 2   # middle (4-7 game px higher)
+    box = [bb[0] - 4, bb[1] - 4, bb[2] + 4, max(bb[3] + 4, int(foot) + 2)]
     side = max(box[2] - box[0], box[3] - box[1]); cx = (box[0] + box[2]) / 2
     box = [round(cx - (box[2] - box[0]) / 2), box[1], round(cx + (box[2] - box[0]) / 2), box[3]]
     k = s['frame_px'] / (box[3] - box[1]); fw, fh = round((box[2] - box[0]) * k), s['frame_px']
@@ -695,14 +760,35 @@ def preview(s, d):
         st = Image.open(d / 'out' / f)
         fr = [with_shadow(d, st.crop((i * fw, 0, (i + 1) * fw, fh)), S['walk'].get(dr, [None] * n)[i], pad).convert('RGB') for i in range(n)]
         fr[0].save(d / f'out/walk-{dr}.gif', save_all=True, append_images=fr[1:], duration=round(1000 / meta['fps']), loop=0)
-    print(f"preview: {d / 'out/sheet.png'} and walk-*.gif")
+    video(d, meta, S, pad)
+    print(f"preview: {d / 'out/sheet.png'}, walk-*.gif" + (' and walk-all.mp4' if (d / 'out/walk-all.mp4').exists() else ''))
+
+
+def video(d, meta, S, pad, loops=6):
+    """every facing walking at once, side by side, at the walk's own speed (out/walk-all.mp4) - easier to judge than eight GIFs: a head
+    that grows, a frame that jumps, a facing whose stride is off. Only with ffmpeg on the PATH"""
+    import subprocess, tempfile
+    if not shutil.which('ffmpeg') or not meta['walk']: return
+    fw, fh = meta['frame']; dirs = [x for x in DIRS if x in meta['walk']]; strips = {x: Image.open(d / 'out' / meta['walk'][x]) for x in dirs}
+    n = min(st.width // fw for st in strips.values()); k = min(1.0, 1600 / ((fw + pad[0]) * len(dirs)))
+    with tempfile.TemporaryDirectory() as tmp:
+        for f in range(n * loops):
+            row = Image.new('RGB', ((fw + pad[0]) * len(dirs), fh + pad[1]), (240, 236, 228))
+            for j, x in enumerate(dirs):
+                i = f % n; row.paste(with_shadow(d, strips[x].crop((i * fw, 0, (i + 1) * fw, fh)), S['walk'].get(x, [None] * n)[i], pad).convert('RGB'), (j * (fw + pad[0]), 0))
+            row.resize((round(row.width * k) // 2 * 2, round(row.height * k) // 2 * 2), Image.LANCZOS).save(f'{tmp}/{f:04d}.png')
+        subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(meta['fps']), '-i', f'{tmp}/%04d.png', '-vf', 'fps=30',
+                        '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '20', str(d / 'out/walk-all.mp4')], check=False)
 
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('step', choices=['turnaround', '3d', 'model', 'rig', 'render', 'draw', 'redraw', 'finish', 'preview'])
+    ap.add_argument('step', choices=['turnaround', '3d', 'model', 'rig', 'render', 'draw', 'redraw', 'finish', 'preview', 'facecheck'])
     ap.add_argument('spec'); ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', action='store_true'); ap.add_argument('--only')
     ap.add_argument('--no-render', action='store_true', help='rig: stop before the renders')
+    ap.add_argument('--with', dest='others', help='facecheck: the other characters\' specs, comma-separated')
+    ap.add_argument('--apply', action='store_true', help='facecheck: write the factors into the other specs as "head_fit"')
     a = ap.parse_args(); s, d = load(a.spec)
     {'turnaround': lambda: turnaround(s, d, a), '3d': lambda: make3d(s, d, a), 'model': lambda: model(s, d, a), 'rig': lambda: rig(s, d, a), 'render': lambda: render(s, d),
-     'draw': lambda: draw(s, d, a), 'redraw': lambda: redraw(s, d, a), 'finish': lambda: finish(s, d), 'preview': lambda: preview(s, d)}[a.step]()
+     'draw': lambda: draw(s, d, a), 'redraw': lambda: redraw(s, d, a), 'finish': lambda: finish(s, d), 'preview': lambda: preview(s, d),
+     'facecheck': lambda: __import__('facecheck').run(a.spec, (a.others or '').split(','), a.apply)}[a.step]()

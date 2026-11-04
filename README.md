@@ -194,6 +194,12 @@ that isn't the same on both sides (hair over one shoulder, a logo, a bag on one 
 Cost per character: about $1.5 (OpenAI; ~$2.2 with `"mirror": false`) and 75 Tripo credits (~$0.75; an animal 30). Two accounts in all: `OPENAI_API_KEY` and
 `TRIPO_API_KEY`. Or bring your own rigged GLB (`"rig_glb"`) and skip to `render`.
 
+`preview` also makes `walk-all.mp4` (every facing walking at once, with ffmpeg) - the quickest way to see a head that grows and
+shrinks or a frame that jumps. The same person in several outfits: `charpipe.py facecheck REF.json --with A.json,B.json` (optional,
+needs `mediapipe`) compares their faces for their height facing by facing by face landmarks - hair fools outline measures - and
+`--apply` writes the factors for `finish`. `"anchor": "soles"` puts the anchor at the bottom of the shoes, for a game whose other
+characters stand on theirs.
+
 **The author's way: Meshy for the model, Tripo for the rig.** The game this plugin came from made its leads this way. Set `"modeler": "meshy"`
 (and `MESHY_API_KEY`) and `model` asks [Meshy](https://www.meshy.ai) instead (~30 Meshy credits); `rig` is still Tripo's.
 Either works. Tripo turns each model its own way (one faced sideways, another backwards: its "dark face" was the back of his head)

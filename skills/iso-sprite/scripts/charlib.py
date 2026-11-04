@@ -324,10 +324,11 @@ def fit_to_render(sp, ren):
     return place(sp, ren, b0[1])
 
 
-def fit_walk(sprites, rens, split=SPLIT, own=()):
+def fit_walk(sprites, rens, split=SPLIT, own=(), mult=None):
     """a whole walk in one facing: the upper body at ONE scale for every frame (the median of render height / drawn height) and the
     legs alone stretched to reach the render's feet, each frame then placed sideways. Fitting every frame whole to its render's height
-    made the body grow and shrink wherever the model drew a stride's legs longer; a free scale per frame made the head bob.
+    made the body grow and shrink wherever the model drew a stride's legs longer; a free scale per frame made the head bob. `mult`: a
+    factor per frame on that one scale (a sheet the model drew bigger than the other - see sheet_scales).
     → ([RGBA the render's size], [overlap])"""
     boxes = [_box(np.array(r)) for r in rens]
     ku = float(np.median([(b[3] - b[1]) / sp.height for sp, b in zip(sprites, boxes)])); out, ious = [], []
@@ -346,9 +347,9 @@ def fit_walk(sprites, rens, split=SPLIT, own=()):
             best = max((at(ku * f, idx) for f in np.arange(0.8, 1.201, 0.04)), key=lambda x: x[0])
             for i, r in zip(idx, best[1]): out[i], ious[i] = r
         return out, ious
-    for sp, ren, b0 in zip(sprites, rens, boxes):
-        hu = round(sp.height * split); W2 = max(1, round(sp.width * ku))
-        up = sp.crop((0, 0, sp.width, hu)).resize((W2, max(1, round(hu * ku))), Image.LANCZOS)
+    for i, (sp, ren, b0) in enumerate(zip(sprites, rens, boxes)):
+        k = ku * (mult[i] if mult else 1); hu = round(sp.height * split); W2 = max(1, round(sp.width * k))
+        up = sp.crop((0, 0, sp.width, hu)).resize((W2, max(1, round(hu * k))), Image.LANCZOS)
         hip = b0[1] + round((b0[3] - b0[1]) * split)
         lo = sp.crop((0, hu, sp.width, sp.height)).resize((W2, max(1, b0[3] - hip)), Image.LANCZOS)
         fig = Image.new('RGBA', (W2, up.height + lo.height), (0, 0, 0, 0)); fig.alpha_composite(up, (0, 0)); fig.alpha_composite(lo, (0, up.height))
@@ -372,7 +373,12 @@ def shadow_3d(spng, close=5):
 
 
 def _figure(a):
-    ys = np.nonzero((a[..., 3] > 100).any(1))[0]; return ys[0], ys[-1] - ys[0]
+    """(crown, feet-to-crown height): the crown is the top of the head itself, the first row as wide as 40 % of the head - what stands up
+    off it (a headband's antennae, bunny ears) is left out, else their tips, drawn taller in one sheet than another, threw the head's
+    band and its neck off (the alien's heads came out bigger in the second sheet)"""
+    m = a[..., 3] > 100; ys = np.nonzero(m.any(1))[0]; w = m.sum(1)
+    top = ys[0] + int(np.argmax(w[ys[0]:] >= 0.4 * w[ys[0]:ys[0] + int(0.15 * (ys[-1] - ys[0]))].max()))
+    return top, ys[-1] - top
 
 
 def head_scale(ref, img, neck):
@@ -412,6 +418,40 @@ def rescale_head(img, c, neck, band=0.06, order=3):
     out = np.stack([ndimage.map_coordinates(pre[..., ch], [sy, sx], order=order, mode='constant') for ch in range(4)], -1).clip(0, 255)
     al = out[..., 3:4]; out[..., :3] = np.where(al > 0, np.minimum(out[..., :3] * 255 / np.maximum(al, 1e-6), 255), 0)
     return Image.fromarray(out.clip(0, 255).astype(np.uint8))
+
+
+def flip_onto(im, ren):
+    """a frame flipped left to right, then moved sideways onto its own facing's render (the renders of a pair are mirror images about the
+    figure, not about the picture's middle: flipped where it stood, a frame came out ~18 px off its render - 0.42-0.76 overlap where it
+    fits at 0.83-0.90)"""
+    a = np.asarray(im.convert('RGBA').transpose(Image.FLIP_LEFT_RIGHT)); r = np.asarray(Image.open(ren).convert('RGBA'))[..., 3] > 128; m = a[..., 3] > 127
+    dx = max(range(-60, 61), key=lambda s: (np.roll(m, s, 1) & r).sum() / max(1, (np.roll(m, s, 1) | r).sum()))
+    out = np.zeros_like(a)
+    if dx >= 0: out[:, dx:] = a[:, :a.shape[1] - dx]
+    else: out[:, :dx] = a[:, -dx:]
+    return Image.fromarray(out)
+
+
+def head_vs_render(im, ren, band=0.13):
+    """how big the drawn head is against the 3D model's in the same frame, heights matched: the square root of the area each has in the
+    band under the crown - the facings are drawn one by one, and a side view's head came out up to ~9 % bigger than the front's"""
+    def area(a):
+        t, H = _figure(a.astype(float)); return (a[..., 3] > 100)[t:t + int(band * H)].sum(), H
+    (af, hf), (ar, hr) = area(np.asarray(im.convert('RGBA'))), area(np.asarray(Image.open(ren).convert('RGBA')))
+    return float(np.sqrt(af / max(ar, 1)) * hr / max(hf, 1))
+
+
+def sheet_scales(scales, own=(), n=4):
+    """steady's head scales → a factor per frame for fit_walk's `mult`: each sheet of four (a frame drawn alone on its own) at its
+    frames' median. The model draws one sheet's whole figure a few % bigger than the other's (the alien's second sheets ~15 %): steady
+    alone then shrank only the head, and the hair and the body stayed big - it read as the head growing and shrinking"""
+    out = list(scales)
+    for g in range(0, len(scales), n):
+        idx = [i for i in range(g, min(g + n, len(scales))) if i not in own]
+        if idx:
+            m = float(np.median([scales[i] for i in idx]))
+            for i in idx: out[i] = m
+    return out
 
 
 def steady(frames, neck=0.16):

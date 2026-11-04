@@ -12,8 +12,9 @@ Three OKs: `turnaround`, `3d` (= `model` + `rig` + `render`), `draw` (then `fini
 | `rig` | Tripo: rig check, rig (mixamo bones), walk + idle retargeted in place; bone names fixed, the walk's hips put back, feet planted as modelled | ~45 Tripo credits |
 | `render` | the walk (8 frames × 8 facings) and the idle (8 facings), the head raised `head_up`° (a rig's walk looks down); each with its 3D shadow (`-s.png`) | free |
 | `draw` | 4 frames a call on one sheet; the front first, every other sheet given it; a walk's second sheet given its first; the west side flipped from the east by default (`mirror`) | ~$0.10 a sheet, 12 sheets ≈ $1.3 (18 ≈ $2 with `"mirror": false`) |
-| `finish` | each frame cut out (its cell cut wider), fitted onto its render (one upper-body size per facing, the legs to the render's feet), heads steadied, edges cleaned; strips and a shadow per frame | free |
-| `preview` | every frame on one sheet, a GIF per facing | free |
+| `finish` | each frame cut out (its cell cut wider), fitted onto its render (one upper-body size per sheet, the legs to the render's feet), heads steadied within a facing and sized to the 3D model's in every facing, `head_fit` applied, edges cleaned; strips and a shadow per frame | free |
+| `preview` | every frame on one sheet, a GIF per facing, and every facing walking at once in `walk-all.mp4` (with ffmpeg) | free |
+| `facecheck` | (optional, needs mediapipe) one character's head for its height against another's, facing by facing, by face landmarks; `--apply` writes `head_fit` | free |
 
 ## The spec (`<name>.json`)
 
@@ -55,6 +56,9 @@ Three OKs: `turnaround`, `3d` (= `model` + `rig` + `render`), `draw` (then `fini
 | `frame_px` | output frame height (256) |
 | `light` | `"right"` (default: shadows fall up and to the left) or `"left"`, as for props |
 | `shadow` | `"3d"` (default): each frame's shadow from the 3D body; `"none"` leaves them out |
+| `anchor` | `"ground"` (default): the feet are the 3D ground under the character's middle; `"soles"`: the bottom of the shoes standing (2 px under the lowest painted pixel of the standing front). In this view the ground under the middle is 4-7 game px above the near sole, so next to characters anchored on their soles a `"ground"` one stands sunk in |
+| `redo_below` | the overlap under which `finish` names a sheet for `redraw`: 0.8 for a person, 0.75 for an animal (whose height is mostly its tail) |
+| `head_fit` | `{facing: factor}`: the head rescaled about the neck by that much in `finish`, after the heads are sized to the 3D - written by `facecheck --apply` to match another character, or by hand |
 
 ## Output (`<name>/out/`)
 `walk-<facing>.png` (a strip of `frames`), `idle-<facing>.png`, `shadows/walk-<facing>-<i>.png` and `shadows/idle-<facing>.png`
@@ -111,6 +115,28 @@ north-east, north, north-west, west, south-west.
   touching it, a lifted foot's shadow apart, the legs' shadows moving each on their own. The drawing follows the render's
   outline closely, so the two match.
 - **Body shape comes from the 3D model**: the drawing follows its outline. Change the turnaround and remake the model, not the prompt.
+- **One sheet drawn bigger than the other.** Each sheet of four is its own drawing, and the model drew a whole figure - hair, body and
+  all - up to ~15 % bigger in one (an alien outfit's second sheets). Steadying only the heads then shrank the head and left the big hair
+  and body: it read as the head growing and shrinking. `finish` now fits once, measures each sheet's heads, refits each sheet's upper
+  body at its own size (`sheet_scales`), and only then steadies the heads.
+- **The crown is the top of the head**, not of what stands on it: the first row as wide as 40 % of the head (`_figure`). An antenna's
+  tip or a bunny ear, drawn taller in one sheet than another, threw the head's band and its neck off.
+- **Heads sized to the 3D model in every facing** (`even_heads`): the facings are drawn one by one and came out up to ~15 % apart (an
+  alien's side views). Sizing them to the front's was tried first - and the front was the big one (a face check showed it). Each
+  facing's drawn head against its renders by the silhouette under the crown (`head_vs_render`, ~ the square root of the head's size, so
+  the correction is squared and measured again), rescaled about the neck, at most 15 %.
+- **Comparing two characters** (`facecheck`): hair fools any silhouette measure - one outfit's full waves read as a big head, and
+  matching others to it made their fronts 12 % too big. Face landmarks (MediaPipe's Face Landmarker: forehead 10 to chin 152, over
+  chin to the soles) don't see hair. Only fronts and three-quarters have a face to find; the backs and profiles are given the same
+  drawn-to-3D head ratio the found facings have. A facing flipped from its pair takes its pair's factor.
+- **Thin things on the head or body** (a headband, ears or antennae on it, a bow, straps) come out rough in the 3D model, and the
+  drawing followed the render: bunny ears swapped side and showed their pink insides from behind, a headband's eyes showed pupils
+  from behind. The prompt now says to draw them as the turnaround shows them, from behind only their backs. If a back view still has
+  one the wrong way round and the back is otherwise symmetrical, take each frame from the one half a stride on, flipped and moved onto
+  its render (`flip_onto`) - free, and the stride stays right.
+- **Standing a little taller than walking** is the rig's own (its idle stands straighter): both match their renders within 0.5 %.
+- **Refused drawings.** OpenAI's safety check now and then turns a sheet down (legs, a short skirt) at random: it is asked twice more,
+  then that sheet is left as it was and the run goes on; draw it again later, or say less about skin and length in the description.
 - **Back views**: the prompt says to show the back of the head and the back of the clothes, or a face can appear on a back view.
 - `finish` prints each walk's overlap with its renders. Under ~0.7, look at that facing and redraw it:
   `draw --only <facing> --again --yes`.
@@ -136,7 +162,7 @@ north-east, north, north-west, west, south-west.
 - **Finishing**: one scale for the whole figure per facing, standing on the render's feet (no upper body over legs, no head steadying).
 - **Clothes**: only snug ones - a vertex is weighted to the bones nearest it, so a cape or a scarf's loose end moves with a leg.
 - Tripo's multiview once gave a cat five feet: look at the renders; make the model again, or use `"modeler": "meshy"`.
-- **Redrawing what doesn't fit** (`redraw`, people too): a sheet with a frame under `redo_below` (0.75) is drawn again, up to twice; a
+- **Redrawing what doesn't fit** (`redraw`, people too): a sheet with a frame under `redo_below` (0.8 a person, 0.75 an animal) is drawn again, up to twice; a
   facing still under it then is mixed with its mirror pair - the pair drawn too if it was being flipped, and each frame of both the better
   of its own drawing and the other's flipped (the cat's north-east 0.63-0.92 and north-west 0.82-0.93 → 0.87-0.92 and 0.85-0.93, each
   its own frames 1-4 and the other's 1-4 flipped; it walked more naturally than either flipped whole); kept in `draw/mirror.json` as
@@ -150,8 +176,9 @@ north-east, north, north-west, west, south-west.
 - **Room for the shadow**: an animal is rendered with the bigger of its height and length 0.72 of the view - at 1 a cat with its tail up
   threw its shadow past the picture's edge.
 - **Flipping a facing from its pair** (`mirror`): the renders of east / west (north-east / north-west, south-east / south-west) are
-  mirror images about the picture's middle, so a finished frame flipped is the other facing's - except that flipping swaps the left and
-  right legs, half a stride: frame k is the pair's frame k + n/2 flipped. Its shadow is its own render's (the light comes from one side).
+  mirror images about the figure (not the picture's middle: flipped where it stood a frame came out ~18 px off, 0.42-0.76 overlap - so
+  each flipped frame is moved sideways onto its own render, `flip_onto`, 0.70-0.90), and flipping swaps the left and right legs, half a
+  stride: frame k is the pair's frame k + n/2 flipped. Its shadow is its own render's (the light comes from one side).
   The orange cat's north-east, drawn twice at 0.63-0.70, flipped from north-west: 0.80-0.92 against its own renders.
 - **`finish` again is quick**: each sheet's cells are cut out once and kept in `frames/cut/` by the sheet's name, cell and modification
   time, so after a `redraw` only the changed sheets are cut (the AI cut-out is ~3 s a cell on a CPU): the cat's first finish 211 s, the

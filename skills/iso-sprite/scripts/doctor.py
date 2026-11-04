@@ -16,7 +16,8 @@ VENV = Path.home() / '.cache' / 'iso-sprite' / 'venv'
 VPY = VENV / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
 NEED = [('numpy', 'numpy', 'image maths'), ('PIL', 'pillow', 'reading and writing pictures'),
         ('scipy', 'scipy', 'cutting out, filling holes, fitting'), ('playwright', 'playwright', 'drives the browser that renders the 3D guide')]
-OPTIONAL = [('onnxruntime', 'onnxruntime', 'characters only: runs the AI cut-out (without it a white key is used, which loses white shoes)')]
+OPTIONAL = [('onnxruntime', 'onnxruntime', 'characters only: runs the AI cut-out (without it a white key is used, which loses white shoes)'),
+            ('mediapipe', 'mediapipe', 'facecheck only: compares faces across characters (Python 3.9-3.12, pip install mediapipe)')]
 
 
 def missing(py):
