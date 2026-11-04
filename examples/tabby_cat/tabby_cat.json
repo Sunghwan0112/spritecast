@@ -5,7 +5,8 @@
   "description": "a young orange tabby cat with darker orange stripes on its back, legs and tail, a creamy white chin, chest and paws, amber eyes and a pink nose, wearing a cute snug little bright yellow rubber raincoat with a row of small yellow snap buttons down its chest and short sleeves on the front legs, its small hood folded down flat on the back of the neck; the raincoat covers its back and chest and ends just behind the ribs, nothing hanging loose",
   "notes": "The middle view is the cat's RIGHT side: its head on the RIGHT of the picture, its tail on the left.",
   "modeler": "tripo",
-  "mirror": [
+  "mix": [
     "north-east"
-  ]
+  ],
+  "mirror": false
 }

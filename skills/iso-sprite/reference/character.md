@@ -39,6 +39,7 @@ Three OKs: `turnaround`, `3d` (= `model` + `rig` + `render`), `draw` (then `fini
 | `notes` | extra rules for every frame, e.g. "her hair falls in front of her left shoulder" or "no marks on the arms" |
 | `modeler` | `"tripo"` (default: one 3D account for the model and the rig) or `"meshy"` (the author's way: Meshy's mesh and texture held up better on faces; needs `MESHY_API_KEY`) |
 | `draw` | `true` (default); `false`: no image model - the 3D renders are the frames (toon-shaded, the model's own texture), with the same 3D shadows: ~$0.09 + the 3D only, but softer (no drawn lines, a simpler face, blurrier fur) |
+| `mix` | facings mixed frame by frame with their pair, e.g. `["north-east"]`: both drawn, each frame of each the better (by overlap with its render) of its own drawing and the other's flipped; what `redraw` settles a facing with after two tries |
 | `mirror` | `true` (default): west, north-west and south-west flipped from east, north-east and south-east - 6 of the 16 walk sheets not drawn (~$0.66 less); `false`: all eight drawn - for a design that isn't the same on both sides; or a list of facings to flip from their pair, e.g. `["north-east"]` when that one came out worse than its pair. Only for a design that is the same on both sides (not hair over one shoulder, a logo, a bag on one side). Shadows stay each facing's own |
 | `kind` | `"person"` (default) or `"animal"`: a four-legged animal - no rig bought; its skeleton is found from the mesh and it walks in a cat's or a dog's gait (see Animals) |
 | `model_glb` | an animal: your own static model in place of `3d` |
@@ -136,9 +137,10 @@ north-east, north, north-west, west, south-west.
 - **Clothes**: only snug ones - a vertex is weighted to the bones nearest it, so a cape or a scarf's loose end moves with a leg.
 - Tripo's multiview once gave a cat five feet: look at the renders; make the model again, or use `"modeler": "meshy"`.
 - **Redrawing what doesn't fit** (`redraw`, people too): a sheet with a frame under `redo_below` (0.75) is drawn again, up to twice; a
-  facing still under it then is settled with its mirror pair - the pair drawn too if it was being flipped, the better of the two kept
-  and flipped onto the other (the cat's north-east 0.79 against north-west's 0.87: north-west kept, north-east flipped from it, 0.80-0.92);
-  the choice kept in `draw/mirror.json`. South and north have no pair: a frame of theirs still under the line is drawn alone (its render in the second cell of an otherwise white sheet, so it comes out at the
+  facing still under it then is mixed with its mirror pair - the pair drawn too if it was being flipped, and each frame of both the better
+  of its own drawing and the other's flipped (the cat's north-east 0.63-0.92 and north-west 0.82-0.93 → 0.87-0.92 and 0.85-0.93, each
+  its own frames 1-4 and the other's 1-4 flipped; it walked more naturally than either flipped whole); kept in `draw/mirror.json` as
+  "best" (in a spec: `"mix"`). South and north have no pair: a frame of theirs still under the line is drawn alone (its render in the second cell of an otherwise white sheet, so it comes out at the
   sheets' scale and is cut the same way - `draw/walk-<facing>-single-<k>.png`), once. Each time the drawing that fits better is kept.
   Stop after a sheet's second try and show it before drawing frames alone (they cost a sheet's price each). On the orange cat: of six
   sheets redrawn once, five improved (west 5-8 0.75 → 0.89, north-west 5-8 0.76 → 0.84) and one came out worse and was put back.

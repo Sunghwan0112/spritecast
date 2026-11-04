@@ -230,8 +230,10 @@ the rules:
 - Tripo's model came back with four legs, coloured, facing sideways (turned for you); its skeleton was found from the mesh, 30 bones.
 - Every frame is scored against its render (how much the outlines overlap). Six sheets had a frame under 0.75 and were drawn again: five
   got better (west 5-8 0.75 → 0.89), one got worse and was put back. North-east 5-8 stayed at 0.68 after two tries - the model kept
-  turning the head another way - so its pair was used instead: north-west (0.87) flipped onto north-east, 0.80-0.92 against its own
-  renders. Final scores: 0.76-0.97 in every facing.
+  turning the head another way. So the pair was mixed frame by frame (`"mix": ["north-east"]`): each frame of north-east and of
+  north-west is whichever fits its render better - its own drawing, or the other's flipped (half a stride on). Both took their own
+  frames 1-4 and the other's 1-4 flipped as 5-8: north-east 0.87-0.92, north-west 0.85-0.93, and the walk looks steadier than either
+  alone. Final scores: 0.76-0.97 in every facing.
 
 ### Skipping the drawing: the 3D renders as the frames
 

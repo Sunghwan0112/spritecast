@@ -88,9 +88,9 @@ Then, asking for each paid round:
 1. Show the user the renders beside the drawn frames for those facings (the overlap of each frame on it), and the cost.
 2. `redraw --yes`: those sheets drawn again (up to twice each); each keeps whichever drawing fits better.
 3. **Stop after a sheet's second try and show the result** before going on. Only if the user says so, `redraw --yes` again: a facing
-   still under the line is settled with its mirror pair (east/west, north-east/north-west, south-east/south-west) - the pair drawn too if
-   it was being flipped (2 sheets, ~$0.22; free if it's drawn already), and whichever of the two fits its renders better flipped onto the
-   other; south and north, which have no pair, get their low frames drawn one at a time (~$0.11 each, once each).
+   still under the line is mixed with its mirror pair (east/west, north-east/north-west, south-east/south-west) - the pair drawn too if
+   it was being flipped (2 sheets, ~$0.22; free if it's drawn already), then each frame of both the better of its own drawing and the
+   other's flipped; south and north, which have no pair, get their low frames drawn one at a time (~$0.11 each, once each).
 A low score is not always a bad drawing: lay the render's outline over the frame and look. For an animal the size is matched by overlap
 per sheet (its height is mostly the tail), so a low score there is the drawing itself - a head turned another way, legs bunched.
 The output has a shadow per frame from the 3D body (`out/shadows/`, offsets in `character.json`): tell the user to draw it at

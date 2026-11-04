@@ -55,7 +55,8 @@ def load(path):
     if s['kind'] not in ('person', 'animal'): sys.exit('spec: "kind" is "person" or "animal"')
     d = base / s['name']
     for sub in ('turnaround', 'model', 'rig', 'render', 'draw', 'frames', 'out'): (d / sub).mkdir(parents=True, exist_ok=True)
-    s['mirrored'] = mirror_choices(d, m)
+    s['mix'] = [sorted((x, PAIR[x])) for x in (s.get('mix') or []) if x in PAIR]     # pairs mixed frame by frame (both drawn)
+    s['mirrored'] = [x for x in mirror_choices(d, m) if not any(x in p for p in s['mix'])]
     return s, d
 
 
@@ -64,13 +65,20 @@ def mirror_choices(d, m):
     or '' for both drawn)"""
     m = list(m); f = d / 'draw/mirror.json'
     for key, target in (json.loads(f.read_text()) if f.exists() else {}).items():
-        m = [x for x in m if x not in key.split('|')] + ([target] if target else [])
+        m = [x for x in m if x not in key.split('|')] + ([target] if target and target != 'best' else [])
     return m
+
+
+def best_pairs(d, s=None):
+    f = d / 'draw/mirror.json'
+    out = [k.split('|') for k, v in (json.loads(f.read_text()) if f.exists() else {}).items() if v == 'best']
+    return out + [p for p in ((s or {}).get('mix') or []) if p not in out]
 
 
 def set_mirror(s, d, a, target):
     f = d / 'draw/mirror.json'; ch = json.loads(f.read_text()) if f.exists() else {}
     ch['|'.join(sorted((a, PAIR[a])))] = target; f.write_text(json.dumps(ch, indent=1)); s['mirrored'] = mirror_choices(d, [x for x in s['mirrored'] if x not in (a, PAIR[a])])
+    # (target: the facing flipped from the other, '' both drawn as they are, 'best' both drawn and mixed frame by frame)
 
 
 def need(var):
@@ -502,6 +510,21 @@ def finish(s, d):
         for i, f in enumerate(frames): CL.defringe(CL.clear_white_unless_ai(f, Image.open(d / f'render/walk-{dr}-{i}.png'))).save(d / f'frames/walk-{dr}-{i}.png')
         report[dr] = {'overlap': ious, 'head_scale': [round(x, 3) for x in scales]}
         print(f'finish: walk {dr} overlap {min(ious):.2f}-{max(ious):.2f}', '  LOW - look at it' if min(ious) < 0.7 else '', flush=True)
+    for a, b in best_pairs(d, s):
+        # both of a pair drawn: each frame the better of its own drawing and the pair's flipped (frame k + n/2 - flipping swaps the legs),
+        # by overlap with this frame's render - the good half of each makes up for the other's poor one
+        n = s['frames']
+        if not all((d / f'frames/walk-{x}-{k}.png').exists() for x in (a, b) for k in range(n)): continue
+        own = {x: [Image.open(d / f'frames/walk-{x}-{k}.png') for k in range(n)] for x in (a, b)}
+        for x, y in ((a, b), (b, a)):
+            src = []
+            for k in range(n):
+                r = np.asarray(Image.open(d / f'render/walk-{x}-{k}.png'))[..., 3] > 128
+                cands = [(own[x][k], x), (own[y][(k + n // 2) % n].transpose(Image.FLIP_LEFT_RIGHT), y)]
+                sc = [float(((np.asarray(c)[..., 3] > 127) & r).sum() / max(1, ((np.asarray(c)[..., 3] > 127) | r).sum())) for c, _ in cands]
+                i = int(np.argmax(sc)); cands[i][0].save(d / f'frames/walk-{x}-{k}.png'); report[x]['overlap'][k] = round(sc[i], 3); src.append(cands[i][1])
+            report[x]['from'] = src
+            print(f'finish: walk {x} - each frame the better of its own and {y} flipped: {[("own" if t == x else "flip") for t in src]}, overlap {min(report[x]["overlap"]):.2f}-{max(report[x]["overlap"]):.2f}', flush=True)
     for dr in s['mirrored']:
         # a facing flipped from its pair (`mirror`): the renders of the two are mirror images, about the picture's middle, but flipping swaps
         # the left and right legs - half a stride - so frame k is the pair's frame k + n/2 flipped; its shadow stays its own (the light
@@ -533,7 +556,7 @@ def low_sheets(s, d):
     rep = json.loads((d / 'out/character.json').read_text())['report']; out = []
     if rep.get('draw') is False: return out
     for dr in DIRS:
-        if (rep.get(dr) or {}).get('mirrored_from'): continue
+        if (rep.get(dr) or {}).get('mirrored_from') or (rep.get(dr) or {}).get('from'): continue
         ov = (rep.get(dr) or {}).get('overlap') or []
         for g in range(0, len(ov), 4):
             if min(ov[g:g + 4]) < s['redo_below']: out.append((dr, g // 4, min(ov[g:g + 4]), sum(ov[g:g + 4]) / len(ov[g:g + 4])))
@@ -595,8 +618,7 @@ def redraw(s, d, args):
     rep = json.loads((d / 'out/character.json').read_text())['report']; again = False
     for p in pairs:
         a, b = p, PAIR[p]; ma, mb = (sum(rep[x]['overlap']) / len(rep[x]['overlap']) for x in (a, b))
-        win, lose = (a, b) if ma >= mb else (b, a)
-        print(f'redraw: {a} {ma:.2f} / {b} {mb:.2f} - {win} kept, {lose} flipped from it'); set_mirror(s, d, a, lose); again = True
+        print(f'redraw: {a} {ma:.2f} / {b} {mb:.2f} - each frame of both: the better of its own and the other flipped'); set_mirror(s, d, a, 'best'); again = True
     for (kind, dr, x), old in before.items():
         ov = rep[dr]['overlap']; new = (sum(ov[x * 4:x * 4 + 4]) / len(ov[x * 4:x * 4 + 4])) if kind == 'sheet' else ov[x]
         name = f'{dr} {x * 4 + 1}-{x * 4 + 4}' if kind == 'sheet' else f'{dr} frame {x + 1}'
