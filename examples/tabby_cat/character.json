@@ -1,0 +1,744 @@
+{
+ "frame": [
+  219,
+  256
+ ],
+ "anchor": [
+  0.5187,
+  0.8453
+ ],
+ "walk": {
+  "south": "walk-south.png",
+  "south-east": "walk-south-east.png",
+  "east": "walk-east.png",
+  "north-east": "walk-north-east.png",
+  "north": "walk-north.png",
+  "north-west": "walk-north-west.png",
+  "west": "walk-west.png",
+  "south-west": "walk-south-west.png"
+ },
+ "idle": {
+  "south": "idle-south.png",
+  "south-east": "idle-south-east.png",
+  "east": "idle-east.png",
+  "north-east": "idle-north-east.png",
+  "north": "idle-north.png",
+  "north-west": "idle-north-west.png",
+  "west": "idle-west.png",
+  "south-west": "idle-south-west.png"
+ },
+ "fps": 6.76,
+ "shadows": {
+  "walk": {
+   "south": [
+    {
+     "file": "shadows/walk-south-0.png",
+     "offset": [
+      12,
+      107
+     ]
+    },
+    {
+     "file": "shadows/walk-south-1.png",
+     "offset": [
+      20,
+      111
+     ]
+    },
+    {
+     "file": "shadows/walk-south-2.png",
+     "offset": [
+      23,
+      113
+     ]
+    },
+    {
+     "file": "shadows/walk-south-3.png",
+     "offset": [
+      20,
+      111
+     ]
+    },
+    {
+     "file": "shadows/walk-south-4.png",
+     "offset": [
+      14,
+      108
+     ]
+    },
+    {
+     "file": "shadows/walk-south-5.png",
+     "offset": [
+      10,
+      107
+     ]
+    },
+    {
+     "file": "shadows/walk-south-6.png",
+     "offset": [
+      8,
+      107
+     ]
+    },
+    {
+     "file": "shadows/walk-south-7.png",
+     "offset": [
+      8,
+      106
+     ]
+    }
+   ],
+   "south-east": [
+    {
+     "file": "shadows/walk-south-east-0.png",
+     "offset": [
+      -23,
+      120
+     ]
+    },
+    {
+     "file": "shadows/walk-south-east-1.png",
+     "offset": [
+      -19,
+      123
+     ]
+    },
+    {
+     "file": "shadows/walk-south-east-2.png",
+     "offset": [
+      -14,
+      122
+     ]
+    },
+    {
+     "file": "shadows/walk-south-east-3.png",
+     "offset": [
+      -15,
+      119
+     ]
+    },
+    {
+     "file": "shadows/walk-south-east-4.png",
+     "offset": [
+      -17,
+      116
+     ]
+    },
+    {
+     "file": "shadows/walk-south-east-5.png",
+     "offset": [
+      -19,
+      116
+     ]
+    },
+    {
+     "file": "shadows/walk-south-east-6.png",
+     "offset": [
+      -21,
+      117
+     ]
+    },
+    {
+     "file": "shadows/walk-south-east-7.png",
+     "offset": [
+      -23,
+      118
+     ]
+    }
+   ],
+   "east": [
+    {
+     "file": "shadows/walk-east-0.png",
+     "offset": [
+      -41,
+      135
+     ]
+    },
+    {
+     "file": "shadows/walk-east-1.png",
+     "offset": [
+      -35,
+      134
+     ]
+    },
+    {
+     "file": "shadows/walk-east-2.png",
+     "offset": [
+      -32,
+      133
+     ]
+    },
+    {
+     "file": "shadows/walk-east-3.png",
+     "offset": [
+      -35,
+      133
+     ]
+    },
+    {
+     "file": "shadows/walk-east-4.png",
+     "offset": [
+      -39,
+      135
+     ]
+    },
+    {
+     "file": "shadows/walk-east-5.png",
+     "offset": [
+      -42,
+      138
+     ]
+    },
+    {
+     "file": "shadows/walk-east-6.png",
+     "offset": [
+      -43,
+      141
+     ]
+    },
+    {
+     "file": "shadows/walk-east-7.png",
+     "offset": [
+      -44,
+      138
+     ]
+    }
+   ],
+   "north-east": [
+    {
+     "file": "shadows/walk-north-east-0.png",
+     "offset": [
+      -15,
+      116
+     ]
+    },
+    {
+     "file": "shadows/walk-north-east-1.png",
+     "offset": [
+      -11,
+      116
+     ]
+    },
+    {
+     "file": "shadows/walk-north-east-2.png",
+     "offset": [
+      -11,
+      115
+     ]
+    },
+    {
+     "file": "shadows/walk-north-east-3.png",
+     "offset": [
+      -17,
+      114
+     ]
+    },
+    {
+     "file": "shadows/walk-north-east-4.png",
+     "offset": [
+      -22,
+      116
+     ]
+    },
+    {
+     "file": "shadows/walk-north-east-5.png",
+     "offset": [
+      -23,
+      118
+     ]
+    },
+    {
+     "file": "shadows/walk-north-east-6.png",
+     "offset": [
+      -21,
+      119
+     ]
+    },
+    {
+     "file": "shadows/walk-north-east-7.png",
+     "offset": [
+      -19,
+      118
+     ]
+    }
+   ],
+   "north": [
+    {
+     "file": "shadows/walk-north-0.png",
+     "offset": [
+      3,
+      113
+     ]
+    },
+    {
+     "file": "shadows/walk-north-1.png",
+     "offset": [
+      -3,
+      114
+     ]
+    },
+    {
+     "file": "shadows/walk-north-2.png",
+     "offset": [
+      -9,
+      114
+     ]
+    },
+    {
+     "file": "shadows/walk-north-3.png",
+     "offset": [
+      -10,
+      113
+     ]
+    },
+    {
+     "file": "shadows/walk-north-4.png",
+     "offset": [
+      -8,
+      113
+     ]
+    },
+    {
+     "file": "shadows/walk-north-5.png",
+     "offset": [
+      -4,
+      114
+     ]
+    },
+    {
+     "file": "shadows/walk-north-6.png",
+     "offset": [
+      1,
+      114
+     ]
+    },
+    {
+     "file": "shadows/walk-north-7.png",
+     "offset": [
+      4,
+      114
+     ]
+    }
+   ],
+   "north-west": [
+    {
+     "file": "shadows/walk-north-west-0.png",
+     "offset": [
+      -23,
+      116
+     ]
+    },
+    {
+     "file": "shadows/walk-north-west-1.png",
+     "offset": [
+      -27,
+      118
+     ]
+    },
+    {
+     "file": "shadows/walk-north-west-2.png",
+     "offset": [
+      -28,
+      119
+     ]
+    },
+    {
+     "file": "shadows/walk-north-west-3.png",
+     "offset": [
+      -28,
+      118
+     ]
+    },
+    {
+     "file": "shadows/walk-north-west-4.png",
+     "offset": [
+      -26,
+      116
+     ]
+    },
+    {
+     "file": "shadows/walk-north-west-5.png",
+     "offset": [
+      -22,
+      116
+     ]
+    },
+    {
+     "file": "shadows/walk-north-west-6.png",
+     "offset": [
+      -20,
+      115
+     ]
+    },
+    {
+     "file": "shadows/walk-north-west-7.png",
+     "offset": [
+      -21,
+      114
+     ]
+    }
+   ],
+   "west": [
+    {
+     "file": "shadows/walk-west-0.png",
+     "offset": [
+      -34,
+      134
+     ]
+    },
+    {
+     "file": "shadows/walk-west-1.png",
+     "offset": [
+      -35,
+      138
+     ]
+    },
+    {
+     "file": "shadows/walk-west-2.png",
+     "offset": [
+      -34,
+      141
+     ]
+    },
+    {
+     "file": "shadows/walk-west-3.png",
+     "offset": [
+      -34,
+      138
+     ]
+    },
+    {
+     "file": "shadows/walk-west-4.png",
+     "offset": [
+      -35,
+      135
+     ]
+    },
+    {
+     "file": "shadows/walk-west-5.png",
+     "offset": [
+      -34,
+      134
+     ]
+    },
+    {
+     "file": "shadows/walk-west-6.png",
+     "offset": [
+      -33,
+      133
+     ]
+    },
+    {
+     "file": "shadows/walk-west-7.png",
+     "offset": [
+      -36,
+      132
+     ]
+    }
+   ],
+   "south-west": [
+    {
+     "file": "shadows/walk-south-west-0.png",
+     "offset": [
+      -26,
+      116
+     ]
+    },
+    {
+     "file": "shadows/walk-south-west-1.png",
+     "offset": [
+      -22,
+      119
+     ]
+    },
+    {
+     "file": "shadows/walk-south-west-2.png",
+     "offset": [
+      -20,
+      122
+     ]
+    },
+    {
+     "file": "shadows/walk-south-west-3.png",
+     "offset": [
+      -21,
+      122
+     ]
+    },
+    {
+     "file": "shadows/walk-south-west-4.png",
+     "offset": [
+      -23,
+      120
+     ]
+    },
+    {
+     "file": "shadows/walk-south-west-5.png",
+     "offset": [
+      -27,
+      119
+     ]
+    },
+    {
+     "file": "shadows/walk-south-west-6.png",
+     "offset": [
+      -28,
+      118
+     ]
+    },
+    {
+     "file": "shadows/walk-south-west-7.png",
+     "offset": [
+      -28,
+      116
+     ]
+    }
+   ]
+  },
+  "idle": {
+   "south": {
+    "file": "shadows/idle-south.png",
+    "offset": [
+     15,
+     109
+    ]
+   },
+   "south-east": {
+    "file": "shadows/idle-south-east.png",
+    "offset": [
+     -19,
+     119
+    ]
+   },
+   "east": {
+    "file": "shadows/idle-east.png",
+    "offset": [
+     -39,
+     136
+    ]
+   },
+   "north-east": {
+    "file": "shadows/idle-north-east.png",
+    "offset": [
+     -16,
+     116
+    ]
+   },
+   "north": {
+    "file": "shadows/idle-north.png",
+    "offset": [
+     -5,
+     113
+    ]
+   },
+   "north-west": {
+    "file": "shadows/idle-north-west.png",
+    "offset": [
+     -25,
+     116
+    ]
+   },
+   "west": {
+    "file": "shadows/idle-west.png",
+    "offset": [
+     -35,
+     136
+    ]
+   },
+   "south-west": {
+    "file": "shadows/idle-south-west.png",
+    "offset": [
+     -25,
+     119
+    ]
+   }
+  }
+ },
+ "report": {
+  "south": {
+   "overlap": [
+    0.953,
+    0.957,
+    0.958,
+    0.963,
+    0.956,
+    0.965,
+    0.963,
+    0.97
+   ],
+   "head_scale": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "south-east": {
+   "overlap": [
+    0.87,
+    0.839,
+    0.878,
+    0.849,
+    0.844,
+    0.873,
+    0.85,
+    0.832
+   ],
+   "head_scale": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "east": {
+   "overlap": [
+    0.871,
+    0.889,
+    0.874,
+    0.86,
+    0.889,
+    0.87,
+    0.907,
+    0.899
+   ],
+   "head_scale": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "north": {
+   "overlap": [
+    0.966,
+    0.959,
+    0.96,
+    0.96,
+    0.871,
+    0.817,
+    0.763,
+    0.756
+   ],
+   "head_scale": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "north-west": {
+   "overlap": [
+    0.923,
+    0.929,
+    0.899,
+    0.899,
+    0.817,
+    0.827,
+    0.867,
+    0.83
+   ],
+   "head_scale": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "west": {
+   "overlap": [
+    0.883,
+    0.911,
+    0.896,
+    0.859,
+    0.89,
+    0.908,
+    0.892,
+    0.887
+   ],
+   "head_scale": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "south-west": {
+   "overlap": [
+    0.832,
+    0.846,
+    0.867,
+    0.838,
+    0.8,
+    0.82,
+    0.827,
+    0.777
+   ],
+   "head_scale": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "north-east": {
+   "overlap": [
+    0.8087061002778543,
+    0.8045583758899147,
+    0.8472783177423978,
+    0.8068270171302451,
+    0.9040117237589302,
+    0.9174580933104988,
+    0.8669223344029636,
+    0.9132267127728549
+   ],
+   "head_scale": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "mirrored_from": "north-west"
+  },
+  "idle south": 0.855,
+  "idle south-east": 0.807,
+  "idle south-west": 0.642,
+  "idle east": 0.761,
+  "idle west": 0.84,
+  "idle north-east": 0.895,
+  "idle north-west": 0.874,
+  "idle north": 0.873
+ }
+}

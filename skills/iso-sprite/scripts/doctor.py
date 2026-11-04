@@ -74,7 +74,7 @@ def main():
         if not mp and a.fix and a.characters: mp = charlib.seg_model()
     line(bool(mp), 'BiRefNet lite (224 MB)', str(mp) if mp else 'fetched by itself the first time a character is finished (or --fix --characters)')
     print('keys (set in the environment; never pasted into the chat):')
-    for k, why in (('OPENAI_API_KEY', 'drawing - props and characters (about $0.07 a prop, $2.2 a walking character)'),
+    for k, why in (('OPENAI_API_KEY', 'drawing - props and characters (about $0.07 a prop, ~$1.5 a walking character)'),
                    ('TRIPO_API_KEY', 'characters: the 3D model and its rig and walk; props: an optional detailed model'),
                    ('MESHY_API_KEY', 'optional: characters\' 3D model by Meshy instead ("modeler": "meshy")')):
         line(bool(os.environ.get(k)), k, why)

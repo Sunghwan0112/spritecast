@@ -70,9 +70,29 @@ For an animated character (an 8-direction walk and standing views), use `${CLAUD
 [reference/character.md](reference/character.md) first. It needs one finished illustration of the character - facing front, standing straight, arms down, no pose (if theirs is posed, draw a neutral one from it first and show it) - and TRIPO_API_KEY besides OPENAI_API_KEY (or the user's own rigged GLB as `rig_glb`). Tripo makes the model
 and the rig; with `"modeler": "meshy"` (and MESHY_API_KEY) Meshy makes the model (the author's way). Offer it when they have a Meshy account. Three steps, the user's OK before each:
 `turnaround` (~$0.09; show it: both sides the same, nothing over the arms) → `3d` (~75 Tripo credits: model, rig, walk, then the
-renders by themselves - show the front and a side: the face, not the back of the head) → `draw` (~$2; when every facing is drawn,
+renders by themselves - show the front and a side: the face, not the back of the head) → `draw` (~$1.3 - ~$2 with `"mirror": false`; when every facing is drawn,
 `finish` and `preview` run by themselves - show `out/sheet.png` and a GIF). Every paid step prints its cost and needs `--yes`; ask the user for each one, and
 never run the next paid step because the previous one "looked fine": a problem seen in one step is fixed there, not carried on.
+**A four-legged animal** (a cat, a dog, a fox...): `"kind": "animal"` in the spec. The same three steps, but `3d` makes only the model
+(~30 Tripo credits - no rig: Tripo's animal rig is poor, so the skeleton is found from the mesh and walked in a cat's gait). The
+turnaround on all four legs, each leg clear, the tail out behind; clothes only snug ones (a vest, not a cape or a scarf). Check the
+renders before `draw`: four legs, the head forward, the tail behind.
+**Cheaper, softer** (`"draw": false`): no image model - the 3D renders are the frames; after `3d` it finishes by itself. Offer it
+when cost matters more than detail (prototypes, background walkers); say it is softer (no drawn lines, a simpler face).
+**Flipping is the default** (`mirror`): the west facings are flipped from the east ones (~$0.66 less). Look at the design before `draw`:
+if it is NOT the same on both sides (hair over one shoulder, a logo, a bag or a pocket on one side), set `"mirror": false` and tell the
+user why. A facing that stays low after its redraws can be flipped from its pair
+(`"mirror": ["north-east"]`) instead of being drawn frame by frame.
+After `draw` (people and animals alike), `finish` names the sheets with a frame fitting its render under `redo_below` (0.75).
+Then, asking for each paid round:
+1. Show the user the renders beside the drawn frames for those facings (the overlap of each frame on it), and the cost.
+2. `redraw --yes`: those sheets drawn again (up to twice each); each keeps whichever drawing fits better.
+3. **Stop after a sheet's second try and show the result** before going on. Only if the user says so, `redraw --yes` again: a facing
+   still under the line is settled with its mirror pair (east/west, north-east/north-west, south-east/south-west) - the pair drawn too if
+   it was being flipped (2 sheets, ~$0.22; free if it's drawn already), and whichever of the two fits its renders better flipped onto the
+   other; south and north, which have no pair, get their low frames drawn one at a time (~$0.11 each, once each).
+A low score is not always a bad drawing: lay the render's outline over the frame and look. For an animal the size is matched by overlap
+per sheet (its height is mostly the tail), so a low score there is the drawing itself - a head turned another way, legs bunched.
 The output has a shadow per frame from the 3D body (`out/shadows/`, offsets in `character.json`): tell the user to draw it at
 ~30 % under the sprites. A rig rendered before this version has no `-s.png`: re-run `render` (free) before `finish`.
 

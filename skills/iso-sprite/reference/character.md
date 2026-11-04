@@ -11,7 +11,7 @@ Three OKs: `turnaround`, `3d` (= `model` + `rig` + `render`), `draw` (then `fini
 | `model` | Tripo multiview-to-model from the four views (turned to face front for the rig); or Meshy multi-image-to-3D with `"modeler": "meshy"` | ~30 Tripo credits (+10 if it comes back uncoloured; or ~30 Meshy) |
 | `rig` | Tripo: rig check, rig (mixamo bones), walk + idle retargeted in place; bone names fixed, the walk's hips put back, feet planted as modelled | ~45 Tripo credits |
 | `render` | the walk (8 frames × 8 facings) and the idle (8 facings), the head raised `head_up`° (a rig's walk looks down); each with its 3D shadow (`-s.png`) | free |
-| `draw` | 4 frames a call on one sheet; the front first, every other sheet given it; a walk's second sheet given its first | ~$0.10 a sheet, 18 sheets ≈ $2 |
+| `draw` | 4 frames a call on one sheet; the front first, every other sheet given it; a walk's second sheet given its first; the west side flipped from the east by default (`mirror`) | ~$0.10 a sheet, 12 sheets ≈ $1.3 (18 ≈ $2 with `"mirror": false`) |
 | `finish` | each frame cut out (its cell cut wider), fitted onto its render (one upper-body size per facing, the legs to the render's feet), heads steadied, edges cleaned; strips and a shadow per frame | free |
 | `preview` | every frame on one sheet, a GIF per facing | free |
 
@@ -38,6 +38,10 @@ Three OKs: `turnaround`, `3d` (= `model` + `rig` + `render`), `draw` (then `fini
 | `description` | who they are and what they wear, in words, used in every prompt |
 | `notes` | extra rules for every frame, e.g. "her hair falls in front of her left shoulder" or "no marks on the arms" |
 | `modeler` | `"tripo"` (default: one 3D account for the model and the rig) or `"meshy"` (the author's way: Meshy's mesh and texture held up better on faces; needs `MESHY_API_KEY`) |
+| `draw` | `true` (default); `false`: no image model - the 3D renders are the frames (toon-shaded, the model's own texture), with the same 3D shadows: ~$0.09 + the 3D only, but softer (no drawn lines, a simpler face, blurrier fur) |
+| `mirror` | `true` (default): west, north-west and south-west flipped from east, north-east and south-east - 6 of the 16 walk sheets not drawn (~$0.66 less); `false`: all eight drawn - for a design that isn't the same on both sides; or a list of facings to flip from their pair, e.g. `["north-east"]` when that one came out worse than its pair. Only for a design that is the same on both sides (not hair over one shoulder, a logo, a bag on one side). Shadows stay each facing's own |
+| `kind` | `"person"` (default) or `"animal"`: a four-legged animal - no rig bought; its skeleton is found from the mesh and it walks in a cat's or a dog's gait (see Animals) |
+| `model_glb` | an animal: your own static model in place of `3d` |
 | `rig_glb` | skip `turnaround`/`model`/`rig`: your own rigged GLB with clips named `walk` and `idle` |
 | `head_up` | degrees the head is raised in the renders (24) |
 | `white_shoes` | true for white (or very light) shoes: small holes inside the outline round the feet are filled after the AI cut-out (a lace or a sole the segmenter left out). Off otherwise - a heel's straps or a boot's laces have real gaps |
@@ -109,3 +113,44 @@ north-east, north, north-west, west, south-west.
 - **Back views**: the prompt says to show the back of the head and the back of the clothes, or a face can appear on a back view.
 - `finish` prints each walk's overlap with its renders. Under ~0.7, look at that facing and redraw it:
   `draw --only <facing> --again --yes`.
+
+## Animals (`"kind": "animal"`)
+- **Why not Tripo's rig.** Its quadruped rig (v2.5, the only one for animals) put a cat's leg joints in place but had no backbone, a
+  hind thigh named "Spine", the shoulders hanging off the neck, once a fifth foot; its one animal clip is a walk, no idle. So `3d` makes
+  only the model (~30 Tripo credits) and `render` finds the skeleton itself (render_char.html `loadQuad`):
+  - the feet: the vertices within 10 % of the height off the ground, in four clusters (k-means seeded at the four corners); fore / hind
+    by the long axis, left / right by the side;
+  - the belly: the lowest point of the middle between the legs; the back's top along the long axis; the legs' joints along each leg's own
+    vertices at set fractions of the belly's height (fore: elbow 0.55, wrist 0.12; hind: knee 0.7 a little forward, hock 0.3);
+  - the head: forward of the chest and up - its pivot behind the middle of what's there, its end at the nose (the frontmost point);
+  - the tail: what lies behind the rump and above the hind paws, five bones out from its root by distance; none if there is none;
+  - which way it faces: the body's long axis, the head's end the one whose top is broadest (ears and a head against a thin tail),
+    then turned to face +z - checked on a model turned all four ways;
+  - each vertex weighted to the nearest bones (1 / d⁴ over each bone's segment, a leg only on its own side, the upper legs not up into
+    the back), the best four.
+- **The walk** (`quadFrames`): the game cat's gait - the lateral sequence LH, LF, RH, RF a quarter cycle apart, stance 62 %, the paw
+  lifted and the elbow / knee and hock folded in swing, the back bowing and swaying, the neck against it so the head stays on its line,
+  the tail carried up and swaying once a stride; seen from behind the tail is carried off to one side (straight up it vanished against
+  the back). The idle is the rest pose with the tail up.
+- **Finishing**: one scale for the whole figure per facing, standing on the render's feet (no upper body over legs, no head steadying).
+- **Clothes**: only snug ones - a vertex is weighted to the bones nearest it, so a cape or a scarf's loose end moves with a leg.
+- Tripo's multiview once gave a cat five feet: look at the renders; make the model again, or use `"modeler": "meshy"`.
+- **Redrawing what doesn't fit** (`redraw`, people too): a sheet with a frame under `redo_below` (0.75) is drawn again, up to twice; a
+  facing still under it then is settled with its mirror pair - the pair drawn too if it was being flipped, the better of the two kept
+  and flipped onto the other (the cat's north-east 0.79 against north-west's 0.87: north-west kept, north-east flipped from it, 0.80-0.92);
+  the choice kept in `draw/mirror.json`. South and north have no pair: a frame of theirs still under the line is drawn alone (its render in the second cell of an otherwise white sheet, so it comes out at the
+  sheets' scale and is cut the same way - `draw/walk-<facing>-single-<k>.png`), once. Each time the drawing that fits better is kept.
+  Stop after a sheet's second try and show it before drawing frames alone (they cost a sheet's price each). On the orange cat: of six
+  sheets redrawn once, five improved (west 5-8 0.75 → 0.89, north-west 5-8 0.76 → 0.84) and one came out worse and was put back.
+- **Fitting an animal's frames**: one scale a sheet (each sheet is its own drawing - one came out a little bigger than the other), the
+  scale chosen by best overlap (0.8-1.2 of the height's): the height is mostly the tail, drawn a little higher or curled its own way, and
+  fitting by it shrank a whole facing (south-west 0.63 → 0.79). A frame drawn alone gets its own scale.
+- **Room for the shadow**: an animal is rendered with the bigger of its height and length 0.72 of the view - at 1 a cat with its tail up
+  threw its shadow past the picture's edge.
+- **Flipping a facing from its pair** (`mirror`): the renders of east / west (north-east / north-west, south-east / south-west) are
+  mirror images about the picture's middle, so a finished frame flipped is the other facing's - except that flipping swaps the left and
+  right legs, half a stride: frame k is the pair's frame k + n/2 flipped. Its shadow is its own render's (the light comes from one side).
+  The orange cat's north-east, drawn twice at 0.63-0.70, flipped from north-west: 0.80-0.92 against its own renders.
+- **`finish` again is quick**: each sheet's cells are cut out once and kept in `frames/cut/` by the sheet's name, cell and modification
+  time, so after a `redraw` only the changed sheets are cut (the AI cut-out is ~3 s a cell on a CPU): the cat's first finish 211 s, the
+  next with one sheet changed 28 s.

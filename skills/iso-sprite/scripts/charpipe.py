@@ -3,24 +3,30 @@
 render by an image model, four frames per call, in the illustration's look; then fitted back onto the renders, heads steadied, edges
 cleaned, packed into strips.
 
-Three OKs: the turnaround, the 3D (with its renders), the drawing (with the strips and the preview).
+Three OKs: the turnaround, the 3D (with its renders), the drawing (with the strips and the preview). With "draw": false, two: the 3D
+renders are the frames - no image model, softer.
 
     python charpipe.py turnaround CHAR.json [--yes]   PAID (OpenAI, ~$0.09): front / right / back turnaround; the left view mirrored from the right
     python charpipe.py 3d         CHAR.json [--yes]   PAID (Tripo ~75 credits): model + rig + walk and idle, then rendered (free) - look before `draw`
     python charpipe.py draw       CHAR.json [--yes] [--only south,east,idle] [--again]
-                                                      PAID (OpenAI, ~$0.10 a sheet of 4, ~$2 in all): front first, the rest follow it;
+                                                      PAID (OpenAI, ~$0.10 a sheet of 4, ~$1.3 in all - the west side flipped from the east
+                                                      unless "mirror": false, ~$2): front first, the rest follow it;
                                                       when every facing is drawn, `finish` and `preview` run by themselves
   the same steps one at a time:
     python charpipe.py model      CHAR.json [--yes]   PAID (~30 Tripo credits; or Meshy with "modeler": "meshy"): the 3D model from the four views
     python charpipe.py rig        CHAR.json [--yes]   PAID (Tripo, ~45 credits): rig + walk + idle, made renderable, feet planted; then render
     python charpipe.py render     CHAR.json           free: the walk (frames × 8 facings) and the idle (8 facings), each with its 3D shadow
+    python charpipe.py redraw     CHAR.json [--yes]   PAID (~$0.11 a sheet): the sheets with a frame fitting its render under `redo_below`
+                                                      (0.75) drawn again, up to twice; a facing still under it then settled with its
+                                                      mirror pair (the better of the two flipped onto the other; south / north: low
+                                                      frames drawn alone, once); the better drawing kept each time
     python charpipe.py finish     CHAR.json           free: frames fitted, steadied, cleaned → out/ strips, 3D shadows + character.json
     python charpipe.py preview    CHAR.json           free: out/sheet.png (every frame) and out/walk-<facing>.gif
 
 Look at each paid step's input before running it (the turnaround before `3d`; the renders before `draw`). Keys in the environment:
 OPENAI_API_KEY and TRIPO_API_KEY (MESHY_API_KEY only with "modeler": "meshy"). Files go to <the spec's folder>/<name>/.
 """
-import argparse, base64, json, os, sys, time, urllib.error, urllib.request, uuid
+import argparse, base64, json, os, shutil, sys, time, urllib.error, urllib.request, uuid
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent)); import browser as BROWSER  # noqa: E402
@@ -29,6 +35,7 @@ from PIL import Image
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE)); import charlib as CL   # noqa: E402
 DIRS = ['south', 'south-east', 'east', 'north-east', 'north', 'north-west', 'west', 'south-west']
+PAIR = {'east': 'west', 'west': 'east', 'north-east': 'north-west', 'north-west': 'north-east', 'south-east': 'south-west', 'south-west': 'south-east'}
 CW, CH = 384, 1024                                                            # a sheet's cell (4 across a 1536×1024 picture)
 PRICE = {'image_in': 8e-6, 'text_in': 5e-6, 'image_out': 30e-6}
 
@@ -41,10 +48,29 @@ def load(path):
         if s.get(k): s[k] = str((base / s[k]).resolve())
     s.setdefault('white_shoes', False); os.environ['ISO_SPRITE_WHITE_SHOES'] = '1' if s.get('white_shoes') else '0'; s.setdefault('head_up', 24); s.setdefault('shoulder_up', 15); s.setdefault('shoulder_wide', 1.05); s.setdefault('pitch', 30); s.setdefault('frames', 8); s.setdefault('neck', 0.16)
     s.setdefault('walk', {'clip': 'walk', 't0': 0, 't1': 1.1835}); s.setdefault('idle', {'clip': 'idle', 't': 0})
-    s.setdefault('frame_px', 256); s.setdefault('light', 'right'); s.setdefault('shadow', '3d'); s.setdefault('modeler', 'tripo')
+    s.setdefault('frame_px', 256); s.setdefault('light', 'right'); s.setdefault('shadow', '3d'); s.setdefault('modeler', 'tripo'); s.setdefault('kind', 'person'); s.setdefault('redo_below', 0.75); s.setdefault('draw', True)
+    m = s.get('mirror', True); m = ['west', 'north-west', 'south-west'] if m is True else (m or [])   # default: the west side flipped from the east
+    bad = [x for x in m if x not in PAIR or PAIR[x] in m]
+    if bad: sys.exit(f'spec: "mirror" lists facings flipped from their pair (east/west, north-east/north-west, south-east/south-west), not both of a pair: {bad}')
+    if s['kind'] not in ('person', 'animal'): sys.exit('spec: "kind" is "person" or "animal"')
     d = base / s['name']
     for sub in ('turnaround', 'model', 'rig', 'render', 'draw', 'frames', 'out'): (d / sub).mkdir(parents=True, exist_ok=True)
+    s['mirrored'] = mirror_choices(d, m)
     return s, d
+
+
+def mirror_choices(d, m):
+    """the facings flipped from their pair: the spec's, then what `redraw` chose for a pair (draw/mirror.json: "<a>|<b>" → the flipped one,
+    or '' for both drawn)"""
+    m = list(m); f = d / 'draw/mirror.json'
+    for key, target in (json.loads(f.read_text()) if f.exists() else {}).items():
+        m = [x for x in m if x not in key.split('|')] + ([target] if target else [])
+    return m
+
+
+def set_mirror(s, d, a, target):
+    f = d / 'draw/mirror.json'; ch = json.loads(f.read_text()) if f.exists() else {}
+    ch['|'.join(sorted((a, PAIR[a])))] = target; f.write_text(json.dumps(ch, indent=1)); s['mirrored'] = mirror_choices(d, [x for x in s['mirrored'] if x not in (a, PAIR[a])])
 
 
 def need(var):
@@ -99,6 +125,18 @@ TURN = ("A character turnaround sheet for 3D modeling and rigging of the charact
         "The same illustration style as image 1: clean line art with a fine dark outline and smooth soft cel shading, neutral even "
         "lighting, no shadows on the ground, no text, no labels.")
 
+TURN_ANIMAL = ("A turnaround sheet for 3D modeling of the animal in image 1{face}. Three full-body views side by side on a plain white "
+        "background - the FRONT view on the left (the face toward the viewer), the animal's RIGHT SIDE in profile in the middle - its head on the RIGHT of the picture, "
+        "its tail on the left (GPT once drew it facing left) - the BACK view on the right, all the same scale, standing on one ground line.\n"
+        "The same plain standing pose in all three: on all four legs, the legs straight and a little apart so that each leg is clear and "
+        "separate from the others (none hidden behind another in the side view), the paws flat on the ground, the head level and looking "
+        "straight ahead, the tail held up and out behind, clear of the legs and the body - not curled around. Mouth closed. Nothing held.\n"
+        "Keep the animal exactly as in image 1: the same face, markings, colours, proportions and any clothes. Clothes drawn simply and "
+        "snugly, the same on the left and right, nothing hanging loose; no logos, no lettering.\n"
+        "The animal: {desc}\n"
+        "The same illustration style as image 1: clean line art with a fine dark outline and smooth soft cel shading, neutral even "
+        "lighting, no shadows on the ground, no text, no labels.")
+
 
 def cut_views(d):
     im = Image.open(d / 'turnaround/turn.png').convert('RGB'); a = np.array(im).astype(int)
@@ -120,7 +158,7 @@ def turnaround(s, d, args):
     if out.exists() and not args.again: cut_views(d); return print(f'turnaround: {out} is there (--again to draw anew); views cut')
     if not gate(args, 'turnaround: one OpenAI picture, about $0.09'): return
     imgs = [s['design']] + ([s['face']] if s.get('face') else [])
-    cost = gpt(TURN.format(face='. Image 2 is a close-up of the face to reproduce exactly' if s.get('face') else '', desc=s['description']), imgs, out, '1536x1024')
+    cost = gpt((TURN_ANIMAL if s['kind'] == 'animal' else TURN).format(face='. Image 2 is a close-up of the face to reproduce exactly' if s.get('face') else '', desc=s['description']), imgs, out, '1536x1024')
     cut_views(d); print(f'turnaround: {out} (${cost:.3f}) - check it (both sides the same, nothing hanging over the arms) before `model`')
 
 
@@ -220,6 +258,7 @@ def model(s, d, args):
 
 
 def rig(s, d, args):
+    if s['kind'] == 'animal': return print('rig: an animal needs none - its skeleton is found from the model as `render` runs')
     out = d / 'rig/rig.glb'
     if out.exists() and not args.again: return print(f'rig: {out} is there (--again to make it anew)')
     if not (d / 'model/model.glb').exists(): sys.exit('rig: run `model` first')
@@ -243,8 +282,13 @@ def rig(s, d, args):
 # --- render ---------------------------------------------------------------------------------------------------------------------------
 def render(s, d):
     from playwright.sync_api import sync_playwright
-    glb = Path(s.get('rig_glb') or d / 'rig/rig.glb')
-    if not glb.exists(): sys.exit('render: run `rig` first (or give "rig_glb")')
+    animal = s['kind'] == 'animal'
+    if animal:      # a static model (the coloured-again copy if there is one, or the user's own: "model_glb"); its skeleton is found here
+        glb = Path(s.get('model_glb') or next((p for p in (d / 'model/textured.glb', d / 'model/model.glb') if p.exists()), d / 'model/model.glb'))
+        if not glb.exists(): sys.exit('render: run `3d` first (or give "model_glb")')
+    else:
+        glb = Path(s.get('rig_glb') or d / 'rig/rig.glb')
+        if not glb.exists(): sys.exit('render: run `rig` first (or give "rig_glb")')
 
     def serve(route):
         p = route.request.url.split('iso-sprite.local/', 1)[1]
@@ -257,6 +301,16 @@ def render(s, d):
         br = BROWSER.launch(pw)
         pg = br.new_page(); pg.route('http://iso-sprite.local/**', serve); pg.goto('http://iso-sprite.local/render_char.html')
         pg.wait_for_function('window.ready === true', timeout=30000)
+        if animal:
+            info = pg.evaluate('([u, p, l]) => window.loadQuad(u, p, l)', ['http://iso-sprite.local/asset/rig.glb', s['pitch'], s['light']])
+            print('render: skeleton found -', json.dumps({k: info[k] for k in ('bones', 'tail', 'faced', 'height', 'length')}))
+            for dr in DIRS:
+                for k, u in enumerate(pg.evaluate('(a) => window.quadFrames(...a)', [dr, s['frames'], False, True])): save(u, d / f'render/walk-{dr}-{k}.png')
+                for k, u in enumerate(pg.evaluate('window.shadowShots')): save(u, d / f'render/walk-{dr}-{k}-s.png')
+                save(pg.evaluate('(a) => window.quadFrames(...a)', [dr, s['frames'], True, True])[0], d / f'render/idle-{dr}.png')
+                save(pg.evaluate('window.shadowShots')[0], d / f'render/idle-{dr}-s.png')
+            br.close(); (d / 'render/render.json').write_text(json.dumps(info, indent=1))
+            return print(f"render: {d / 'render'} - look at them (walk-south-*, walk-east-*: four legs, the head forward, the tail behind) before `draw`")
         info = pg.evaluate('([u, p, l]) => window.load(u, p, l)', ['http://iso-sprite.local/asset/rig.glb', s['pitch'], s['light']])
         w, i = s['walk'], s['idle']
         for dr in DIRS:
@@ -271,7 +325,12 @@ def render(s, d):
 
 
 # --- draw -----------------------------------------------------------------------------------------------------------------------------
-def head_words(dr):
+def head_words(dr, animal=False):
+    if animal:
+        if dr == 'south': return 'facing the viewer as in the render, the face and both ears seen from the front'
+        if dr.startswith('north'): return 'seen from BEHIND as in the render: the back of the head, the ears from behind, the back and the tail - NOT the face'
+        if dr in ('east', 'west'): return 'in profile exactly as the render, looking where it walks, NOT turned toward the viewer'
+        return 'a three-quarter view exactly as the render, looking where it walks, NOT turned toward the viewer'
     if dr == 'south': return 'square to the viewer, not tilted, not turned, the eyes open and looking straight ahead (not down)'
     if dr.startswith('north'):
         return ('seen from BEHIND as in the render: the back of the head and the hair, the back of the clothes - NOT the face, NOT the front of '
@@ -281,6 +340,12 @@ def head_words(dr):
 
 
 def frame_rules(s):
+    if s['kind'] == 'animal':
+        return ("For each cell, as for a single frame: redraw the render as a finished illustration in exactly the style of the character reference. "
+                "The pose must match the render EXACTLY: the same position and size, the same body direction, the same angle of each of the four "
+                "legs, of the tail and of the head, the same camera angle from above - nothing added, nothing moved. The paws exactly as in the "
+                "render. Fur and loose clothes may go a little past the render's outline, nothing else. "
+                f"The animal: {s['description']} " + (s.get('notes') or '') + " Plain white background, no shadow on the ground, no text.")
     return ("For each cell, as for a single frame: redraw the render as a finished illustration in exactly the style of the character reference. "
             "The pose must match the render EXACTLY: the same position and size, the same body direction, the same angle of every limb and of "
             "the head, the same camera angle from above - nothing added, nothing held, nothing moved. The feet and shoes exactly as in the render, "
@@ -310,28 +375,32 @@ def refs_and_words(s, d, extra):
     items = ([(s['face'], "the character's face seen from the front (what the face looks like - not its angle)")] if s.get('face') else [])
     items += [(style if style.exists() else s['design'],
                'the character as a finished illustration' + (' - a turnaround: front, right side, back' if style.exists() else '') +
-               ': the drawing style, the face, the hair and the outfit to match (its pose is NOT to be copied)')]
+               (': the drawing style, the face, the markings, the fur and any clothes to match (its pose is NOT to be copied)' if s['kind'] == 'animal'
+                else ': the drawing style, the face, the hair and the outfit to match (its pose is NOT to be copied)'))]
     if s.get('photo'): items += [(s['photo'], 'a photo: ONLY what the face looks like - not its clothes, hair or pose')]
     items += extra
     words = ' '.join(f'Image {n + 2} is {w}.' for n, (_, w) in enumerate(items))
     return [p for p, _ in items], words
 
 
-def draw_walk(s, d, dr, again):
+def draw_walk(s, d, dr, again, only_groups=None):
     paths = [d / f'render/walk-{dr}-{i}.png' for i in range(s['frames'])]; bb = union(paths); cost = 0
     groups = [list(range(i, min(i + 4, len(paths)))) for i in range(0, len(paths), 4)]
     front0 = d / 'draw/walk-south-drawn-0.png'
     for g, idx in enumerate(groups):
         rs = d / f'draw/walk-{dr}-renders-{g}.png'; sheet_of([paths[i] for i in idx], bb, rs); out = d / f'draw/walk-{dr}-drawn-{g}.png'
+        if only_groups is not None and g not in only_groups: continue
         if out.exists() and not again: continue
-        extra = ([] if dr == 'south' else [(front0, 'the same character already drawn walking toward the viewer: exactly the same person - face, hair, clothes, colours, lines and shading')])
-        extra += ([(d / f'draw/walk-{dr}-drawn-0.png', 'the first half of this same walk, already drawn: continue it exactly')] if g else [])
+        who = 'animal' if s['kind'] == 'animal' else 'person'
+        extra = ([] if dr == 'south' else [(front0, f'the same character already drawn walking toward the viewer: exactly the same {who} - face, ' + ('markings, fur' if who == 'animal' else 'hair') + ', clothes, colours, lines and shading')])
+        extra += ([(d / f'draw/walk-{dr}-drawn-0.png', 'the first half of this same walk, already drawn: continue it exactly - the same '
+                    + who + ', but the legs and the stride of THIS sheet\'s renders (image 1), NOT the first half\'s poses')] if g else [])
         imgs, words = refs_and_words(s, d, extra)
         P = (f"Image 1 is a SHEET of {len(idx)} separate frames of one walking animation, side by side, read left to right - every cell a 3D render "
-             "of the same person in one moment of the walk, seen from a game camera from above. Redraw EVERY cell as a finished illustration, "
+             f"of the same {who} in one moment of the walk, seen from a game camera from above. Redraw EVERY cell as a finished illustration, "
              "keeping the sheet exactly as it is: the same cells, each figure at exactly the same position, size and pose - the legs, the stride, "
-             "the arms exactly as each cell's render; nothing added between the cells, no borders, no numbers. The same person in every cell. "
-             f"THE HEAD in every cell: {head_words(dr)}. {words}\n" + frame_rules(s))
+             + ("the tail" if who == 'animal' else "the arms") + f" exactly as each cell's render; nothing added between the cells, no borders, no numbers. The same {who} in every cell. "
+             f"THE HEAD in every cell: {head_words(dr, who == 'animal')}. {words}\n" + frame_rules(s))
         (d / f'draw/walk-{dr}-prompt-{g}.txt').write_text(P); cost += gpt(P, [rs] + imgs, out, '1536x1024')
     return cost
 
@@ -342,21 +411,23 @@ def draw_idle(s, d, again):
     for g, ds in enumerate(groups):
         rs = d / f'draw/idle-renders-{g}.png'; sheet_of([d / f'render/idle-{x}.png' for x in ds], bb, rs); out = d / f'draw/idle-drawn-{g}.png'
         if out.exists() and not again: continue
-        extra = [(d / 'draw/walk-south-drawn-0.png', 'the same character already drawn walking toward the viewer: exactly the same person')]
+        who = 'animal' if s['kind'] == 'animal' else 'person'
+        extra = [(d / 'draw/walk-south-drawn-0.png', f'the same character already drawn walking toward the viewer: exactly the same {who}')]
         extra += ([(d / 'draw/idle-drawn-0.png', "the same character's other standing views, already drawn: exactly the same")] if g else [])
         imgs, words = refs_and_words(s, d, extra)
-        turns = '; '.join(f'cell {n + 1}: {head_words(x)}' for n, x in enumerate(ds))
-        P = ("Image 1 is a SHEET of 4 separate figures side by side - every cell a 3D render of the same person standing still, each turned a "
+        turns = '; '.join(f'cell {n + 1}: {head_words(x, who == "animal")}' for n, x in enumerate(ds))
+        P = (f"Image 1 is a SHEET of 4 separate figures side by side - every cell a 3D render of the same {who} standing still, each turned a "
              "different way, seen from a game camera from above. Redraw EVERY cell as a finished illustration, keeping the sheet exactly as it is: "
-             "each figure at exactly the same position, size, pose and turn; nothing added between the cells. The same person in all 4. "
+             f"each figure at exactly the same position, size, pose and turn; nothing added between the cells. The same {who} in all 4. "
              f"THE HEADS - {turns}. {words}\n" + frame_rules(s))
         (d / f'draw/idle-prompt-{g}.txt').write_text(P); cost += gpt(P, [rs] + imgs, out, '1536x1024')
     return cost
 
 
 def draw(s, d, args):
+    if not s['draw']: print('draw: "draw": false - the 3D renders are the frames, nothing to draw'); finish(s, d); return preview(s, d)
     only = args.only.split(',') if args.only else DIRS + ['idle']
-    walks = [x for x in DIRS if x in only]
+    walks = [x for x in DIRS if x in only and x not in s['mirrored']]     # a mirrored facing is flipped from its pair in `finish`
     if not (d / 'render/walk-south-0.png').exists(): sys.exit('draw: run `render` first')
     if walks and 'south' not in walks and not (d / 'draw/walk-south-drawn-0.png').exists(): walks = ['south'] + walks
     todo = lambda f: args.again or not (d / f'draw/{f}').exists()     # sheets already drawn are kept (and not paid for again)
@@ -373,41 +444,169 @@ def draw(s, d, args):
 
 def all_drawn(s, d):
     sheets = -(-s['frames'] // 4)
-    return all((d / f'draw/walk-{x}-drawn-{k}.png').exists() for x in DIRS for k in range(sheets)) and (d / 'draw/idle-drawn-0.png').exists()
+    return all((d / f'draw/walk-{x}-drawn-{k}.png').exists() for x in DIRS if x not in s['mirrored'] for k in range(sheets)) and (d / 'draw/idle-drawn-0.png').exists()
 
 
 def make3d(s, d, args):
     """model + rig + render in one go: one OK for the 3D, then the renders to look at before `draw`"""
-    cost = ('Meshy ~30 credits + Tripo ~45' if s['modeler'] == 'meshy' else 'Tripo ~75 credits (~85 if it has to be coloured again)')
+    cost = ('Meshy ~30 credits' + ('' if s['kind'] == 'animal' else ' + Tripo ~45') if s['modeler'] == 'meshy'
+            else 'Tripo ~30 credits (~40 if it has to be coloured again)' if s['kind'] == 'animal' else 'Tripo ~75 credits (~85 if it has to be coloured again)')
     if not gate(args, f'3d: the model, its rig and walk ({cost}), then the renders (free), a few minutes'): return
-    args.no_render = True; model(s, d, args); rig(s, d, args)
-    if (d / 'rig/rig.glb').exists(): render(s, d)
+    if s['kind'] == 'animal':                            # no rig: its skeleton is found from the mesh as it renders
+        model(s, d, args)
+        if (d / 'model/model.glb').exists(): render(s, d)
+    else:
+        args.no_render = True; model(s, d, args); rig(s, d, args)
+        if (d / 'rig/rig.glb').exists(): render(s, d)
+    if not s['draw'] and (d / 'render/walk-south-0.png').exists(): finish(s, d); preview(s, d)     # nothing to draw: done
 
 
 # --- finish ---------------------------------------------------------------------------------------------------------------------------
+def cut(d, path, n):
+    """cell n of a drawn sheet, cut out - kept in frames/cut/ by the sheet's name, cell and modification time, so a `finish` after
+    `redraw` cuts only the sheets that changed (the AI cut-out takes ~3 s a cell on a CPU)"""
+    path = Path(path); key = d / f'frames/cut/{path.stem}-{n}-{path.stat().st_mtime_ns}.png'
+    if key.exists(): return Image.open(key).convert('RGBA')
+    for old in key.parent.glob(f'{path.stem}-{n}-*.png'): old.unlink()
+    key.parent.mkdir(parents=True, exist_ok=True); sp = CL.cut_cell(Image.open(path).convert('RGB'), n, CW, CH); sp.save(key); return sp
+
+
+def finish_3d(s, d):
+    """`"draw": false` - no image model: the 3D renders themselves are the frames (the toon-shaded model, its own texture), packed the same
+    way with their 3D shadows. Nothing paid past the model, but softer: no drawn lines, the model's texture as it came"""
+    if not (d / 'render/walk-south-0.png').exists(): sys.exit('finish: run `3d` (or `render`) first')
+    for f in (d / 'frames').glob('*.png'): f.unlink()
+    for dr in DIRS:
+        for k in range(s['frames']): shutil.copy(d / f'render/walk-{dr}-{k}.png', d / f'frames/walk-{dr}-{k}.png')
+        shutil.copy(d / f'render/idle-{dr}.png', d / f'frames/idle-{dr}.png')
+    pack(s, d, {'draw': False})
+
+
 def finish(s, d):
+    if not s['draw']: return finish_3d(s, d)
     report = {}
     for dr in DIRS:
+        if dr in s['mirrored']: continue
         groups = [list(range(i, min(i + 4, s['frames']))) for i in range(0, s['frames'], 4)]
         if not all((d / f'draw/walk-{dr}-drawn-{g}.png').exists() for g in range(len(groups))): continue
         sprites = []
         for g, idx in enumerate(groups):
-            sh = Image.open(d / f'draw/walk-{dr}-drawn-{g}.png').convert('RGB')
-            sprites += [CL.cut_cell(sh, n, CW, CH) for n in range(len(idx))]
+            sprites += [cut(d, d / f'draw/walk-{dr}-drawn-{g}.png', n) for n in range(len(idx))]
+        single = [k for k in range(s['frames']) if (d / f'draw/walk-{dr}-single-{k}.png').exists()]   # frames drawn alone (redraw)
+        for k in single: sprites[k] = cut(d, d / f'draw/walk-{dr}-single-{k}.png', 1)
         rens = [Image.open(d / f'render/walk-{dr}-{i}.png').convert('RGBA') for i in range(s['frames'])]
-        frames, ious = CL.fit_walk(sprites, rens)      # the upper body at one scale, the legs to the render's feet
-        frames, scales = CL.steady(frames, s['neck'])
+        if s['kind'] == 'animal': frames, ious = CL.fit_walk(sprites, rens, None, own=single); scales = [1.0] * len(frames)   # one scale a sheet, on the render's feet
+        else:
+            frames, ious = CL.fit_walk(sprites, rens)      # the upper body at one scale, the legs to the render's feet
+            frames, scales = CL.steady(frames, s['neck'])
         for i, f in enumerate(frames): CL.defringe(CL.clear_white_unless_ai(f, Image.open(d / f'render/walk-{dr}-{i}.png'))).save(d / f'frames/walk-{dr}-{i}.png')
         report[dr] = {'overlap': ious, 'head_scale': [round(x, 3) for x in scales]}
         print(f'finish: walk {dr} overlap {min(ious):.2f}-{max(ious):.2f}', '  LOW - look at it' if min(ious) < 0.7 else '', flush=True)
+    for dr in s['mirrored']:
+        # a facing flipped from its pair (`mirror`): the renders of the two are mirror images, about the picture's middle, but flipping swaps
+        # the left and right legs - half a stride - so frame k is the pair's frame k + n/2 flipped; its shadow stays its own (the light
+        # comes from one side)
+        src, n = PAIR[dr], s['frames']
+        if not (d / f'frames/walk-{src}-0.png').exists(): continue
+        ious = []
+        for k in range(n):
+            f = Image.open(d / f'frames/walk-{src}-{(k + n // 2) % n}.png').transpose(Image.FLIP_LEFT_RIGHT); f.save(d / f'frames/walk-{dr}-{k}.png')
+            a = np.asarray(f)[..., 3] > 127; r = np.asarray(Image.open(d / f'render/walk-{dr}-{k}.png'))[..., 3] > 128
+            ious.append(float((a & r).sum() / max(1, (a | r).sum())))
+        report[dr] = {'overlap': ious, 'head_scale': [1.0] * n, 'mirrored_from': src}
+        print(f'finish: walk {dr} flipped from {src}, overlap {min(ious):.2f}-{max(ious):.2f}', flush=True)
     groups = (['south', 'south-east', 'south-west', 'east'], ['west', 'north-east', 'north-west', 'north'])
     for g, ds in enumerate(groups):
         if not (d / f'draw/idle-drawn-{g}.png').exists(): continue
         sh = Image.open(d / f'draw/idle-drawn-{g}.png').convert('RGB')
         for n, x in enumerate(ds):
-            f, iou = CL.fit_to_render(CL.cut_cell(sh, n, CW, CH), Image.open(d / f'render/idle-{x}.png').convert('RGBA'))
+            f, iou = CL.fit_to_render(cut(d, d / f'draw/idle-drawn-{g}.png', n), Image.open(d / f'render/idle-{x}.png').convert('RGBA'))
             CL.defringe(CL.clear_white_unless_ai(f, Image.open(d / f'render/idle-{x}.png'))).save(d / f'frames/idle-{x}.png'); report[f'idle {x}'] = iou
     pack(s, d, report)
+    low = low_sheets(s, d)
+    if low: print(f"finish: {len(low)} sheets have a frame under {s['redo_below']} - look at them; `redraw` tries again (a sheet twice, then its low frames alone), keeping the better")
+
+
+def low_sheets(s, d):
+    """[(facing, sheet)] whose frames fit their renders worst: any frame under `redo_below` (0.75) - the model copied another half's
+    poses, or drew the legs its own way"""
+    rep = json.loads((d / 'out/character.json').read_text())['report']; out = []
+    if rep.get('draw') is False: return out
+    for dr in DIRS:
+        if (rep.get(dr) or {}).get('mirrored_from'): continue
+        ov = (rep.get(dr) or {}).get('overlap') or []
+        for g in range(0, len(ov), 4):
+            if min(ov[g:g + 4]) < s['redo_below']: out.append((dr, g // 4, min(ov[g:g + 4]), sum(ov[g:g + 4]) / len(ov[g:g + 4])))
+    return out
+
+
+def tries(d, f):
+    p = d / f'draw/{f}.tried'
+    return int(p.read_text() or 1) if p.exists() else 0
+
+
+def draw_single(s, d, dr, k):
+    """one walk frame drawn alone: its render in the second cell of a sheet like the others (the rest left white), so it comes out at
+    the sheets' scale and is cut the same way → draw/walk-<facing>-single-<k>.png"""
+    paths = [d / f'render/walk-{dr}-{i}.png' for i in range(s['frames'])]; bb = union(paths)
+    blank = Image.new('RGBA', Image.open(paths[k]).size, (0, 0, 0, 0)); bp = d / 'draw/blank.png'; blank.save(bp)
+    rs = d / f'draw/walk-{dr}-single-{k}-render.png'; sheet_of([bp, paths[k], bp, bp], bb, rs)
+    who = 'animal' if s['kind'] == 'animal' else 'person'
+    imgs, words = refs_and_words(s, d, [(d / f'draw/walk-{dr}-drawn-{k // 4}.png', f'the rest of this walk, already drawn: exactly the same {who}, size and style')])
+    P = (f"Image 1 is a sheet of four cells with ONE figure in it, in the second cell: a 3D render of a {who} in one moment of a walk, seen from a "
+         "game camera from above. Redraw THAT figure as a finished illustration at exactly the same position, size and pose - the legs, the "
+         + ("tail" if who == 'animal' else "arms") + " and the head exactly as the render - and leave the other three cells plain white, nothing in them. "
+         f"THE HEAD: {head_words(dr, who == 'animal')}. {words}\n" + frame_rules(s))
+    (d / f'draw/walk-{dr}-single-{k}-prompt.txt').write_text(P)
+    return gpt(P, [rs] + imgs, d / f'draw/walk-{dr}-single-{k}.png', '1536x1024')
+
+
+def redraw(s, d, args):
+    """a sheet with a frame under `redo_below` drawn again, up to twice; then a facing still under it is settled with its mirror pair
+    (east/west, north-east/north-west, south-east/south-west): the pair drawn too if it was being flipped, and whichever of the two fits its
+    renders better is flipped onto the other; south and north, which have no pair, get their low frames drawn alone (once).
+    Each time the drawing that fits better is kept."""
+    if not (d / 'out/character.json').exists(): sys.exit('redraw: run `finish` first')
+    rep = json.loads((d / 'out/character.json').read_text())['report']
+    low = low_sheets(s, d)
+    sheets = [x for x in low if tries(d, f'walk-{x[0]}-drawn-{x[1]}') < 2]
+    done = {x[0] for x in low if tries(d, f'walk-{x[0]}-drawn-{x[1]}') >= 2}          # facings whose low sheets were drawn twice
+    pairs = sorted(x for x in done if x in PAIR and not tries(d, f'pair-{x}'))
+    singles = [(dr, k, rep[dr]['overlap'][k]) for dr, g, _, _ in low if dr in done and dr not in PAIR and tries(d, f'walk-{dr}-drawn-{g}') >= 2
+               for k in range(g * 4, min(g * 4 + 4, s['frames'])) if rep[dr]['overlap'][k] < s['redo_below'] and not tries(d, f'walk-{dr}-single-{k}')]
+    groups = -(-s['frames'] // 4)
+    pair_sheets = {p: [g for g in range(groups) if not (d / f'draw/walk-{PAIR[p]}-drawn-{g}.png').exists()] for p in pairs}
+    if not sheets and not pairs and not singles: return print(f"redraw: nothing under {s['redo_below']} left to try")
+    if sheets: print('redraw: sheets ' + ', '.join(f'{dr} {g * 4 + 1}-{g * 4 + 4} (lowest {lo:.2f}, try {tries(d, f"walk-{dr}-drawn-{g}") + 1})' for dr, g, lo, _ in sheets))
+    for p in pairs: print(f'redraw: {p} still low after two tries - its pair {PAIR[p]} ' + (f'drawn ({len(pair_sheets[p])} sheets) and ' if pair_sheets[p] else '') + 'the better of the two flipped onto the other')
+    if singles: print('redraw: single frames ' + ', '.join(f'{dr} {k + 1} ({v:.2f})' for dr, k, v in singles))
+    n = len(sheets) + sum(len(v) for v in pair_sheets.values()) + len(singles)
+    if n and not gate(args, f'redraw: {n} drawings, about ${n * 0.11:.2f} (OpenAI)'): return
+    before = {}
+    for dr, g, lo, mean in sheets:
+        f = d / f'draw/walk-{dr}-drawn-{g}.png'; f.replace(f.with_suffix('.prev.png')); before[('sheet', dr, g)] = mean
+        draw_walk(s, d, dr, False, [g]); (d / f'draw/walk-{dr}-drawn-{g}.tried').write_text(str(tries(d, f'walk-{dr}-drawn-{g}') + 1))
+    for p in pairs:
+        if pair_sheets[p]: draw_walk(s, d, PAIR[p], False, pair_sheets[p])
+        set_mirror(s, d, p, ''); (d / f'draw/pair-{p}.tried').write_text('1')               # both drawn, to compare
+    for dr, k, v in singles:
+        draw_single(s, d, dr, k); (d / f'draw/walk-{dr}-single-{k}.tried').write_text('1'); before[('single', dr, k)] = v
+    finish(s, d)
+    rep = json.loads((d / 'out/character.json').read_text())['report']; again = False
+    for p in pairs:
+        a, b = p, PAIR[p]; ma, mb = (sum(rep[x]['overlap']) / len(rep[x]['overlap']) for x in (a, b))
+        win, lose = (a, b) if ma >= mb else (b, a)
+        print(f'redraw: {a} {ma:.2f} / {b} {mb:.2f} - {win} kept, {lose} flipped from it'); set_mirror(s, d, a, lose); again = True
+    for (kind, dr, x), old in before.items():
+        ov = rep[dr]['overlap']; new = (sum(ov[x * 4:x * 4 + 4]) / len(ov[x * 4:x * 4 + 4])) if kind == 'sheet' else ov[x]
+        name = f'{dr} {x * 4 + 1}-{x * 4 + 4}' if kind == 'sheet' else f'{dr} frame {x + 1}'
+        print(f'redraw: {name}: {old:.2f} → {new:.2f}', '' if new >= old else ' - worse, the earlier drawing kept')
+        if new < old:
+            again = True
+            if kind == 'sheet': f = d / f'draw/walk-{dr}-drawn-{x}.png'; f.replace(f.with_suffix(f'.worse{tries(d, f"walk-{dr}-drawn-{x}")}.png')); f.with_suffix('.prev.png').replace(f)   # the worse kept to look at
+            else: (d / f'draw/walk-{dr}-single-{x}.png').replace(d / f'draw/walk-{dr}-single-{x}.worse.png')
+    if again: finish(s, d)
+    preview(s, d)
 
 
 def pack(s, d, report):
@@ -479,9 +678,9 @@ def preview(s, d):
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('step', choices=['turnaround', '3d', 'model', 'rig', 'render', 'draw', 'finish', 'preview'])
+    ap.add_argument('step', choices=['turnaround', '3d', 'model', 'rig', 'render', 'draw', 'redraw', 'finish', 'preview'])
     ap.add_argument('spec'); ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', action='store_true'); ap.add_argument('--only')
     ap.add_argument('--no-render', action='store_true', help='rig: stop before the renders')
     a = ap.parse_args(); s, d = load(a.spec)
     {'turnaround': lambda: turnaround(s, d, a), '3d': lambda: make3d(s, d, a), 'model': lambda: model(s, d, a), 'rig': lambda: rig(s, d, a), 'render': lambda: render(s, d),
-     'draw': lambda: draw(s, d, a), 'finish': lambda: finish(s, d), 'preview': lambda: preview(s, d)}[a.step]()
+     'draw': lambda: draw(s, d, a), 'redraw': lambda: redraw(s, d, a), 'finish': lambda: finish(s, d), 'preview': lambda: preview(s, d)}[a.step]()

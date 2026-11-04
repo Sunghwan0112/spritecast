@@ -44,7 +44,11 @@ def turn_root(src, dst, deg):
     import math
     js, bin_ = read_glb(src); a = math.radians(deg); qx, qy, qz, qw = 0, math.sin(a / 2), 0, math.cos(a / 2)
     for i in js['scenes'][js.get('scene', 0)]['nodes']:
-        n = js['nodes'][i]; x, y, z, w = n.get('rotation', [0, 0, 0, 1])
+        n = js['nodes'][i]
+        if 'matrix' in n:          # a node given as a matrix (column-major): the turn put in front of it (a rotation beside it is ignored)
+            M = np.array(n['matrix'], float).reshape(4, 4).T; c, s_ = math.cos(a), math.sin(a)
+            R = np.array([[c, 0, s_, 0], [0, 1, 0, 0], [-s_, 0, c, 0], [0, 0, 0, 1]]); n['matrix'] = (R @ M).T.reshape(-1).tolist(); continue
+        x, y, z, w = n.get('rotation', [0, 0, 0, 1])
         n['rotation'] = [qw * x + qx * w + qy * z - qz * y, qw * y - qx * z + qy * w + qz * x, qw * z + qx * y - qy * x + qz * w, qw * w - qx * x - qy * y - qz * z]
         if 'translation' in n: tx, ty, tz = n['translation']; n['translation'] = [tx * math.cos(a) + tz * math.sin(a), ty, -tx * math.sin(a) + tz * math.cos(a)]
     write_glb(dst, js, bin_)
@@ -301,11 +305,12 @@ def place(fig, ren, top):
     → (RGBA the render's size, overlap)"""
     rn = np.array(ren); S = rn.shape[0]; b0 = _box(rn); ra = rn[..., 3] > 128; sa = np.array(fig)[..., 3] > 127
     hh = min(fig.height, S - top); best = (-1, round((b0[0] + b0[2]) / 2 - fig.width / 2))
+    s_in, r_all = int(sa[:hh].sum()), int(ra.sum())          # overlap = both / (figure + render - both): only the figure's window counted
     for dx in range(-60, 61, 2):
         x0 = round((b0[0] + b0[2]) / 2 - fig.width / 2 + dx)
         if x0 < 0 or x0 + fig.width > S: continue
-        c = np.zeros_like(ra); c[top:top + hh, x0:x0 + fig.width] = sa[:hh]
-        iou = (c & ra).sum() / max(1, (c | ra).sum())
+        both = int((ra[top:top + hh, x0:x0 + fig.width] & sa[:hh]).sum())
+        iou = both / max(1, s_in + r_all - both)
         if iou > best[0]: best = (iou, x0)
     o = Image.new('RGBA', (S, S), (0, 0, 0, 0)); o.alpha_composite(fig, (best[1], top))
     return o, round(float(best[0]), 3)
@@ -319,13 +324,28 @@ def fit_to_render(sp, ren):
     return place(sp, ren, b0[1])
 
 
-def fit_walk(sprites, rens, split=SPLIT):
+def fit_walk(sprites, rens, split=SPLIT, own=()):
     """a whole walk in one facing: the upper body at ONE scale for every frame (the median of render height / drawn height) and the
     legs alone stretched to reach the render's feet, each frame then placed sideways. Fitting every frame whole to its render's height
     made the body grow and shrink wherever the model drew a stride's legs longer; a free scale per frame made the head bob.
     → ([RGBA the render's size], [overlap])"""
     boxes = [_box(np.array(r)) for r in rens]
     ku = float(np.median([(b[3] - b[1]) / sp.height for sp, b in zip(sprites, boxes)])); out, ious = [], []
+    if split is None:
+        # an animal: no upper body over legs - the whole figure at ONE scale for the facing, standing on the render's feet. Its height is
+        # mostly the tail, which the model draws a little higher or curled its own way, so the scale isn't taken from the height: the
+        # one (0.8-1.2 of it) whose frames overlap their renders best on average
+        # - and per sheet of four: each sheet is its own drawing, and the model drew one a little bigger than the other
+        def at(k, idx):
+            res = [place(sprites[i].resize((max(1, round(sprites[i].width * k)), max(1, round(sprites[i].height * k))), Image.LANCZOS), rens[i],
+                         max(0, boxes[i][3] - round(sprites[i].height * k))) for i in idx]
+            return float(np.mean([r[1] for r in res])), res
+        out, ious = [None] * len(sprites), [None] * len(sprites)
+        groups = [[i for i in range(g, min(g + 4, len(sprites))) if i not in own] for g in range(0, len(sprites), 4)] + [[i] for i in own]
+        for idx in filter(None, groups):          # a frame drawn on its own (`own`) gets its own scale
+            best = max((at(ku * f, idx) for f in np.arange(0.8, 1.201, 0.04)), key=lambda x: x[0])
+            for i, r in zip(idx, best[1]): out[i], ious[i] = r
+        return out, ious
     for sp, ren, b0 in zip(sprites, rens, boxes):
         hu = round(sp.height * split); W2 = max(1, round(sp.width * ku))
         up = sp.crop((0, 0, sp.width, hu)).resize((W2, max(1, round(hu * ku))), Image.LANCZOS)

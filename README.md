@@ -188,7 +188,10 @@ illustration's look. An image model can't keep a body and a pose from frame to f
 ```
 python skills/iso-sprite/scripts/charpipe.py turnaround hero.json --yes   # then 3d (model, rig, renders) and draw (then finish, preview by themselves)
 ```
-Cost per character: about $2.2 (OpenAI) and 75 Tripo credits (~$0.75). Two accounts in all: `OPENAI_API_KEY` and
+The west facings are flipped from the east ones by default (each keeping its own shadow from its own render), about $0.66 less. A design
+that isn't the same on both sides (hair over one shoulder, a logo, a bag on one side) sets `"mirror": false` and all eight are drawn.
+
+Cost per character: about $1.5 (OpenAI; ~$2.2 with `"mirror": false`) and 75 Tripo credits (~$0.75; an animal 30). Two accounts in all: `OPENAI_API_KEY` and
 `TRIPO_API_KEY`. Or bring your own rigged GLB (`"rig_glb"`) and skip to `render`.
 
 **The author's way: Meshy for the model, Tripo for the rig.** The game this plugin came from made its leads this way. Set `"modeler": "meshy"`
@@ -201,6 +204,45 @@ again if it comes back grey. Meshy's models faced front and came coloured every 
 [reference/character.md](skills/iso-sprite/reference/character.md). The girl above is in
 [`examples/rain_girl`](examples/rain_girl): her illustration, turnaround, spec, strips, shadows, `character.json` and the sheet.
 She was made with Tripo alone: about $1.7 of drawing and 85 Tripo credits.
+
+### Four-legged animals
+
+Animals are where the usual 3D route breaks. Tripo's rig for four-legged animals put a cat's leg joints in the right places but gave it
+no backbone, named a hind thigh "Spine", hung the shoulders off the neck and once grew a fifth foot; the only animal motion it offers is
+one walk, with no standing pose. A rig like that walks badly however well it's drawn over.
+
+So an animal gets **no bought rig at all**. `"kind": "animal"` in the spec, and the 3D model alone (Tripo, ~30 credits) is enough:
+- **its skeleton is found from the mesh**: the four feet where the model meets the ground, the belly between them, the back along its
+  top, the head forward and up, the tail behind. Which way it faces is read from it too (the head's end is the broad one).
+- **it walks like an animal**: the lateral sequence of a cat or a dog (left hind, left fore, right hind, right fore), the paws lifted
+  and the legs folding as they swing forward, the back swaying, the head steady, the tail carried up and swinging once a stride.
+- then the same drawing, fitting and 3D shadows as a person.
+
+The turnaround is drawn on all four legs, each leg clear of the others, the tail out behind; clothes only snug ones (a knit vest, not a
+cape or a scarf - anything hanging moves with the nearest leg). Check the renders before drawing: four legs, the head forward, the tail
+behind. If Tripo's model grows an extra leg, make it again or use Meshy (`"modeler": "meshy"`).
+
+![an orange tabby in a yellow raincoat walking in 8 facings](docs/animal-walk.gif)
+
+The cat is in [`examples/tabby_cat`](examples/tabby_cat): an orange tabby in a little yellow raincoat (the girl's), its design,
+turnaround, spec, strips, shadows and sheet - 30 Tripo credits and about $2.5 of drawing, redraws and design tries included. How it went, as a check on
+the rules:
+- Tripo's model came back with four legs, coloured, facing sideways (turned for you); its skeleton was found from the mesh, 30 bones.
+- Every frame is scored against its render (how much the outlines overlap). Six sheets had a frame under 0.75 and were drawn again: five
+  got better (west 5-8 0.75 → 0.89), one got worse and was put back. North-east 5-8 stayed at 0.68 after two tries - the model kept
+  turning the head another way - so its pair was used instead: north-west (0.87) flipped onto north-east, 0.80-0.92 against its own
+  renders. Final scores: 0.76-0.97 in every facing.
+
+### Skipping the drawing: the 3D renders as the frames
+
+`"draw": false` in the spec and no image model is used at all: the 3D model's own renders (toon-shaded, its own texture) become the
+frames, with the same 3D shadows and anchors. A character costs only its turnaround (~$0.09) and the 3D (75 Tripo credits, an animal
+30) - two OKs, done as soon as `3d` is. The trade-off is sharpness: no drawn lines, a simpler face, the model's texture as it came
+(blurrier fur and folds).
+
+![the same girl and cat walking: the 3D renders alone against the drawn frames](docs/render-vs-drawn.gif)
+
+![close-up at the strips' own pixels: 3D only against drawn](docs/render-vs-drawn-zoom.png)
 
 ## Cameras
 

@@ -10,6 +10,7 @@
 // with `shadows`, each frame's 3D shadow too (window.shadowShots).
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const SIZE = 512, VIEW_H = 1.25;
 let PITCH = 30 * Math.PI / 180;
@@ -107,6 +108,191 @@ window.frames = (clipName, dir, n, t0, t1, head, up = 0, wide = 1, shadows = fal
     root.updateMatrixWorld(true); shoulders(up, wide); root.updateMatrixWorld(true); headUp(head); root.updateMatrixWorld(true);
     renderer.render(scene, cam); out.push(renderer.domElement.toDataURL('image/png'));
     if (shadows) {                       // the same pose, flat on the ground → window.shadowShots
+      root.traverse((o) => { if (o.isMesh) o.material = o.userData.flat; });
+      renderer.render(scene, cam); window.shadowShots.push(renderer.domElement.toDataURL('image/png'));
+      root.traverse((o) => { if (o.isMesh) o.material = o.userData.toon; });
+    }
+  }
+  return out;
+};
+// ---- four-legged animals ------------------------------------------------------------------------------------------------------------
+// Tripo's quadruped rig of a cat had its leg joints in place but no backbone, a hind thigh named "Spine", the shoulders hanging off the
+// neck, once a fifth foot; its only animal clip is a walk. So an animal gets a skeleton found from its mesh alone (a static model, no rig
+// bought): the four legs from where the mesh meets the ground, the belly between them, the back along the top, the head forward and up,
+// the tail behind - then a walk driven here (the lateral sequence of a cat or a dog).
+const bend = (name, deg) => {          // turn a bone about the animal's own side axis
+  const b = bones[name]; if (!b || !deg) return;
+  const right = new THREE.Vector3(-1, 0, 0).applyQuaternion(root.getWorldQuaternion(new THREE.Quaternion()));
+  b.parent.updateWorldMatrix(true, false);
+  const axis = right.clone().applyQuaternion(b.parent.getWorldQuaternion(new THREE.Quaternion()).invert()).normalize();
+  b.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(axis, deg * Math.PI / 180)); root.updateMatrixWorld(true);
+};
+const swayBone = (name, deg) => {      // turn a bone about the up axis (the tail swinging side to side)
+  const b = bones[name]; if (!b || !deg) return; b.parent.updateWorldMatrix(true, false);
+  const ax = new THREE.Vector3(0, 1, 0).applyQuaternion(b.parent.getWorldQuaternion(new THREE.Quaternion()).invert()).normalize();
+  b.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(ax, deg * Math.PI / 180)); root.updateMatrixWorld(true);
+};
+let rest = {};
+
+window.loadQuad = async (url, pitch = 30, light = 'right') => {
+  if (light === 'left') SHADOW = [0.42, -0.78];
+  PITCH = pitch * Math.PI / 180; aim();
+  const g = await new GLTFLoader().loadAsync(url); g.scene.updateMatrixWorld(true);
+  // every mesh's triangles in world space, one geometry (a group per material)
+  const geos = [], mats = [], v = new THREE.Vector3();
+  g.scene.traverse((o) => {
+    if (!o.isMesh) return;
+    const gg = o.geometry.clone(), P0 = gg.attributes.position;
+    for (let i = 0; i < P0.count; i++) { v.fromBufferAttribute(o.geometry.attributes.position, i); if (o.isSkinnedMesh) o.applyBoneTransform(i, v); v.applyMatrix4(o.matrixWorld); P0.setXYZ(i, v.x, v.y, v.z); }
+    for (const k of Object.keys(gg.attributes)) if (!['position', 'uv'].includes(k)) gg.deleteAttribute(k);
+    if (!gg.attributes.uv) gg.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(P0.count * 2), 2));
+    geos.push(gg.index ? gg : gg); mats.push(Array.isArray(o.material) ? o.material[0] : o.material);
+  });
+  let geo = geos.length > 1 ? mergeGeometries(geos.map((x) => x.index ? x.toNonIndexed() : x), true) : geos[0];
+  // which way it faces: the long axis is the body's; the head's end is the one whose top is broad (ears, a head), the tail's thin
+  let box = new THREE.Box3().setFromBufferAttribute(geo.attributes.position); const P = geo.attributes.position;
+  const ex = box.max.x - box.min.x, ez = box.max.z - box.min.z, longX = ex > ez, H0 = box.max.y - box.min.y;
+  const U = (i) => longX ? P.getX(i) : P.getZ(i), Sd = (i) => longX ? P.getZ(i) : P.getX(i);
+  const u0 = longX ? box.min.x : box.min.z, u1 = longX ? box.max.x : box.max.z, L0 = u1 - u0;
+  const spread = (lo, hi) => { let a = 1e9, b = -1e9, n = 0;
+    for (let i = 0; i < P.count; i++) { const u = U(i); if (u >= lo && u <= hi && P.getY(i) > box.min.y + 0.55 * H0) { const s = Sd(i); a = Math.min(a, s); b = Math.max(b, s); n++; } }
+    return n ? (b - a) : 0; };
+  const headPlus = spread(u1 - 0.22 * L0, u1) >= spread(u0, u0 + 0.22 * L0);
+  const yaw = longX ? (headPlus ? -90 : 90) : (headPlus ? 0 : 180);
+  geo.applyMatrix4(new THREE.Matrix4().makeRotationY(yaw * Math.PI / 180));
+  box = new THREE.Box3().setFromBufferAttribute(geo.attributes.position);
+  const S = 0.72 / Math.max(box.max.y - box.min.y, box.max.z - box.min.z);       // the bigger of height and length 0.72: room for its shadow
+  // (at 1 a cat with its tail up threw its shadow past the picture's edge)
+  geo.applyMatrix4(new THREE.Matrix4().makeTranslation(-(box.min.x + box.max.x) / 2, -box.min.y, -(box.min.z + box.max.z) / 2));
+  geo.applyMatrix4(new THREE.Matrix4().makeScale(S, S, S)); geo.computeVertexNormals();
+  box = new THREE.Box3().setFromBufferAttribute(geo.attributes.position);
+  const H = box.max.y, cx = 0, n = P.count;
+  const Y = (i) => P.getY(i), X = (i) => P.getX(i), Z = (i) => P.getZ(i);
+  // the four feet: what touches the ground, in four clusters (fore / hind by z, left / right by x - the animal faces +z, its left is +x)
+  const low = []; for (let i = 0; i < n; i++) if (Y(i) < 0.1 * H) low.push(i);
+  let lz0 = 1e9, lz1 = -1e9, lx = 0; for (const i of low) { lz0 = Math.min(lz0, Z(i)); lz1 = Math.max(lz1, Z(i)); lx = Math.max(lx, Math.abs(X(i))); }
+  let C = [[lx / 2, lz1 - 0.15 * (lz1 - lz0)], [-lx / 2, lz1 - 0.15 * (lz1 - lz0)], [lx / 2, lz0 + 0.15 * (lz1 - lz0)], [-lx / 2, lz0 + 0.15 * (lz1 - lz0)]];
+  for (let it = 0; it < 12; it++) {
+    const acc = C.map(() => [0, 0, 0]);
+    for (const i of low) { let best = 0, bd = 1e9; C.forEach((c, k) => { const d = (X(i) - c[0]) ** 2 + (Z(i) - c[1]) ** 2; if (d < bd) { bd = d; best = k; } }); acc[best][0] += X(i); acc[best][1] += Z(i); acc[best][2]++; }
+    C = C.map((c, k) => acc[k][2] ? [acc[k][0] / acc[k][2], acc[k][1] / acc[k][2]] : c);
+  }
+  const feet = { LF: C[0], RF: C[1], LH: C[2], RH: C[3] };
+  // the belly: the lowest of the body between the legs, along the middle; the back's top along z
+  const zf = (feet.LF[1] + feet.RF[1]) / 2, zh = (feet.LH[1] + feet.RH[1]) / 2;
+  let belly = 1e9; for (let i = 0; i < n; i++) if (Math.abs(X(i)) < 0.08 && Z(i) > zh + 0.25 * (zf - zh) && Z(i) < zf - 0.25 * (zf - zh)) belly = Math.min(belly, Y(i));
+  if (belly > 0.8 * H) belly = 0.45 * H;
+  const topAt = (z) => { let t = -1e9; for (let i = 0; i < n; i++) if (Math.abs(Z(i) - z) < 0.02 && Math.abs(X(i)) < 0.08) t = Math.max(t, Y(i)); return t > -1e8 ? t : belly + 0.2; };
+  // a leg's line at a height: the middle of the leg's own vertices there (near its foot, under the belly)
+  const R = 0.35 * Math.min(Math.abs(feet.LF[0] - feet.RF[0]), Math.abs(feet.LF[1] - feet.LH[1]));
+  const at = (f, y) => { let sx = 0, sz = 0, k = 0;
+    for (let i = 0; i < n; i++) if (Math.abs(Y(i) - y) < 0.025 && (X(i) - f[0]) ** 2 + (Z(i) - f[1]) ** 2 < (R * 1.6) ** 2) { sx += X(i); sz += Z(i); k++; }
+    return k ? new THREE.Vector3(sx / k, y, sz / k) : new THREE.Vector3(f[0], y, f[1]); };
+  const J = {}, put = (name, p, par) => { J[name] = [p, par]; };
+  const fore = (s) => { const f = feet[s + 'F']; const sh = at(f, belly); sh.y = belly + 0.3 * (topAt(sh.z) - belly); sh.z -= 0.02;
+    return { sh, el: at(f, 0.55 * belly), wr: at(f, 0.12 * belly), ft: at(f, 0.12 * belly).add(new THREE.Vector3(0, -0.08 * belly, 0.06)) }; };
+  const hind = (s) => { const f = feet[s + 'H']; const hip = at(f, belly); hip.y = belly + 0.3 * (topAt(hip.z) - belly);
+    const kn = at(f, 0.7 * belly); kn.z += 0.03; return { hip, kn, hk: at(f, 0.3 * belly), hp: at(f, 0.06 * belly), ht: at(f, 0.06 * belly).add(new THREE.Vector3(0, -0.03 * belly, 0.07)) }; };
+  const lf = fore('L'), rf = fore('R'), lh = hind('L'), rh = hind('R');
+  const mid = (a, b, t = 0.5) => a.clone().lerp(b, t);
+  const pelvis = mid(lh.hip, rh.hip); pelvis.y += 0.02; pelvis.x = cx;
+  const chest = mid(lf.sh, rf.sh); chest.y = Math.max(chest.y, pelvis.y - 0.04); chest.x = cx;
+  const backY = (z, base) => Math.min(base + 0.12, Math.max(base, topAt(z) - 0.16 * (topAt(z) - belly)));
+  const lumbar = mid(pelvis, chest, 0.33), back = mid(pelvis, chest, 0.66); lumbar.y = backY(lumbar.z, lumbar.y); back.y = backY(back.z, back.y);
+  // the head: forward of the forelegs and up; its pivot at the back of the skull, its end at the nose
+  const neck = new THREE.Vector3(cx, chest.y + 0.35 * (topAt(chest.z + 0.06) - chest.y), chest.z + 0.06);
+  let hs = new THREE.Vector3(), hn = 0, nose = null, hv = new THREE.Vector3();
+  for (let i = 0; i < n; i++) { hv.fromBufferAttribute(P, i); if (hv.y > neck.y && hv.z > neck.z - 0.02 && Math.abs(hv.x) < 0.2) { hs.add(hv); hn++; if (!nose || hv.z > nose.z) nose = hv.clone(); } }
+  hs.divideScalar(Math.max(1, hn)); if (!nose) nose = neck.clone().add(new THREE.Vector3(0, 0.05, 0.15));
+  put('pelvis', pelvis, null); put('lumbar', lumbar, 'pelvis'); put('back', back, 'lumbar'); put('chest', chest, 'back'); put('neck', neck, 'chest');
+  put('head', new THREE.Vector3(cx, hs.y, hs.z - 0.04), 'neck'); put('headEnd', new THREE.Vector3(cx, nose.y, nose.z), 'head');
+  for (const [s, f, h] of [['L', lf, lh], ['R', rf, rh]]) {
+    put('sh' + s, f.sh, 'chest'); put('el' + s, f.el, 'sh' + s); put('wr' + s, f.wr, 'el' + s); put('ft' + s, f.ft, 'wr' + s);
+    put('hip' + s, h.hip, 'pelvis'); put('kn' + s, h.kn, 'hip' + s); put('hk' + s, h.hk, 'kn' + s); put('hp' + s, h.hp, 'hk' + s); put('ht' + s, h.ht, 'hp' + s);
+  }
+  // the tail: what lies behind the rump and above the hind paws, in five steps out from its root
+  const rump = Math.min(lh.hp.z, rh.hp.z) - 0.1, tv = [];
+  for (let i = 0; i < n; i++) if (Z(i) < rump && Y(i) > 0.35 * belly && Math.abs(X(i)) < 0.25) tv.push(new THREE.Vector3(X(i), Y(i), Z(i)));
+  if (tv.length > 50) {
+    const t0 = new THREE.Vector3(cx, pelvis.y, rump + 0.06); tv.sort((a, b) => a.distanceTo(t0) - b.distanceTo(t0));
+    let par = 'pelvis'; put('t0', t0, par); par = 't0';
+    for (let k = 1; k <= 4; k++) { const seg = tv.slice(Math.floor((k - 1) / 4 * tv.length), Math.floor(k / 4 * tv.length)); const c = new THREE.Vector3(); seg.forEach((p) => c.add(p)); c.divideScalar(seg.length); put('t' + k, c, par); par = 't' + k; }
+  }
+  // bones (each relative to its parent), and each vertex weighed to the bones nearest it (1/d⁴ over a bone's segment; a leg only on its own
+  // side and not up into the back), the best four - as the game's cat
+  const order = Object.keys(J), B = {};
+  for (const k of order) { const b = new THREE.Bone(); b.name = k; B[k] = b; }
+  for (const k of order) { const [p, par] = J[k]; if (par) { B[par].add(B[k]); B[k].position.copy(p).sub(J[par][0]); } else B[k].position.copy(p); }
+  const kid = {}; for (const k of order) { const par = J[k][1]; if (par && !kid[par]) kid[par] = k; }
+  kid.pelvis = 'lumbar'; kid.chest = 'neck';
+  const segs = order.filter((k) => kid[k]).map((k) => ({ k, a: J[k][0], b: J[kid[k]][0] }));
+  const leg = (k) => /^(sh|el|wr|ft|hip|kn|hk|hp|ht)[LR]$/.test(k);
+  const idx = new Uint16Array(n * 4), wts = new Float32Array(n * 4), tmp = new THREE.Vector3(), line = new THREE.Line3(), q = new THREE.Vector3();
+  for (let i = 0; i < n; i++) {
+    tmp.fromBufferAttribute(P, i); const side = tmp.x > cx ? 'L' : 'R', sc = [];
+    for (let k = 0; k < segs.length; k++) {
+      const s_ = segs[k], isLeg = leg(s_.k);
+      if (isLeg && s_.k.slice(-1) !== side && Math.abs(tmp.x - cx) > 0.02) continue;
+      if (isLeg && /^(sh|hip)/.test(s_.k) && tmp.y > belly + 0.08) continue;
+      line.set(s_.a, s_.b); line.closestPointToPoint(tmp, true, q); const d = q.distanceTo(tmp) + 0.006;
+      sc.push([k, 1 / (d * d * d * d)]);
+    }
+    sc.sort((a, b) => b[1] - a[1]); const top = sc.slice(0, 4), sum = top.reduce((s1, x) => s1 + x[1], 0);
+    for (let k = 0; k < 4; k++) { const e = top[k]; idx[i * 4 + k] = e ? order.indexOf(segs[e[0]].k) : 0; wts[i * 4 + k] = e ? e[1] / sum : 0; }
+  }
+  geo.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(idx, 4)); geo.setAttribute('skinWeight', new THREE.Float32BufferAttribute(wts, 4));
+  const steps = new Uint8Array([90, 170, 255]);
+  const ramp = new THREE.DataTexture(steps, 3, 1, THREE.RedFormat); ramp.minFilter = ramp.magFilter = THREE.NearestFilter; ramp.needsUpdate = true;
+  const toon = mats.map((s) => new THREE.MeshToonMaterial({ map: s.map || null, color: s.map ? 0xffffff : (s.color || 0xffffff), gradientMap: ramp }));
+  const mesh = new THREE.SkinnedMesh(geo, toon.length > 1 ? toon : toon[0]);
+  mesh.frustumCulled = false; mesh.add(B.pelvis); mesh.userData.toon = mesh.material; mesh.userData.flat = flatMaterial();
+  if (root) scene.remove(root);
+  root = new THREE.Group(); root.add(mesh); scene.add(root); root.updateMatrixWorld(true);
+  mesh.bind(new THREE.Skeleton(order.map((k) => B[k])));
+  for (const k of Object.keys(bones)) delete bones[k];
+  rest = {}; for (const k of order) { bones[k] = B[k]; rest[k] = B[k].quaternion.clone(); B[k].userData.restPos = B[k].position.clone(); }
+  hips = B.pelvis; mixer = null; clips = [];
+  const r = (p) => [p.x, p.y, p.z].map((x) => +x.toFixed(3));
+  return { footY: 0.5 + 0.5 * Math.cos(PITCH) / VIEW_H, bones: order.length, tail: !!J.t0, faced: yaw, height: +H.toFixed(3), length: +(box.max.z - box.min.z).toFixed(3), belly: +belly.toFixed(3),
+           feet: Object.fromEntries(Object.entries(feet).map(([k, f]) => [k, f.map((x) => +x.toFixed(3))])), head: r(J.head[0]), nose: r(J.headEnd[0]) };
+};
+
+// the walk: the lateral sequence (left hind, left fore, right hind, right fore a quarter cycle apart); in stance a limb sweeps back with the
+// paw down, in swing it comes forward folded so the paw clears the ground; the back bows and sways, the head stays on its line, the tail is
+// carried up and swings once a stride - the game cat's gait. `k` of `n` frames; k < 0 is the standing pose.
+const LEGS = { LF: ['shL', 'elL', 'wrL', null], RF: ['shR', 'elR', 'wrR', null], LH: ['hipL', 'knL', 'hkL', 'hpL'], RH: ['hipR', 'knR', 'hkR', 'hpR'] };
+const PHASE = { LH: 0, LF: 0.25, RH: 0.5, RF: 0.75 }, STANCE = 0.62, SG = -1;
+function legPose(t, fore) {
+  const A = fore ? 16 : 18; let a, f;
+  if (t < STANCE) { a = A * (1 - 2 * t / STANCE); f = 0; } else { const s = (t - STANCE) / (1 - STANCE); a = A * (-1 + 2 * (0.5 - 0.5 * Math.cos(Math.PI * s))); f = Math.sin(Math.PI * s); }
+  const give = t < STANCE ? 4 * Math.sin(Math.PI * t / STANCE) : 0;
+  return fore ? { up: SG * a, mid: -SG * (40 * f + give), low: SG * 25 * f } : { up: SG * a, mid: SG * (35 * f + give), low: -SG * (45 * f + give), paw: SG * 20 * f };
+}
+function quadPose(k, n, dir) {
+  const rot = {}, sway = {};
+  if (k >= 0) {
+    for (const [name, bs] of Object.entries(LEGS)) {
+      const fore = name.endsWith('F'), g = legPose((k / n + PHASE[name]) % 1, fore);
+      rot[bs[0]] = g.up; rot[bs[1]] = g.mid; rot[bs[2]] = g.low; if (bs[3]) rot[bs[3]] = g.paw;
+    }
+    const ph = 2 * Math.PI * k / n;
+    rot.lumbar = 1.5 * Math.sin(2 * ph); rot.back = -1.5 * Math.sin(2 * ph + 0.6); rot.neck = -1.0 * Math.sin(2 * ph + 1.2);
+    Object.assign(sway, { lumbar: 3.5 * Math.sin(ph), back: 2.5 * Math.sin(ph - 0.5), chest: 2.0 * Math.sin(ph - 1.0), neck: -5.0 * Math.sin(ph - 1.0) });
+    rot.t0 = 6 + 3 * Math.sin(ph); rot.t2 = 3 * Math.sin(ph - 0.8);
+    for (const [b, a, lag] of [['t0', 6, 0.4], ['t1', 8, 1.0], ['t2', 10, 1.6], ['t3', 11, 2.2]]) sway[b] = a * Math.sin(ph - lag);
+  } else rot.t0 = 6;
+  if (dir === 'north') { rot.t0 = (rot.t0 || 0) + 25; for (const [b, a] of [['t0', 35], ['t1', 18], ['t2', 12]]) sway[b] = (sway[b] || 0) + a; }  // from behind, the tail off to one side
+  return { rot, sway, lift: k >= 0 ? 0.006 * Math.cos(4 * Math.PI * k / n) : 0 };
+}
+window.quadFrames = (dir, n, idle = false, shadows = false) => {
+  window.shadowShots = []; const out = [];
+  for (let k = idle ? -1 : 0; k < (idle ? 0 : n); k++) {
+    for (const [nm, b] of Object.entries(bones)) { b.quaternion.copy(rest[nm]); if (b.userData.restPos) b.position.copy(b.userData.restPos); }
+    root.rotation.y = FACING[dir] * Math.PI / 180; const p = quadPose(k, n, dir); root.position.set(0, p.lift, 0); root.updateMatrixWorld(true);
+    for (const [nm, deg] of Object.entries(p.rot)) bend(nm, -deg);
+    for (const [nm, deg] of Object.entries(p.sway)) swayBone(nm, deg);
+    renderer.render(scene, cam); out.push(renderer.domElement.toDataURL('image/png'));
+    if (shadows) {
       root.traverse((o) => { if (o.isMesh) o.material = o.userData.flat; });
       renderer.render(scene, cam); window.shadowShots.push(renderer.domElement.toDataURL('image/png'));
       root.traverse((o) => { if (o.isMesh) o.material = o.userData.toon; });
