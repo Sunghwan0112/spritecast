@@ -9,8 +9,8 @@ renders are the frames - no image model, softer.
     python charpipe.py turnaround CHAR.json [--yes]   PAID (OpenAI, ~$0.09): front / right / back turnaround; the left view mirrored from the right
     python charpipe.py 3d         CHAR.json [--yes]   PAID (Tripo ~75 credits): model + rig + walk and idle, then rendered (free) - look before `draw`
     python charpipe.py draw       CHAR.json [--yes] [--only south,east,idle] [--again]
-                                                      PAID (OpenAI, ~$0.10 a sheet of 4, ~$1.3 in all - the west side flipped from the east
-                                                      unless "mirror": false, ~$2): front first, the rest follow it;
+                                                      PAID (OpenAI, ~$0.10 a sheet of 4, ~$2 in all - every facing drawn; ~$1.3 with
+                                                      "mirror": true, the west side flipped from the east): front first, the rest follow it;
                                                       when every facing is drawn, `finish` and `preview` run by themselves
   the same steps one at a time:
     python charpipe.py model      CHAR.json [--yes]   PAID (~30 Tripo credits; or Meshy with "modeler": "meshy"): the 3D model from the four views
@@ -52,7 +52,7 @@ def load(path):
     s.setdefault('white_shoes', False); os.environ['ISO_SPRITE_WHITE_SHOES'] = '1' if s.get('white_shoes') else '0'; s.setdefault('head_up', 24); s.setdefault('shoulder_up', 15); s.setdefault('shoulder_wide', 1.05); s.setdefault('pitch', 30); s.setdefault('frames', 8); s.setdefault('neck', 0.16)
     s.setdefault('walk', {'clip': 'walk', 't0': 0, 't1': 1.1835}); s.setdefault('idle', {'clip': 'idle', 't': 0})
     s.setdefault('frame_px', 256); s.setdefault('light', 'right'); s.setdefault('shadow', '3d'); s.setdefault('modeler', 'tripo'); s.setdefault('kind', 'person'); s.setdefault('redo_below', 0.75); s.setdefault('draw', True)
-    m = s.get('mirror', True); m = ['west', 'north-west', 'south-west'] if m is True else (m or [])   # default: the west side flipped from the east
+    m = s.get('mirror', False); m = ['west', 'north-west', 'south-west'] if m is True else (m or [])   # default: every facing drawn
     bad = [x for x in m if x not in PAIR or PAIR[x] in m]
     if bad: sys.exit(f'spec: "mirror" lists facings flipped from their pair (east/west, north-east/north-west, south-east/south-west), not both of a pair: {bad}')
     if s['kind'] not in ('person', 'animal'): sys.exit('spec: "kind" is "person" or "animal"')
@@ -581,7 +581,7 @@ def finish(s, d):
             report[x]['from'] = src
             print(f'finish: walk {x} - each frame the better of its own and {y} flipped: {[("own" if t == x else "flip") for t in src]}, overlap {min(report[x]["overlap"]):.2f}-{max(report[x]["overlap"]):.2f}', flush=True)
     for dr in s['mirrored']:
-        # a facing flipped from its pair (`mirror`): the renders of the two are mirror images, about the picture's middle, but flipping swaps
+        # a facing flipped from its pair (`mirror`): the renders of the two are mirror images about the figure (flip_onto moves it onto its own), but flipping swaps
         # the left and right legs - half a stride - so frame k is the pair's frame k + n/2 flipped; its shadow stays its own (the light
         # comes from one side)
         src, n = PAIR[dr], s['frames']

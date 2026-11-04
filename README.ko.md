@@ -191,10 +191,10 @@ python isoprop.py render armchair.json        # 그다음은 평소처럼 draw, 
 ```
 python skills/iso-sprite/scripts/charpipe.py turnaround hero.json --yes   # 그다음 3d(모델, 리그, 렌더), draw(마무리, 미리보기까지 저절로)
 ```
-서쪽 방향들은 기본으로 동쪽 방향을 뒤집어 만들어요(그림자는 방향마다 자기 렌더에서). 약 $0.66 덜 들어요. 좌우가 다른 디자인(한쪽 어깨로 넘긴
-머리, 로고, 한쪽에 멘 가방)은 `"mirror": false`로 8방향을 다 그려요.
+기본으로 8방향을 다 그려요. 두 번 다시 그려도 점수가 낮은 방향만 짝 방향을 뒤집은 그림과 프레임마다 섞어요. 좌우가 같은 디자인은
+`"mirror": true`로 서쪽 방향들을 동쪽에서 뒤집어 만들 수 있어요(그림자는 방향마다 자기 렌더에서). 약 $0.66 덜 들어요.
 
-캐릭터 하나에 약 $1.5(OpenAI, `"mirror": false`면 약 $2.2), Tripo 75크레딧(약 $0.75, 동물은 30)이 들어요. 계정은 둘뿐이에요: `OPENAI_API_KEY`, `TRIPO_API_KEY`.
+캐릭터 하나에 약 $2.2(OpenAI, `"mirror": true`면 약 $1.5), Tripo 75크레딧(약 $0.75, 동물은 30)이 들어요. 계정은 둘뿐이에요: `OPENAI_API_KEY`, `TRIPO_API_KEY`.
 리그된 GLB가 있으면(`"rig_glb"`) 바로 `render`부터 하면 돼요.
 
 `preview`는 `walk-all.mp4`(8방향이 한꺼번에 걷는 영상, ffmpeg가 있으면)도 만들어요. 머리가 커졌다 작아지거나 프레임이 튀는 게 가장 빨리

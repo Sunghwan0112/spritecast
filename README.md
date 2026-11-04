@@ -188,10 +188,11 @@ illustration's look. An image model can't keep a body and a pose from frame to f
 ```
 python skills/iso-sprite/scripts/charpipe.py turnaround hero.json --yes   # then 3d (model, rig, renders) and draw (then finish, preview by themselves)
 ```
-The west facings are flipped from the east ones by default (each keeping its own shadow from its own render), about $0.66 less. A design
-that isn't the same on both sides (hair over one shoulder, a logo, a bag on one side) sets `"mirror": false` and all eight are drawn.
+All eight facings are drawn by default; a facing is flipped from its pair only when it stays low after two redraws (mixed frame by frame).
+A design that is the same on both sides can set `"mirror": true` to flip the west facings from the east ones (each keeping its own
+shadow), about $0.66 less.
 
-Cost per character: about $1.5 (OpenAI; ~$2.2 with `"mirror": false`) and 75 Tripo credits (~$0.75; an animal 30). Two accounts in all: `OPENAI_API_KEY` and
+Cost per character: about $2.2 (OpenAI; ~$1.5 with `"mirror": true`) and 75 Tripo credits (~$0.75; an animal 30). Two accounts in all: `OPENAI_API_KEY` and
 `TRIPO_API_KEY`. Or bring your own rigged GLB (`"rig_glb"`) and skip to `render`.
 
 `preview` also makes `walk-all.mp4` (every facing walking at once, with ffmpeg) - the quickest way to see a head that grows and

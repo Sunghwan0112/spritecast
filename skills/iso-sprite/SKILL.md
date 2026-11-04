@@ -70,7 +70,7 @@ For an animated character (an 8-direction walk and standing views), use `${CLAUD
 [reference/character.md](reference/character.md) first. It needs one finished illustration of the character - facing front, standing straight, arms down, no pose (if theirs is posed, draw a neutral one from it first and show it) - and TRIPO_API_KEY besides OPENAI_API_KEY (or the user's own rigged GLB as `rig_glb`). Tripo makes the model
 and the rig; with `"modeler": "meshy"` (and MESHY_API_KEY) Meshy makes the model (the author's way). Offer it when they have a Meshy account. Three steps, the user's OK before each:
 `turnaround` (~$0.09; show it: both sides the same, nothing over the arms) → `3d` (~75 Tripo credits: model, rig, walk, then the
-renders by themselves - show the front and a side: the face, not the back of the head) → `draw` (~$1.3 - ~$2 with `"mirror": false`; when every facing is drawn,
+renders by themselves - show the front and a side: the face, not the back of the head) → `draw` (~$2, every facing drawn; when every facing is drawn,
 `finish` and `preview` run by themselves - show `out/sheet.png` and a GIF). Every paid step prints its cost and needs `--yes`; ask the user for each one, and
 never run the next paid step because the previous one "looked fine": a problem seen in one step is fixed there, not carried on.
 **A four-legged animal** (a cat, a dog, a fox...): `"kind": "animal"` in the spec. The same three steps, but `3d` makes only the model
@@ -79,10 +79,11 @@ turnaround on all four legs, each leg clear, the tail out behind; clothes only s
 renders before `draw`: four legs, the head forward, the tail behind.
 **Cheaper, softer** (`"draw": false`): no image model - the 3D renders are the frames; after `3d` it finishes by itself. Offer it
 when cost matters more than detail (prototypes, background walkers); say it is softer (no drawn lines, a simpler face).
-**Flipping is the default** (`mirror`): the west facings are flipped from the east ones (~$0.66 less). Look at the design before `draw`:
-if it is NOT the same on both sides (hair over one shoulder, a logo, a bag or a pocket on one side), set `"mirror": false` and tell the
-user why. A facing that stays low after its redraws can be flipped from its pair
-(`"mirror": ["north-east"]`) instead of being drawn frame by frame.
+**Every facing is drawn by default** (`"mirror": false`): a flipped facing is only as good as its pair and swaps anything that isn't
+the same on both sides (hair over one shoulder, a logo, a bag, one bunny ear up). Flipping comes in only by the rules below - a facing
+still under `redo_below` after two redraws is mixed frame by frame with its flipped pair - or when the user asks to save ~$0.66 on a
+design that is the same on both sides (`"mirror": true`, or a list such as `["north-east"]`). Before agreeing to a mix on a design
+that isn't symmetrical, check that what is on one side stays on that side.
 After `draw` (people and animals alike), `finish` names the sheets with a frame fitting its render under `redo_below` (0.75). Show the user `out/walk-all.mp4` (every facing walking at once; with ffmpeg) - a head that grows and shrinks, a
 jumping frame or an odd stride shows there, not in the numbers. Look at the back views yourself for anything worn on the head (ears,
 antennae, a bow): each on its side and, from behind, only its back (the 3D model makes such things rough).
