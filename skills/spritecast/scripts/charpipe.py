@@ -49,7 +49,7 @@ def load(path):
         if k not in s: sys.exit(f'spec: "{k}" is missing')
     for k in ('design', 'face', 'photo'):
         if s.get(k): s[k] = str((base / s[k]).resolve())
-    s.setdefault('white_shoes', False); os.environ['ISO_SPRITE_WHITE_SHOES'] = '1' if s.get('white_shoes') else '0'; s.setdefault('head_up', 24); s.setdefault('shoulder_up', 15); s.setdefault('shoulder_wide', 1.05); s.setdefault('pitch', 30); s.setdefault('frames', 8); s.setdefault('neck', 0.16)
+    s.setdefault('white_shoes', False); os.environ['SPRITECAST_WHITE_SHOES'] = '1' if s.get('white_shoes') else '0'; s.setdefault('head_up', 24); s.setdefault('shoulder_up', 15); s.setdefault('shoulder_wide', 1.05); s.setdefault('pitch', 30); s.setdefault('frames', 8); s.setdefault('neck', 0.16)
     s.setdefault('walk', {'clip': 'walk', 't0': 0, 't1': 1.1835}); s.setdefault('idle', {'clip': 'idle', 't': 0})
     s.setdefault('frame_px', 256); s.setdefault('light', 'right'); s.setdefault('shadow', '3d'); s.setdefault('modeler', 'tripo'); s.setdefault('kind', 'person'); s.setdefault('redo_below', 0.75); s.setdefault('draw', True)
     m = s.get('mirror', False); m = ['west', 'north-west', 'south-west'] if m is True else (m or [])   # default: every facing drawn
@@ -104,8 +104,8 @@ class Refused(Exception):
 
 
 def gpt(prompt, imgs, out, size):
-    key = need('OPENAI_API_KEY'); model = os.environ.get('ISO_SPRITE_MODEL', 'gpt-image-2.5-sunburst')
-    fields = {'model': model, 'prompt': prompt, 'size': size, 'quality': os.environ.get('ISO_SPRITE_QUALITY', 'high'), 'background': 'opaque',
+    key = need('OPENAI_API_KEY'); model = os.environ.get('SPRITECAST_MODEL', 'gpt-image-2.5-sunburst')
+    fields = {'model': model, 'prompt': prompt, 'size': size, 'quality': os.environ.get('SPRITECAST_QUALITY', 'high'), 'background': 'opaque',
               'output_format': 'png', 'n': '1'}
     b = uuid.uuid4().hex; body = b''
     for k, v in fields.items(): body += f'--{b}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode()
@@ -311,7 +311,7 @@ def render(s, d):
         if not glb.exists(): sys.exit('render: run `rig` first (or give "rig_glb")')
 
     def serve(route):
-        p = route.request.url.split('iso-sprite.local/', 1)[1]
+        p = route.request.url.split('spritecast.local/', 1)[1]
         if p == 'asset/rig.glb': return route.fulfill(path=str(glb), content_type='model/gltf-binary')
         f = (HERE / p).resolve()
         if HERE not in f.parents: return route.abort()
@@ -319,10 +319,10 @@ def render(s, d):
     save = lambda url, p: Path(p).write_bytes(base64.b64decode(url.split(',', 1)[1]))
     with sync_playwright() as pw:
         br = BROWSER.launch(pw)
-        pg = br.new_page(); pg.route('http://iso-sprite.local/**', serve); pg.goto('http://iso-sprite.local/render_char.html')
+        pg = br.new_page(); pg.route('http://spritecast.local/**', serve); pg.goto('http://spritecast.local/render_char.html')
         pg.wait_for_function('window.ready === true', timeout=30000)
         if animal:
-            info = pg.evaluate('([u, p, l]) => window.loadQuad(u, p, l)', ['http://iso-sprite.local/asset/rig.glb', s['pitch'], s['light']])
+            info = pg.evaluate('([u, p, l]) => window.loadQuad(u, p, l)', ['http://spritecast.local/asset/rig.glb', s['pitch'], s['light']])
             print('render: skeleton found -', json.dumps({k: info[k] for k in ('bones', 'tail', 'faced', 'height', 'length')}))
             for dr in DIRS:
                 for k, u in enumerate(pg.evaluate('(a) => window.quadFrames(...a)', [dr, s['frames'], False, True])): save(u, d / f'render/walk-{dr}-{k}.png')
@@ -331,7 +331,7 @@ def render(s, d):
                 save(pg.evaluate('window.shadowShots')[0], d / f'render/idle-{dr}-s.png')
             br.close(); (d / 'render/render.json').write_text(json.dumps(info, indent=1))
             return print(f"render: {d / 'render'} - look at them (walk-south-*, walk-east-*: four legs, the head forward, the tail behind) before `draw`")
-        info = pg.evaluate('([u, p, l]) => window.load(u, p, l)', ['http://iso-sprite.local/asset/rig.glb', s['pitch'], s['light']])
+        info = pg.evaluate('([u, p, l]) => window.load(u, p, l)', ['http://spritecast.local/asset/rig.glb', s['pitch'], s['light']])
         w, i = s['walk'], s['idle']
         for dr in DIRS:
             for k, u in enumerate(pg.evaluate('(a) => window.frames(...a)', [w['clip'], dr, s['frames'], w['t0'], w['t1'], s['head_up'], s['shoulder_up'], s['shoulder_wide'], True])):

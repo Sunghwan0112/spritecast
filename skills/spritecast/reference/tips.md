@@ -21,5 +21,5 @@ Learned making a few hundred props for an isometric life-sim.
 - **Your own style**: one finished prop in the look you want, alone, on a flat background, is the best reference. A whole scene
   works less well - the model copies its content.
 - **A 3D model** (`"model"`) beats blocks for complex shapes (a car, a statue); blocks are enough for furniture.
-- **Cost**: one drawing at `high` ≈ $0.07 (gpt-image-2.5, 2026). `ISO_SPRITE_QUALITY=medium` ≈ $0.06 (most of the cost is the two
+- **Cost**: one drawing at `high` ≈ $0.07 (gpt-image-2.5, 2026). `SPRITECAST_QUALITY=medium` ≈ $0.06 (most of the cost is the two
   input images), `low` looks rough. Try a new idea on one prop before many.

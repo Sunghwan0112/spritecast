@@ -1,4 +1,4 @@
-"""iso-sprite: an isometric game prop at its real size and the exact 2:1 angle — a 3D block guide rendered with an isometric camera, an
+"""SpriteCast: an isometric game prop at its real size and the exact 2:1 angle — a 3D block guide rendered with an isometric camera, an
 image model redrawing it in your art style, then cut out, fitted back onto the guide, its shadow baked and its anchor measured.
 
     python isoprop.py render  SPEC.json            free: the guide (render.png), its shadow, the model's input (input.png)
@@ -12,7 +12,7 @@ image model redrawing it in your art style, then cut out, fitted back onto the g
 
 Output goes to <the spec's folder>/<spec name>/ (or --out DIR); a spec with several `views` gets a folder per view (turn-<deg>/).
 `draw` never overwrites an existing drawn.png (pass --again).
-Environment: OPENAI_API_KEY (draw only); TRIPO_API_KEY (model only); ISO_SPRITE_MODEL (default gpt-image-2.5-sunburst), ISO_SPRITE_QUALITY (low|medium|high, default high).
+Environment: OPENAI_API_KEY (draw only); TRIPO_API_KEY (model only); SPRITECAST_MODEL (default gpt-image-2.5-sunburst), SPRITECAST_QUALITY (low|medium|high, default high).
 """
 import argparse, base64, json, math, os, sys, time, urllib.error, urllib.request, uuid
 from pathlib import Path
@@ -159,10 +159,10 @@ def render(spec, d):
     cam = camera(spec)
     glb = spec.get('model', {}).get('glb')
     page_spec = json.loads(json.dumps(spec))
-    if glb: page_spec['model']['glb'] = 'http://iso-sprite.local/asset/model.glb'
+    if glb: page_spec['model']['glb'] = 'http://spritecast.local/asset/model.glb'
 
     def serve(route):
-        p = route.request.url.split('iso-sprite.local/', 1)[1]
+        p = route.request.url.split('spritecast.local/', 1)[1]
         if p == 'asset/model.glb': return route.fulfill(path=glb, content_type='model/gltf-binary')
         f = (HERE / p).resolve()
         if HERE not in f.parents and f != HERE: return route.abort()
@@ -171,8 +171,8 @@ def render(spec, d):
     with sync_playwright() as pw:
         browser = BROWSER.launch(pw)
         page = browser.new_page()
-        page.route('http://iso-sprite.local/**', serve)
-        page.goto('http://iso-sprite.local/render.html')
+        page.route('http://spritecast.local/**', serve)
+        page.goto('http://spritecast.local/render.html')
         page.wait_for_function('window.ready === true', timeout=30000)
         W, D = spec['footprint']
         for turn, vd in views(spec, d):
@@ -281,7 +281,7 @@ def draw(spec, d, args):
     vs = views(spec, d); todo = [(t, vd) for t, vd in vs if args.again or not (vd / 'drawn.png').exists()]
     if args.only: todo = [(t, vd) for t, vd in todo if vd.name in args.only.split(',') or str(t) in args.only.split(',')]
     if not todo: return print('draw: every view is drawn already (--again to draw anew)')
-    model = os.environ.get('ISO_SPRITE_MODEL', 'gpt-image-2.5-sunburst'); quality = os.environ.get('ISO_SPRITE_QUALITY', 'high')
+    model = os.environ.get('SPRITECAST_MODEL', 'gpt-image-2.5-sunburst'); quality = os.environ.get('SPRITECAST_QUALITY', 'high')
     out_tok = {'low': 196, 'medium': 439, 'high': 1756}.get(quality, 1756)
     est = sum((2600 if vd == vs[0][1] else 3900) * PRICE['image_in'] + 450 * PRICE['text_in'] + out_tok * PRICE['image_out'] for _, vd in todo)
     print(f'draw: {len(todo)} view(s), {model}, quality {quality}, about ${est:.2f}')
@@ -527,7 +527,7 @@ if __name__ == '__main__':
     ap.add_argument('--out'); ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', action='store_true')
     ap.add_argument('--only', help='draw only these views: facing names or turns, comma-separated (with --again to redraw one)')
     args = ap.parse_args()
-    if args.step == 'try': trial(args.spec or 'reading_armchair', args.out or 'iso-sprite-try'); sys.exit()
+    if args.step == 'try': trial(args.spec or 'reading_armchair', args.out or 'spritecast-try'); sys.exit()
     if not args.spec: ap.error('give the spec')
     spec = load_spec(args.spec); d = out_dir(args, spec)
     if args.step == 'model': make_model(spec, d, args)

@@ -1,11 +1,11 @@
 ---
-name: iso-sprite
+name: spritecast
 description: Make an isometric (2:1, true isometric), 3/4 top-down or front-view game prop, furniture or character sprite - single standing figures, or walking characters in 8 facings at its real size and exact angle - Claude builds a 3D block guide from the description, renders it with an isometric camera, an image model redraws it in a chosen art style, then it is cut out, fitted back on the guide, given a baked shadow and an anchor. Use when the user asks for an isometric prop, furniture, decoration or object sprite for a game.
 license: MIT
 compatibility: Claude Code (runs Python, Playwright and a local Chrome/Chromium on the user's machine; calls the OpenAI Images API with the user's own key)
 ---
 
-# iso-sprite: isometric props at true scale
+# SpriteCast: isometric props and characters at true scale
 
 Image models draw isometric objects at slightly wrong angles and sizes. This skill gives the model a guide it cannot misread: the
 object built from simple blocks at its real size, rendered with an exact 2:1 isometric camera. The model only redraws the guide in the
@@ -17,7 +17,7 @@ Scripts: `${CLAUDE_SKILL_DIR}/scripts/isoprop.py` (steps `render`, `draw`, `fini
 ## Setup (once)
 1. Run `python3 ${CLAUDE_SKILL_DIR}/scripts/doctor.py` (any Python 3.9+; `python` on Windows). It lists what is there and what each
    thing is for; its last line `PYTHON=<path>` is the interpreter to use for every script below. If it says "not ready", tell the user
-   in a line what is missing and run it again with `--fix` (a venv in ~/.cache/iso-sprite/, the packages, about 10 s). No Chrome or Edge: ask first, then `--fix --browser`
+   in a line what is missing and run it again with `--fix` (a venv in ~/.cache/spritecast/, the packages, about 10 s). No Chrome or Edge: ask first, then `--fix --browser`
    (Playwright's Chromium, ~150 MB). For characters add `--characters` (the 224 MB cut-out
    model, once). If it says the Python cannot make a venv, pass on its one-line fix.
 2. Keys in the environment: `OPENAI_API_KEY` for `draw`, `TRIPO_API_KEY` for characters. Never ask the user to paste a key into the

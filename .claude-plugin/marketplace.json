@@ -1,16 +1,16 @@
 {
-  "name": "iso-sprite",
+  "name": "spritecast",
   "owner": {
     "name": "Sunghwan Baek"
   },
   "plugins": [
     {
-      "name": "iso-sprite",
+      "name": "spritecast",
       "source": "./",
-      "description": "Isometric game props at true scale and the exact 2:1 angle, drawn in your art style."
+      "description": "Game props and characters at their real size and exact camera angle, drawn in your art style - props, standing figures, and 8-direction walking characters (3D-guided)."
     }
   ],
   "metadata": {
-    "description": "iso-sprite: isometric game props at true scale, drawn in your art style."
+    "description": "SpriteCast: isometric sprite generator for Claude Code - game props and 8-direction walking characters at true scale, drawn in your art style."
   }
 }

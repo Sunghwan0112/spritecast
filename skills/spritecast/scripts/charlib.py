@@ -187,18 +187,18 @@ _SEG = None
 
 
 def seg_model(which=None, fetch=True):
-    """the model file: ~/.cache/iso-sprite/models/, or rembg's copy if it has one; fetched (and its md5 checked) when missing"""
+    """the model file: ~/.cache/spritecast/models/, or rembg's copy if it has one; fetched (and its md5 checked) when missing"""
     import hashlib, urllib.request
     from pathlib import Path
-    which = which or os.environ.get('ISO_SPRITE_KEY_MODEL', 'lite'); url, md5, size, name = MODELS[which]
-    for p in (Path.home() / '.cache/iso-sprite/models' / f'{name}.onnx', Path.home() / '.rembg/models' / name / f'{name}.onnx',
+    which = which or os.environ.get('SPRITECAST_KEY_MODEL', 'lite'); url, md5, size, name = MODELS[which]
+    for p in (Path.home() / '.cache/spritecast/models' / f'{name}.onnx', Path.home() / '.rembg/models' / name / f'{name}.onnx',
               Path(os.environ.get('U2NET_HOME', Path.home() / '.u2net')) / f'{name}.onnx'):
         if p.exists() and p.stat().st_size == size: return p
     if not fetch: return None
-    p = Path.home() / '.cache/iso-sprite/models' / f'{name}.onnx'; p.parent.mkdir(parents=True, exist_ok=True); tmp = p.with_suffix('.part')
+    p = Path.home() / '.cache/spritecast/models' / f'{name}.onnx'; p.parent.mkdir(parents=True, exist_ok=True); tmp = p.with_suffix('.part')
     print(f'cut-out model: downloading {name} ({size / 1e6:.0f} MB, once) ...', flush=True)
     h = hashlib.md5(); got = 0
-    with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'iso-sprite'}), timeout=60) as r, open(tmp, 'wb') as f:
+    with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'spritecast'}), timeout=60) as r, open(tmp, 'wb') as f:
         while True:
             b = r.read(1 << 20)
             if not b: break
@@ -222,10 +222,10 @@ def ai_key(im):
 
 
 def figure_key(im):
-    """the AI segmenter when it is there (ISO_SPRITE_KEY=white keeps the old way), else the white key"""
-    if os.environ.get('ISO_SPRITE_KEY') != 'white':
+    """the AI segmenter when it is there (SPRITECAST_KEY=white keeps the old way), else the white key"""
+    if os.environ.get('SPRITECAST_KEY') != 'white':
         m = ai_key(im)
-        if m is not None: return fill_feet(m) if os.environ.get('ISO_SPRITE_WHITE_SHOES') == '1' else m
+        if m is not None: return fill_feet(m) if os.environ.get('SPRITECAST_WHITE_SHOES') == '1' else m
     return white_key(im)
 
 
@@ -247,7 +247,7 @@ def fill_feet(fg, band=0.16, max_hole=600):
 def clear_white_unless_ai(im, ren=None):
     """the AI cut-out leaves no paper between the limbs, and clear_white would take the white between a white sneaker's laces for a
     hole: only after the white key"""
-    if os.environ.get('ISO_SPRITE_KEY') != 'white' and _have_ort(): return im
+    if os.environ.get('SPRITECAST_KEY') != 'white' and _have_ort(): return im
     return clear_white(im, ren)
 
 

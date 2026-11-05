@@ -24,17 +24,17 @@ jobs:
           python-version: '3.12'
       - name: doctor --fix (a venv, the packages, a browser)
         run: |
-          python skills/iso-sprite/scripts/doctor.py --fix | tee doctor.txt
+          python skills/spritecast/scripts/doctor.py --fix | tee doctor.txt
           echo "PY=$(grep '^PYTHON=' doctor.txt | cut -d= -f2-)" >> "$GITHUB_ENV"
       - name: try (free, no key)
         run: |
-          "$PY" skills/iso-sprite/scripts/isoprop.py try --out try
+          "$PY" skills/spritecast/scripts/isoprop.py try --out try
           "$PY" -c "from PIL import Image; im = Image.open('try/reading_armchair/preview.png'); print('preview', im.size); assert im.width > 200"
       - name: the characters' cut-out (BiRefNet lite, fetched once)
         run: |
           "$PY" - <<'PY'
           import sys, time
-          sys.path.insert(0, 'skills/iso-sprite/scripts'); import charlib as CL
+          sys.path.insert(0, 'skills/spritecast/scripts'); import charlib as CL
           from PIL import Image
           sheet = Image.open('examples/rain_girl/sheet.png').convert('RGB')
           cell = sheet.crop((0, 0, sheet.width // 9, sheet.height // 8)).resize((512, 512))

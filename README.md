@@ -1,6 +1,6 @@
-# iso-sprite
+# SpriteCast
 
-**Game props, characters and 8-direction walks at their real size and the exact camera angle, drawn in your art style.** It's a Claude Code plugin.
+**An isometric sprite generator for Claude Code:** game props, characters and 8-direction walks at their real size and the exact camera angle, drawn in your art style.
 
 [한국어](README.ko.md)
 
@@ -14,13 +14,13 @@ Ask an image model for "an isometric armchair" and you get a nice picture at a s
 different wrong angle and a different size. Put ten of them on one floor and nothing lines up.
 
 A walking character is worse. Here GPT alone (the same model, the same character sheet, the walk asked for frame by frame in
-words) against iso-sprite. Each of GPT's frames is a nice drawing, but it doesn't walk: the same leg is in front in all eight frames,
+words) against SpriteCast. Each of GPT's frames is a nice drawing, but it doesn't walk: the same leg is in front in all eight frames,
 the arms twitch at random instead of swinging against the legs, the camera is at eye level instead of looking down at the game's 30°, and there is no shadow.
 Both tries are shown as they came out.
 
-![GPT alone, two tries, against iso-sprite: the same character walking south-east](docs/gpt-alone-vs-guide.gif)
+![GPT alone, two tries, against SpriteCast: the same character walking south-east](docs/gpt-alone-vs-guide.gif)
 
-iso-sprite gives the model something it can't misread:
+SpriteCast gives the model something it can't misread:
 1. Claude builds the object from simple blocks at its **real size in metres**.
 2. The blocks are rendered with your game's **exact camera**.
 3. The image model only redraws that guide in your **art style**.
@@ -50,13 +50,13 @@ guide for free and shows it to you. It tells you the cost and waits for your OK.
 
 In a terminal:
 ```
-claude plugin marketplace add Sunghwan0112/iso-sprite
-claude plugin install iso-sprite@iso-sprite
+claude plugin marketplace add Sunghwan0112/spritecast
+claude plugin install spritecast@spritecast
 ```
-or inside Claude Code: `/plugin marketplace add Sunghwan0112/iso-sprite`, then `/plugin install iso-sprite@iso-sprite`.
+or inside Claude Code: `/plugin marketplace add Sunghwan0112/spritecast`, then `/plugin install spritecast@spritecast`.
 
 **You also need** only Python 3.9+ and a browser (Chrome, or Edge - every Windows has it). The first time, Claude runs the setup
-check (`doctor.py --fix`): it makes its own venv in `~/.cache/iso-sprite/` with the few packages (about 10 s), leaves your Python
+check (`doctor.py --fix`): it makes its own venv in `~/.cache/spritecast/` with the few packages (about 10 s), leaves your Python
 alone, and tells you what each thing is for. Nothing to install by hand.
 
 | what | for | needed? |
@@ -68,7 +68,7 @@ alone, and tells you what each thing is for. Nothing to install by hand.
 | `OPENAI_API_KEY` | drawing, about $0.07 a prop | to draw |
 | `TRIPO_API_KEY` | characters: the 3D model, its rig and walk | for walking characters |
 
-**Try it first, free, no key:** ask Claude to *"try iso-sprite"*. It renders one of the examples' guides on your computer and
+**Try it first, free, no key:** ask Claude to *"try SpriteCast"*. It renders one of the examples' guides on your computer and
 finishes it with the drawing that came with the example (`isoprop.py try`), so you see the whole way before paying for anything.
 
 Keys:
@@ -156,7 +156,7 @@ the prompt), and the outline check can't see that. Redraw one facing with `draw 
 The 3D guide's shadow is exact for solid things like furniture. But a drawing has things the blocks don't: hair, a coat's hood,
 leaves spilling out of a pot.
 
-So iso-sprite also renders a **height map** of the guide: how high above the floor every pixel is. A point h metres up casts its
+So SpriteCast also renders a **height map** of the guide: how high above the floor every pixel is. A point h metres up casts its
 shadow a fixed step away on screen (h times the light's offset), whatever its depth. So each pixel of the drawing takes the height of
 the guide under it, or of the nearest guide pixel for hair or leaves past the guide, and is moved by that step.
 
@@ -188,7 +188,7 @@ illustration's look. An image model can't keep a body and a pose from frame to f
    casts its own) and an anchor.
 
 ```
-python skills/iso-sprite/scripts/charpipe.py turnaround hero.json --yes   # then 3d (model, rig, renders) and draw (then finish, preview by themselves)
+python skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # then 3d (model, rig, renders) and draw (then finish, preview by themselves)
 ```
 All eight facings are drawn by default; a facing is flipped from its pair only when it stays low after two redraws (mixed frame by frame).
 A design that is the same on both sides can set `"mirror": true` to flip the west facings from the east ones (each keeping its own
@@ -210,7 +210,7 @@ and now and then sends one back uncoloured. Both are fixed for you: the model is
 again if it comes back grey. Meshy's models faced front and came coloured every time.
 
  Details and lessons:
-[reference/character.md](skills/iso-sprite/reference/character.md). The girl above is in
+[reference/character.md](skills/spritecast/reference/character.md). The girl above is in
 [`examples/rain_girl`](examples/rain_girl): her illustration, turnaround, spec, strips, shadows, `character.json` and the sheet.
 She was made with Tripo alone: about $1.7 of drawing and 85 Tripo credits.
 
@@ -300,15 +300,15 @@ frames, with the same 3D shadows and anchors. A character costs only its turnaro
 | `preview` | the sprite on a 1 m floor grid | free |
 
 You can run the steps yourself too:
-`python skills/iso-sprite/scripts/isoprop.py render|draw|finish|preview examples/reading_armchair.json`. `draw` only prints the cost
-until you add `--yes`. The spec format is in [reference/spec.md](skills/iso-sprite/reference/spec.md). Tips for good guides are in
-[reference/tips.md](skills/iso-sprite/reference/tips.md).
+`python skills/spritecast/scripts/isoprop.py render|draw|finish|preview examples/reading_armchair.json`. `draw` only prints the cost
+until you add `--yes`. The spec format is in [reference/spec.md](skills/spritecast/reference/spec.md). Tips for good guides are in
+[reference/tips.md](skills/spritecast/reference/tips.md).
 
 ## If something goes wrong
 
 | problem | fix |
 |---|---|
-| `No module named ...` | `python skills/iso-sprite/scripts/doctor.py --fix` (Claude runs it for you) |
+| `No module named ...` | `python skills/spritecast/scripts/doctor.py --fix` (Claude runs it for you) |
 | no browser | install Chrome, or `doctor.py --fix --browser` (Playwright's Chromium, ~150 MB) |
 | `this Python cannot make a venv` | Debian/Ubuntu: `sudo apt install python3-venv`, or use another Python (python.org, conda) |
 | `draw: set OPENAI_API_KEY` | set the key (above) and restart Claude Code |
@@ -333,18 +333,18 @@ The keys are read from your environment only, sent only to their own service, an
 
 | what | from | when |
 |---|---|---|
-| numpy, pillow, scipy, playwright, onnxruntime | PyPI, into its own venv (`~/.cache/iso-sprite/venv`) | `doctor.py --fix`, once |
+| numpy, pillow, scipy, playwright, onnxruntime | PyPI, into its own venv (`~/.cache/spritecast/venv`) | `doctor.py --fix`, once |
 | Chromium (~150 MB) | Playwright's servers | only if there is no Chrome or Edge, and only after you say yes |
 | the cut-out model, BiRefNet lite (224 MB, MIT) | [rembg's GitHub release](https://github.com/danielgatis/rembg/releases/tag/v0.0.0), its md5 checked | characters, the first `finish` |
 
 The renders run in a headless browser on your computer with nothing loaded from the internet: three.js is bundled
-(`skills/iso-sprite/scripts/vendor/three/`, MIT).
+(`skills/spritecast/scripts/vendor/three/`, MIT).
 
 ## Notes
 - The output is yours.
 - Leave real brands, logos and characters from existing games out of descriptions.
 - Solid props get the 3D shadow of their blocks; characters and `loose` things a shadow in the drawing's own shape (see Shadows).
-- Settings: `ISO_SPRITE_MODEL` and `ISO_SPRITE_QUALITY` (`low` | `medium` | `high`).
+- Settings: `SPRITECAST_MODEL` and `SPRITECAST_QUALITY` (`low` | `medium` | `high`).
 
 ## License
 MIT. three.js (bundled in `scripts/vendor/three`) is MIT, © three.js authors.

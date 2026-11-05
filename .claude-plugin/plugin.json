@@ -1,17 +1,22 @@
 {
-  "name": "iso-sprite",
-  "version": "0.5.0",
+  "name": "spritecast",
+  "version": "0.6.0",
   "description": "Game props and characters at their real size and exact camera angle, drawn in your art style - props, standing figures, and 8-direction walking characters (3D-guided).",
   "author": {
     "name": "Sunghwan Baek"
   },
-  "repository": "https://github.com/Sunghwan0112/iso-sprite",
+  "repository": "https://github.com/Sunghwan0112/spritecast",
   "license": "MIT",
   "keywords": [
     "isometric",
     "gamedev",
     "sprites",
+    "sprite-generator",
+    "game-assets",
     "props",
-    "image-generation"
+    "characters",
+    "walk-cycle",
+    "image-generation",
+    "claude-code"
   ]
 }

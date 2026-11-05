@@ -1,7 +1,7 @@
-"""Checks (and with --fix sets up) what iso-sprite needs, and says what each thing is for. Runs on any Python 3.9+, packages or not.
+"""Checks (and with --fix sets up) what SpriteCast needs, and says what each thing is for. Runs on any Python 3.9+, packages or not.
 
     python doctor.py                  what is there, what is missing, the python to use
-    python doctor.py --fix            sets up what is missing: a venv in ~/.cache/iso-sprite/venv with the packages
+    python doctor.py --fix            sets up what is missing: a venv in ~/.cache/spritecast/venv with the packages
     python doctor.py --fix --browser  also Playwright's Chromium (~150 MB) - only needed when there is no Chrome or Edge
     python doctor.py --fix --characters   also the cut-out model for characters (224 MB, once)
 
@@ -12,7 +12,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 REQ = HERE.parent / 'requirements.txt'
-VENV = Path.home() / '.cache' / 'iso-sprite' / 'venv'
+VENV = Path.home() / '.cache' / 'spritecast' / 'venv'
 VPY = VENV / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
 NEED = [('numpy', 'numpy', 'image maths'), ('PIL', 'pillow', 'reading and writing pictures'),
         ('scipy', 'scipy', 'cutting out, filling holes, fitting'), ('playwright', 'playwright', 'drives the browser that renders the 3D guide')]
@@ -53,7 +53,7 @@ def main():
         if py != Path(sys.executable):                   # the rest is checked inside the interpreter that has the packages
             sys.exit(subprocess.run([str(py), __file__, '--inner'] + (['--fix'] if a.fix else []) + (['--characters'] if a.characters else []) + (['--browser'] if a.browser else [])).returncode)
     gone = missing(py)
-    print(f'iso-sprite setup - Python {sys.version.split()[0]} at {py}')
+    print(f'SpriteCast setup - Python {sys.version.split()[0]} at {py}')
     print('packages:')
     for m, pkg, why in NEED + OPTIONAL: line(m not in gone, pkg, why)
     ok = not [m for m, _, _ in NEED if m in gone]

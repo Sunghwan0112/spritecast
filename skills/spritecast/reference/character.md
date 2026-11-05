@@ -99,10 +99,10 @@ north-east, north, north-west, west, south-west.
   white sneakers or a light shirt touching the paper went with it, and lowering the threshold left the paper's specks behind.
   `finish` now uses BiRefNet, run with onnxruntime alone (rembg's export of it; rembg itself and its packages aren't needed - the same
   mask to the pixel): the white sneakers whole, no specks (with `white_shoes`, small holes inside the outline round the feet filled
-  too). The lite model by default (224 MB, fetched once into ~/.cache/iso-sprite/models, ~3 s a frame on a CPU): within a pixel of
-  the full one's outline (99.3-99.8 % overlap on the drawn sheets, the white sneakers too); `ISO_SPRITE_KEY_MODEL=general` (973 MB)
+  too). The lite model by default (224 MB, fetched once into ~/.cache/spritecast/models, ~3 s a frame on a CPU): within a pixel of
+  the full one's outline (99.3-99.8 % overlap on the drawn sheets, the white sneakers too); `SPRITECAST_KEY_MODEL=general` (973 MB)
   for the full one. Of the models tried, ISNet left parts of the shoes half see-through and U2Net blurred the edge.
-  `ISO_SPRITE_KEY=white` brings the old key back; without onnxruntime it is used anyway.
+  `SPRITECAST_KEY=white` brings the old key back; without onnxruntime it is used anyway.
 - **One upper-body size per facing, the legs to the render's feet.** GPT draws some frames of a walk a little taller, mostly by
   drawing a stride's legs longer. Fitting each frame by best overlap with a free scale made the head bob up (up to 27 px); fitting
   each frame whole to its render's height then made the body grow and shrink. `finish` scales the upper body (above 47 % of the

@@ -11,7 +11,7 @@ in at least 5 of its 9 pictures (the fronts and three-quarters; a profile or a b
 - the rest: the factor that gives them the same drawn-to-3D head ratio its found facings then have (its own renders, `head_vs_render`).
 Prints the table and the factors; --apply writes them into each spec as "head_fit" (multiplied into one there already), and `finish`
 then rescales the heads about the neck. Needs `pip install mediapipe` (Python 3.9-3.12); the model (3.7 MB) is fetched once into
-~/.cache/iso-sprite/models/."""
+~/.cache/spritecast/models/."""
 import json, sys, urllib.request
 from pathlib import Path
 import numpy as np
@@ -19,7 +19,7 @@ from PIL import Image
 import charlib as CL
 
 DIRS = ['south', 'south-east', 'east', 'north-east', 'north', 'north-west', 'west', 'south-west']
-MODEL = Path.home() / '.cache' / 'iso-sprite' / 'models' / 'face_landmarker.task'
+MODEL = Path.home() / '.cache' / 'spritecast' / 'models' / 'face_landmarker.task'
 URL = 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task'
 MIN_FOUND = 5
 PAIR = {'west': 'east', 'east': 'west', 'north-west': 'north-east', 'north-east': 'north-west', 'south-west': 'south-east', 'south-east': 'south-west'}

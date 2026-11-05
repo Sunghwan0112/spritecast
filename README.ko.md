@@ -1,6 +1,6 @@
-# iso-sprite
+# SpriteCast
 
-**게임 소품과 인물, 8방향 걷기를 실제 크기와 정확한 카메라 각도로, 원하는 그림체로 그려 주는 Claude Code 플러그인이에요.**
+**Claude Code용 아이소메트릭 스프라이트 생성기:** 게임 소품과 인물, 8방향 걷기를 실제 크기와 정확한 카메라 각도로, 원하는 그림체로 그려 줘요.
 
 [English](README.md)
 
@@ -13,14 +13,14 @@
 이미지 모델에 "아이소메트릭 안락의자"를 그려 달라고 하면 예쁘긴 한데 각도가 조금씩 틀려요. 다시 그리면 또 다른 각도, 다른 크기로 나와요.
 열 개를 한 바닥에 놓으면 하나도 맞지 않아요.
 
-걷는 캐릭터는 더 심해요. 아래는 GPT만으로 그린 것(같은 모델, 같은 캐릭터 시트, 걸음을 프레임마다 글로 지시)과 iso-sprite를 나란히 놓은
+걷는 캐릭터는 더 심해요. 아래는 GPT만으로 그린 것(같은 모델, 같은 캐릭터 시트, 걸음을 프레임마다 글로 지시)과 SpriteCast를 나란히 놓은
 거예요. GPT의 프레임은 한 장씩 보면 예쁘지만 걷지 않아요: 여덟 프레임 모두 같은 다리가 앞에 있고(다리를 안 바꿔요),
 팔은 다리와 반대로 흔들리지 않고 제멋대로 움찔거리고, 게임의 30° 내려다보는 시점이 아니라
 눈높이에서 봤고, 그림자도 없어요. 두 번 시도한 걸 나온 그대로 보여 줘요.
 
-![GPT만으로 두 번 시도한 것과 iso-sprite: 같은 캐릭터가 남동쪽으로 걷기](docs/gpt-alone-vs-guide.ko.gif)
+![GPT만으로 두 번 시도한 것과 SpriteCast: 같은 캐릭터가 남동쪽으로 걷기](docs/gpt-alone-vs-guide.ko.gif)
 
-iso-sprite는 모델이 잘못 읽을 수 없는 가이드를 줘요.
+SpriteCast는 모델이 잘못 읽을 수 없는 가이드를 줘요.
 1. Claude가 물건을 **실제 크기(미터)**의 블록으로 짜요.
 2. 블록을 게임의 **정확한 카메라**로 렌더해요.
 3. 이미지 모델은 그 가이드를 **원하는 그림체**로 다시 그리기만 해요.
@@ -49,13 +49,13 @@ iso-sprite는 모델이 잘못 읽을 수 없는 가이드를 줘요.
 
 터미널에서:
 ```
-claude plugin marketplace add Sunghwan0112/iso-sprite
-claude plugin install iso-sprite@iso-sprite
+claude plugin marketplace add Sunghwan0112/spritecast
+claude plugin install spritecast@spritecast
 ```
-Claude Code 안에서 할 수도 있어요: `/plugin marketplace add Sunghwan0112/iso-sprite` 다음 `/plugin install iso-sprite@iso-sprite`.
+Claude Code 안에서 할 수도 있어요: `/plugin marketplace add Sunghwan0112/spritecast` 다음 `/plugin install spritecast@spritecast`.
 
 **함께 필요한 건** Python 3.9 이상과 브라우저(Chrome, 또는 Edge - 윈도우에는 늘 있어요)뿐이에요. 처음 쓸 때 Claude가 설치 점검
-(`doctor.py --fix`)을 돌려요: `~/.cache/iso-sprite/`에 전용 가상환경을 만들어 몇 가지 패키지를 넣고(10초쯤), 원래 Python은 건드리지
+(`doctor.py --fix`)을 돌려요: `~/.cache/spritecast/`에 전용 가상환경을 만들어 몇 가지 패키지를 넣고(10초쯤), 원래 Python은 건드리지
 않고, 각각 무엇에 쓰는지 알려 줘요. 손으로 설치할 건 없어요.
 
 | 무엇 | 하는 일 | 꼭 필요? |
@@ -67,7 +67,7 @@ Claude Code 안에서 할 수도 있어요: `/plugin marketplace add Sunghwan011
 | `OPENAI_API_KEY` | 그리기, 소품 하나 약 $0.07 | 그릴 때 |
 | `TRIPO_API_KEY` | 캐릭터: 3D 모델, 리그, 걷기 | 걷는 캐릭터 |
 
-**먼저 무료로, 키 없이 해 보기:** Claude에게 *"iso-sprite 체험해 줘"*라고 하면 예시 하나의 가이드를 내 컴퓨터에서 렌더하고, 예시에
+**먼저 무료로, 키 없이 해 보기:** Claude에게 *"SpriteCast 체험해 줘"*라고 하면 예시 하나의 가이드를 내 컴퓨터에서 렌더하고, 예시에
 들어 있는 그림으로 마무리해서(`isoprop.py try`) 돈을 쓰기 전에 전 과정을 볼 수 있어요.
 
 키:
@@ -191,7 +191,7 @@ python isoprop.py render armchair.json        # 그다음은 평소처럼 draw, 
    결과는 스트립, 프레임마다 그림자(발이 그림자에 닿고, 든 발은 따로 그림자가 생겨요), 앵커예요.
 
 ```
-python skills/iso-sprite/scripts/charpipe.py turnaround hero.json --yes   # 그다음 3d(모델, 리그, 렌더), draw(마무리, 미리보기까지 저절로)
+python skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # 그다음 3d(모델, 리그, 렌더), draw(마무리, 미리보기까지 저절로)
 ```
 기본으로 8방향을 다 그려요. 두 번 다시 그려도 점수가 낮은 방향만 짝 방향을 뒤집은 그림과 프레임마다 섞어요. 좌우가 같은 디자인은
 `"mirror": true`로 서쪽 방향들을 동쪽에서 뒤집어 만들 수 있어요(그림자는 방향마다 자기 렌더에서). 약 $0.66 덜 들어요.
@@ -209,7 +209,7 @@ python skills/iso-sprite/scripts/charpipe.py turnaround hero.json --yes   # 그�
 보는 방향을 제멋대로 정하고(하나는 옆, 하나는 뒤 - "얼굴이 검게" 보인 건 뒤통수였어요), 가끔 색 없이 보내요. 둘 다 자동으로 고쳐요:
 발 방향을 보고 정면으로 돌리고, 회색이면 색을 다시 입혀요. Meshy 모델은 매번 정면을 보고 색도 입혀져 왔어요.
 
- 자세한 내용과 요령은 [reference/character.md](skills/iso-sprite/reference/character.md)에
+ 자세한 내용과 요령은 [reference/character.md](skills/spritecast/reference/character.md)에
 있어요. 위 여자아이 예시는 [`examples/rain_girl`](examples/rain_girl)에 있어요(일러스트, 턴어라운드, 사양, 스트립, 그림자, `character.json`, 전체 시트).
 Tripo만으로 만들었고 그리기 약 $1.7, Tripo 85크레딧이 들었어요.
 
@@ -295,15 +295,15 @@ Tripo만으로 만들었고 그리기 약 $1.7, Tripo 85크레딧이 들었어�
 | `finish` | 배경을 부드럽게 빼고, 가이드 영역에 맞추고, 그림자를 굽고, 앵커를 재요 | 무료 |
 | `preview` | 1m 격자 바닥 위에 놓아 봐요 | 무료 |
 
-직접 실행할 수도 있어요: `python skills/iso-sprite/scripts/isoprop.py render|draw|finish|preview examples/reading_armchair.json`.
-`draw`는 `--yes`를 붙이기 전까지 비용만 보여 줘요. 사양 형식은 [reference/spec.md](skills/iso-sprite/reference/spec.md), 좋은
-가이드를 짜는 요령은 [reference/tips.md](skills/iso-sprite/reference/tips.md)에 있어요.
+직접 실행할 수도 있어요: `python skills/spritecast/scripts/isoprop.py render|draw|finish|preview examples/reading_armchair.json`.
+`draw`는 `--yes`를 붙이기 전까지 비용만 보여 줘요. 사양 형식은 [reference/spec.md](skills/spritecast/reference/spec.md), 좋은
+가이드를 짜는 요령은 [reference/tips.md](skills/spritecast/reference/tips.md)에 있어요.
 
 ## 문제가 생기면
 
 | 문제 | 해결 |
 |---|---|
-| `No module named ...` | `python skills/iso-sprite/scripts/doctor.py --fix` (Claude가 대신 돌려요) |
+| `No module named ...` | `python skills/spritecast/scripts/doctor.py --fix` (Claude가 대신 돌려요) |
 | 브라우저 없음 | Chrome 설치, 또는 `doctor.py --fix --browser` (Playwright의 Chromium, ~150 MB) |
 | `this Python cannot make a venv` | Debian/Ubuntu: `sudo apt install python3-venv`, 또는 다른 Python(python.org, conda) |
 | `draw: set OPENAI_API_KEY` | 키를 설정하고(위) Claude Code를 다시 켜요 |
@@ -328,18 +328,18 @@ Tripo만으로 만들었고 그리기 약 $1.7, Tripo 85크레딧이 들었어�
 
 | 무엇 | 어디서 | 언제 |
 |---|---|---|
-| numpy, pillow, scipy, playwright, onnxruntime | PyPI, 전용 가상환경(`~/.cache/iso-sprite/venv`)으로 | `doctor.py --fix`, 한 번 |
+| numpy, pillow, scipy, playwright, onnxruntime | PyPI, 전용 가상환경(`~/.cache/spritecast/venv`)으로 | `doctor.py --fix`, 한 번 |
 | Chromium (~150 MB) | Playwright 서버 | Chrome이나 Edge가 없을 때만, 물어본 뒤에 |
 | 오려내기 모델 BiRefNet lite (224 MB, MIT) | [rembg의 GitHub 릴리스](https://github.com/danielgatis/rembg/releases/tag/v0.0.0), md5 확인 | 캐릭터, 첫 `finish` 때 |
 
 렌더는 내 컴퓨터의 헤드리스 브라우저에서 돌고 인터넷에서 아무것도 불러오지 않아요. three.js는 플러그인에 들어 있어요
-(`skills/iso-sprite/scripts/vendor/three/`, MIT).
+(`skills/spritecast/scripts/vendor/three/`, MIT).
 
 ## 참고
 - 만든 결과물은 사용자 것이에요.
 - 실제 브랜드, 로고, 기존 게임 캐릭터는 설명에 넣지 마세요.
 - 단단한 소품은 블록의 3D 그림자, 인물과 `loose` 물건은 그림 모양 그대로의 그림자를 받아요(그림자 항목 참고).
-- 설정: `ISO_SPRITE_MODEL`, `ISO_SPRITE_QUALITY` (`low` | `medium` | `high`).
+- 설정: `SPRITECAST_MODEL`, `SPRITECAST_QUALITY` (`low` | `medium` | `high`).
 
 ## 라이선스
 MIT. 동봉한 three.js(`scripts/vendor/three`)도 MIT이고 © three.js authors예요.
