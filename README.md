@@ -103,6 +103,8 @@ All in [`examples/`](examples), each with its spec and the files it produced (th
 `armchair_four_ways`: `views: [0, 90, 180, 270]`. The later views are drawn with the first one as a reference, so it stays the same
 chair. `arcade_cabinet_topdown`: `camera: "topdown"`. `reading_armchair_tripo`: the same armchair from a Tripo model (below).
 
+The examples' 3D models (`reading_armchair_tripo`, and the walking characters' meshes and rigs) were generated with the [Tripo](https://www.tripo3d.ai) API.
+
 ## More detail: a 3D model first (Tripo)
 
 ![blocks vs a Tripo model as the guide](docs/tripo.png)
