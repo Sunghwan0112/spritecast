@@ -1,0 +1,46 @@
+name: Bug report / 버그 신고
+description: Something didn't work. / 무언가 동작하지 않았어요.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks! Please never paste an API key here. / 감사합니다! API 키는 절대 붙여 넣지 마세요.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened? / 무슨 일이 있었나요?
+      description: What you asked for or ran, what you expected, and what came out instead. / 무엇을 부탁하거나 실행했고, 무엇을 기대했고, 대신 무엇이 나왔나요?
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command and message / 실행한 명령과 메시지
+      description: The command (e.g. `python skills/spritecast/scripts/charpipe.py draw hero.json --yes`) and the last lines it printed. / 실행한 명령과 마지막에 나온 출력.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: "Output of `python skills/spritecast/scripts/doctor.py` / doctor.py 출력"
+      render: shell
+  - type: input
+    id: os
+    attributes:
+      label: OS and Python version / OS와 Python 버전
+      placeholder: "e.g. Windows 11, Python 3.12"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: SpriteCast version / SpriteCast 버전
+      description: "`version` in .claude-plugin/plugin.json"
+      placeholder: "0.6.0"
+  - type: textarea
+    id: files
+    attributes:
+      label: The spec and pictures / 사양 파일과 그림
+      description: Your spec JSON, and the render / drawing / result that look wrong, if you can share them. / 공유할 수 있다면 사양 JSON과 이상한 렌더·그림·결과물.

@@ -1,0 +1,21 @@
+name: Feature request / 기능 요청
+description: An idea, or something you need that it can't do yet. / 아이디어, 또는 아직 안 되는데 필요한 것.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What do you want to make? / 무엇을 만들고 싶나요?
+      description: The asset or the result in your game - a picture of a similar thing helps. / 게임에 넣으려는 것. 비슷한 그림이 있으면 좋아요.
+    validations:
+      required: true
+  - type: textarea
+    id: now
+    attributes:
+      label: What happens now? / 지금은 어떻게 되나요?
+      description: What you tried, and where it falls short. / 시도해 본 것과 부족한 점.
+  - type: input
+    id: engine
+    attributes:
+      label: Your engine and camera / 엔진과 카메라
+      placeholder: "e.g. Godot 4, 2:1 isometric"

@@ -340,6 +340,27 @@ The keys are read from your environment only, sent only to their own service, an
 The renders run in a headless browser on your computer with nothing loaded from the internet: three.js is bundled
 (`skills/spritecast/scripts/vendor/three/`, MIT).
 
+## Roadmap
+
+What is planned next, roughly in this order (no dates - it moves with feedback):
+- **Sitting and riding**: a character seated on a chair, a bench or a ride's seat, posed in 3D on the seat's own shape, the seat drawn in
+  front of them where it is.
+- **Turning objects**: a vehicle or a ride rotated through many angles, so it turns smoothly instead of snapping between 8 facings.
+- **Night versions**: a mask of what gives light (windows, bulbs, neon), so your engine can light just those parts after dark.
+- **Walk-through props**: arches and gazebos cut into a back and a front piece, so a character can stand inside them.
+- **More actions**: idle breathing, running, an attack, beside the walk.
+- **Engine exports**: sprite sheets with Godot, Unity and Aseprite files ready to import.
+
+See [CHANGELOG.md](CHANGELOG.md) for what each version changed.
+
+## Feedback
+
+Feedback decides what comes next, and what changed because of it is marked in the changelog.
+- **Something broke**: open an [issue](https://github.com/Sunghwan0112/spritecast/issues/new/choose) with the bug form - your OS, Python version,
+  the command and the message help most.
+- **An idea or a missing feature**: the feature form in [issues](https://github.com/Sunghwan0112/spritecast/issues/new/choose).
+- **Show what you made, or ask how**: [Discussions](https://github.com/Sunghwan0112/spritecast/discussions).
+
 ## Notes
 - The output is yours.
 - Leave real brands, logos and characters from existing games out of descriptions.

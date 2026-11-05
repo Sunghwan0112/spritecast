@@ -43,7 +43,9 @@ jobs:
           PY
       - uses: actions/upload-artifact@v4
         if: always()
+        continue-on-error: true          # (only a copy of the results to look at: a full artifact storage must not fail the check)
         with:
+          retention-days: 5
           name: try-${{ matrix.os }}
           path: |
             doctor.txt
