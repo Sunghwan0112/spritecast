@@ -17,7 +17,7 @@
   0.46
  ],
  "front": "front.png",
- "front_px": 8490,
+ "front_px": 9442,
  "nudge_px": [
   0,
   0
@@ -34,5 +34,6 @@
   "sink": 0.03,
   "char": "examples/rain_girl"
  },
- "note": "draw the sprite, then the sitter's frame at top_left_in_sprite (scaled by `scale`), then front.png at the sprite's place"
+ "note": "draw the sprite, then the sitter's frame at top_left_in_sprite (scaled by `scale`), then front.png at the sprite's place",
+ "front_by": "painted by hand"
 }
