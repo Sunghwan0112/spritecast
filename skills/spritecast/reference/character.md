@@ -186,3 +186,14 @@ north-east, north, north-west, west, south-west.
 - **`finish` again is quick**: each sheet's cells are cut out once and kept in `frames/cut/` by the sheet's name, cell and modification
   time, so after a `redraw` only the changed sheets are cut (the AI cut-out is ~3 s a cell on a CPU): the cat's first finish 211 s, the
   next with one sheet changed 28 s.
+
+## Notes
+
+The output has a shadow per frame from the 3D body (`out/shadows/`, offsets in `character.json`): tell the user to draw it at
+~30 % under the sprites. If their game's other characters stand on the bottom of their shoes, set `"anchor": "soles"` (the default,
+the 3D ground under the middle, stands 4-7 game px lower). **Several characters or outfits that should match** (the same person in
+other clothes): `facecheck REF.json --with A.json,B.json` (free; needs mediapipe, Python 3.9-3.12) compares the face for the height,
+facing by facing, by face landmarks - hair fools any outline measure - and `--apply` writes `head_fit` into their specs for `finish`. A rig rendered before this version has no `-s.png`: re-run `render` (free) before `finish`.
+**The cut-out needs onnxruntime** (in requirements.txt): run every step with the `PYTHON=` doctor.py prints. A Python without it now
+stops `finish` with a message instead of quietly cutting by the paper's white (which takes white clothes away and leaves paper between
+the limbs); `SPRITECAST_KEY=white` cuts by white on purpose.

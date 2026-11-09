@@ -332,6 +332,7 @@ this.add.sprite(x, y, 'girl-se').setOrigin(0.4926, 0.8839).play('walk-se');
 
 좌석 높이와 방향을 찾고, 무릎이 좌석 앞 모서리에 오도록 엉덩이 위치를 정해요. 조금 어긋나 보이면 다듬기 페이지(아래)에서 끌어서
 옮기면 돼요. 놓는 순간 그 자리에서 앞 조각을 다시 계산해요.
+자세한 내용은 [reference/sitting.md](skills/spritecast/reference/sitting.md)에 있어요.
 
 ```
 $PYTHON skills/spritecast/scripts/charpipe.py sit <name>.json            # 무료: 앉은 렌더

@@ -336,6 +336,7 @@ backrest) from both of their 3D heights - no painting:
 
 It finds the seat's height and which way it faces, and sits her back until her knees reach the seat's edge. If she sits a little off,
 drag her on the touch-up page (below): letting go works the front piece out again from there.
+The details: [reference/sitting.md](skills/spritecast/reference/sitting.md).
 
 ```
 $PYTHON skills/spritecast/scripts/charpipe.py sit <name>.json            # free: the seated renders

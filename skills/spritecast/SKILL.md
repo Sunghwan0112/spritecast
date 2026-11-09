@@ -1,6 +1,6 @@
 ---
 name: spritecast
-description: Make an isometric (2:1, true isometric), 3/4 top-down or front-view game prop, furniture or character sprite - single standing figures, or walking characters in 8 facings at its real size and exact angle - Claude builds a 3D block guide from the description, renders it with an isometric camera, an image model redraws it in a chosen art style, then it is cut out, fitted back on the guide, given a baked shadow and an anchor. Use when the user asks for an isometric prop, furniture, decoration or object sprite for a game.
+description: Make game sprites at their real size and exact camera angle (2:1 or true isometric, 3/4 top-down, front view) in the user's art style - props, furniture and objects, standing figures, characters walking in 8 facings and seated in 8 facings, seated on the user's own chairs and benches with the chair's front piece in front of them - from a 3D guide an image model redraws; then cut out, fitted to the guide, given a baked shadow and an anchor, and fixed by hand on a local touch-up page. Use when the user asks for an isometric or top-down prop, furniture, object or character sprite, a walk cycle, a seated or sitting character, putting a character on a chair or bench, or fixing a sprite's cut-out, halo or what covers what.
 license: MIT
 compatibility: Claude Code (runs Python, Playwright and a local Chrome/Chromium on the user's machine; calls the OpenAI Images API with the user's own key)
 ---
@@ -97,48 +97,22 @@ Then, asking for each paid round:
    other's flipped; south and north, which have no pair, get their low frames drawn one at a time (~$0.11 each, once each).
 A low score is not always a bad drawing: lay the render's outline over the frame and look. For an animal the size is matched by overlap
 per sheet (its height is mostly the tail), so a low score there is the drawing itself - a head turned another way, legs bunched.
-The output has a shadow per frame from the 3D body (`out/shadows/`, offsets in `character.json`): tell the user to draw it at
-~30 % under the sprites. If their game's other characters stand on the bottom of their shoes, set `"anchor": "soles"` (the default,
-the 3D ground under the middle, stands 4-7 game px lower). **Several characters or outfits that should match** (the same person in
-other clothes): `facecheck REF.json --with A.json,B.json` (free; needs mediapipe, Python 3.9-3.12) compares the face for the height,
-facing by facing, by face landmarks - hair fools any outline measure - and `--apply` writes `head_fit` into their specs for `finish`. A rig rendered before this version has no `-s.png`: re-run `render` (free) before `finish`.
-**The cut-out needs onnxruntime** (in requirements.txt): run every step with the `PYTHON=` doctor.py prints. A Python without it now
-stops `finish` with a message instead of quietly cutting by the paper's white (which takes white clothes away and leaves paper between
-the limbs); `SPRITECAST_KEY=white` cuts by white on purpose.
+Then tell the user the shadows are per frame (`out/shadows/`, draw them at ~30 % under the sprites). Matching outfits (`facecheck`),
+the anchor on the soles, and what to do when the cut-out stops for want of onnxruntime: [reference/character.md](reference/character.md#notes).
 
-## Sitting (people)
-After the walk is drawn, `charpipe.py sit CHAR.json` (free) bends the rig into sitting - thighs level, knees bent, hands on the thighs -
-in 8 facings with their 3D shadows, on nothing (the game's own chair goes under them); show the renders. Then `sit CHAR.json --draw`
-(~$0.22, two sheets of 4; `--yes` once the user agreed) draws them like the standing views and finishes: `out/sit-<facing>.png` in a
-box of their own, and `"sit"` in `character.json` - each facing's `seat` (the point to put on the chair's seat, a fraction of the
-frame), `seat_height` (in the figure's heights) and its shadow. Which facing to use: the one the chair faces. To have the chair's arm or
-front cover them, paint the chair's front piece in the touch-up page (blue) and draw it over the sitter. `"sit": {"hip", "knee",
-"arm", "elbow"}` in the spec changes the pose (degrees; 88, 88, 10, 50).
+## Sitting (people) - details in [reference/sitting.md](reference/sitting.md)
+Offer it once a character walks. 1) `charpipe.py sit CHAR.json` (free): the rig seated in 8 facings, on nothing - show the renders.
+2) `sit CHAR.json --draw` (~$0.22, after the user agrees; `--yes`): drawn and finished → `out/sit-<facing>.png` and `"sit"` in
+`character.json` (each facing's seat point). 3) On one of their props: `${CLAUDE_SKILL_DIR}/scripts/seat.py PROP.json CHAR.json
+--height <m>` (free; ask the character's height): placed on the seat, the prop's front piece for them worked out from both 3D heights
+→ `<view>/seat/<char>-<facing>/` (front.png, seat.json, preview.png). Show the preview.
 
-**Putting them on a prop** (`${CLAUDE_SKILL_DIR}/scripts/seat.py PROP.json CHAR.json [--view turn-90] [--height 1.3]`, free): the
-sitter placed on a finished prop's seat and the prop's front piece for them worked out from both heights (the prop's
-`render-height.png`, the sitter's `render/sit-*-h.png` - re-run `render` / `sit` if they are missing) → `<view>/seat/<char>-<facing>/`
-front.png, seat.json (where to draw the sitter), preview.png. It finds the seat's height, which way it faces (away from the backrest),
-and sits them back until their knees reach the seat's front edge. Ask the character's height (`--height`, else `"height_m"`, else
-1.7). A seat hidden behind its back in this view, on a 3D model without blocks: `--at X,Y,Z` with the seat's height from the front view.
-Show the preview; a sitter in the wrong place is moved on the touch-up page (below), which re-makes the seat from there.
-
-## Touching up by hand (props and characters)
-`${CLAUDE_SKILL_DIR}/scripts/touchup.py SPEC.json` (free) opens a local page with every finished picture of that prop or character
-(a character's walk and standing frames). Offer it when the user sees paper left between the limbs, a halo, a white shirt or shoe the
-cut-out took for the paper, or wants a walk-in prop's front piece. They paint, it saves as they go:
-- **red - clear**: made see-through;
-- **green - bring back**: those pixels taken from the drawing itself (a character's frame: its sheet's cell laid on the frame again;
-  a prop: the drawing laid like the sprite, `sprite-src.png`) - "drawing under" shows it, "result" shows what applying will make;
-- **blue - front piece** (props): what stands in front of a person inside the thing (an arch's near posts and curve, a gazebo's roof,
-  a chair's near armrest) → `sprite-front.png` and `"front"` in `sprite.json`: the game draws the sprite behind them and this over them.
-- **⬠ polygon** (P): corners clicked, closed with a double-click, Enter or the first corner - filled in the current colour (or erased).
-- **🪑 a seat** (props with seat.py's sitters): drag the sitter, or the arrow keys a pixel at a time; letting go makes the seat
-  again from there (`nudge.json`) and works its front piece out anew.
-Then `touchup.py SPEC.json --apply` (characters: the strips are packed again). `finish` lays the paintings on again by itself, so
-they survive a later `finish`; a picture drawn again since it was painted gets its painting set aside, never laid on a new drawing.
-Tell the user painting by hand is the most accurate step: the automatic front pieces and placements are a start, their eye finishes
-them. Never paint for the user without asking, and never run `--apply` on paintings you made yourself without showing them first.
+## Touching up by hand - details in [reference/touchup.md](reference/touchup.md)
+`${CLAUDE_SKILL_DIR}/scripts/touchup.py SPEC.json` (free) is a local page where the user paints fixes: red clears (paper between the
+limbs, a halo), green brings pixels back from the drawing (a white shirt the cut-out took for paper), blue paints a prop's front piece,
+⬠ a polygon, 🪑 drags a seated character into place. **It is a server: start it in the background**, give the user the address it
+prints, and stop it when they are done; then `touchup.py SPEC.json --apply`. Offer it whenever a cut-out, a front piece or a seat
+looks off, and tell the user painting by hand is the most accurate step. Never paint for them without asking.
 
 ## Rules
 - Spend money only after the user agreed to that amount. Show the free render before any paid step.
