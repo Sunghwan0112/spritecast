@@ -345,9 +345,12 @@ $PYTHON skills/spritecast/scripts/seat.py <prop>.json <name>.json --height 1.3  
 
 ## Fixing things by hand
 
-![The touch-up page: an armchair's near armrest painted blue as its front piece](docs/touchup.png)
+![Three seats: the front piece worked out automatically beside the same seat painted and moved by hand](docs/touchup.png)
 
-Cut-outs are not perfect: a little paper left between an arm and the body, a white shirt the cut-out took for the paper. Ask Claude to
+The automatic steps get you most of the way; the last bit is best done by eye. **Painting by hand is more accurate than any of the
+automatic steps**: above, the pew's back hid the whole girl until it was painted and she was moved up, and the dining chair's and the
+armchair's backs cut her in the wrong places. Cut-outs are not perfect either: a little paper left between an arm and the body, a white
+shirt the cut-out took for the paper. Ask Claude to
 open the touch-up page (or run `$PYTHON skills/spritecast/scripts/touchup.py <spec>.json`): every finished picture of that prop or
 character, painted in the browser and saved as you go.
 

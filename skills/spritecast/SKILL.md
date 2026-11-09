@@ -137,7 +137,8 @@ cut-out took for the paper, or wants a walk-in prop's front piece. They paint, i
   again from there (`nudge.json`) and works its front piece out anew.
 Then `touchup.py SPEC.json --apply` (characters: the strips are packed again). `finish` lays the paintings on again by itself, so
 they survive a later `finish`; a picture drawn again since it was painted gets its painting set aside, never laid on a new drawing.
-Never paint for the user without asking, and never run `--apply` on paintings you made yourself without showing them first.
+Tell the user painting by hand is the most accurate step: the automatic front pieces and placements are a start, their eye finishes
+them. Never paint for the user without asking, and never run `--apply` on paintings you made yourself without showing them first.
 
 ## Rules
 - Spend money only after the user agreed to that amount. Show the free render before any paid step.
