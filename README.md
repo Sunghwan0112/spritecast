@@ -103,7 +103,10 @@ There, run the `$PYTHON ...` commands below as `& $PYTHON ...`.
 **Try it first, free, no key:** ask Claude to *"try SpriteCast"*. It renders one of the examples' guides on your computer and
 finishes it with the drawing that came with the example (`isoprop.py try`), so you see the whole way before paying for anything.
 
-Keys:
+Keys: **in the plugin's settings.** When you enable SpriteCast, Claude Code asks for them (`/plugin` → SpriteCast → configure,
+to change them later): the OpenAI key, and the Tripo key if you make walking characters. They are kept in your system's credential
+store, masked, and handed to SpriteCast's scripts when a session starts (restart Claude Code after changing one). A key already in your
+environment still works when the settings have none:
 
 ```bash
 export OPENAI_API_KEY=sk-...          # macOS / Linux (add it to ~/.zshrc or ~/.bashrc to keep it)
@@ -111,7 +114,8 @@ export OPENAI_API_KEY=sk-...          # macOS / Linux (add it to ~/.zshrc or ~/.
 ```powershell
 setx OPENAI_API_KEY "sk-..."          # Windows (then open a new terminal)
 ```
-Your key stays on your computer. It is only sent to OpenAI, and you pay OpenAI for each drawing (about $0.07).
+On Windows the settings reach the scripts only when Claude Code runs its commands in Git Bash (its default when Git is installed); in
+PowerShell use the environment. Your key stays on your computer. It is only sent to OpenAI, and you pay OpenAI for each drawing (about $0.07).
 
 OpenAI may ask you to verify your organisation before a key can use image models (platform.openai.com → Settings →
 Organization): do it once before your first drawing. Set the key before you start Claude Code; a key set while it runs is seen
@@ -390,7 +394,7 @@ until you add `--yes`. The spec format is in [reference/spec.md](skills/spriteca
 | `No module named ...` | run the script with the `PYTHON=` that `python3 skills/spritecast/scripts/doctor.py` prints (`--fix` first if it says not ready; Claude does this for you) |
 | no browser | install Chrome, or `doctor.py --fix --browser` (Playwright's Chromium, ~150 MB) |
 | `this Python cannot make a venv` | Debian/Ubuntu: `sudo apt install python3-venv`, or use another Python (python.org, conda) |
-| `draw: set OPENAI_API_KEY` | set the key (above) and restart Claude Code |
+| `draw: set OPENAI_API_KEY` | give the key in the plugin's settings (`/plugin` → SpriteCast), or set it in the environment (above), and restart Claude Code |
 | `HTTP 401` / `403` | the key is wrong, or OpenAI wants your organisation verified before it allows image models (platform.openai.com → Settings → Organization) |
 | `finish: WARNING - the drawing does not follow the guide` | the model drew another angle or shape: make the description say what is seen from this camera, check the guide, draw again with `--again`. For plants and other loose shapes that may spill past their guide, set `"loose": true` |
 | the drawing added things | say what must NOT be there in the description ("no rug, no logos"), then draw again |

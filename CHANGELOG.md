@@ -19,6 +19,9 @@ Changes made because of a report or a request are marked *(feedback)*.
 - On the touch-up page a seated character is **dragged to where they should sit**; letting go re-makes the seat there. *(feedback)*
 - A **polygon** on the touch-up page (P): click the corners, close it, and it is filled in the colour you are painting (or erased). *(feedback)*
 - Curved blocks (`"arc"`) for round things like a curved bench.
+- **API keys in the plugin's settings** (`userConfig`): Claude Code asks for them when SpriteCast is enabled and keeps them in the
+  system's credential store; a session-start hook hands them to the scripts. A key in the environment still works when the settings
+  have none.
 - The skill reads lighter: sitting, seats and the touch-up page have their own reference files, SKILL.md says to run the touch-up
   page in the background, and the skill's description names walking, sitting, seats and fixing cut-outs so it is picked for them.
 - `charpipe.py pack`: the strips made again from frames/ without finishing again.

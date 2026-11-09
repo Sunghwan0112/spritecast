@@ -20,8 +20,10 @@ Scripts: `${CLAUDE_SKILL_DIR}/scripts/isoprop.py` (steps `render`, `draw`, `fini
    in a line what is missing and run it again with `--fix` (a venv in ~/.cache/spritecast/, the packages, about 10 s). No Chrome or Edge: ask first, then `--fix --browser`
    (Playwright's Chromium, ~150 MB). For characters add `--characters` (the 224 MB cut-out
    model, once). If it says the Python cannot make a venv, pass on its one-line fix.
-2. Keys in the environment: `OPENAI_API_KEY` for `draw`, `TRIPO_API_KEY` for characters. Never ask the user to paste a key into the
-   chat, never write it into a file, never print it.
+2. Keys: `OPENAI_API_KEY` for `draw`, `TRIPO_API_KEY` for characters. They come from the plugin's settings (the user gives them in
+   `/plugin` → SpriteCast; a session-start hook hands them to the scripts), else from the environment. Missing: tell the user to put it
+   in the plugin's settings and restart Claude Code. Never ask the user to paste a key into the chat, never write it into a file,
+   never print it.
 3. **A first-time user, or "try it" / "체험":** `PYTHON isoprop.py try [--out DIR]` - free, no key: an example's guide rendered on
    their computer and finished with the drawing that came with it → show them `preview.png` and `render.png`, then offer to make
    their own prop.

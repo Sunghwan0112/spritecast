@@ -18,5 +18,25 @@
     "walk-cycle",
     "image-generation",
     "claude-code"
-  ]
+  ],
+  "userConfig": {
+    "openai_api_key": {
+      "type": "string",
+      "title": "OpenAI API key",
+      "description": "Drawing props and characters (about $0.07 a prop, $2.2 a walking character). From platform.openai.com.",
+      "sensitive": true
+    },
+    "tripo_api_key": {
+      "type": "string",
+      "title": "Tripo API key (optional)",
+      "description": "Walking characters and animals: the 3D model and its rig (75 / 30 credits). From platform.tripo3d.ai.",
+      "sensitive": true
+    },
+    "meshy_api_key": {
+      "type": "string",
+      "title": "Meshy API key (optional)",
+      "description": "Only if you choose Meshy as the 3D modeller (\"modeler\": \"meshy\").",
+      "sensitive": true
+    }
+  }
 }
