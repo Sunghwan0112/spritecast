@@ -16,7 +16,7 @@ VENV = Path.home() / '.cache' / 'spritecast' / 'venv'
 VPY = VENV / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
 NEED = [('numpy', 'numpy', 'image maths'), ('PIL', 'pillow', 'reading and writing pictures'),
         ('scipy', 'scipy', 'cutting out, filling holes, fitting'), ('playwright', 'playwright', 'drives the browser that renders the 3D guide')]
-OPTIONAL = [('onnxruntime', 'onnxruntime', 'characters only: runs the AI cut-out (without it a white key is used, which loses white shoes)'),
+OPTIONAL = [('onnxruntime', 'onnxruntime', 'characters only: runs the AI cut-out (without it `finish` stops - SPRITECAST_KEY=white cuts by the paper\'s white instead, which loses white clothes)'),
             ('mediapipe', 'mediapipe', 'facecheck only: compares faces across characters (Python 3.9-3.12, pip install mediapipe)')]
 
 
@@ -75,7 +75,7 @@ def main():
         if not mp and a.fix and a.characters: mp = charlib.seg_model()
     line(bool(mp), 'BiRefNet lite (224 MB)', str(mp) if mp else 'fetched by itself the first time a character is finished (or --fix --characters)')
     print('keys (set in the environment; never pasted into the chat):')
-    for k, why in (('OPENAI_API_KEY', 'drawing - props and characters (about $0.07 a prop, ~$1.5 a walking character)'),
+    for k, why in (('OPENAI_API_KEY', 'drawing - props and characters (about $0.07 a prop, ~$2.2 a walking character; ~$1.5 with "mirror": true)'),
                    ('TRIPO_API_KEY', 'characters: the 3D model and its rig and walk; props: an optional detailed model'),
                    ('MESHY_API_KEY', 'optional: characters\' 3D model by Meshy instead ("modeler": "meshy")')):
         line(bool(os.environ.get(k)), k, why)

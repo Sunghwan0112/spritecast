@@ -433,7 +433,7 @@ def finish(spec, d):
     meta = json.loads((d / 'render.json').read_text()); ren = Image.open(d / 'render.png').convert('RGBA')
     rb = ren.getbbox(); W, H = rb[2] - rb[0], rb[3] - rb[1]
     g = drop_specks(soft_key(Image.open(d / 'drawn.png')))
-    g = g.crop(Image.fromarray((np.array(g)[..., 3] > 127).astype(np.uint8) * 255).getbbox())
+    gb = Image.fromarray((np.array(g)[..., 3] > 127).astype(np.uint8) * 255).getbbox(); g = g.crop(gb)
     # laid back over the guide's box. A small difference in proportions is the drawing's own looseness: stretched away. A big one means
     # the model didn't follow the guide (drew another angle): never squeezed to fit - scaled evenly by height, centred, and reported
     off = (g.width / g.height) / (W / H) - 1
@@ -451,6 +451,9 @@ def finish(spec, d):
         print(f'finish: WARNING - the drawing does not follow the guide (proportions {off:+.0%}, outline overlap {iou:.0%}); '
               'it was not squeezed to fit. Fix the description or the guide and draw again (--again).')
     canvas.crop((x0, y0, x1, y1)).save(d / 'sprite.png', optimize=True)
+    # the drawing itself laid the same way, opaque (touchup.py brings pixels back from it that the cut-out took for background)
+    raw = Image.open(d / 'drawn.png').convert('RGB').crop(gb).resize((gw, gh), Image.LANCZOS)
+    src = Image.new('RGB', canvas.size, (255, 255, 255)); src.paste(raw, (gx + pad, gy)); src.crop((x0, y0, x1, y1)).save(d / 'sprite-src.png', optimize=True)
     mode = spec.get('shadow') or ('drawn' if spec.get('loose') else 'guide')
     if mode == 'drawn' and (d / 'render-height.png').exists():   # cast from the drawing with the guide's heights: hair, coats, leaves
         hm = np.array(Image.open(d / 'render-height.png').convert('RGBA')).astype(float)
@@ -536,3 +539,4 @@ if __name__ == '__main__':
     elif args.step == 'draw': draw(spec, d, args)
     else:
         for _, vd in views(spec, d): (finish if args.step == 'finish' else preview)(spec, vd)
+        if args.step == 'finish': import touchup; touchup.apply(args.spec, out=d)     # (what was painted in touchup.py, laid on again)

@@ -14,6 +14,8 @@ Three OKs: `turnaround`, `3d` (= `model` + `rig` + `render`), `draw` (then `fini
 | `draw` | 4 frames a call on one sheet; the front first, every other sheet given it; a walk's second sheet given its first; every facing drawn (`"mirror": true` flips the west side from the east) | ~$0.10 a sheet, 18 sheets ≈ $2 (12 ≈ $1.3 with `"mirror": true`) |
 | `finish` | each frame cut out (its cell cut wider), fitted onto its render (one upper-body size per sheet, the legs to the render's feet), heads steadied within a facing and sized to the 3D model's in every facing, `head_fit` applied, edges cleaned; strips and a shadow per frame | free |
 | `preview` | every frame on one sheet, a GIF per facing, and every facing walking at once in `walk-all.mp4` (with ffmpeg) | free |
+| `pack` | frames/ → out/ strips again (after `touchup.py --apply`; `finish` packs too) | free |
+| `touchup.py` | (optional) a local page to fix frames by hand: red clears, green brings pixels back from the drawing; `--apply` lays them on and packs; `finish` re-applies them | free |
 | `facecheck` | (optional, needs mediapipe) one character's head for its height against another's, facing by facing, by face landmarks; `--apply` writes `head_fit` | free |
 
 ## The spec (`<name>.json`)
@@ -39,7 +41,7 @@ Three OKs: `turnaround`, `3d` (= `model` + `rig` + `render`), `draw` (then `fini
 | `description` | who they are and what they wear, in words, used in every prompt |
 | `notes` | extra rules for every frame, e.g. "her hair falls in front of her left shoulder" or "no marks on the arms" |
 | `modeler` | `"tripo"` (default: one 3D account for the model and the rig) or `"meshy"` (the author's way: Meshy's mesh and texture held up better on faces; needs `MESHY_API_KEY`) |
-| `draw` | `true` (default); `false`: no image model - the 3D renders are the frames (toon-shaded, the model's own texture), with the same 3D shadows: ~$0.09 + the 3D only, but softer (no drawn lines, a simpler face, blurrier fur) |
+| `draw` | `true` (default); `false`: no image model draws the frames - the 3D renders are the frames (toon-shaded, the model's own texture), with the same 3D shadows: ~$0.09 + the 3D only, but softer (no drawn lines, a simpler face, blurrier fur). The image model still draws the turnaround (the ~$0.09); with your own `rig_glb` it draws nothing at all (`render`, `finish` and `preview`, all free) |
 | `mix` | facings mixed frame by frame with their pair, e.g. `["north-east"]`: both drawn, each frame of each the better (by overlap with its render) of its own drawing and the other's flipped; what `redraw` settles a facing with after two tries |
 | `mirror` | `false` (default): all eight drawn; a facing flipped only when `redraw` mixes a pair that stayed low (each frame the better of its own and its pair's flipped). `true`: west, north-west and south-west flipped from east, north-east and south-east - 6 of the 16 walk sheets not drawn (~$0.66 less), only for a design that is the same on both sides (not hair over one shoulder, a logo, a bag, one ear up); or a list of facings to flip from their pair, e.g. `["north-east"]`. A flipped facing is only as good as its pair (a raincoat girl's west flipped 0.75-0.80, drawn 0.83-0.93). Shadows stay each facing's own |
 | `kind` | `"person"` (default) or `"animal"`: a four-legged animal - no rig bought; its skeleton is found from the mesh and it walks in a cat's or a dog's gait (see Animals) |

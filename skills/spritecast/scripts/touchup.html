@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SpriteCast touch-up</title>
+<style>
+  :root { --bg: #f4f1ec; --panel: #fffdf9; --ink: #2b2620; --mute: #7a7166; --line: #e2dbd0; --acc: #b5532c;
+          --red: #e0362c; --green: #1fa34a; --blue: #2f6fe0; color-scheme: light; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #1d1a17; --panel: #26221e; --ink: #efe8de; --mute: #a69c8f; --line: #3a342d; --acc: #e08a5f; color-scheme: dark; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.4 system-ui, sans-serif; background: var(--bg); color: var(--ink); height: 100vh; display: grid;
+         grid-template-columns: 220px 1fr; grid-template-rows: auto 1fr; }
+  header { grid-column: 1 / 3; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; padding: 10px 14px;
+           border-bottom: 1px solid var(--line); background: var(--panel); }
+  header h1 { font-size: 15px; margin: 0 8px 0 0; }
+  .grp { display: flex; gap: 4px; align-items: center; }
+  button { font: inherit; padding: 5px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); cursor: pointer; }
+  button.on { border-color: var(--acc); box-shadow: inset 0 0 0 1px var(--acc); }
+  button:disabled { opacity: .4; cursor: default; }
+  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  #list { overflow: auto; border-right: 1px solid var(--line); background: var(--panel); padding: 6px 0; }
+  #list div { padding: 4px 12px; cursor: pointer; font-size: 13px; white-space: nowrap; }
+  #list div.sel { background: var(--bg); font-weight: 600; }
+  #list div.p::after { content: ' ●'; color: var(--acc); }
+  #stage { overflow: auto; position: relative; }
+  #wrap { position: relative; margin: 24px; display: inline-block; }
+  canvas { display: block; image-rendering: pixelated; }
+  #msg { color: var(--mute); font-size: 12px; }
+  .help { color: var(--mute); font-size: 12px; }
+  input[type=range] { width: 90px; }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">touch-up</h1>
+  <div class="grp" id="modes">
+    <button data-m="clear" class="on"><span class="sw" style="background:var(--red)"></span>Clear</button>
+    <button data-m="back"><span class="sw" style="background:var(--green)"></span>Bring back</button>
+    <button data-m="front"><span class="sw" style="background:var(--blue)"></span>Front piece</button>
+    <button data-m="erase">Eraser</button>
+  </div>
+  <div class="grp">size <input id="size" type="range" min="1" max="60" value="8"><span id="sizev">8</span></div>
+  <div class="grp">zoom <button id="zo">−</button><span id="zv">3×</span><button id="zi">+</button></div>
+  <div class="grp">
+    <button id="bgb">backdrop: pink</button>
+    <button id="srcb">drawing under: off</button>
+    <button id="resb">result: off</button>
+    <button id="undo">Undo</button>
+  </div>
+  <span id="msg"></span>
+  <span class="help">1 2 3 E modes · [ ] size · Z undo · ←→ next · saved as you paint</span>
+</header>
+<nav id="list"></nav>
+<main id="stage"><div id="wrap"><canvas id="cv"></canvas></div></main>
+<script>
+const COL = { clear: [224, 54, 44], back: [31, 163, 74], front: [47, 111, 224] };
+const BGS = [['pink', '#ff4fd8'], ['green', '#3ce86a'], ['checker', null], ['dark', '#222']];
+let kind = 'character', items = [], cur = -1, mode = 'clear', size = 8, zoom = 3, bgi = 0, showSrc = false, showRes = false;
+let base = null, src = null, mask = null, mctx = null, undo = [], dirty = false, saveT = 0;
+const cv = document.getElementById('cv'), cx = cv.getContext('2d');
+const $ = (id) => document.getElementById(id);
+const img = (url) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = url + '?t=' + Date.now(); });
+
+async function init() {
+  const j = await (await fetch('/list')).json(); kind = j.kind; items = j.items; $('title').textContent = `touch-up · ${j.name}`;
+  if (kind !== 'prop') document.querySelector('[data-m=front]').style.display = 'none';
+  const L = $('list'); L.innerHTML = '';
+  items.forEach((it, i) => { const e = document.createElement('div'); e.textContent = it.rel.replace(/^frames\//, '').replace(/\.png$/, ''); e.onclick = () => open(i); L.appendChild(e); });
+  marks(); open(0);
+}
+function marks() { [...$('list').children].forEach((e, i) => { e.className = (i === cur ? 'sel ' : '') + (items[i].painted ? 'p' : ''); }); }
+
+async function open(i) {
+  if (i < 0 || i >= items.length) return;
+  await flush(); cur = i; marks(); undo = [];
+  const rel = encodeURI(items[i].rel);
+  [base, src] = await Promise.all([img('/base/' + rel), img('/src/' + rel)]);
+  const m = await img('/mask/' + rel);
+  mask = document.createElement('canvas'); mask.width = base.width; mask.height = base.height; mctx = mask.getContext('2d');
+  if (m) mctx.drawImage(m, 0, 0);
+  document.querySelector('[data-m=back]').disabled = !src;
+  if (!src && mode === 'back') setMode('clear');
+  $('msg').textContent = src ? '' : (kind === 'character' ? 'no drawing behind this frame (flipped facing): green is off' : 'no drawing kept for this prop (finish it again): green is off');
+  draw();
+}
+
+function draw() {
+  if (!base) return;
+  cv.width = base.width * zoom; cv.height = base.height * zoom; cx.imageSmoothingEnabled = false;
+  const bg = BGS[bgi][1];
+  if (bg) { cx.fillStyle = bg; cx.fillRect(0, 0, cv.width, cv.height); }
+  else { const s = 8 * zoom; for (let y = 0; y < cv.height; y += s) for (let x = 0; x < cv.width; x += s) { cx.fillStyle = ((x + y) / s) % 2 ? '#ccc' : '#fff'; cx.fillRect(x, y, s, s); } }
+  if (showSrc && src) { cx.globalAlpha = 0.45; cx.drawImage(src, 0, 0, cv.width, cv.height); cx.globalAlpha = 1; }
+  if (showRes) { cx.drawImage(result(), 0, 0, cv.width, cv.height); return; }
+  cx.drawImage(base, 0, 0, cv.width, cv.height);
+  cx.globalAlpha = 0.55; cx.drawImage(mask, 0, 0, cv.width, cv.height); cx.globalAlpha = 1;
+}
+
+function result() {        // what --apply will make: green from the drawing, red cleared (the front piece only outlined by its colour)
+  const c = document.createElement('canvas'); c.width = base.width; c.height = base.height; const g = c.getContext('2d');
+  g.drawImage(base, 0, 0); const o = g.getImageData(0, 0, c.width, c.height), m = mctx.getImageData(0, 0, c.width, c.height);
+  let s = null; if (src) { const t = document.createElement('canvas'); t.width = c.width; t.height = c.height; const tg = t.getContext('2d'); tg.drawImage(src, 0, 0); s = tg.getImageData(0, 0, c.width, c.height); }
+  for (let p = 0; p < o.data.length; p += 4) {
+    if (m.data[p + 3] < 40) continue; const r = m.data[p], gg = m.data[p + 1], b = m.data[p + 2];
+    if (r > 150 && gg < 120 && b < 120) o.data[p + 3] = 0;
+    else if (gg > 150 && r < 120 && b < 120 && s) { o.data[p] = s.data[p]; o.data[p + 1] = s.data[p + 1]; o.data[p + 2] = s.data[p + 2]; o.data[p + 3] = 255; }
+  }
+  g.putImageData(o, 0, 0); return c;
+}
+
+let down = false, last = null;
+function at(e) { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / zoom, (e.clientY - r.top) / zoom]; }
+function dab(x, y) {
+  const r = size / 2;
+  if (mode === 'erase') { mctx.save(); mctx.globalCompositeOperation = 'destination-out'; mctx.beginPath(); mctx.arc(x, y, r, 0, 7); mctx.fill(); mctx.restore(); return; }
+  const [R, G, B] = COL[mode]; mctx.fillStyle = `rgb(${R},${G},${B})`;
+  // hard edges: the colour must stay pure to be read back
+  const x0 = Math.floor(x - r), y0 = Math.floor(y - r), n = Math.ceil(size) + 1;
+  for (let yy = y0; yy <= y0 + n; yy++) for (let xx = x0; xx <= x0 + n; xx++) if ((xx + 0.5 - x) ** 2 + (yy + 0.5 - y) ** 2 <= r * r + 0.25) mctx.fillRect(xx, yy, 1, 1);
+}
+function stroke(a, b) { const d = Math.hypot(b[0] - a[0], b[1] - a[1]), n = Math.max(1, Math.ceil(d / Math.max(0.5, size / 4))); for (let i = 0; i <= n; i++) dab(a[0] + (b[0] - a[0]) * i / n, a[1] + (b[1] - a[1]) * i / n); }
+cv.addEventListener('pointerdown', (e) => { if (!base || showRes) return; down = true; cv.setPointerCapture(e.pointerId); undo.push(mctx.getImageData(0, 0, mask.width, mask.height)); if (undo.length > 40) undo.shift(); last = at(e); dab(...last); dirty = true; draw(); });
+cv.addEventListener('pointermove', (e) => { if (!down) return; const p = at(e); stroke(last, p); last = p; draw(); });
+cv.addEventListener('pointerup', () => { if (!down) return; down = false; queueSave(); });
+
+function queueSave() { clearTimeout(saveT); saveT = setTimeout(flush, 600); }
+async function flush() {
+  clearTimeout(saveT); if (!dirty || cur < 0) return; dirty = false;
+  const any = mctx.getImageData(0, 0, mask.width, mask.height).data.some((v, i) => i % 4 === 3 && v > 0);
+  try {
+    await fetch('/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rel: items[cur].rel, png: mask.toDataURL('image/png') }) });
+    items[cur].painted = any; marks(); $('msg').textContent = 'saved';
+  } catch (e) { dirty = true; $('msg').textContent = 'not saved - is touchup.py still running?'; }
+}
+
+function setMode(m) { mode = m; document.querySelectorAll('#modes button').forEach((b) => b.classList.toggle('on', b.dataset.m === m)); }
+document.querySelectorAll('#modes button').forEach((b) => b.onclick = () => !b.disabled && setMode(b.dataset.m));
+$('size').oninput = (e) => { size = +e.target.value; $('sizev').textContent = size; };
+const setZoom = (z) => { zoom = Math.max(1, Math.min(10, z)); $('zv').textContent = zoom + '×'; draw(); };
+$('zi').onclick = () => setZoom(zoom + 1); $('zo').onclick = () => setZoom(zoom - 1);
+$('bgb').onclick = () => { bgi = (bgi + 1) % BGS.length; $('bgb').textContent = 'backdrop: ' + BGS[bgi][0]; draw(); };
+$('srcb').onclick = () => { showSrc = !showSrc; $('srcb').textContent = 'drawing under: ' + (showSrc ? 'on' : 'off'); draw(); };
+$('resb').onclick = () => { showRes = !showRes; $('resb').textContent = 'result: ' + (showRes ? 'on' : 'off'); draw(); };
+$('undo').onclick = () => { const u = undo.pop(); if (u) { mctx.putImageData(u, 0, 0); dirty = true; draw(); queueSave(); } };
+addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT') return;
+  const k = e.key.toLowerCase();
+  if (k === '1') setMode('clear'); else if (k === '2' && src) setMode('back'); else if (k === '3' && kind === 'prop') setMode('front'); else if (k === 'e') setMode('erase');
+  else if (k === '[') { size = Math.max(1, size - 1); $('size').value = size; $('sizev').textContent = size; }
+  else if (k === ']') { size = Math.min(60, size + 1); $('size').value = size; $('sizev').textContent = size; }
+  else if (k === 'z') $('undo').onclick();
+  else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); open(cur + 1); }
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); open(cur - 1); }
+});
+addEventListener('beforeunload', () => { if (dirty) navigator.sendBeacon && flush(); });
+init();
+</script>
+</body>
+</html>

@@ -1,10 +1,22 @@
 # SpriteCast
 
-**An isometric sprite generator for Claude Code:** game props, characters and 8-direction walks at their real size and the exact camera angle, drawn in your art style.
+**An isometric sprite generator for Claude Code:** game props, characters and 8-direction walks at their real size and your game's camera angle.
+An image model (OpenAI's, with your own key) paints them in your art style over a 3D guide; SpriteCast sets the size, the angle,
+the walk and the shadows.
+
+Free and MIT. You pay OpenAI (and Tripo, for walking characters) directly: about $0.07 a prop, about $2.2 and 75 Tripo credits a
+walking character. To try it free with no key, ask Claude to *"try SpriteCast"*.
 
 [한국어](README.ko.md)
 
-![a character walking in 8 facings, drawn over its 3D model](docs/character-walk.gif)
+![GPT alone, two tries, against SpriteCast: the same character walking south-east](docs/gpt-alone-vs-guide.gif)
+
+*GPT alone (two tries) against SpriteCast: the same character walking south-east.*
+
+```
+claude plugin marketplace add Sunghwan0112/spritecast
+claude plugin install spritecast@spritecast
+```
 
 ![guide → sprite](docs/showcase.png)
 
@@ -13,30 +25,33 @@
 Ask an image model for "an isometric armchair" and you get a nice picture at a slightly wrong angle. Ask again and you get a
 different wrong angle and a different size. Put ten of them on one floor and nothing lines up.
 
-A walking character is worse. Here GPT alone (the same model, the same character sheet, the walk asked for frame by frame in
+A walking character is worse. At the top is GPT alone (the same model, the same character sheet, the walk asked for frame by frame in
 words) against SpriteCast. Each of GPT's frames is a nice drawing, but it doesn't walk: the same leg is in front in all eight frames,
 the arms twitch at random instead of swinging against the legs, the camera is at eye level instead of looking down at the game's 30°, and there is no shadow.
 Both tries are shown as they came out.
 
-![GPT alone, two tries, against SpriteCast: the same character walking south-east](docs/gpt-alone-vs-guide.gif)
-
-SpriteCast gives the model something it can't misread:
+SpriteCast gives the model a guide that is hard to misread (and when it does misread, you're told):
 1. Claude builds the object from simple blocks at its **real size in metres**.
 2. The blocks are rendered with your game's **exact camera**.
 3. The image model only redraws that guide in your **art style**.
-4. The drawing is cut out and **laid back over the guide**, so its angle, size and footprint are exactly the guide's. It also gets a
-   baked shadow and an anchor point for your engine.
+4. The drawing is cut out and **fitted to the guide's box**, so its size and footprint are the guide's; a drawing whose outline
+   doesn't follow the guide is flagged, not forced. It also gets a baked shadow and an anchor point for your engine.
 
 **What you get from that:**
-- **The angle and size are right.** Drawings in the examples stray from their guide by about 1 % (outline overlap 97–99 %).
-  Props made months apart still line up on one floor.
+- **The angle and size are right.** The solid props in the examples land on their guide at 95–99 % outline overlap; the plant,
+  drawn loosely on purpose, at 87 %, and the dressed figures at 69–88 % (clothes and hair go past the plain mannequin). Walking
+  characters are scored frame by frame (below). The camera and the scale are fixed, so props made at different times line up on one floor.
 - **Shadows that look right.** One light shared by every prop, so every shadow falls the same way. Solid props cast the 3D
-  guide's exact shadow. Characters and plants cast a shadow in the drawing's own shape (the hood, the hair, the leaves), placed by
-  the 3D model: each foot and a pot's base start their shadow exactly where they stand. Not a painted blob, not a blocky mannequin.
+  guide's own shadow. Posed figures and plants cast a shadow in the drawing's own shape (the hood, the hair, the leaves), placed by
+  the 3D model, so a foot or a pot's base starts its shadow where it stands. Walking characters cast their 3D body's own shadow,
+  frame by frame. Not a painted blob, not a blocky mannequin.
 - **It checks itself.** After drawing, the result is compared with its guide. If the model drew another angle, nothing is squeezed to
   fit: you get a warning, and Claude suggests a fix before drawing again.
 - **Your game's view and your style.** 2:1 isometric, true isometric, 3/4 top-down, front or any angle; all four facings of one
   object; the bundled `cozy` style or one picture of your own.
+
+The output is painted (the `cozy` look: smooth shading, fine outlines), not pixel art. For a pixel-art game, give your own style
+picture and a `look` that describes it, and expect it to take a few tries.
 
 ## How a session goes
 
@@ -59,6 +74,23 @@ or inside Claude Code: `/plugin marketplace add Sunghwan0112/spritecast`, then `
 check (`doctor.py --fix`): it makes its own venv in `~/.cache/spritecast/` with the few packages (about 10 s), leaves your Python
 alone, and tells you what each thing is for. Nothing to install by hand.
 
+**Running the scripts yourself.** Claude runs them for you. To run them by hand from a clone of this repo, use the Python that
+`doctor.py` prints on its last line (`PYTHON=...`); after `--fix` it is `~/.cache/spritecast/venv/bin/python` (Windows:
+`%USERPROFILE%\.cache\spritecast\venv\Scripts\python.exe`). A plain `python` may not have the packages (`No module named ...`). The commands below
+write it as `$PYTHON`:
+```bash
+python3 skills/spritecast/scripts/doctor.py --fix
+PYTHON=$(python3 skills/spritecast/scripts/doctor.py | sed -n 's/^PYTHON=//p')
+$PYTHON skills/spritecast/scripts/isoprop.py --help
+```
+On Windows, in PowerShell:
+```powershell
+python skills/spritecast/scripts/doctor.py --fix
+$PYTHON = "$env:USERPROFILE\.cache\spritecast\venv\Scripts\python.exe"
+& $PYTHON skills/spritecast/scripts/isoprop.py --help
+```
+There, run the `$PYTHON ...` commands below as `& $PYTHON ...`.
+
 | what | for | needed? |
 |---|---|---|
 | Python 3.9+ | runs the scripts | yes |
@@ -80,6 +112,11 @@ export OPENAI_API_KEY=sk-...          # macOS / Linux (add it to ~/.zshrc or ~/.
 setx OPENAI_API_KEY "sk-..."          # Windows (then open a new terminal)
 ```
 Your key stays on your computer. It is only sent to OpenAI, and you pay OpenAI for each drawing (about $0.07).
+
+OpenAI may ask you to verify your organisation before a key can use image models (platform.openai.com → Settings →
+Organization): do it once before your first drawing. Set the key before you start Claude Code; a key set while it runs is seen
+only after a restart. Walking characters also need `TRIPO_API_KEY`, from Tripo's API platform, where API credits are bought
+(75 a character, 30 an animal).
 
 ## Things to ask for
 
@@ -115,9 +152,9 @@ the blocks gave, so the arrangement doesn't change, and it becomes the guide. Th
 shadow is the model's own.
 
 ```
-python isoprop.py model armchair.json --yes   # Tripo text-to-model (~20 Tripo credits, ~2 min); the spec now uses it
-python isoprop.py yaws  armchair.json         # free: the model turned four ways; set "model": {"yaw": ...} to the right one
-python isoprop.py render armchair.json        # then draw, finish as usual
+$PYTHON skills/spritecast/scripts/isoprop.py model  armchair.json --yes   # Tripo text-to-model (~20-40 Tripo credits, ~2 min); the spec now uses it
+$PYTHON skills/spritecast/scripts/isoprop.py yaws   armchair.json         # free: the model turned four ways; set "model": {"yaw": ...} to the right one
+$PYTHON skills/spritecast/scripts/isoprop.py render armchair.json         # then draw, finish as usual
 ```
 Needs `TRIPO_API_KEY`. The blocks stay in the spec as `blocks_draft`.
 
@@ -148,12 +185,13 @@ Each limb is two parts, upper and lower (`[out, forward]` degrees each): turned 
 
 ![four poses](docs/poses.png)
 
-**Single pictures.** These posed figures are one picture per facing; for a walk, see [Walking characters](#walking-characters). Look at every facing yourself: once a back view came out with the head turned away but the body facing front (now prevented in
-the prompt), and the outline check can't see that. Redraw one facing with `draw <spec> --yes --again --only north-west`.
+**Single pictures.** These posed figures are one picture per facing; for a walk, see [Walking characters](#walking-characters).
+Look at every facing yourself (the outline check can't see a head turned the wrong way); redraw one with
+`draw <spec> --yes --again --only north-west`.
 
 ## Shadows that match the drawing
 
-The 3D guide's shadow is exact for solid things like furniture. But a drawing has things the blocks don't: hair, a coat's hood,
+The 3D guide's shadow is right for solid things like furniture. But a drawing has things the blocks don't: hair, a coat's hood,
 leaves spilling out of a pot.
 
 So SpriteCast also renders a **height map** of the guide: how high above the floor every pixel is. A point h metres up casts its
@@ -164,7 +202,8 @@ The shape is the drawing's. Where it starts is the 3D model's: each foot starts 
 base. Only what touches the floor has to be exact. Higher up (from 10 % to 35 % of the object's height) the height eases into a
 smooth one read off the screen, so hair, hats and leaves cast a natural shadow instead of the mannequin's corners. Where it stands
 (the blocks up to 12 cm: shoes, a pot's base) the guide's own 3D shadow is added, so the shadow meets the object as a real one
-would: on the side away from the light, never in front of it. Characters and `loose` things get it; solid props keep the 3D shadow. Choose with `"shadow": "drawn" | "guide"`.
+would: on the side away from the light, never in front of it. Posed figures and `loose` things get it; solid props keep the 3D
+shadow, and walking characters cast their 3D body's own (below). Choose with `"shadow": "drawn" | "guide"`.
 
 ![shadows from the blocks and from the drawing](docs/shadows.png)
 
@@ -177,55 +216,39 @@ would: on the side away from the light, never in front of it. Characters and `lo
 Give it one illustration of a character (facing front, standing straight, no pose) and you get a walk in 8 facings (8 frames each) and 8 standing views, in that
 illustration's look. An image model can't keep a body and a pose from frame to frame, so the motion comes from 3D:
 1. A turnaround is drawn from the illustration.
-2. [Tripo](https://www.tripo3d.ai) makes the 3D model from it.
-3. Tripo rigs it and gives it a walk and an idle.
-4. The walk is rendered with the game's camera (free), and with every frame the 3D body's own shadow, pressed flat onto the ground
+2. [Tripo](https://www.tripo3d.ai) makes the 3D model from it, rigs it and gives it a walk and an idle.
+3. The walk is rendered with the game's camera (free), each frame with the 3D body's own shadow, pressed flat onto the ground
    along the light.
-5. The image model draws over the renders, 4 frames a call. The front is drawn first and every other facing follows it, so it
+4. The image model draws over the renders, 4 frames a call. The front is drawn first and every other facing follows it, so it
    stays the same person.
-6. Every frame is fitted back onto its render (the upper body at one size for the whole facing, the legs reaching the render's
-   feet), the head sizes steadied, and the edges cleaned. You get strips, a shadow per frame (the feet touch it, a lifted foot
-   casts its own) and an anchor.
+5. Every frame is fitted back onto its render, the head sizes steadied and the edges cleaned. You get strips, a shadow per frame
+   (the feet touch it, a lifted foot casts its own) and an anchor.
 
 ```
-python skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # then 3d (model, rig, renders) and draw (then finish, preview by themselves)
+$PYTHON skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # then 3d (model, rig, renders) and draw (then finish, preview by themselves)
 ```
-All eight facings are drawn by default; a facing is flipped from its pair only when it stays low after two redraws (mixed frame by frame).
-A design that is the same on both sides can set `"mirror": true` to flip the west facings from the east ones (each keeping its own
-shadow), about $0.66 less.
+All eight facings are drawn by default. A design that is the same on both sides can set `"mirror": true` to flip the west facings
+from the east ones (each keeping its own shadow), about $0.66 less.
 
-Cost per character: about $2.2 (OpenAI; ~$1.5 with `"mirror": true`) and 75 Tripo credits (~$0.75; an animal 30). Two accounts in all: `OPENAI_API_KEY` and
-`TRIPO_API_KEY`. Or bring your own rigged GLB (`"rig_glb"`) and skip to `render`.
+Cost per character: about $2.2 (OpenAI; ~$1.5 with `"mirror": true`) and 75 Tripo credits (~$0.75; an animal 30). Or bring your
+own rigged GLB (`"rig_glb"`) and skip to `render`.
 
-`preview` also makes `walk-all.mp4` (every facing walking at once, with ffmpeg) - the quickest way to see a head that grows and
-shrinks or a frame that jumps. The same person in several outfits: `charpipe.py facecheck REF.json --with A.json,B.json` (optional,
-needs `mediapipe`) compares their faces for their height facing by facing by face landmarks - hair fools outline measures - and
-`--apply` writes the factors for `finish`. `"anchor": "soles"` puts the anchor at the bottom of the shoes, for a game whose other
-characters stand on theirs.
+`preview` also makes `walk-all.mp4` (every facing walking at once, with ffmpeg): the quickest way to see a head that grows and
+shrinks or a frame that jumps. Tripo sometimes sends a model back turned sideways or uncoloured; both are fixed for you.
+`"modeler": "meshy"` (and `MESHY_API_KEY`) has [Meshy](https://www.meshy.ai) make the model instead (~30 Meshy credits); the rig
+is still Tripo's.
 
-**The author's way: Meshy for the model, Tripo for the rig.** The game this plugin came from made its leads this way. Set `"modeler": "meshy"`
-(and `MESHY_API_KEY`) and `model` asks [Meshy](https://www.meshy.ai) instead (~30 Meshy credits); `rig` is still Tripo's.
-Either works. Tripo turns each model its own way (one faced sideways, another backwards: its "dark face" was the back of his head)
-and now and then sends one back uncoloured. Both are fixed for you: the model is turned to face front by its feet, and coloured
-again if it comes back grey. Meshy's models faced front and came coloured every time.
-
- Details and lessons:
+More options (several outfits, anchoring on the soles) and lessons:
 [reference/character.md](skills/spritecast/reference/character.md). The girl above is in
 [`examples/rain_girl`](examples/rain_girl): her illustration, turnaround, spec, strips, shadows, `character.json` and the sheet.
 She was made with Tripo alone: about $1.7 of drawing and 85 Tripo credits.
 
 ### Four-legged animals
 
-Animals are where the usual 3D route breaks. Tripo's rig for four-legged animals put a cat's leg joints in the right places but gave it
-no backbone, named a hind thigh "Spine", hung the shoulders off the neck and once grew a fifth foot; the only animal motion it offers is
-one walk, with no standing pose. A rig like that walks badly however well it's drawn over.
-
-So an animal gets **no bought rig at all**. `"kind": "animal"` in the spec, and the 3D model alone (Tripo, ~30 credits) is enough:
-- **its skeleton is found from the mesh**: the four feet where the model meets the ground, the belly between them, the back along its
-  top, the head forward and up, the tail behind. Which way it faces is read from it too (the head's end is the broad one).
-- **it walks like an animal**: the lateral sequence of a cat or a dog (left hind, left fore, right hind, right fore), the paws lifted
-  and the legs folding as they swing forward, the back swaying, the head steady, the tail carried up and swinging once a stride.
-- then the same drawing, fitting and 3D shadows as a person.
+Tripo's rig for four-legged animals walks badly (no backbone, the shoulders hung off the neck), so an animal gets no bought rig.
+With `"kind": "animal"` the 3D model alone (Tripo, ~30 credits) is enough: its skeleton is found from the mesh (the feet, the
+back, the head, the tail, and which way it faces), it walks in a cat's or a dog's gait, and it gets the same drawing, fitting and
+3D shadows as a person.
 
 The turnaround is drawn on all four legs, each leg clear of the others, the tail out behind; clothes only snug ones (a knit vest, not a
 cape or a scarf - anything hanging moves with the nearest leg). Check the renders before drawing: four legs, the head forward, the tail
@@ -234,22 +257,16 @@ behind. If Tripo's model grows an extra leg, make it again or use Meshy (`"model
 ![an orange tabby in a yellow raincoat walking in 8 facings](docs/animal-walk.gif)
 
 The cat is in [`examples/tabby_cat`](examples/tabby_cat): an orange tabby in a little yellow raincoat (the girl's), its design,
-turnaround, spec, strips, shadows and sheet - 30 Tripo credits and about $2.5 of drawing, redraws and design tries included. How it went, as a check on
-the rules:
-- Tripo's model came back with four legs, coloured, facing sideways (turned for you); its skeleton was found from the mesh, 30 bones.
-- Every frame is scored against its render (how much the outlines overlap). Six sheets had a frame under 0.75 and were drawn again: five
-  got better (west 5-8 0.75 → 0.89), one got worse and was put back. North-east 5-8 stayed at 0.68 after two tries - the model kept
-  turning the head another way. So the pair was mixed frame by frame (`"mix": ["north-east"]`): each frame of north-east and of
-  north-west is whichever fits its render better - its own drawing, or the other's flipped (half a stride on). Both took their own
-  frames 1-4 and the other's 1-4 flipped as 5-8: north-east 0.87-0.92, north-west 0.85-0.93, and the walk looks steadier than either
-  alone. Final scores: 0.76-0.97 in every facing.
+turnaround, spec, strips, shadows and sheet - 30 Tripo credits and about $2.5 of drawing, redraws and design tries included. Its
+frames fit their renders at 0.76-0.97 (north-east and north-west mixed frame by frame with `"mix"`, see reference/character.md).
 
 ### Skipping the drawing: the 3D renders as the frames
 
-`"draw": false` in the spec and no image model is used at all: the 3D model's own renders (toon-shaded, its own texture) become the
-frames, with the same 3D shadows and anchors. A character costs only its turnaround (~$0.09) and the 3D (75 Tripo credits, an animal
-30) - two OKs, done as soon as `3d` is. The trade-off is sharpness: no drawn lines, a simpler face, the model's texture as it came
-(blurrier fur and folds).
+With `"draw": false` in the spec, no image model draws the frames: the 3D model's own renders (toon-shaded, its own texture) are
+the frames, with the same 3D shadows and anchors. The image model draws only the turnaround (~$0.09); with your own rigged GLB
+(`"rig_glb"`; an animal: its model, `"model_glb"`) it draws nothing at all. A character then costs the turnaround and the 3D
+(75 Tripo credits, an animal 30) - two OKs, done as soon as `3d` is. The trade-off is sharpness: no drawn lines, a simpler face,
+the model's texture as it came (blurrier fur and folds).
 
 ![the same girl and cat walking: the 3D renders alone against the drawn frames](docs/render-vs-drawn.gif)
 
@@ -266,6 +283,9 @@ frames, with the same 3D shadows and anchors. A character costs only its turnaro
 | `{"pitch": 40, "yaw": 30}` | anything | your own angle |
 
 `"light": "left"` mirrors the light and the shadow.
+
+Walking characters take `"pitch"` alone, not `camera`: 30 (default, 2:1), 35.26 (true isometric), 50 (3/4 top-down), 12 (front);
+their 8 facings are 45° apart. `camera` covers props and posed figures.
 
 ## Putting it in your engine
 
@@ -289,6 +309,36 @@ frames, with the same 3D shadows and anchors. A character costs only its turnaro
 | Godot 4 | `Sprite2D`: `centered = false`, `offset = -anchor_px` |
 | Unity | Sprite Editor → Pivot: Custom, `(anchor[0], 1 - anchor[1])` |
 
+**Walking characters.** `character.json` gives `frame` (`[w, h]` in px), `anchor` (between the feet, as a fraction of the frame)
+and `fps`. Each `walk-<facing>.png` is a strip of 8 frames side by side, and each `idle-<facing>.png` one frame. Shadow `i` of a
+facing, `shadows.walk[facing][i]`, is drawn at its `offset` from frame `i`'s top-left corner, at about 30 % under everything.
+There is no `px_per_m`: scale the frames to the height you want your character to stand. In Phaser, with `rain_girl`'s numbers:
+
+```js
+this.load.spritesheet('girl-se', 'walk-south-east.png', { frameWidth: 165, frameHeight: 256 });
+this.anims.create({ key: 'walk-se', frames: this.anims.generateFrameNumbers('girl-se'), frameRate: 6.76, repeat: -1 });
+this.add.sprite(x, y, 'girl-se').setOrigin(0.4926, 0.8839).play('walk-se');
+```
+The full format: [reference/character.md](skills/spritecast/reference/character.md#output-nameout).
+
+## Fixing things by hand
+
+![The touch-up page: an armchair's near armrest painted blue as its front piece](docs/touchup.png)
+
+Cut-outs are not perfect: a little paper left between an arm and the body, a white shirt the cut-out took for the paper. Ask Claude to
+open the touch-up page (or run `$PYTHON skills/spritecast/scripts/touchup.py <spec>.json`): every finished picture of that prop or
+character, painted in the browser and saved as you go.
+
+| colour | does |
+|---|---|
+| red | clears: made see-through |
+| green | brings back: those pixels taken from the drawing itself (turn on "drawing under" to see it) |
+| blue (props) | the **front piece**: what stands in front of a character inside the thing - an arch's near posts, a gazebo's roof, a chair's near armrest |
+
+Then `touchup.py <spec>.json --apply` (a character's strips are packed again). A prop with a front piece gets `sprite-front.png` and
+`"front"` in `sprite.json`: draw the sprite behind whoever stands in it and the front piece over them. `finish` lays the paintings on
+again by itself; a picture drawn again since it was painted keeps its painting aside instead of laying it on a different drawing.
+
 ## How it works
 
 | step | what | cost |
@@ -300,7 +350,8 @@ frames, with the same 3D shadows and anchors. A character costs only its turnaro
 | `preview` | the sprite on a 1 m floor grid | free |
 
 You can run the steps yourself too:
-`python skills/spritecast/scripts/isoprop.py render|draw|finish|preview examples/reading_armchair.json`. `draw` only prints the cost
+`$PYTHON skills/spritecast/scripts/isoprop.py render|draw|finish|preview examples/reading_armchair.json` (`$PYTHON`: see
+[Install](#install)). `draw` only prints the cost
 until you add `--yes`. The spec format is in [reference/spec.md](skills/spritecast/reference/spec.md). Tips for good guides are in
 [reference/tips.md](skills/spritecast/reference/tips.md).
 
@@ -308,7 +359,7 @@ until you add `--yes`. The spec format is in [reference/spec.md](skills/spriteca
 
 | problem | fix |
 |---|---|
-| `No module named ...` | `python skills/spritecast/scripts/doctor.py --fix` (Claude runs it for you) |
+| `No module named ...` | run the script with the `PYTHON=` that `python3 skills/spritecast/scripts/doctor.py` prints (`--fix` first if it says not ready; Claude does this for you) |
 | no browser | install Chrome, or `doctor.py --fix --browser` (Playwright's Chromium, ~150 MB) |
 | `this Python cannot make a venv` | Debian/Ubuntu: `sudo apt install python3-venv`, or use another Python (python.org, conda) |
 | `draw: set OPENAI_API_KEY` | set the key (above) and restart Claude Code |
@@ -335,7 +386,8 @@ The keys are read from your environment only, sent only to their own service, an
 |---|---|---|
 | numpy, pillow, scipy, playwright, onnxruntime | PyPI, into its own venv (`~/.cache/spritecast/venv`) | `doctor.py --fix`, once |
 | Chromium (~150 MB) | Playwright's servers | only if there is no Chrome or Edge, and only after you say yes |
-| the cut-out model, BiRefNet lite (224 MB, MIT) | [rembg's GitHub release](https://github.com/danielgatis/rembg/releases/tag/v0.0.0), its md5 checked | characters, the first `finish` |
+| the cut-out model, BiRefNet lite (224 MB, MIT), or the full one (973 MB) with `SPRITECAST_KEY_MODEL=general` | [rembg's GitHub release](https://github.com/danielgatis/rembg/releases/tag/v0.0.0), its md5 checked | characters, the first `finish` |
+| MediaPipe Face Landmarker (3.7 MB, Apache-2.0); `mediapipe` itself is a separate `pip install` | Google (`storage.googleapis.com/mediapipe-models`) | only `facecheck` (optional), the first time |
 
 The renders run in a headless browser on your computer with nothing loaded from the internet: three.js is bundled
 (`skills/spritecast/scripts/vendor/three/`, MIT).
@@ -347,7 +399,7 @@ What is planned next, roughly in this order (no dates - it moves with feedback):
   front of them where it is.
 - **Turning objects**: a vehicle or a ride rotated through many angles, so it turns smoothly instead of snapping between 8 facings.
 - **Night versions**: a mask of what gives light (windows, bulbs, neon), so your engine can light just those parts after dark.
-- **Walk-through props**: arches and gazebos cut into a back and a front piece, so a character can stand inside them.
+- **Walk-through props, automatic**: the front piece worked out from the 3D guide (today it is painted by hand on the touch-up page).
 - **More actions**: idle breathing, running, an attack, beside the walk.
 - **Engine exports**: sprite sheets with Godot, Unity and Aseprite files ready to import.
 
@@ -364,8 +416,27 @@ Feedback decides what comes next, and what changed because of it is marked in th
 ## Notes
 - The output is yours.
 - Leave real brands, logos and characters from existing games out of descriptions.
-- Solid props get the 3D shadow of their blocks; characters and `loose` things a shadow in the drawing's own shape (see Shadows).
+- Don't use a living artist's work as your style picture without their permission.
+- A `photo` for a character's likeness: only of someone who agreed to it.
+- Solid props get the 3D shadow of their blocks; posed figures and `loose` things a shadow in the drawing's own shape (see Shadows);
+  walking characters their 3D body's.
 - Settings: `SPRITECAST_MODEL` and `SPRITECAST_QUALITY` (`low` | `medium` | `high`).
 
+## FAQ
+- **What does it cost?** The guides, finishing and the `try` are free. About $0.07 a prop, $0.08 for each further facing; a walking
+  character about $2.2 of drawing (~$1.5 with `"mirror": true`) and 75 Tripo credits (an animal 30). Each paid step shows its cost
+  and waits for your OK. The plugin is free; you pay OpenAI and Tripo directly, nothing goes to the author.
+- **Which keys do I need?** `OPENAI_API_KEY` to draw, `TRIPO_API_KEY` for walking characters and animals (Meshy optional). OpenAI may
+  ask you to verify your organisation first. See [Keys](#install).
+- **Isn't this AI art?** Yes: an image model does the painting. What SpriteCast adds is the geometry: the size, the camera angle, the
+  walk and the shadows come from 3D. You can give your own art as the style, or set `"draw": false` so no image model draws a walking
+  character's frames: the 3D renders are the frames. The turnaround is still drawn, unless you bring your own rigged model
+  ([Skipping the drawing](#skipping-the-drawing-the-3d-renders-as-the-frames)).
+- **What doesn't it do?** Walking characters only walk and stand (more actions are on the [Roadmap](#roadmap)), and start from an
+  illustration facing front, standing straight. Posed single pictures (wave, point, hold...) need only a description. Big flat things like rugs are better drawn top-down and skewed onto the floor
+  ([tips](skills/spritecast/reference/tips.md)). Look at the results yourself: the outline check can't see a head turned the wrong way.
+- **Which engine?** Any that takes PNGs: you get the sprite, its shadow and the anchor in JSON. See
+  [Putting it in your engine](#putting-it-in-your-engine) for Phaser, Godot and Unity.
+
 ## License
-MIT. three.js (bundled in `scripts/vendor/three`) is MIT, © three.js authors.
+MIT. three.js (bundled in `skills/spritecast/scripts/vendor/three`) is MIT, © three.js authors.

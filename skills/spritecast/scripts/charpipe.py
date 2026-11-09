@@ -3,8 +3,9 @@
 render by an image model, four frames per call, in the illustration's look; then fitted back onto the renders, heads steadied, edges
 cleaned, packed into strips.
 
-Three OKs: the turnaround, the 3D (with its renders), the drawing (with the strips and the preview). With "draw": false, two: the 3D
-renders are the frames - no image model, softer.
+Three OKs: the turnaround, the 3D (with its renders), the drawing (with the strips and the preview). With "draw": false, two: the turnaround and
+the 3D; the 3D renders are the frames, softer - no image model draws them (it still draws the turnaround, ~$0.09, unless you give your
+own rigged model as "rig_glb").
 
     python charpipe.py turnaround CHAR.json [--yes]   PAID (OpenAI, ~$0.09): front / right / back turnaround; the left view mirrored from the right
     python charpipe.py 3d         CHAR.json [--yes]   PAID (Tripo ~75 credits): model + rig + walk and idle, then rendered (free) - look before `draw`
@@ -21,6 +22,7 @@ renders are the frames - no image model, softer.
                                                       mirror pair (the better of the two flipped onto the other; south / north: low
                                                       frames drawn alone, once); the better drawing kept each time
     python charpipe.py finish     CHAR.json           free: frames fitted, steadied, cleaned → out/ strips, 3D shadows + character.json
+    python charpipe.py pack       CHAR.json           free: frames/ → out/ strips again (after touchup.py --apply; finish does it too)
     python charpipe.py preview    CHAR.json           free: out/sheet.png (every frame), out/walk-<facing>.gif, out/walk-all.mp4 (ffmpeg)
     python charpipe.py facecheck  REF.json --with A.json,B.json [--apply]
                                                       free (needs mediapipe): the head for the height of A, B… against REF's, facing by
@@ -37,6 +39,8 @@ import numpy as np
 from PIL import Image
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE)); import charlib as CL   # noqa: E402
+import touchup as TU   # noqa: E402
+SPEC_PATH = None
 DIRS = ['south', 'south-east', 'east', 'north-east', 'north', 'north-west', 'west', 'south-west']
 PAIR = {'east': 'west', 'west': 'east', 'north-east': 'north-west', 'north-west': 'north-east', 'south-east': 'south-west', 'south-west': 'south-east'}
 CW, CH = 384, 1024                                                            # a sheet's cell (4 across a 1536×1024 picture)
@@ -499,7 +503,7 @@ def cut(d, path, n):
 
 
 def finish_3d(s, d):
-    """`"draw": false` - no image model: the 3D renders themselves are the frames (the toon-shaded model, its own texture), packed the same
+    """`"draw": false` - no image model draws the frames: the 3D renders themselves are the frames (the toon-shaded model, its own texture), packed the same
     way with their 3D shadows. Nothing paid past the model, but softer: no drawn lines, the model's texture as it came"""
     if not (d / 'render/walk-south-0.png').exists(): sys.exit('finish: run `3d` (or `render`) first')
     for f in (d / 'frames').glob('*.png'): f.unlink()
@@ -601,6 +605,8 @@ def finish(s, d):
             f, iou = CL.fit_to_render(cut(d, d / f'draw/idle-drawn-{g}.png', n), Image.open(d / f'render/idle-{x}.png').convert('RGBA'))
             CL.defringe(CL.clear_white_unless_ai(f, Image.open(d / f'render/idle-{x}.png'))).save(d / f'frames/idle-{x}.png'); report[f'idle {x}'] = iou
     if s['kind'] != 'animal': even_heads(s, d, report, 'idle'); head_fit(s, d, report, 'idle')
+    n = TU.apply(SPEC_PATH) if SPEC_PATH else 0                              # what was painted in touchup.py, laid on again
+    if n: report['touchup'] = n
     pack(s, d, report)
     low = low_sheets(s, d)
     if low: print(f"finish: {len(low)} sheets have a frame under {s['redo_below']} - look at them; `redraw` tries again (a sheet twice, then its low frames alone), keeping the better")
@@ -783,12 +789,12 @@ def video(d, meta, S, pad, loops=6):
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('step', choices=['turnaround', '3d', 'model', 'rig', 'render', 'draw', 'redraw', 'finish', 'preview', 'facecheck'])
+    ap.add_argument('step', choices=['turnaround', '3d', 'model', 'rig', 'render', 'draw', 'redraw', 'finish', 'pack', 'preview', 'facecheck'])
     ap.add_argument('spec'); ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', action='store_true'); ap.add_argument('--only')
     ap.add_argument('--no-render', action='store_true', help='rig: stop before the renders')
     ap.add_argument('--with', dest='others', help='facecheck: the other characters\' specs, comma-separated')
     ap.add_argument('--apply', action='store_true', help='facecheck: write the factors into the other specs as "head_fit"')
-    a = ap.parse_args(); s, d = load(a.spec)
+    a = ap.parse_args(); s, d = load(a.spec); SPEC_PATH = a.spec
     {'turnaround': lambda: turnaround(s, d, a), '3d': lambda: make3d(s, d, a), 'model': lambda: model(s, d, a), 'rig': lambda: rig(s, d, a), 'render': lambda: render(s, d),
-     'draw': lambda: draw(s, d, a), 'redraw': lambda: redraw(s, d, a), 'finish': lambda: finish(s, d), 'preview': lambda: preview(s, d),
+     'draw': lambda: draw(s, d, a), 'redraw': lambda: redraw(s, d, a), 'finish': lambda: finish(s, d), 'pack': lambda: pack(s, d, {}), 'preview': lambda: preview(s, d),
      'facecheck': lambda: __import__('facecheck').run(a.spec, (a.others or '').split(','), a.apply)}[a.step]()

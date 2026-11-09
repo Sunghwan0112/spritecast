@@ -3,6 +3,17 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.7.0 — 2026-11-09
+
+- **Touch-up page** (`touchup.py`): fix finished props and character frames by hand in the browser - red clears (paper left between
+  the limbs, a halo, a speck), green brings pixels back from the drawing itself (a white shirt or shoe the cut-out took for the paper),
+  blue paints a prop's **front piece** (`sprite-front.png`, `"front"` in `sprite.json`) so a character can stand inside an arch, a
+  gazebo or a chair's armrests. Saved as you paint; `--apply` lays them on, and `finish` lays them on again by itself. *(feedback)*
+- `charpipe.py pack`: the strips made again from frames/ without finishing again.
+- **The cut-out no longer falls back quietly**: without onnxruntime, `finish` stops and says so, instead of cutting by the paper's
+  white - a run from another Python had cut a white bikini and a grey knit dress that way, leaving paper between the arms. *(feedback)*
+- Props keep their drawing laid like the sprite (`sprite-src.png`) for the touch-up's green.
+
 ## 0.6.0 — 2026-11-05
 
 - **Renamed from iso-sprite to SpriteCast** (`spritecast`). Install with `claude plugin install spritecast@spritecast`.

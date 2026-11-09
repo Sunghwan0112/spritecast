@@ -1,10 +1,21 @@
 # SpriteCast
 
-**Claude Code용 아이소메트릭 스프라이트 생성기:** 게임 소품과 인물, 8방향 걷기를 실제 크기와 정확한 카메라 각도로, 원하는 그림체로 그려 줘요.
+**Claude Code용 아이소메트릭 스프라이트 생성기:** 게임 소품과 인물, 8방향 걷기를 실제 크기와 내 게임의 카메라 각도로 만들어요.
+그림은 이미지 모델(OpenAI, 내 키로)이 3D 가이드 위에 원하는 그림체로 그리고, SpriteCast는 크기, 각도, 걸음, 그림자를 정해요.
+
+무료, MIT. 비용은 OpenAI(걷는 캐릭터는 Tripo도)에 직접 내요: 소품 약 $0.07, 걷는 캐릭터 약 $2.2와 Tripo 75크레딧. 키 없이 무료로
+해 보려면 Claude에게 *"SpriteCast 체험해 줘"*라고 하세요.
 
 [English](README.md)
 
-![3D 모델 위에 그린, 8방향으로 걷는 캐릭터](docs/character-walk.gif)
+![GPT만으로 두 번 시도한 것과 SpriteCast: 같은 캐릭터가 남동쪽으로 걷기](docs/gpt-alone-vs-guide.ko.gif)
+
+*GPT만으로(두 번 시도) 그린 것과 SpriteCast: 같은 캐릭터가 남동쪽으로 걸어요.*
+
+```
+claude plugin marketplace add Sunghwan0112/spritecast
+claude plugin install spritecast@spritecast
+```
 
 ![가이드 → 스프라이트](docs/showcase.png)
 
@@ -13,30 +24,33 @@
 이미지 모델에 "아이소메트릭 안락의자"를 그려 달라고 하면 예쁘긴 한데 각도가 조금씩 틀려요. 다시 그리면 또 다른 각도, 다른 크기로 나와요.
 열 개를 한 바닥에 놓으면 하나도 맞지 않아요.
 
-걷는 캐릭터는 더 심해요. 아래는 GPT만으로 그린 것(같은 모델, 같은 캐릭터 시트, 걸음을 프레임마다 글로 지시)과 SpriteCast를 나란히 놓은
+걷는 캐릭터는 더 심해요. 맨 위는 GPT만으로 그린 것(같은 모델, 같은 캐릭터 시트, 걸음을 프레임마다 글로 지시)과 SpriteCast를 나란히 놓은
 거예요. GPT의 프레임은 한 장씩 보면 예쁘지만 걷지 않아요: 여덟 프레임 모두 같은 다리가 앞에 있고(다리를 안 바꿔요),
 팔은 다리와 반대로 흔들리지 않고 제멋대로 움찔거리고, 게임의 30° 내려다보는 시점이 아니라
 눈높이에서 봤고, 그림자도 없어요. 두 번 시도한 걸 나온 그대로 보여 줘요.
 
-![GPT만으로 두 번 시도한 것과 SpriteCast: 같은 캐릭터가 남동쪽으로 걷기](docs/gpt-alone-vs-guide.ko.gif)
-
-SpriteCast는 모델이 잘못 읽을 수 없는 가이드를 줘요.
+SpriteCast는 모델이 잘못 읽기 어려운 가이드를 줘요(잘못 읽으면 알려 줘요).
 1. Claude가 물건을 **실제 크기(미터)**의 블록으로 짜요.
 2. 블록을 게임의 **정확한 카메라**로 렌더해요.
 3. 이미지 모델은 그 가이드를 **원하는 그림체**로 다시 그리기만 해요.
-4. 그린 그림을 오려서 **가이드 위에 다시 맞춰 놓아요.** 그래서 각도, 크기, 바닥 차지 면적이 가이드와 정확히 같아요. 그림자와 엔진용
-   앵커도 같이 나와요.
+4. 그린 그림을 오려서 **가이드의 상자에 맞춰 놓아요.** 그래서 크기와 바닥 차지 면적은 가이드와 같아요. 윤곽이 가이드를 따르지 않는
+   그림은 억지로 맞추지 않고 경고해요. 그림자와 엔진용 앵커도 같이 나와요.
 
 **그래서 좋은 점:**
-- **각도와 크기가 맞아요.** 예시 그림들은 가이드에서 1% 정도만 벗어나요(윤곽 일치 97–99%). 몇 달 간격으로 만든 소품도 한 바닥에 나란히
-  맞아요.
-- **그림자가 자연스러워요.** 모든 소품이 빛 하나를 함께 써서 그림자가 같은 방향으로 떨어져요. 단단한 소품은 3D 가이드의 정확한 그림자를
-  받아요. 인물과 식물은 그림 모양 그대로의 그림자(모자, 머리카락, 잎)를 받는데, 위치는 3D 모델이 정해서 양쪽 발과 화분 바닥에서 정확히
-  시작해요. 대충 칠한 그림자도, 각진 마네킹 그림자도 아니에요.
+- **각도와 크기가 맞아요.** 단단한 소품 예시는 가이드와 윤곽이 95–99% 겹쳐요. 일부러 잎을 자유롭게 그린 화분은 87%, 옷 입은
+  인물은 69–88%예요(옷과 머리카락이 맨 마네킹 밖으로 나가요). 걷는 캐릭터는 프레임마다 점수를 매겨요(아래). 카메라와 축척이 고정이라
+  다른 때에 만든 소품도 한 바닥에 맞아요.
+- **그림자가 자연스러워요.** 모든 소품이 빛 하나를 함께 써서 그림자가 같은 방향으로 떨어져요. 단단한 소품은 3D 가이드의 그림자를
+  그대로 받아요. 포즈 잡은 인물과 식물은 그림 모양 그대로의 그림자(모자, 머리카락, 잎)를 받는데, 위치는 3D 모델이 정해서 발과 화분
+  바닥이 선 자리에서 그림자가 시작해요. 걷는 캐릭터는 프레임마다 3D 몸의 그림자를 받아요. 대충 칠한 그림자도, 각진 마네킹 그림자도
+  아니에요.
 - **스스로 검사해요.** 그린 뒤 가이드와 비교해서, 모델이 다른 각도로 그렸으면 억지로 늘리거나 줄이지 않아요. 대신 경고를 띄우고, Claude가
   고칠 방법을 제안한 뒤 다시 그릴지 물어봐요.
 - **내 게임 시점, 내 그림체.** 2:1 아이소메트릭, 정아이소메트릭, 3/4 탑다운, 정면, 아무 각도. 한 물건의 네 방향. 기본 `cozy` 스타일이나
   내 그림 한 장.
+
+결과물은 픽셀아트가 아니라 일러스트예요(`cozy`: 부드러운 명암, 가는 외곽선). 픽셀아트 게임이면 내 스타일 그림과 그걸 설명하는
+`look`을 주고, 몇 번 시도해야 할 수 있어요.
 
 ## 사용 흐름
 
@@ -57,6 +71,23 @@ Claude Code 안에서 할 수도 있어요: `/plugin marketplace add Sunghwan011
 **함께 필요한 건** Python 3.9 이상과 브라우저(Chrome, 또는 Edge - 윈도우에는 늘 있어요)뿐이에요. 처음 쓸 때 Claude가 설치 점검
 (`doctor.py --fix`)을 돌려요: `~/.cache/spritecast/`에 전용 가상환경을 만들어 몇 가지 패키지를 넣고(10초쯤), 원래 Python은 건드리지
 않고, 각각 무엇에 쓰는지 알려 줘요. 손으로 설치할 건 없어요.
+
+**스크립트를 직접 돌릴 때.** 보통은 Claude가 대신 돌려요. 이 저장소를 받아서 손으로 돌리려면 `doctor.py`가 마지막 줄에 찍는
+Python(`PYTHON=...`)을 쓰세요. `--fix` 뒤에는 `~/.cache/spritecast/venv/bin/python`이에요(Windows:
+`%USERPROFILE%\.cache\spritecast\venv\Scripts\python.exe`). 그냥 `python`에는 패키지가 없을 수 있어요(`No module named ...`). 아래
+명령들은 이걸 `$PYTHON`으로 적어요.
+```bash
+python3 skills/spritecast/scripts/doctor.py --fix
+PYTHON=$(python3 skills/spritecast/scripts/doctor.py | sed -n 's/^PYTHON=//p')
+$PYTHON skills/spritecast/scripts/isoprop.py --help
+```
+Windows PowerShell에서는:
+```powershell
+python skills/spritecast/scripts/doctor.py --fix
+$PYTHON = "$env:USERPROFILE\.cache\spritecast\venv\Scripts\python.exe"
+& $PYTHON skills/spritecast/scripts/isoprop.py --help
+```
+거기서는 아래의 `$PYTHON ...` 명령을 `& $PYTHON ...`로 돌리세요.
 
 | 무엇 | 하는 일 | 꼭 필요? |
 |---|---|---|
@@ -79,6 +110,10 @@ export OPENAI_API_KEY=sk-...          # macOS / Linux (계속 쓰려면 ~/.zshrc
 setx OPENAI_API_KEY "sk-..."          # Windows (설정 후 새 터미널을 열어요)
 ```
 키는 내 컴퓨터에만 있고 OpenAI로만 보내져요. 그림 한 장마다 OpenAI에 약 $0.07를 내요.
+
+OpenAI는 키로 이미지 모델을 쓰기 전에 조직 인증(platform.openai.com → Settings → Organization)을 요구할 수 있어요. 첫 그림 전에
+한 번 해 두세요. 키는 Claude Code를 켜기 전에 설정하세요(켜 둔 채 설정하면 다시 켜야 보여요). 걷는 캐릭터는 `TRIPO_API_KEY`도
+필요해요. Tripo API 플랫폼에서 받고, 거기서 API 크레딧을 사요(캐릭터 75, 동물 30).
 
 ## 이렇게 부탁해 보세요
 
@@ -113,9 +148,9 @@ setx OPENAI_API_KEY "sk-..."          # Windows (설정 후 새 터미널을 열
 써요. 그래서 배치는 그대로이고, 이미지 모델은 실제 형태 위에 그리고, 3D 그림자도 모델 자신의 것이 돼요.
 
 ```
-python isoprop.py model armchair.json --yes   # Tripo로 3D 모델 만들기 (Tripo 크레딧 약 20, 약 2분). 사양이 이 모델을 쓰게 바뀌어요
-python isoprop.py yaws  armchair.json         # 무료: 모델을 네 방향으로 돌려 보여 줘요. 맞는 방향을 "model": {"yaw": ...}에 적어요
-python isoprop.py render armchair.json        # 그다음은 평소처럼 draw, finish
+$PYTHON skills/spritecast/scripts/isoprop.py model  armchair.json --yes   # Tripo로 3D 모델 만들기 (Tripo 크레딧 약 20-40, 약 2분). 사양이 이 모델을 쓰게 바뀌어요
+$PYTHON skills/spritecast/scripts/isoprop.py yaws   armchair.json         # 무료: 모델을 네 방향으로 돌려 보여 줘요. 맞는 방향을 "model": {"yaw": ...}에 적어요
+$PYTHON skills/spritecast/scripts/isoprop.py render armchair.json         # 그다음은 평소처럼 draw, finish
 ```
 `TRIPO_API_KEY`가 필요해요. 블록은 사양에 `blocks_draft`로 남아요.
 
@@ -153,12 +188,13 @@ python isoprop.py render armchair.json        # 그다음은 평소처럼 draw, 
 
 ![네 가지 자세](docs/poses.png)
 
-**방향마다 한 장짜리 그림이에요.** 걷는 캐릭터는 [걷는 캐릭터](#걷는-캐릭터)를 보세요. 방향마다 직접 확인하세요. 한 번은 뒷모습인데 머리만 뒤를 보고 몸은 앞을 향한 그림이 나왔어요. 지금은 프롬프트로 막았지만, 윤곽 검사로는
-잡히지 않는 문제예요. 한 방향만 다시 그리려면 `draw <spec> --yes --again --only north-west`.
+**방향마다 한 장짜리 그림이에요.** 걷는 캐릭터는 [걷는 캐릭터](#걷는-캐릭터)를 보세요.
+방향마다 직접 확인하세요(머리가 엉뚱한 쪽을 보는 건 윤곽 검사로 못 잡아요). 한 방향만 다시 그리려면
+`draw <spec> --yes --again --only north-west`.
 
 ## 그림에 맞는 그림자
 
-3D 가이드에서 계산한 그림자는 가구처럼 단단한 물건에는 정확해요. 그런데 완성 그림에는 블록에 없던 것들이 있어요. 머리카락, 코트 모자,
+3D 가이드에서 계산한 그림자는 가구처럼 단단한 물건에는 잘 맞아요. 그런데 완성 그림에는 블록에 없던 것들이 있어요. 머리카락, 코트 모자,
 화분 밖으로 뻗은 잎 같은 거예요.
 
 그래서 가이드의 **높이 지도**를 같이 렌더해요. 픽셀마다 바닥에서 몇 m 위에 있는지 기록한 거예요. 높이가 h인 점의 그림자는 깊이와
@@ -169,8 +205,8 @@ python isoprop.py render armchair.json        # 그다음은 평소처럼 draw, 
 정확해야 하는 건 바닥에 닿는 부분뿐이라, 위로 갈수록(물체 높이의 10%에서 35%까지) 화면에서 읽은 부드러운 높이로 서서히 넘어가요. 그래서
 머리카락, 모자, 잎의 그림자가 마네킹의 각진 모양이 아니라 자연스럽게 나와요. 바닥에 닿는 부분(블록의
 아래 12cm, 즉 신발이나 화분 바닥)에는 가이드의 3D 그림자를 더해요. 그래서 그림자가 실제처럼 빛 반대쪽에서만 물체에 붙고, 앞쪽으로는 생기지
-않아요. 인물과
-`loose` 물건은 이 방식을 쓰고, 단단한 소품은 3D 그림자를 써요. `"shadow": "drawn" | "guide"`로 직접 고를 수도 있어요.
+않아요. 포즈 잡은 인물과 `loose` 물건은 이 방식을 쓰고, 단단한 소품은 3D 그림자를, 걷는 캐릭터는 3D 몸의 그림자를(아래)
+써요. `"shadow": "drawn" | "guide"`로 직접 고를 수도 있어요.
 
 ![블록 그림자와 그림 그림자 비교](docs/shadows.png)
 
@@ -183,48 +219,34 @@ python isoprop.py render armchair.json        # 그다음은 평소처럼 draw, 
 캐릭터 일러스트 한 장(정면을 보고 똑바로 선, 포즈 없는 그림)을 주면 그 그림체로 8방향 걷기(방향마다 8프레임)와 서 있는 8방향이 나와요. 이미지 모델은 프레임마다 몸과 자세를
 일정하게 유지하지 못해서, 움직임은 3D에서 가져와요.
 1. 일러스트로 턴어라운드를 그려요.
-2. [Tripo](https://www.tripo3d.ai)가 턴어라운드로 3D 모델을 만들어요.
-3. Tripo가 리그를 달고 걷기와 서 있기 동작을 입혀요.
-4. 게임 카메라로 걷기를 렌더해요(무료). 프레임마다 3D 몸을 빛 방향으로 바닥에 눌러 붙인 그림자도 같이 렌더해요.
-5. 이미지 모델이 렌더 위에 4프레임씩 그려요. 정면을 먼저 그리고 다른 방향은 모두 그걸 따라 그려서 같은 사람으로 유지돼요.
-6. 각 프레임을 렌더에 다시 맞추고(상체는 방향마다 한 크기, 다리는 렌더의 발까지), 머리 크기를 고르게 하고, 가장자리를 정리해요.
-   결과는 스트립, 프레임마다 그림자(발이 그림자에 닿고, 든 발은 따로 그림자가 생겨요), 앵커예요.
+2. [Tripo](https://www.tripo3d.ai)가 턴어라운드로 3D 모델을 만들고, 리그를 달고, 걷기와 서 있기 동작을 입혀요.
+3. 게임 카메라로 걷기를 렌더해요(무료). 프레임마다 3D 몸을 빛 방향으로 바닥에 눌러 붙인 그림자도 같이 렌더해요.
+4. 이미지 모델이 렌더 위에 4프레임씩 그려요. 정면을 먼저 그리고 다른 방향은 모두 그걸 따라 그려서 같은 사람으로 유지돼요.
+5. 각 프레임을 렌더에 다시 맞추고, 머리 크기를 고르게 하고, 가장자리를 정리해요. 결과는 스트립, 프레임마다 그림자(발이 그림자에
+   닿고, 든 발은 따로 그림자가 생겨요), 앵커예요.
 
 ```
-python skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # 그다음 3d(모델, 리그, 렌더), draw(마무리, 미리보기까지 저절로)
+$PYTHON skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # 그다음 3d(모델, 리그, 렌더), draw(마무리, 미리보기까지 저절로)
 ```
-기본으로 8방향을 다 그려요. 두 번 다시 그려도 점수가 낮은 방향만 짝 방향을 뒤집은 그림과 프레임마다 섞어요. 좌우가 같은 디자인은
-`"mirror": true`로 서쪽 방향들을 동쪽에서 뒤집어 만들 수 있어요(그림자는 방향마다 자기 렌더에서). 약 $0.66 덜 들어요.
+기본으로 8방향을 다 그려요. 좌우가 같은 디자인은 `"mirror": true`로 서쪽 방향들을 동쪽에서 뒤집어 만들 수 있어요(그림자는 방향마다
+자기 렌더에서). 약 $0.66 덜 들어요.
 
-캐릭터 하나에 약 $2.2(OpenAI, `"mirror": true`면 약 $1.5), Tripo 75크레딧(약 $0.75, 동물은 30)이 들어요. 계정은 둘뿐이에요: `OPENAI_API_KEY`, `TRIPO_API_KEY`.
-리그된 GLB가 있으면(`"rig_glb"`) 바로 `render`부터 하면 돼요.
+캐릭터 하나에 약 $2.2(OpenAI, `"mirror": true`면 약 $1.5), Tripo 75크레딧(약 $0.75, 동물은 30)이 들어요. 리그된 GLB가
+있으면(`"rig_glb"`) 바로 `render`부터 하면 돼요.
 
 `preview`는 `walk-all.mp4`(8방향이 한꺼번에 걷는 영상, ffmpeg가 있으면)도 만들어요. 머리가 커졌다 작아지거나 프레임이 튀는 게 가장 빨리
-보여요. 같은 사람의 여러 옷은 `charpipe.py facecheck REF.json --with A.json,B.json`(선택, `mediapipe` 필요)으로 키 대비 얼굴 크기를
-방향별로 얼굴 랜드마크로 비교해요(머리숱은 윤곽 측정을 속여요). `--apply`면 `finish`가 쓸 보정값을 적어요. 게임의 다른 캐릭터들이
-신발 바닥에 서 있으면 `"anchor": "soles"`로 기준점을 신발 바닥에 둬요.
+보여요. Tripo는 가끔 모델을 옆으로 돌려서, 또는 색 없이 보내는데 둘 다 자동으로 고쳐요. `"modeler": "meshy"`(와 `MESHY_API_KEY`)를
+주면 [Meshy](https://www.meshy.ai)가 모델을 만들고(약 30 Meshy 크레딧), 리그는 그대로 Tripo가 해요.
 
-**만든 사람의 방식: 모델은 Meshy, 리그는 Tripo.** 이 플러그인이 나온 게임의 주인공들이 이렇게 만들어졌어요. `"modeler": "meshy"`(와 `MESHY_API_KEY`)를 주면
-`model` 단계가 [Meshy](https://www.meshy.ai)로 만들고(약 30 Meshy 크레딧), `rig`는 그대로 Tripo가 해요. 둘 다 돼요. Tripo는 모델마다
-보는 방향을 제멋대로 정하고(하나는 옆, 하나는 뒤 - "얼굴이 검게" 보인 건 뒤통수였어요), 가끔 색 없이 보내요. 둘 다 자동으로 고쳐요:
-발 방향을 보고 정면으로 돌리고, 회색이면 색을 다시 입혀요. Meshy 모델은 매번 정면을 보고 색도 입혀져 왔어요.
-
- 자세한 내용과 요령은 [reference/character.md](skills/spritecast/reference/character.md)에
+다른 옵션(같은 사람의 여러 옷, 신발 바닥에 앵커 두기)과 요령은 [reference/character.md](skills/spritecast/reference/character.md)에
 있어요. 위 여자아이 예시는 [`examples/rain_girl`](examples/rain_girl)에 있어요(일러스트, 턴어라운드, 사양, 스트립, 그림자, `character.json`, 전체 시트).
 Tripo만으로 만들었고 그리기 약 $1.7, Tripo 85크레딧이 들었어요.
 
 ### 네발 동물
 
-동물은 보통의 3D 방식이 잘 안 되는 곳이에요. Tripo의 네발 동물 리그는 고양이의 다리 관절 위치는 맞췄지만 등뼈가 없었고, 뒷다리
-허벅지를 "Spine"이라 이름 붙였고, 어깨가 목에 매달려 있었고, 한 번은 발이 다섯 개 생겼어요. 동물용 동작도 걷기 하나뿐이고 서 있는
-동작은 없어요. 이런 리그로는 위에 아무리 잘 그려도 걸음이 어색해요.
-
-그래서 동물은 **리그를 사지 않아요.** 사양에 `"kind": "animal"`을 쓰면 3D 모델(Tripo, 약 30크레딧)만 있으면 돼요.
-- **뼈대를 모델 모양에서 찾아요**: 바닥에 닿는 네 발, 그 사이의 배, 위쪽을 따라 등, 앞쪽 위로 머리, 뒤로 꼬리. 어느 쪽을 보는지도
-  모양으로 알아내요(머리 쪽 끝이 넓어요).
-- **동물처럼 걸어요**: 고양이나 개의 걸음 순서(왼뒷발, 왼앞발, 오른뒷발, 오른앞발), 앞으로 내딛는 발은 들고 다리를 접고, 등이
-  흔들리고, 머리는 흔들리지 않고, 꼬리는 들고 한 걸음에 한 번 흔들어요.
-- 그다음 그리기, 맞추기, 3D 그림자는 사람과 같아요.
+Tripo의 네발 동물 리그는 걸음이 어색해요(등뼈가 없고, 어깨가 목에 매달려 있어요). 그래서 동물은 리그를 사지 않아요.
+`"kind": "animal"`을 쓰면 3D 모델(Tripo, 약 30크레딧)만 있으면 돼요. 뼈대(발, 등, 머리, 꼬리, 보는 방향)를 모델 모양에서 찾고,
+고양이나 개의 걸음으로 걷고, 그리기, 맞추기, 3D 그림자는 사람과 같아요.
 
 턴어라운드는 네 다리로 서서 다리가 서로 겹치지 않게, 꼬리는 뒤로 빼서 그려요. 옷은 몸에 붙는 것만(니트 조끼는 되고, 망토나 목도리는
 안 돼요 - 늘어진 건 가까운 다리를 따라 움직여요). 그리기 전에 렌더를 확인하세요: 다리 넷, 머리는 앞, 꼬리는 뒤. Tripo 모델에 다리가
@@ -233,19 +255,15 @@ Tripo만으로 만들었고 그리기 약 $1.7, Tripo 85크레딧이 들었어�
 ![노란 비옷을 입은 치즈 고양이의 8방향 걷기](docs/animal-walk.gif)
 
 고양이는 [`examples/tabby_cat`](examples/tabby_cat)에 있어요. 여자아이와 같은 노란 비옷을 입은 치즈 고양이예요(디자인, 턴어라운드, 사양,
-스트립, 그림자, 시트). Tripo 30크레딧, 다시 그리기와 디자인 시도까지 그리기 약 $2.5가 들었어요. 규칙이 실제로 어떻게 돌았는지:
-- Tripo 모델은 다리 넷, 색 입힌 채로, 옆을 보고 왔어요(자동으로 돌려요). 뼈대는 모양에서 30개를 찾았어요.
-- 프레임마다 렌더와 겹치는 정도를 점수로 매겨요. 0.75 미만이 있는 시트 6장을 다시 그렸더니 5장이 좋아졌고(west 5-8 0.75 → 0.89),
-  1장은 나빠져서 원래 걸로 되돌렸어요. north-east 5-8은 두 번 다시 그려도 0.68이었어요(모델이 계속 머리를 다르게 돌렸어요). 그래서
-  짝과 프레임마다 섞었어요(`"mix": ["north-east"]`): north-east와 north-west의 각 프레임을 자기 그림과 짝을 뒤집은 그림(반 걸음 밀어서)
-  중 자기 렌더와 더 잘 맞는 쪽으로 골라요. 둘 다 자기 1-4번과 짝의 1-4번을 뒤집어 5-8번으로 썼어요: north-east 0.87-0.92, north-west
-  0.85-0.93이고, 어느 한쪽만 쓸 때보다 걸음이 자연스러워요. 최종 점수는 모든 방향 0.76-0.97이에요.
+스트립, 그림자, 시트). Tripo 30크레딧, 다시 그리기와 디자인 시도까지 그리기 약 $2.5가 들었어요. 프레임은 렌더와 0.76-0.97로
+맞아요(north-east와 north-west는 `"mix"`로 프레임마다 섞었어요. reference/character.md 참고).
 
 ### 그리기 건너뛰기: 3D 렌더를 그대로 프레임으로
 
-사양에 `"draw": false`를 쓰면 이미지 모델을 아예 안 써요. 3D 모델 자체의 렌더(툰 셰이딩, 모델 자체 텍스처)가 프레임이 되고, 3D 그림자와
-앵커는 똑같이 나와요. 캐릭터 하나에 턴어라운드(약 $0.09)와 3D(Tripo 75크레딧, 동물 30)만 들고, 확인은 두 번, `3d`가 끝나면 바로
-완성이에요. 대신 선명도가 떨어져요: 그린 선이 없고, 얼굴이 단순하고, 모델 텍스처가 그대로라 털과 주름이 흐려요.
+사양에 `"draw": false`를 쓰면 프레임을 이미지 모델이 그리지 않아요. 3D 모델 자체의 렌더(툰 셰이딩, 모델 자체 텍스처)가 그대로
+프레임이 되고, 3D 그림자와 앵커는 똑같이 나와요. 이미지 모델은 턴어라운드(약 $0.09)만 그려요. 리깅된 GLB를 직접 주면(`"rig_glb"`,
+동물은 모델 `"model_glb"`) 이미지 모델을 아예 안 써요. 그러면 캐릭터 하나에 턴어라운드와 3D(Tripo 75크레딧, 동물 30)만 들고,
+확인은 두 번, `3d`가 끝나면 바로 완성이에요. 대신 선명도가 떨어져요: 그린 선이 없고, 얼굴이 단순하고, 모델 텍스처가 그대로라 털과 주름이 흐려요.
 
 ![같은 여자아이와 고양이: 3D 렌더만 vs 그린 프레임](docs/render-vs-drawn.ko.gif)
 
@@ -262,6 +280,9 @@ Tripo만으로 만들었고 그리기 약 $1.7, Tripo 85크레딧이 들었어�
 | `{"pitch": 40, "yaw": 30}` | 아무 각도 | 직접 지정 |
 
 `"light": "left"`로 바꾸면 빛과 그림자가 반대쪽으로 가요.
+
+걷는 캐릭터는 `camera` 대신 `"pitch"`만 받아요: 30(기본, 2:1), 35.26(정아이소메트릭), 50(3/4 탑다운), 12(정면). 8방향은 45°
+간격이에요. `camera`는 소품과 포즈 잡은 인물에 써요.
 
 ## 엔진에 넣는 법
 
@@ -285,6 +306,36 @@ Tripo만으로 만들었고 그리기 약 $1.7, Tripo 85크레딧이 들었어�
 | Godot 4 | `Sprite2D`: `centered = false`, `offset = -anchor_px` |
 | Unity | Sprite Editor → Pivot: Custom, `(anchor[0], 1 - anchor[1])` |
 
+**걷는 캐릭터.** `character.json`에 `frame`(`[w, h]` 픽셀), `anchor`(두 발 사이, 프레임에 대한 비율), `fps`가 있어요.
+`walk-<facing>.png`는 8프레임을 가로로 붙인 스트립이고, `idle-<facing>.png`는 한 프레임이에요. 한 방향의 `i`번째 그림자
+`shadows.walk[facing][i]`는 `i`번째 프레임의 왼쪽 위 모서리에서 `offset`만큼 떨어진 곳에, 30% 정도 불투명도로 모든 것 아래에
+그려요. `px_per_m`은 없어요: 캐릭터가 서 있을 키에 맞춰 프레임 크기를 조절하세요. Phaser에서 `rain_girl`의 수치로:
+
+```js
+this.load.spritesheet('girl-se', 'walk-south-east.png', { frameWidth: 165, frameHeight: 256 });
+this.anims.create({ key: 'walk-se', frames: this.anims.generateFrameNumbers('girl-se'), frameRate: 6.76, repeat: -1 });
+this.add.sprite(x, y, 'girl-se').setOrigin(0.4926, 0.8839).play('walk-se');
+```
+전체 형식은 [reference/character.md](skills/spritecast/reference/character.md#output-nameout)에 있어요.
+
+## 손으로 다듬기
+
+![다듬기 페이지: 안락의자의 앞쪽 팔걸이를 앞 조각(파랑)으로 칠한 모습](docs/touchup.png)
+
+누끼가 늘 완벽하지는 않아요. 팔과 몸 사이에 종이가 조금 남거나, 흰 셔츠를 종이로 알고 지우기도 해요. Claude에게 다듬기 페이지를
+열어 달라고 하거나 `$PYTHON skills/spritecast/scripts/touchup.py <spec>.json`을 실행하면, 그 소품이나 캐릭터의 완성된 그림이
+전부 브라우저에 떠요. 칠하는 대로 저장돼요.
+
+| 색 | 하는 일 |
+|---|---|
+| 빨강 | 지우기: 투명하게 |
+| 초록 | 되살리기: 그 픽셀을 원래 그림에서 가져와요("drawing under"를 켜면 원래 그림이 밑에 보여요) |
+| 파랑 (소품) | **앞 조각**: 그 안에 선 캐릭터보다 앞에 오는 부분. 아치의 앞 기둥, 정자 지붕, 의자의 앞쪽 팔걸이 |
+
+다 칠하면 `touchup.py <spec>.json --apply` (캐릭터는 스트립을 다시 묶어요). 앞 조각을 칠한 소품은 `sprite-front.png`와
+`sprite.json`의 `"front"`가 생겨요. 소품을 캐릭터 뒤에 그리고 앞 조각을 그 위에 그리면 돼요. `finish`를 다시 돌려도 칠한 내용은
+다시 입혀지고, 칠한 뒤에 다시 그려진 그림에는 입히지 않고 따로 빼 둬요.
+
 ## 작동 방식
 
 | 단계 | 내용 | 비용 |
@@ -295,15 +346,15 @@ Tripo만으로 만들었고 그리기 약 $1.7, Tripo 85크레딧이 들었어�
 | `finish` | 배경을 부드럽게 빼고, 가이드 영역에 맞추고, 그림자를 굽고, 앵커를 재요 | 무료 |
 | `preview` | 1m 격자 바닥 위에 놓아 봐요 | 무료 |
 
-직접 실행할 수도 있어요: `python skills/spritecast/scripts/isoprop.py render|draw|finish|preview examples/reading_armchair.json`.
-`draw`는 `--yes`를 붙이기 전까지 비용만 보여 줘요. 사양 형식은 [reference/spec.md](skills/spritecast/reference/spec.md), 좋은
+직접 실행할 수도 있어요: `$PYTHON skills/spritecast/scripts/isoprop.py render|draw|finish|preview examples/reading_armchair.json`
+(`$PYTHON`은 [설치](#설치) 참고). `draw`는 `--yes`를 붙이기 전까지 비용만 보여 줘요. 사양 형식은 [reference/spec.md](skills/spritecast/reference/spec.md), 좋은
 가이드를 짜는 요령은 [reference/tips.md](skills/spritecast/reference/tips.md)에 있어요.
 
 ## 문제가 생기면
 
 | 문제 | 해결 |
 |---|---|
-| `No module named ...` | `python skills/spritecast/scripts/doctor.py --fix` (Claude가 대신 돌려요) |
+| `No module named ...` | `python3 skills/spritecast/scripts/doctor.py`가 찍는 `PYTHON=`으로 스크립트를 돌려요(준비가 안 됐다고 나오면 먼저 `--fix`. Claude가 대신 해요) |
 | 브라우저 없음 | Chrome 설치, 또는 `doctor.py --fix --browser` (Playwright의 Chromium, ~150 MB) |
 | `this Python cannot make a venv` | Debian/Ubuntu: `sudo apt install python3-venv`, 또는 다른 Python(python.org, conda) |
 | `draw: set OPENAI_API_KEY` | 키를 설정하고(위) Claude Code를 다시 켜요 |
@@ -330,7 +381,8 @@ Tripo만으로 만들었고 그리기 약 $1.7, Tripo 85크레딧이 들었어�
 |---|---|---|
 | numpy, pillow, scipy, playwright, onnxruntime | PyPI, 전용 가상환경(`~/.cache/spritecast/venv`)으로 | `doctor.py --fix`, 한 번 |
 | Chromium (~150 MB) | Playwright 서버 | Chrome이나 Edge가 없을 때만, 물어본 뒤에 |
-| 오려내기 모델 BiRefNet lite (224 MB, MIT) | [rembg의 GitHub 릴리스](https://github.com/danielgatis/rembg/releases/tag/v0.0.0), md5 확인 | 캐릭터, 첫 `finish` 때 |
+| 오려내기 모델 BiRefNet lite (224 MB, MIT), `SPRITECAST_KEY_MODEL=general`이면 전체 모델 (973 MB) | [rembg의 GitHub 릴리스](https://github.com/danielgatis/rembg/releases/tag/v0.0.0), md5 확인 | 캐릭터, 첫 `finish` 때 |
+| 얼굴 랜드마크 모델 MediaPipe Face Landmarker (3.7 MB, Apache-2.0). `mediapipe`는 따로 `pip install` | Google (`storage.googleapis.com/mediapipe-models`) | `facecheck`(선택)만, 처음 한 번 |
 
 렌더는 내 컴퓨터의 헤드리스 브라우저에서 돌고 인터넷에서 아무것도 불러오지 않아요. three.js는 플러그인에 들어 있어요
 (`skills/spritecast/scripts/vendor/three/`, MIT).
@@ -341,7 +393,7 @@ Tripo만으로 만들었고 그리기 약 $1.7, Tripo 85크레딧이 들었어�
 - **앉기와 탑승**: 의자, 벤치, 놀이기구 좌석에 앉은 캐릭터. 좌석 모양에 맞춰 3D로 앉히고, 좌석이 앞을 가리는 부분은 좌석이 그려져요.
 - **도는 물체**: 탈것이나 놀이기구를 여러 각도로 돌려서, 8방향 사이를 툭툭 끊기지 않고 부드럽게 돌아요.
 - **밤 버전**: 빛나는 부분(창문, 전구, 네온) 마스크. 엔진에서 밤에 그 부분만 켤 수 있어요.
-- **지나갈 수 있는 소품**: 아치나 정자를 뒤 조각과 앞 조각으로 나눠서, 캐릭터가 그 안에 설 수 있어요.
+- **지나갈 수 있는 소품 자동화**: 앞 조각을 3D 가이드에서 자동으로 계산해요(지금은 다듬기 페이지에서 손으로 칠해요).
 - **동작 추가**: 걷기 말고도 숨쉬는 대기 동작, 달리기, 공격.
 - **엔진용 내보내기**: 스프라이트 시트와 함께 Godot, Unity, Aseprite에서 바로 불러올 파일.
 
@@ -358,8 +410,27 @@ Tripo만으로 만들었고 그리기 약 $1.7, Tripo 85크레딧이 들었어�
 ## 참고
 - 만든 결과물은 사용자 것이에요.
 - 실제 브랜드, 로고, 기존 게임 캐릭터는 설명에 넣지 마세요.
-- 단단한 소품은 블록의 3D 그림자, 인물과 `loose` 물건은 그림 모양 그대로의 그림자를 받아요(그림자 항목 참고).
+- 살아 있는 작가의 그림은 허락 없이 스타일 그림으로 쓰지 마세요.
+- 캐릭터 얼굴을 닮게 하는 `photo`는 동의한 사람의 사진만 쓰세요.
+- 단단한 소품은 블록의 3D 그림자, 포즈 잡은 인물과 `loose` 물건은 그림 모양 그대로의 그림자(그림자 항목 참고), 걷는 캐릭터는
+  3D 몸의 그림자를 받아요.
 - 설정: `SPRITECAST_MODEL`, `SPRITECAST_QUALITY` (`low` | `medium` | `high`).
 
+## 자주 묻는 질문
+- **얼마 드나요?** 가이드, 마무리, `try`는 무료예요. 소품 약 $0.07, 방향을 하나 더할 때마다 $0.08, 걷는 캐릭터는 그리기 약
+  $2.2(`"mirror": true`면 약 $1.5)와 Tripo 75크레딧(동물 30)이에요. 돈이 드는 단계는 비용을 먼저 보여 주고 OK를 기다려요.
+  플러그인은 무료이고, OpenAI와 Tripo에 직접 내요. 만든 사람에게 가는 돈은 없어요.
+- **어떤 키가 필요하나요?** 그리려면 `OPENAI_API_KEY`, 걷는 캐릭터와 동물은 `TRIPO_API_KEY`(Meshy는 선택)예요. OpenAI가 먼저
+  조직 인증을 요구할 수 있어요. [키](#설치) 참고.
+- **AI 그림 아닌가요?** 맞아요. 그림은 이미지 모델이 그려요. SpriteCast가 더하는 건 형태예요: 크기, 카메라 각도, 걸음, 그림자가
+  3D에서 나와요. 내 그림을 스타일로 줄 수도 있고, `"draw": false`로 걷는 캐릭터의 프레임을 이미지 모델 없이 3D 렌더로 쓸
+  수도 있어요. 턴어라운드는 여전히 이미지 모델이 그려요(리깅된 모델을 직접 주면 빼고요)
+  ([그리기 건너뛰기](#그리기-건너뛰기-3d-렌더를-그대로-프레임으로)).
+- **못 하는 건 뭔가요?** 걷는 캐릭터는 걷기와 서 있기만 하고(다른 동작은 [로드맵](#로드맵)에 있어요), 정면을 보고 똑바로 선
+  일러스트에서 시작해요. 포즈 잡은 한 장짜리 인물(손 흔들기, 가리키기, 들기...)은 설명만 있으면 돼요. 러그처럼 크고 납작한 건 위에서 그려서 바닥에 기울여 붙이는 게 나아요
+  ([요령](skills/spritecast/reference/tips.md)). 결과는 직접 보세요: 머리가 엉뚱한 쪽을 보는 건 윤곽 검사로 못 잡아요.
+- **어떤 엔진에서 쓰나요?** PNG를 받는 엔진이면 다 돼요. 스프라이트, 그림자, 앵커(JSON)를 받아요. Phaser, Godot, Unity는
+  [엔진에 넣는 법](#엔진에-넣는-법) 참고.
+
 ## 라이선스
-MIT. 동봉한 three.js(`scripts/vendor/three`)도 MIT이고 © three.js authors예요.
+MIT. 동봉한 three.js(`skills/spritecast/scripts/vendor/three`)도 MIT이고 © three.js authors예요.

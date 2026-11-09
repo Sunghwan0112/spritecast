@@ -1,7 +1,7 @@
 """Helpers for charpipe.py: making Tripo's rigged GLB renderable (bone names, the walk's hips, feet planted as modelled), and finishing
 drawn frames (cut out of their sheet, a walk fitted onto its renders, the heads' size steadied, the white left between the limbs and
 round dark hair taken out) and the 3D shadows."""
-import os, json, struct
+import os, sys, json, struct
 from collections import deque
 import numpy as np
 from PIL import Image
@@ -221,9 +221,16 @@ def ai_key(im):
     return np.asarray(Image.fromarray((p * 255).astype(np.uint8)).resize(im.size, Image.LANCZOS)) > 127
 
 
+NO_ORT = ('the AI cut-out needs onnxruntime, and this Python has none ({py}) - the white key it would fall back on cuts white clothes '
+          'and leaves paper between the limbs. Run with the Python you installed requirements.txt into (`{py} -m pip install onnxruntime`), '
+          'or set SPRITECAST_KEY=white to cut by the paper\'s white on purpose.')
+
+
 def figure_key(im):
-    """the AI segmenter when it is there (SPRITECAST_KEY=white keeps the old way), else the white key"""
+    """the AI segmenter (SPRITECAST_KEY=white: the white key, on purpose). It used to fall back on the white key by itself when
+    onnxruntime was missing - a run from another Python cut a white bikini and a grey knit dress by the paper's white and nobody knew"""
     if os.environ.get('SPRITECAST_KEY') != 'white':
+        if not _have_ort(): raise SystemExit(NO_ORT.format(py=sys.executable))
         m = ai_key(im)
         if m is not None: return fill_feet(m) if os.environ.get('SPRITECAST_WHITE_SHOES') == '1' else m
     return white_key(im)

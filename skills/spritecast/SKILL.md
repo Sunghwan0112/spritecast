@@ -67,7 +67,7 @@ drawn to match).
 
 ## Walking characters
 For an animated character (an 8-direction walk and standing views), use `${CLAUDE_SKILL_DIR}/scripts/charpipe.py` and read
-[reference/character.md](reference/character.md) first. It needs one finished illustration of the character - facing front, standing straight, arms down, no pose (if theirs is posed, draw a neutral one from it first and show it) - and TRIPO_API_KEY besides OPENAI_API_KEY (or the user's own rigged GLB as `rig_glb`). Tripo makes the model
+[reference/character.md](reference/character.md) first. It needs one finished illustration of the character - facing front, standing straight, arms down, no pose (if theirs is posed, draw a neutral one from it first and show it) - and TRIPO_API_KEY besides OPENAI_API_KEY (or the user's own rigged GLB as `rig_glb`). Ask the game's view and set it as `pitch`, not `camera` (30 = 2:1, the default; 35.26 true isometric; 50 3/4 top-down; 12 front - the 8 facings stay 45° apart). Tripo makes the model
 and the rig; with `"modeler": "meshy"` (and MESHY_API_KEY) Meshy makes the model (the author's way). Offer it when they have a Meshy account. Three steps, the user's OK before each:
 `turnaround` (~$0.09; show it: both sides the same, nothing over the arms) → `3d` (~75 Tripo credits: model, rig, walk, then the
 renders by themselves - show the front and a side: the face, not the back of the head) → `draw` (~$2, every facing drawn; when every facing is drawn,
@@ -77,8 +77,9 @@ never run the next paid step because the previous one "looked fine": a problem s
 (~30 Tripo credits - no rig: Tripo's animal rig is poor, so the skeleton is found from the mesh and walked in a cat's gait). The
 turnaround on all four legs, each leg clear, the tail out behind; clothes only snug ones (a vest, not a cape or a scarf). Check the
 renders before `draw`: four legs, the head forward, the tail behind.
-**Cheaper, softer** (`"draw": false`): no image model - the 3D renders are the frames; after `3d` it finishes by itself. Offer it
-when cost matters more than detail (prototypes, background walkers); say it is softer (no drawn lines, a simpler face).
+**Cheaper, softer** (`"draw": false`): no image model draws the frames - the 3D renders are the frames; after `3d` it finishes by itself.
+The turnaround is still drawn by the image model (~$0.09) unless the user brings a rigged GLB (`rig_glb`): only then is no image model used at all.
+Offer it when cost matters more than detail (prototypes, background walkers); say it is softer (no drawn lines, a simpler face).
 **Every facing is drawn by default** (`"mirror": false`): a flipped facing is only as good as its pair and swaps anything that isn't
 the same on both sides (hair over one shoulder, a logo, a bag, one bunny ear up). Flipping comes in only by the rules below - a facing
 still under `redo_below` after two redraws is mixed frame by frame with its flipped pair - or when the user asks to save ~$0.66 on a
@@ -101,6 +102,22 @@ The output has a shadow per frame from the 3D body (`out/shadows/`, offsets in `
 the 3D ground under the middle, stands 4-7 game px lower). **Several characters or outfits that should match** (the same person in
 other clothes): `facecheck REF.json --with A.json,B.json` (free; needs mediapipe, Python 3.9-3.12) compares the face for the height,
 facing by facing, by face landmarks - hair fools any outline measure - and `--apply` writes `head_fit` into their specs for `finish`. A rig rendered before this version has no `-s.png`: re-run `render` (free) before `finish`.
+**The cut-out needs onnxruntime** (in requirements.txt): run every step with the `PYTHON=` doctor.py prints. A Python without it now
+stops `finish` with a message instead of quietly cutting by the paper's white (which takes white clothes away and leaves paper between
+the limbs); `SPRITECAST_KEY=white` cuts by white on purpose.
+
+## Touching up by hand (props and characters)
+`${CLAUDE_SKILL_DIR}/scripts/touchup.py SPEC.json` (free) opens a local page with every finished picture of that prop or character
+(a character's walk and standing frames). Offer it when the user sees paper left between the limbs, a halo, a white shirt or shoe the
+cut-out took for the paper, or wants a walk-in prop's front piece. They paint, it saves as they go:
+- **red - clear**: made see-through;
+- **green - bring back**: those pixels taken from the drawing itself (a character's frame: its sheet's cell laid on the frame again;
+  a prop: the drawing laid like the sprite, `sprite-src.png`) - "drawing under" shows it, "result" shows what applying will make;
+- **blue - front piece** (props): what stands in front of a person inside the thing (an arch's near posts and curve, a gazebo's roof,
+  a chair's near armrest) → `sprite-front.png` and `"front"` in `sprite.json`: the game draws the sprite behind them and this over them.
+Then `touchup.py SPEC.json --apply` (characters: the strips are packed again). `finish` lays the paintings on again by itself, so
+they survive a later `finish`; a picture drawn again since it was painted gets its painting set aside, never laid on a new drawing.
+Never paint for the user without asking, and never run `--apply` on paintings you made yourself without showing them first.
 
 ## Rules
 - Spend money only after the user agreed to that amount. Show the free render before any paid step.
