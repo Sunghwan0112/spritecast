@@ -482,8 +482,10 @@ def sit_render(s, d):
         pg.evaluate('([u, p, l]) => window.load(u, p, l)', ['http://spritecast.local/asset/rig.glb', s['pitch'], s['light']])
         for dr in DIRS:
             save(pg.evaluate('(a) => window.sitFrames(...a)', [dr, s['head_up'], s['shoulder_up'], s['shoulder_wide'], o, True]), d / f'render/sit-{dr}.png')
-            save(pg.evaluate('window.shadowShots')[0], d / f'render/sit-{dr}-s.png'); seats[dr] = pg.evaluate('window.seatInfo')
+            save(pg.evaluate('window.shadowShots')[0], d / f'render/sit-{dr}-s.png'); save(pg.evaluate('window.heightShot'), d / f'render/sit-{dr}-h.png')
+            seats[dr] = pg.evaluate('window.seatInfo')
         br.close()
+    seats['_'] = {'px': 512, 'view_h': 1.25, 'pitch': s['pitch'], 'heights': 'render/sit-<facing>-h.png: (R*256+G)/65535*view_h figure heights'}
     (d / 'render/sit.json').write_text(json.dumps(seats, indent=1))
     print(f"sit: {d / 'render'}/sit-*.png - seated on nothing, the seat {seats['south']['seatY']:.2f} of the height up; look at them, then `sit --draw`")
 

@@ -19,7 +19,7 @@
 |---|---|
 | `name` | output folder name (next to the spec, or `--out`) |
 | `footprint` | `[W, D]` metres: W along **x**, D along **y** |
-| `blocks` | boxes `[x0, x1, y0, y1, h0, h1]` in metres; `"axis": "x" \| "y" \| "h"` makes the box a cylinder along that axis (round things must be cylinders); `color` any CSS colour |
+| `blocks` | boxes `[x0, x1, y0, y1, h0, h1]` in metres; `"axis": "x" \| "y" \| "h"` makes the box a cylinder along that axis (round things must be cylinders); `color` any CSS colour; `{"arc": [cx, cy, r0, r1, a0, a1, h0, h1]}` a curved sector instead (a curved bench's seat or back: its circle's centre in the footprint's metres - it may lie outside it -, the radii, the angles in degrees from +x toward +y, the heights) |
 | `model` | instead of / besides blocks: `{"glb": "path.glb", "size": [W, D, H], "yaw": 0}` - a 3D model scaled to that box, turned `yaw` degrees first. `isoprop.py model` makes one with Tripo and writes this for you (the blocks kept as `blocks_draft`); `yaws` shows the four turns to pick `yaw` |
 | `description` | the finished object - materials, colours, details. What fills each block |
 | `facing` | which way its front faces on screen, in words (helps the model) |

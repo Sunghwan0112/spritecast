@@ -182,7 +182,7 @@ def render(spec, d):
             save = lambda url, name: (vd / name).write_bytes(base64.b64decode(url.split(',', 1)[1]))
             save(page.evaluate('() => window.shot()'), 'render.png')
             save(page.evaluate('() => window.shadowShot()'), 'render-shadow.png')
-            top = max([x['box'][5] if 'box' in x else max(x['seg'][2], x['seg'][5]) + x.get('r', 0) for x in spec.get('blocks') or []]
+            top = max([block_top(x) for x in spec.get('blocks') or []]
                       + ([spec['model']['size'][2]] if spec.get('model') else [])) + 0.05
             save(page.evaluate('(t) => window.heightShot(t)', top), 'render-height.png')
             corners = [page.evaluate('([x, y]) => window.toCanvas(x, y, 0)', c) for c in ([0, 0], [W, 0], [W, D], [0, D])]
@@ -202,12 +202,22 @@ def render(spec, d):
         browser.close()
 
 
+def block_top(x):
+    """how high a block reaches (a box, a limb `seg` with its radius, a curved sector `arc`)"""
+    if 'box' in x: return x['box'][5]
+    if 'arc' in x: return x['arc'][7]
+    return max(x['seg'][2], x['seg'][5]) + x.get('r', 0)
+
+
 def clip_blocks(blocks, top):
     """the blocks cut off `top` m above the floor (boxes lowered, limbs shortened, what starts higher dropped): what stands on it"""
     out = []
     for x in blocks:
         x = json.loads(json.dumps(x))
-        if 'box' in x:
+        if 'arc' in x:
+            if x['arc'][6] >= top: continue
+            x['arc'][7] = min(x['arc'][7], top)
+        elif 'box' in x:
             if x['box'][4] >= top: continue
             x['box'][5] = min(x['box'][5], top)
         else:
@@ -339,7 +349,7 @@ def make_model(spec, d, args):
     if out.exists() and not args.again: return print(f'model: {out} is there already (--again to make it anew)')
     blocks = spec.get('blocks') or spec.get('blocks_draft') or []
     if spec.get('character') is not None or not blocks: sys.exit('model: needs a prop spec with blocks (they give its real size)')
-    H = max(x['box'][5] if 'box' in x else max(x['seg'][2], x['seg'][5]) + x.get('r', 0) for x in blocks)
+    H = max(block_top(x) for x in blocks)
     W, D = spec['footprint']
     print(f'model: Tripo text-to-model {TRIPO_MODEL}, about 20-40 Tripo credits; fitted to {W} x {D} x {H:.2f} m')
     if not args.yes: return print('model: not spent - run again with --yes')

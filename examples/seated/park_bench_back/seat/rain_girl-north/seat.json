@@ -1,0 +1,38 @@
+{
+ "sitter": "rain_girl",
+ "facing": "north",
+ "frame": "sit-north.png of rain_girl (frames/ in its working folder, at the render's size)",
+ "scale": 0.8125,
+ "frame_px": [
+  416,
+  416
+ ],
+ "top_left_in_sprite": [
+  48,
+  -177
+ ],
+ "seat_m": [
+  1.035,
+  1.035,
+  0.46
+ ],
+ "front": "front.png",
+ "front_px": 8490,
+ "nudge_px": [
+  0,
+  0
+ ],
+ "made_by": {
+  "view": null,
+  "at": [
+   1.0354,
+   1.0354,
+   0.46
+  ],
+  "facing": "north",
+  "height": 1.3,
+  "sink": 0.03,
+  "char": "examples/rain_girl"
+ },
+ "note": "draw the sprite, then the sitter's frame at top_left_in_sprite (scaled by `scale`), then front.png at the sprite's place"
+}

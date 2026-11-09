@@ -150,15 +150,23 @@ window.sitFrames = (dir, head, up = 0, wide = 1, o = {}, shadows = false) => {
   // (from the thigh bones, not the mesh: a coat's hem or a skirt hangs below them)
   const lu = new THREE.Vector3(), ru = new THREE.Vector3(); bones.LeftUpLeg.getWorldPosition(lu); bones.RightUpLeg.getWorldPosition(ru);
   let seatY = (lu.y + ru.y + lk.y + rk.y) / 4 - (o.thigh ?? 0.05);
+  const knee = ((lk.z + rk.z) / 2 - (lu.z + ru.z) / 2) + (o.thigh ?? 0.05);        // how far the knees' front is ahead of the hips (figure heights)
   if (o.seatH) { root.position.y += o.seatH - seatY; seatY = o.seatH; root.updateMatrixWorld(true); }
   root.rotation.y = FACING[dir] * Math.PI / 180; root.updateMatrixWorld(true);
   hips.getWorldPosition(hp);
   const sp = new THREE.Vector3(hp.x, seatY, hp.z).project(cam);
-  window.seatInfo = { seatY: +seatY.toFixed(4), seat: [+(0.5 + sp.x / 2).toFixed(4), +(0.5 - sp.y / 2).toFixed(4)] };
+  window.seatInfo = { seatY: +seatY.toFixed(4), knee: +knee.toFixed(4), seat: [+(0.5 + sp.x / 2).toFixed(4), +(0.5 - sp.y / 2).toFixed(4)] };
   renderer.render(scene, cam); const out = renderer.domElement.toDataURL('image/png');
   if (shadows) {
     root.traverse((m) => { if (m.isMesh) m.material = m.userData.flat; });
     renderer.render(scene, cam); window.shadowShots.push(renderer.domElement.toDataURL('image/png'));
+    // every pixel's height above the ground (in the figure's heights, up to VIEW_H) as 16 bits, red high, green low - for working out
+    // what of a chair stands in front of the sitter (seat.py)
+    const hm = new THREE.ShaderMaterial({ uniforms: { uTop: { value: VIEW_H } }, side: THREE.DoubleSide,
+      vertexShader: '#include <common>\n#include <skinning_pars_vertex>\nvarying float vY; void main() {\n#include <skinbase_vertex>\n#include <begin_vertex>\n#include <skinning_vertex>\n vec4 w = modelMatrix * vec4(transformed, 1.0); vY = w.y; gl_Position = projectionMatrix * viewMatrix * w; }',
+      fragmentShader: 'uniform float uTop; varying float vY; void main() { float v = clamp(vY / uTop, 0.0, 1.0) * 65535.0; gl_FragColor = vec4(floor(v / 256.0) / 255.0, mod(v, 256.0) / 255.0, 0.0, 1.0); }' });
+    root.traverse((m) => { if (m.isMesh) m.material = hm; });
+    renderer.render(scene, cam); window.heightShot = renderer.domElement.toDataURL('image/png');
     root.traverse((m) => { if (m.isMesh) m.material = m.userData.toon; });
   }
   root.position.set(0, 0, 0);

@@ -115,6 +115,14 @@ frame), `seat_height` (in the figure's heights) and its shadow. Which facing to 
 front cover them, paint the chair's front piece in the touch-up page (blue) and draw it over the sitter. `"sit": {"hip", "knee",
 "arm", "elbow"}` in the spec changes the pose (degrees; 88, 88, 10, 50).
 
+**Putting them on a prop** (`${CLAUDE_SKILL_DIR}/scripts/seat.py PROP.json CHAR.json [--view turn-90] [--height 1.3]`, free): the
+sitter placed on a finished prop's seat and the prop's front piece for them worked out from both heights (the prop's
+`render-height.png`, the sitter's `render/sit-*-h.png` - re-run `render` / `sit` if they are missing) → `<view>/seat/<char>-<facing>/`
+front.png, seat.json (where to draw the sitter), preview.png. It finds the seat's height, which way it faces (away from the backrest),
+and sits them back until their knees reach the seat's front edge. Ask the character's height (`--height`, else `"height_m"`, else
+1.7). A seat hidden behind its back in this view, on a 3D model without blocks: `--at X,Y,Z` with the seat's height from the front view.
+Show the preview; a sitter in the wrong place is moved on the touch-up page (below), which re-makes the seat from there.
+
 ## Touching up by hand (props and characters)
 `${CLAUDE_SKILL_DIR}/scripts/touchup.py SPEC.json` (free) opens a local page with every finished picture of that prop or character
 (a character's walk and standing frames). Offer it when the user sees paper left between the limbs, a halo, a white shirt or shoe the
@@ -124,6 +132,8 @@ cut-out took for the paper, or wants a walk-in prop's front piece. They paint, i
   a prop: the drawing laid like the sprite, `sprite-src.png`) - "drawing under" shows it, "result" shows what applying will make;
 - **blue - front piece** (props): what stands in front of a person inside the thing (an arch's near posts and curve, a gazebo's roof,
   a chair's near armrest) → `sprite-front.png` and `"front"` in `sprite.json`: the game draws the sprite behind them and this over them.
+- **🪑 a seat** (props with seat.py's sitters): drag the sitter, or the arrow keys a pixel at a time; letting go makes the seat
+  again from there (`nudge.json`) and works its front piece out anew.
 Then `touchup.py SPEC.json --apply` (characters: the strips are packed again). `finish` lays the paintings on again by itself, so
 they survive a later `finish`; a picture drawn again since it was painted gets its painting set aside, never laid on a new drawing.
 Never paint for the user without asking, and never run `--apply` on paintings you made yourself without showing them first.

@@ -44,6 +44,21 @@ function block(b, W, D) {
     m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), B.clone().sub(A).normalize());
     return m;
   }
+  if (b.arc) {                // a ring's sector (a curved bench's seat or back): [cx, cy, r0, r1, a0, a1, h0, h1] - its centre in the
+    // footprint (it may lie outside it), radii and angles (degrees: 0 along +x, 90 along +y) in game axes, from h0 to h1 m up
+    const [cx, cy, r0, r1, a0d, a1d, h0, h1] = b.arc, a0 = a0d * Math.PI / 180, a1 = a1d * Math.PI / 180;
+    const P = (r, a, h) => [-((cy + r * Math.sin(a)) - D / 2), h, (cx + r * Math.cos(a)) - W / 2];
+    const n = Math.max(6, Math.ceil(Math.abs(a1 - a0) / 0.03)), t = [];
+    const quad = (A, B, C, E, flip) => t.push(...(flip ? [[A, C, B], [A, E, C]] : [[A, B, C], [A, C, E]]));
+    for (let i = 0; i < n; i++) {
+      const a = a0 + (a1 - a0) * i / n, e = a0 + (a1 - a0) * (i + 1) / n;
+      quad(P(r0, a, h1), P(r1, a, h1), P(r1, e, h1), P(r0, e, h1), false); quad(P(r0, a, h0), P(r1, a, h0), P(r1, e, h0), P(r0, e, h0), true);
+      quad(P(r1, a, h0), P(r1, e, h0), P(r1, e, h1), P(r1, a, h1), false); quad(P(r0, a, h0), P(r0, e, h0), P(r0, e, h1), P(r0, a, h1), true);
+    }
+    quad(P(r0, a0, h0), P(r1, a0, h0), P(r1, a0, h1), P(r0, a0, h1), true); quad(P(r0, a1, h0), P(r1, a1, h0), P(r1, a1, h1), P(r0, a1, h1), false);
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(t.flat(2), 3)); geo.computeVertexNormals();
+    const m = new THREE.Mesh(geo, toon(colour(b.color))); m.material.side = THREE.DoubleSide; m.add(edges(geo)); return m;
+  }
   const [x0, x1, y0, y1, h0, h1] = b.box;
   const sx = y1 - y0, sy = h1 - h0, sz = x1 - x0;                          // model x ← game y, model y ← h, model z ← game x
   let geo;

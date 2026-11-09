@@ -11,6 +11,12 @@ Changes made because of a report or a request are marked *(feedback)*.
   gazebo or a chair's armrests. Saved as you paint; `--apply` lays them on, and `finish` lays them on again by itself. *(feedback)*
 - **Sitting** (`charpipe.py sit`): the rig bent into sitting in 8 facings (free), then drawn like the standing views (`--draw`, ~$0.22)
   → `out/sit-<facing>.png` with each facing's seat point, seat height and 3D shadow. The rain girl example has them.
+- **Seats** (`seat.py`): a seated character put on a finished prop - the seat's height and facing found, sat back until the knees
+  reach the seat's edge - and the prop's front piece for them worked out from the two heights, no painting. Examples: the rain girl on
+  the four turns of the armchair, the Tripo armchair, and seats from the author's game (a dining chair from both sides, a church pew,
+  a curved park bench from both sides - `examples/seated/`).
+- On the touch-up page a seated character is **dragged to where they should sit**; letting go re-makes the seat there. *(feedback)*
+- Curved blocks (`"arc"`) for round things like a curved bench.
 - `charpipe.py pack`: the strips made again from frames/ without finishing again.
 - **The cut-out no longer falls back quietly**: without onnxruntime, `finish` stops and says so, instead of cutting by the paper's
   white - a run from another Python had cut a white bikini and a grey knit dress that way, leaving paper between the arms. *(feedback)*

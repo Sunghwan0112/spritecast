@@ -328,12 +328,19 @@ The full format: [reference/character.md](skills/spritecast/reference/character.
 Once a character walks, ask Claude to *"make her sit"*. Her 3D model is bent into sitting (thighs level, knees bent, hands on the
 thighs) in 8 facings for free; you look at those renders, then they are drawn like the standing views (two sheets, about $0.22). She
 sits on nothing - your game's chair goes under her. `character.json` gets a `sit` block: for each facing the file, the **seat point**
-(put it on the chair's seat; a fraction of the frame, like `anchor`), the seat's height and the shadow. To have the chair's armrest or
-front in front of her, paint the chair's front piece on the touch-up page (below) and draw it over her.
+(put it on the chair's seat; a fraction of the frame, like `anchor`), the seat's height and the shadow. To put her on one of
+your props, `seat.py` places her on its seat and works out the prop's **front piece for her** (an armrest, a pew's back, a bench's
+backrest) from both of their 3D heights - no painting:
+
+![The rain girl seated on ten seats: an armchair from four sides, the Tripo armchair, a dining chair from both sides, a pew, a curved bench from both sides](docs/seats.png)
+
+It finds the seat's height and which way it faces, and sits her back until her knees reach the seat's edge. If she sits a little off,
+drag her on the touch-up page (below): letting go works the front piece out again from there.
 
 ```
 $PYTHON skills/spritecast/scripts/charpipe.py sit <name>.json            # free: the seated renders
 $PYTHON skills/spritecast/scripts/charpipe.py sit <name>.json --draw     # ~$0.22: drawn and finished
+$PYTHON skills/spritecast/scripts/seat.py <prop>.json <name>.json --height 1.3   # free: on a prop, its front piece worked out
 ```
 
 ## Fixing things by hand
@@ -349,6 +356,7 @@ character, painted in the browser and saved as you go.
 | red | clears: made see-through |
 | green | brings back: those pixels taken from the drawing itself (turn on "drawing under" to see it) |
 | blue (props) | the **front piece**: what stands in front of a character inside the thing - an arch's near posts, a gazebo's roof, a chair's near armrest |
+| 🪑 (a seat) | drag the seated character (or the arrow keys); letting go re-makes the seat and its front piece from there |
 
 Then `touchup.py <spec>.json --apply` (a character's strips are packed again). A prop with a front piece gets `sprite-front.png` and
 `"front"` in `sprite.json`: draw the sprite behind whoever stands in it and the front piece over them. `finish` lays the paintings on

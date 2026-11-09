@@ -1,0 +1,65 @@
+{
+ "name": "park_bench_front",
+ "footprint_m": [
+  2.0,
+  2.0
+ ],
+ "px_per_m": 256,
+ "camera": {
+  "pitch": 30,
+  "yaw": 45
+ },
+ "turn": 0,
+ "light": "right",
+ "sprite": {
+  "file": "sprite.png",
+  "size": [
+   512,
+   415
+  ],
+  "anchor": [
+   0.4999,
+   0.9974
+  ],
+  "anchor_px": [
+   255.9,
+   413.9
+  ]
+ },
+ "shadow": {
+  "file": "shadow.png",
+  "from": "guide",
+  "size": [
+   580,
+   156
+  ],
+  "offset_px": [
+   -86,
+   107
+  ]
+ },
+ "footprint_px": [
+  [
+   255.9,
+   51.9
+  ],
+  [
+   618.0,
+   232.9
+  ],
+  [
+   255.9,
+   413.9
+  ],
+  [
+   -106.1,
+   232.9
+  ]
+ ],
+ "fit": {
+  "ok": true,
+  "proportions_off": -0.072,
+  "outline_overlap": 0.808
+ },
+ "notes": "anchor = the footprint's lowest point on screen (its front corner, or the middle of its front edge when seen square on), as a fraction of the sprite; footprint_px = the ground corners at (0,0), (W,0), (W,D), (0,D) in sprite px; draw shadow.png at offset_px from the sprite's top-left, under everything."
+}

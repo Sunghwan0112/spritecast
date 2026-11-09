@@ -1,0 +1,18 @@
+{
+ "name": "dining_chair_back",
+ "footprint": [
+  0.52,
+  0.6
+ ],
+ "description": "a modern dining chair: a curved, wide upholstered seat and back, slim dark legs",
+ "model": {
+  "glb": "dl_chair.glb",
+  "size": [
+   0.52,
+   0.6,
+   0.84
+  ],
+  "yaw": 0,
+  "note": "the 3D model is not included (too big); its renders and heights are"
+ }
+}

@@ -1,0 +1,18 @@
+{
+ "name": "church_pew",
+ "footprint": [
+  0.7,
+  2.0
+ ],
+ "description": "a long carved dark-walnut church pew with a red velvet seat cushion",
+ "model": {
+  "glb": "c_pew.glb",
+  "size": [
+   0.7,
+   2.0,
+   1.0
+  ],
+  "yaw": 180,
+  "note": "the 3D model is not included (too big); its renders and heights are"
+ }
+}

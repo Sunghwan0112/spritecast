@@ -10,6 +10,8 @@ The colours, painted over the picture:
   green - bring back: the pixels taken from the drawing itself (a white shirt on the white paper the cut-out took for paper)
   blue  - front piece (props): what stands in front of a person inside the thing → sprite-front.png beside sprite.png, the whole
           picture drawn behind them and the front piece over them (an arch, a gazebo's roof and near posts, a chair's armrest)
+A prop with characters seated on it (seat.py) lists each seat too: drag the sitter (or the arrow keys, a pixel at a time) to where they
+should sit; on letting go the seat is made again from there (seat/<…>/nudge.json) and its front piece worked out anew.
 
 The paintings are kept in <the output folder>/touchup/ (masks/, base/ - each picture as it was when painted, state.json); a picture drawn
 again since it was painted keeps its painting aside and says so, it is never laid on a different drawing.
@@ -40,6 +42,11 @@ def target(spec_path, out=None):
         if rel not in seen: seen.add(rel); out.append((rel, f))
     if not out: sys.exit(f'touchup: nothing finished in {d} yet - run `finish` first')
     return 'prop', d, out
+
+
+def seats_of(d):
+    """the seated characters put on this prop by seat.py: [(rel of the seat's folder, its folder)]"""
+    return [(p.parent.relative_to(d).as_posix(), p.parent) for p in sorted(d.glob('**/seat/*/seat.json'))]
 
 
 def _frame_order(f):
@@ -189,7 +196,7 @@ def apply(spec_path, quiet=False, out=None):
 def serve(spec_path, port, out=None):
     kind, d, items = target(spec_path, out); st = state(d)
     for rel, f in items: base_of(d, rel, f, st)
-    save_state(d, st); files = dict(items)
+    save_state(d, st); files = dict(items); seats = dict(seats_of(d)) if kind == 'prop' else {}
 
     def png(path):
         return Path(path).read_bytes() if path and Path(path).exists() else None
@@ -206,7 +213,15 @@ def serve(spec_path, port, out=None):
             if u == '/': return self.send(200, (HERE / 'touchup.html').read_bytes(), 'text/html; charset=utf-8')
             if u == '/list':
                 out = [{'rel': rel, 'painted': (d / 'touchup/masks' / rel).exists()} for rel, _ in items]
+                out += [{'rel': rel, 'seat': True, 'painted': bool(json.loads((sd / 'seat.json').read_text()).get('nudge_px', [0, 0]) != [0, 0])} for rel, sd in seats.items()]
                 return self.send(200, json.dumps({'kind': kind, 'name': d.name, 'items': out}).encode(), 'application/json')
+            m = re.match(r'/seat/(.+)/(info|sprite|frame|front)$', u)
+            if m and m.group(1) in seats:
+                sd = seats[m.group(1)]; j = json.loads((sd / 'seat.json').read_text()); vd = sd.parent.parent
+                if m.group(2) == 'info': return self.send(200, json.dumps(j).encode(), 'application/json')
+                p = {'sprite': vd / 'sprite.png', 'front': sd / 'front.png',
+                     'frame': Path(j['made_by']['char']).parent / j['frame']}[m.group(2)]
+                return self.send(200, p.read_bytes(), 'image/png')
             m = re.match(r'/(base|src|mask)/(.+)$', u)
             if m and m.group(2) in files:
                 w, rel = m.groups()
@@ -216,6 +231,12 @@ def serve(spec_path, port, out=None):
             self.send(404, b'not found', 'text/plain')
 
         def do_POST(self):
+            if self.path == '/nudge':                                    # a seated character moved on its seat: made again from there
+                j = json.loads(self.rfile.read(int(self.headers['Content-Length']))); sd = seats.get(j.get('rel'))
+                if not sd: return self.send(400, b'unknown seat', 'text/plain')
+                (sd / 'nudge.json').write_text(json.dumps([int(j['dx']), int(j['dy'])]))
+                import seat as SEAT; SEAT.rerun(sd)
+                return self.send(200, b'{"ok":true}', 'application/json')
             if self.path != '/save': return self.send(404, b'', 'text/plain')
             j = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
             rel = j.get('rel')

@@ -1,0 +1,65 @@
+{
+ "name": "dining_chair_back__0_0.52",
+ "footprint_m": [
+  0.52,
+  0.6
+ ],
+ "px_per_m": 256,
+ "camera": {
+  "pitch": 30,
+  "yaw": 45
+ },
+ "turn": 0,
+ "light": "right",
+ "sprite": {
+  "file": "sprite.png",
+  "size": [
+   166,
+   238
+  ],
+  "anchor": [
+   0.4468,
+   0.9929
+  ],
+  "anchor_px": [
+   74.2,
+   236.3
+  ]
+ },
+ "shadow": {
+  "file": "shadow.png",
+  "from": "guide",
+  "size": [
+   249,
+   128
+  ],
+  "offset_px": [
+   -84,
+   97
+  ]
+ },
+ "footprint_px": [
+  [
+   88.6,
+   135.0
+  ],
+  [
+   182.8,
+   182.0
+  ],
+  [
+   74.2,
+   236.3
+  ],
+  [
+   -20.0,
+   189.3
+  ]
+ ],
+ "fit": {
+  "ok": true,
+  "proportions_off": 0.001,
+  "outline_overlap": 0.962
+ },
+ "notes": "anchor = the footprint's lowest point on screen (its front corner, or the middle of its front edge when seen square on), as a fraction of the sprite; footprint_px = the ground corners at (0,0), (W,0), (W,D), (0,D) in sprite px; draw shadow.png at offset_px from the sprite's top-left, under everything."
+}

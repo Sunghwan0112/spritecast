@@ -49,7 +49,7 @@
     <button id="undo">Undo</button>
   </div>
   <span id="msg"></span>
-  <span class="help">1 2 3 E modes · [ ] size · Z undo · ←→ next · saved as you paint</span>
+  <span class="help">1 2 3 E modes · [ ] size · Z undo · ←→ next · saved as you paint · 🪑 seats: drag the sitter</span>
 </header>
 <nav id="list"></nav>
 <main id="stage"><div id="wrap"><canvas id="cv"></canvas></div></main>
@@ -66,14 +66,45 @@ async function init() {
   const j = await (await fetch('/list')).json(); kind = j.kind; items = j.items; $('title').textContent = `touch-up · ${j.name}`;
   if (kind !== 'prop') document.querySelector('[data-m=front]').style.display = 'none';
   const L = $('list'); L.innerHTML = '';
-  items.forEach((it, i) => { const e = document.createElement('div'); e.textContent = it.rel.replace(/^frames\//, '').replace(/\.png$/, ''); e.onclick = () => open(i); L.appendChild(e); });
+  items.forEach((it, i) => { const e = document.createElement('div'); e.textContent = (it.seat ? '🪑 ' : '') + it.rel.replace(/^frames\//, '').replace(/\.png$/, '').replace(/(^|\/)seat\//, '$1'); e.onclick = () => open(i); L.appendChild(e); });
   marks(); open(0);
 }
 function marks() { [...$('list').children].forEach((e, i) => { e.className = (i === cur ? 'sel ' : '') + (items[i].painted ? 'p' : ''); }); }
 
+// a seated character on the prop (seat.py): drag them, or the arrow keys; letting go makes the seat again from there
+let seat = null;
+async function openSeat(i) {
+  const rel = encodeURI(items[i].rel), info = await (await fetch('/seat/' + rel + '/info')).json();
+  const [sp, fr, fp] = await Promise.all(['sprite', 'frame', 'front'].map((k) => img('/seat/' + rel + '/' + k)));
+  seat = { info, sp, fr, fp, n: [...(info.nudge_px || [0, 0])], saved: [...(info.nudge_px || [0, 0])] }; base = null;
+  document.getElementById('modes').style.visibility = 'hidden';
+  $('msg').textContent = 'drag her (or the arrow keys) to where she should sit; letting go works the front piece out again';
+  drawSeat();
+}
+function drawSeat() {
+  const s = seat, k = s.info.scale, fw = s.fr.width * k, fh = s.fr.height * k;
+  const tl = s.info.top_left_in_sprite, x = tl[0] + s.n[0] - s.saved[0], y = tl[1] + s.n[1] - s.saved[1];
+  const L = Math.min(0, x) - 20, T = Math.min(0, y) - 20, R = Math.max(s.sp.width, x + fw) + 20, B = Math.max(s.sp.height, y + fh) + 20;
+  s.L = L; s.T = T; cv.width = (R - L) * zoom; cv.height = (B - T) * zoom; cx.imageSmoothingEnabled = true;
+  const bg = BGS[bgi][1]; cx.fillStyle = bg || '#f0ece4'; cx.fillRect(0, 0, cv.width, cv.height);
+  cx.drawImage(s.sp, -L * zoom, -T * zoom, s.sp.width * zoom, s.sp.height * zoom);
+  cx.drawImage(s.fr, (x - L) * zoom, (y - T) * zoom, fw * zoom, fh * zoom);
+  const moved = s.n[0] !== s.saved[0] || s.n[1] !== s.saved[1];
+  if (s.fp && !moved) cx.drawImage(s.fp, -L * zoom, -T * zoom, s.sp.width * zoom, s.sp.height * zoom);
+  $('msg').textContent = `moved ${s.n[0]}, ${s.n[1]} px` + (moved ? ' - let go to work the front piece out' : '');
+}
+async function saveSeat() {
+  const s = seat; if (s.n[0] === s.saved[0] && s.n[1] === s.saved[1]) return;
+  $('msg').textContent = 'working the front piece out…';
+  const r = await fetch('/nudge', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rel: items[cur].rel, dx: s.n[0], dy: s.n[1] }) }).catch(() => null);
+  if (!r || !r.ok) { $('msg').textContent = 'not made again - see touchup.py\'s output'; return; }
+  items[cur].painted = s.n[0] !== 0 || s.n[1] !== 0; marks(); await openSeat(cur);
+}
+
 async function open(i) {
   if (i < 0 || i >= items.length) return;
-  await flush(); cur = i; marks(); undo = [];
+  await flush(); cur = i; marks(); undo = []; seat = null; document.getElementById('modes').style.visibility = '';
+  if (items[i].seat) return openSeat(i);
   const rel = encodeURI(items[i].rel);
   [base, src] = await Promise.all([img('/base/' + rel), img('/src/' + rel)]);
   const m = await img('/mask/' + rel);
@@ -86,6 +117,7 @@ async function open(i) {
 }
 
 function draw() {
+  if (seat) return drawSeat();
   if (!base) return;
   cv.width = base.width * zoom; cv.height = base.height * zoom; cx.imageSmoothingEnabled = false;
   const bg = BGS[bgi][1];
@@ -120,7 +152,11 @@ function dab(x, y) {
   for (let yy = y0; yy <= y0 + n; yy++) for (let xx = x0; xx <= x0 + n; xx++) if ((xx + 0.5 - x) ** 2 + (yy + 0.5 - y) ** 2 <= r * r + 0.25) mctx.fillRect(xx, yy, 1, 1);
 }
 function stroke(a, b) { const d = Math.hypot(b[0] - a[0], b[1] - a[1]), n = Math.max(1, Math.ceil(d / Math.max(0.5, size / 4))); for (let i = 0; i <= n; i++) dab(a[0] + (b[0] - a[0]) * i / n, a[1] + (b[1] - a[1]) * i / n); }
-cv.addEventListener('pointerdown', (e) => { if (!base || showRes) return; down = true; cv.setPointerCapture(e.pointerId); undo.push(mctx.getImageData(0, 0, mask.width, mask.height)); if (undo.length > 40) undo.shift(); last = at(e); dab(...last); dirty = true; draw(); });
+let grab = null;
+cv.addEventListener('pointerdown', (e) => { if (seat) { grab = [e.clientX, e.clientY, ...seat.n]; cv.setPointerCapture(e.pointerId); } });
+cv.addEventListener('pointermove', (e) => { if (seat && grab) { seat.n = [grab[2] + Math.round((e.clientX - grab[0]) / zoom), grab[3] + Math.round((e.clientY - grab[1]) / zoom)]; drawSeat(); } });
+cv.addEventListener('pointerup', () => { if (seat && grab) { grab = null; saveSeat(); } });
+cv.addEventListener('pointerdown', (e) => { if (seat || !base || showRes) return; down = true; cv.setPointerCapture(e.pointerId); undo.push(mctx.getImageData(0, 0, mask.width, mask.height)); if (undo.length > 40) undo.shift(); last = at(e); dab(...last); dirty = true; draw(); });
 cv.addEventListener('pointermove', (e) => { if (!down) return; const p = at(e); stroke(last, p); last = p; draw(); });
 cv.addEventListener('pointerup', () => { if (!down) return; down = false; queueSave(); });
 
@@ -145,6 +181,10 @@ $('resb').onclick = () => { showRes = !showRes; $('resb').textContent = 'result:
 $('undo').onclick = () => { const u = undo.pop(); if (u) { mctx.putImageData(u, 0, 0); dirty = true; draw(); queueSave(); } };
 addEventListener('keydown', (e) => {
   if (e.target.tagName === 'INPUT') return;
+  if (seat && e.key.startsWith('Arrow')) {                // a seated character: a pixel at a time
+    e.preventDefault(); const d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+    seat.n = [seat.n[0] + d[0], seat.n[1] + d[1]]; drawSeat(); clearTimeout(seat.t); seat.t = setTimeout(saveSeat, 700); return;
+  }
   const k = e.key.toLowerCase();
   if (k === '1') setMode('clear'); else if (k === '2' && src) setMode('back'); else if (k === '3' && kind === 'prop') setMode('front'); else if (k === 'e') setMode('erase');
   else if (k === '[') { size = Math.max(1, size - 1); $('size').value = size; $('sizev').textContent = size; }

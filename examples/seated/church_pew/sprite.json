@@ -1,0 +1,65 @@
+{
+ "name": "church_pew__180_0.7",
+ "footprint_m": [
+  0.7,
+  2.0
+ ],
+ "px_per_m": 256,
+ "camera": {
+  "pitch": 30,
+  "yaw": 45
+ },
+ "turn": 0,
+ "light": "right",
+ "sprite": {
+  "file": "sprite.png",
+  "size": [
+   487,
+   463
+  ],
+  "anchor": [
+   0.2586,
+   0.9974
+  ],
+  "anchor_px": [
+   126.0,
+   461.8
+  ]
+ },
+ "shadow": {
+  "file": "shadow.png",
+  "from": "guide",
+  "size": [
+   591,
+   341
+  ],
+  "offset_px": [
+   -104,
+   120
+  ]
+ },
+ "footprint_px": [
+  [
+   361.3,
+   217.4
+  ],
+  [
+   488.0,
+   280.8
+  ],
+  [
+   126.0,
+   461.8
+  ],
+  [
+   -0.8,
+   398.4
+  ]
+ ],
+ "fit": {
+  "ok": true,
+  "proportions_off": -0.008,
+  "outline_overlap": 0.986
+ },
+ "notes": "anchor = the footprint's lowest point on screen (its front corner, or the middle of its front edge when seen square on), as a fraction of the sprite; footprint_px = the ground corners at (0,0), (W,0), (W,D), (0,D) in sprite px; draw shadow.png at offset_px from the sprite's top-left, under everything."
+}
