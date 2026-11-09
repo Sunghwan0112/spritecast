@@ -115,6 +115,55 @@ window.frames = (clipName, dir, n, t0, t1, head, up = 0, wide = 1, shadows = fal
   }
   return out;
 };
+// ---- seated -------------------------------------------------------------------------------------------------------------------------
+// The standing pose (the idle clip's first frame) bent into sitting: the thighs forward to level (hip `hipDeg`), the shins back down
+// (knee `kneeDeg`), the upper arms a little forward and the forearms bent so the hands rest on the thighs; the figure then lowered
+// until the feet are on the ground - the seat is where the thighs' undersides are (window.seatInfo: its height and its point on the
+// picture). A real chair's height differs: `seatH` (in the figure's heights, 0 = keep the feet on the ground) lifts or sinks the hips
+// and the feet hang or rest as they will.
+const turnBone = (name, axisWorld, deg) => {
+  const b = bones[name]; if (!b || !deg) return; b.parent.updateWorldMatrix(true, false);
+  const ax = axisWorld.clone().applyQuaternion(b.parent.getWorldQuaternion(new THREE.Quaternion()).invert()).normalize();
+  b.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(ax, deg * Math.PI / 180)); root.updateMatrixWorld(true);
+};
+const meshBox = () => { const bx = new THREE.Box3(); root.updateMatrixWorld(true);
+  root.traverse((o) => { if (o.isSkinnedMesh) { const P = o.geometry.attributes.position, v = new THREE.Vector3();
+    for (let i = 0; i < P.count; i += 3) { v.fromBufferAttribute(P, i); o.applyBoneTransform(i, v); v.applyMatrix4(o.matrixWorld); bx.expandByPoint(v); } } });
+  return bx; };
+window.sitFrames = (dir, head, up = 0, wide = 1, o = {}, shadows = false) => {
+  const hipDeg = o.hip ?? 88, kneeDeg = o.knee ?? 88, armDeg = o.arm ?? 10, elbowDeg = o.elbow ?? 50, sign = o.sign ?? 1;
+  window.shadowShots = [];
+  root.rotation.y = 0; root.position.set(0, 0, 0);
+  mixer.stopAllAction(); const clip = clips.find((c) => c.name === 'idle') || clips[0]; mixer.clipAction(clip).play(); mixer.setTime(0);
+  root.updateMatrixWorld(true); shoulders(up, wide); root.updateMatrixWorld(true);
+  const right = new THREE.Vector3(-1, 0, 0);                                   // (the figure faces +z before it is turned)
+  for (const s of ['Left', 'Right']) {
+    turnBone(`${s}UpLeg`, right, sign * hipDeg); turnBone(`${s}Leg`, right, -sign * kneeDeg); turnBone(`${s}Foot`, right, sign * 0);
+    turnBone(`${s}Arm`, right, sign * armDeg); turnBone(`${s}ForeArm`, right, sign * elbowDeg);
+  }
+  headUp(head);
+  // the feet on the ground (where it stood: turning about the same point as the walk)
+  let bx = meshBox(); const hp = new THREE.Vector3();
+  root.position.set(0, -bx.min.y, 0); root.updateMatrixWorld(true);
+  // the seat: the lowest point of the body between the knees and the hips (the thighs' undersides) - its height and its middle
+  const lk = new THREE.Vector3(), rk = new THREE.Vector3(); bones.LeftLeg.getWorldPosition(lk); bones.RightLeg.getWorldPosition(rk); hips.getWorldPosition(hp);
+  // (from the thigh bones, not the mesh: a coat's hem or a skirt hangs below them)
+  const lu = new THREE.Vector3(), ru = new THREE.Vector3(); bones.LeftUpLeg.getWorldPosition(lu); bones.RightUpLeg.getWorldPosition(ru);
+  let seatY = (lu.y + ru.y + lk.y + rk.y) / 4 - (o.thigh ?? 0.05);
+  if (o.seatH) { root.position.y += o.seatH - seatY; seatY = o.seatH; root.updateMatrixWorld(true); }
+  root.rotation.y = FACING[dir] * Math.PI / 180; root.updateMatrixWorld(true);
+  hips.getWorldPosition(hp);
+  const sp = new THREE.Vector3(hp.x, seatY, hp.z).project(cam);
+  window.seatInfo = { seatY: +seatY.toFixed(4), seat: [+(0.5 + sp.x / 2).toFixed(4), +(0.5 - sp.y / 2).toFixed(4)] };
+  renderer.render(scene, cam); const out = renderer.domElement.toDataURL('image/png');
+  if (shadows) {
+    root.traverse((m) => { if (m.isMesh) m.material = m.userData.flat; });
+    renderer.render(scene, cam); window.shadowShots.push(renderer.domElement.toDataURL('image/png'));
+    root.traverse((m) => { if (m.isMesh) m.material = m.userData.toon; });
+  }
+  root.position.set(0, 0, 0);
+  return out;
+};
 // ---- four-legged animals ------------------------------------------------------------------------------------------------------------
 // Tripo's quadruped rig of a cat had its leg joints in place but no backbone, a hind thigh named "Spine", the shoulders hanging off the
 // neck, once a fifth foot; its only animal clip is a walk. So an animal gets a skeleton found from its mesh alone (a static model, no rig

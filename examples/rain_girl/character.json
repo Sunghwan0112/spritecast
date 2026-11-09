@@ -755,5 +755,131 @@
    "west": 0.966,
    "south-west": 0.947
   }
+ },
+ "sit": {
+  "frame": [
+   133,
+   222
+  ],
+  "south": {
+   "file": "sit-south.png",
+   "seat": [
+    0.5267,
+    0.5801
+   ],
+   "seat_height": 0.2514,
+   "shadow": {
+    "file": "shadows/sit-south.png",
+    "offset": [
+     -26,
+     95
+    ]
+   }
+  },
+  "south-east": {
+   "file": "sit-south-east.png",
+   "seat": [
+    0.5384,
+    0.5777
+   ],
+   "seat_height": 0.2514,
+   "shadow": {
+    "file": "shadows/sit-south-east.png",
+    "offset": [
+     -34,
+     95
+    ]
+   }
+  },
+  "east": {
+   "file": "sit-east.png",
+   "seat": [
+    0.5413,
+    0.5735
+   ],
+   "seat_height": 0.2514,
+   "shadow": {
+    "file": "shadows/sit-east.png",
+    "offset": [
+     -38,
+     100
+    ]
+   }
+  },
+  "north-east": {
+   "file": "sit-north-east.png",
+   "seat": [
+    0.5333,
+    0.57
+   ],
+   "seat_height": 0.2514,
+   "shadow": {
+    "file": "shadows/sit-north-east.png",
+    "offset": [
+     -36,
+     103
+    ]
+   }
+  },
+  "north": {
+   "file": "sit-north.png",
+   "seat": [
+    0.5192,
+    0.5691
+   ],
+   "seat_height": 0.2514,
+   "shadow": {
+    "file": "shadows/sit-north.png",
+    "offset": [
+     -27,
+     104
+    ]
+   }
+  },
+  "north-west": {
+   "file": "sit-north-west.png",
+   "seat": [
+    0.5074,
+    0.5715
+   ],
+   "seat_height": 0.2514,
+   "shadow": {
+    "file": "shadows/sit-north-west.png",
+    "offset": [
+     -28,
+     103
+    ]
+   }
+  },
+  "west": {
+   "file": "sit-west.png",
+   "seat": [
+    0.5046,
+    0.5758
+   ],
+   "seat_height": 0.2514,
+   "shadow": {
+    "file": "shadows/sit-west.png",
+    "offset": [
+     -26,
+     101
+    ]
+   }
+  },
+  "south-west": {
+   "file": "sit-south-west.png",
+   "seat": [
+    0.5126,
+    0.5793
+   ],
+   "seat_height": 0.2514,
+   "shadow": {
+    "file": "shadows/sit-south-west.png",
+    "offset": [
+     -31,
+     97
+    ]
+   }
+  }
  }
 }

@@ -14,6 +14,7 @@ Three OKs: `turnaround`, `3d` (= `model` + `rig` + `render`), `draw` (then `fini
 | `draw` | 4 frames a call on one sheet; the front first, every other sheet given it; a walk's second sheet given its first; every facing drawn (`"mirror": true` flips the west side from the east) | ~$0.10 a sheet, 18 sheets ≈ $2 (12 ≈ $1.3 with `"mirror": true`) |
 | `finish` | each frame cut out (its cell cut wider), fitted onto its render (one upper-body size per sheet, the legs to the render's feet), heads steadied within a facing and sized to the 3D model's in every facing, `head_fit` applied, edges cleaned; strips and a shadow per frame | free |
 | `preview` | every frame on one sheet, a GIF per facing, and every facing walking at once in `walk-all.mp4` (with ffmpeg) | free |
+| `sit` | (optional) the rig seated in 8 facings (`render/sit-*`), then with `--draw` drawn and finished → `out/sit-<facing>.png`, `"sit"` in `character.json` (`frame`, and per facing `file`, `seat`, `seat_height`, `shadow`) | free; `--draw` ~$0.22 |
 | `pack` | frames/ → out/ strips again (after `touchup.py --apply`; `finish` packs too) | free |
 | `touchup.py` | (optional) a local page to fix frames by hand: red clears, green brings pixels back from the drawing; `--apply` lays them on and packs; `finish` re-applies them | free |
 | `facecheck` | (optional, needs mediapipe) one character's head for its height against another's, facing by facing, by face landmarks; `--apply` writes `head_fit` | free |

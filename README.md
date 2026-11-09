@@ -321,6 +321,21 @@ this.add.sprite(x, y, 'girl-se').setOrigin(0.4926, 0.8839).play('walk-se');
 ```
 The full format: [reference/character.md](skills/spritecast/reference/character.md#output-nameout).
 
+## Sitting
+
+![The rain girl seated in 8 facings, and in the example armchair under its front piece](docs/sitting.png)
+
+Once a character walks, ask Claude to *"make her sit"*. Her 3D model is bent into sitting (thighs level, knees bent, hands on the
+thighs) in 8 facings for free; you look at those renders, then they are drawn like the standing views (two sheets, about $0.22). She
+sits on nothing - your game's chair goes under her. `character.json` gets a `sit` block: for each facing the file, the **seat point**
+(put it on the chair's seat; a fraction of the frame, like `anchor`), the seat's height and the shadow. To have the chair's armrest or
+front in front of her, paint the chair's front piece on the touch-up page (below) and draw it over her.
+
+```
+$PYTHON skills/spritecast/scripts/charpipe.py sit <name>.json            # free: the seated renders
+$PYTHON skills/spritecast/scripts/charpipe.py sit <name>.json --draw     # ~$0.22: drawn and finished
+```
+
 ## Fixing things by hand
 
 ![The touch-up page: an armchair's near armrest painted blue as its front piece](docs/touchup.png)
@@ -395,8 +410,8 @@ The renders run in a headless browser on your computer with nothing loaded from 
 ## Roadmap
 
 What is planned next, roughly in this order (no dates - it moves with feedback):
-- **Sitting and riding**: a character seated on a chair, a bench or a ride's seat, posed in 3D on the seat's own shape, the seat drawn in
-  front of them where it is.
+- **Sitting on a given seat, and riding**: posed in 3D on the seat's own shape (a sofa's depth, a ride's footwell), and the seat's front
+  worked out from the 3D (today: any chair, the front painted by hand).
 - **Turning objects**: a vehicle or a ride rotated through many angles, so it turns smoothly instead of snapping between 8 facings.
 - **Night versions**: a mask of what gives light (windows, bulbs, neon), so your engine can light just those parts after dark.
 - **Walk-through props, automatic**: the front piece worked out from the 3D guide (today it is painted by hand on the touch-up page).

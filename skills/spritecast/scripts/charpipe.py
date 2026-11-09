@@ -22,6 +22,10 @@ own rigged model as "rig_glb").
                                                       mirror pair (the better of the two flipped onto the other; south / north: low
                                                       frames drawn alone, once); the better drawing kept each time
     python charpipe.py finish     CHAR.json           free: frames fitted, steadied, cleaned → out/ strips, 3D shadows + character.json
+    python charpipe.py sit        CHAR.json           free: the rig seated in 8 facings (render/sit-*), on nothing - the game's chair goes under
+    python charpipe.py sit        CHAR.json --draw [--yes]
+                                                      PAID (~$0.22, two sheets of 4): drawn like the standing views → out/sit-<facing>.png,
+                                                      "sit" in character.json (each facing's seat point and height)
     python charpipe.py pack       CHAR.json           free: frames/ → out/ strips again (after touchup.py --apply; finish does it too)
     python charpipe.py preview    CHAR.json           free: out/sheet.png (every frame), out/walk-<facing>.gif, out/walk-all.mp4 (ffmpeg)
     python charpipe.py facecheck  REF.json --with A.json,B.json [--apply]
@@ -455,6 +459,76 @@ def draw_idle(s, d, again):
     return cost
 
 
+# --- seated ---------------------------------------------------------------------------------------------------------------------------
+def sit_render(s, d):
+    """free: the rig bent into sitting (render_char.html sitFrames) in 8 facings, each with its 3D shadow → render/sit-<facing>.png,
+    render/sit.json (the seat: its height in the figure's heights and its point on each picture)"""
+    from playwright.sync_api import sync_playwright
+    if s['kind'] == 'animal': sys.exit('sit: people only for now')
+    glb = Path(s.get('rig_glb') or d / 'rig/rig.glb')
+    if not glb.exists(): sys.exit('sit: run `rig` first (or give "rig_glb")')
+
+    def serve(route):
+        p = route.request.url.split('spritecast.local/', 1)[1]
+        if p == 'asset/rig.glb': return route.fulfill(path=str(glb), content_type='model/gltf-binary')
+        f = (HERE / p).resolve()
+        if HERE not in f.parents: return route.abort()
+        route.fulfill(path=str(f), content_type='text/html' if f.suffix == '.html' else 'text/javascript')
+    save = lambda url, p: Path(p).write_bytes(base64.b64decode(url.split(',', 1)[1]))
+    seats, o = {}, s.get('sit') or {}
+    with sync_playwright() as pw:
+        br = BROWSER.launch(pw); pg = br.new_page(); pg.route('http://spritecast.local/**', serve); pg.goto('http://spritecast.local/render_char.html')
+        pg.wait_for_function('window.ready === true', timeout=30000)
+        pg.evaluate('([u, p, l]) => window.load(u, p, l)', ['http://spritecast.local/asset/rig.glb', s['pitch'], s['light']])
+        for dr in DIRS:
+            save(pg.evaluate('(a) => window.sitFrames(...a)', [dr, s['head_up'], s['shoulder_up'], s['shoulder_wide'], o, True]), d / f'render/sit-{dr}.png')
+            save(pg.evaluate('window.shadowShots')[0], d / f'render/sit-{dr}-s.png'); seats[dr] = pg.evaluate('window.seatInfo')
+        br.close()
+    (d / 'render/sit.json').write_text(json.dumps(seats, indent=1))
+    print(f"sit: {d / 'render'}/sit-*.png - seated on nothing, the seat {seats['south']['seatY']:.2f} of the height up; look at them, then `sit --draw`")
+
+
+def sit_draw(s, d, args):
+    """PAID (~$0.22: two sheets of four): the seated renders drawn over like the standing views, then finished"""
+    if not (d / 'render/sit-south.png').exists(): sys.exit('sit: run `sit` first (the renders)')
+    if not (d / 'draw/walk-south-drawn-0.png').exists(): sys.exit('sit: draw the walk first - the seated views follow its drawing')
+    groups = (['south', 'south-east', 'south-west', 'east'], ['west', 'north-east', 'north-west', 'north'])
+    todo = [g for g in (0, 1) if args.again or not (d / f'draw/sit-drawn-{g}.png').exists()]
+    if todo and not gate(args, f'sit: {len(todo)} sheets of 4 seated views, about ${len(todo) * 0.11:.2f} (OpenAI)'): return
+    bb = union([d / f'render/sit-{x}.png' for x in DIRS]); cost = 0; who = 'person'
+    for g, ds in enumerate(groups):
+        rs = d / f'draw/sit-renders-{g}.png'; sheet_of([d / f'render/sit-{x}.png' for x in ds], bb, rs); out = d / f'draw/sit-drawn-{g}.png'
+        if g not in todo: continue
+        extra = [(d / 'draw/walk-south-drawn-0.png', 'the same character already drawn walking toward the viewer: exactly the same person')]
+        extra += ([(d / 'draw/sit-drawn-0.png', "the same character's other seated views, already drawn: exactly the same")] if g else [])
+        imgs, words = refs_and_words(s, d, extra)
+        turns = '; '.join(f'cell {n + 1}: {head_words(x)}' for n, x in enumerate(ds))
+        P = ("Image 1 is a SHEET of 4 separate figures side by side - every cell a 3D render of the same person SITTING, as on a chair or a "
+             "bench that is not drawn (it will be the game's own), each turned a different way, seen from a game camera from above. Redraw EVERY "
+             "cell as a finished illustration, keeping the sheet exactly as it is: each figure at exactly the same position, size, pose and turn - "
+             "the thighs level, the knees bent, the feet as in the render; the hands resting on the thighs or the lap, relaxed (where the render "
+             "holds a hand in the air, bring it down onto the thigh). NO chair, NO seat, NO bench, nothing under or behind them; nothing added "
+             f"between the cells. The same person in all 4. THE HEADS - {turns}. {words}\n" + frame_rules(s))
+        (d / f'draw/sit-prompt-{g}.txt').write_text(P)
+        try: cost += gpt(P, [rs] + imgs, out, '1536x1024')
+        except Refused: print(f'sit: {out.name} turned down by OpenAI\'s safety check three times - left as it was; run it again later')
+    print(f'sit: drawn (${cost:.2f})'); sit_finish(s, d)
+
+
+def sit_finish(s, d):
+    """free: each seated view cut out, fitted onto its render, cleaned → frames/sit-<facing>.png; then the strips packed (out/sit-*)"""
+    groups = (['south', 'south-east', 'south-west', 'east'], ['west', 'north-east', 'north-west', 'north'])
+    for g, ds in enumerate(groups):
+        if not (d / f'draw/sit-drawn-{g}.png').exists(): continue
+        for n, x in enumerate(ds):
+            ren = Image.open(d / f'render/sit-{x}.png').convert('RGBA')
+            f, iou = CL.fit_to_render(cut(d, d / f'draw/sit-drawn-{g}.png', n), ren)
+            CL.defringe(CL.clear_white_unless_ai(f, ren)).save(d / f'frames/sit-{x}.png')
+            print(f'sit: {x} overlap {iou:.2f}' + ('  LOW - look at it' if iou < 0.7 else ''), flush=True)
+    TU.apply(SPEC_PATH) if SPEC_PATH else None
+    pack(s, d, {})
+
+
 def draw(s, d, args):
     if not s['draw']: print('draw: "draw": false - the 3D renders are the frames, nothing to draw'); finish(s, d); return preview(s, d)
     only = args.only.split(',') if args.only else DIRS + ['idle']
@@ -701,7 +775,7 @@ def redraw(s, d, args):
 def pack(s, d, report):
     """strips at frame_px: one box for every frame, so the feet stay put; the anchor is the 3D ground under the character's middle, or
     with "anchor": "soles" the bottom of its shoes standing (what a game whose other characters stand on their soles wants)"""
-    files = sorted((d / 'frames').glob('*.png'))
+    files = [f for f in sorted((d / 'frames').glob('*.png')) if not f.name.startswith('sit-')]   # (the seated views get their own box below)
     if not files: sys.exit('finish: nothing drawn yet')
     S = Image.open(files[0]).size[0]; bb = union(files); info = json.loads((d / 'render/render.json').read_text())
     foot = info['footY'] * S
@@ -736,6 +810,28 @@ def pack(s, d, report):
             Image.open(p).crop(box).resize((fw, fh), Image.LANCZOS).save(d / f'out/idle-{dr}.png'); meta['idle'][dr] = f'idle-{dr}.png'
             sh = shadow(d / f'render/idle-{dr}-s.png', f'idle-{dr}')
             if sh: meta['shadows']['idle'][dr] = sh
+    # seated (charpipe sit): one frame a facing at the walk's scale, in a box of their own (the knees reach further); each with the seat's
+    # point on it - put that on the chair's seat
+    seats = json.loads((d / 'render/sit.json').read_text()) if (d / 'render/sit.json').exists() else {}
+    sits = [d / f'frames/sit-{dr}.png' for dr in DIRS if (d / f'frames/sit-{dr}.png').exists()]
+    if sits:
+        sb = union(sits); sb = [sb[0] - 4, sb[1] - 4, sb[2] + 4, sb[3] + 4]; sw, shh = round((sb[2] - sb[0]) * k), round((sb[3] - sb[1]) * k)
+        meta['sit'] = {'frame': [sw, shh]}
+        for dr in DIRS:
+            p = d / f'frames/sit-{dr}.png'
+            if not p.exists(): continue
+            Image.open(p).crop(sb).resize((sw, shh), Image.LANCZOS).save(d / f'out/sit-{dr}.png')
+            e = {'file': f'sit-{dr}.png'}
+            if dr in seats:
+                sx, sy = seats[dr]['seat']; e['seat'] = [round((sx * S - sb[0]) / (sb[2] - sb[0]), 4), round((sy * S - sb[1]) / (sb[3] - sb[1]), 4)]
+                e['seat_height'] = seats[dr]['seatY']
+            src = d / f'render/sit-{dr}-s.png'
+            if s['shadow'] == '3d' and src.exists():
+                shi, (x0, y0) = CL.shadow_3d(src)
+                if shi is not None:
+                    shi = shi.resize((max(1, round(shi.width * k)), max(1, round(shi.height * k))), Image.LANCZOS); shi.save(d / f'out/shadows/sit-{dr}.png', optimize=True)
+                    e['shadow'] = {'file': f'shadows/sit-{dr}.png', 'offset': [round((x0 - sb[0]) * k), round((y0 - sb[1]) * k)]}
+            meta['sit'][dr] = e
     (d / 'out/character.json').write_text(json.dumps(meta, indent=1))
     print(f"finish: {d / 'out'}  {len(meta['walk'])} walks, {len(meta['idle'])} standing, frame {fw}x{fh}, anchor {meta['anchor']}, "
           f"3D shadows for {len(meta['shadows']['walk'])} walks" + ('' if meta['shadows']['walk'] else ' (none: re-run `render` for the -s.png shadows)'))
@@ -789,12 +885,13 @@ def video(d, meta, S, pad, loops=6):
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('step', choices=['turnaround', '3d', 'model', 'rig', 'render', 'draw', 'redraw', 'finish', 'pack', 'preview', 'facecheck'])
+    ap.add_argument('step', choices=['turnaround', '3d', 'model', 'rig', 'render', 'draw', 'redraw', 'finish', 'pack', 'preview', 'facecheck', 'sit'])
+    ap.add_argument('--draw', action='store_true', help='sit: draw the seated views (PAID, ~$0.22) and finish them')
     ap.add_argument('spec'); ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', action='store_true'); ap.add_argument('--only')
     ap.add_argument('--no-render', action='store_true', help='rig: stop before the renders')
     ap.add_argument('--with', dest='others', help='facecheck: the other characters\' specs, comma-separated')
     ap.add_argument('--apply', action='store_true', help='facecheck: write the factors into the other specs as "head_fit"')
     a = ap.parse_args(); s, d = load(a.spec); SPEC_PATH = a.spec
     {'turnaround': lambda: turnaround(s, d, a), '3d': lambda: make3d(s, d, a), 'model': lambda: model(s, d, a), 'rig': lambda: rig(s, d, a), 'render': lambda: render(s, d),
-     'draw': lambda: draw(s, d, a), 'redraw': lambda: redraw(s, d, a), 'finish': lambda: finish(s, d), 'pack': lambda: pack(s, d, {}), 'preview': lambda: preview(s, d),
+     'draw': lambda: draw(s, d, a), 'redraw': lambda: redraw(s, d, a), 'finish': lambda: finish(s, d), 'pack': lambda: pack(s, d, {}), 'sit': lambda: sit_draw(s, d, a) if a.draw else sit_render(s, d), 'preview': lambda: preview(s, d),
      'facecheck': lambda: __import__('facecheck').run(a.spec, (a.others or '').split(','), a.apply)}[a.step]()

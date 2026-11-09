@@ -106,6 +106,15 @@ facing by facing, by face landmarks - hair fools any outline measure - and `--ap
 stops `finish` with a message instead of quietly cutting by the paper's white (which takes white clothes away and leaves paper between
 the limbs); `SPRITECAST_KEY=white` cuts by white on purpose.
 
+## Sitting (people)
+After the walk is drawn, `charpipe.py sit CHAR.json` (free) bends the rig into sitting - thighs level, knees bent, hands on the thighs -
+in 8 facings with their 3D shadows, on nothing (the game's own chair goes under them); show the renders. Then `sit CHAR.json --draw`
+(~$0.22, two sheets of 4; `--yes` once the user agreed) draws them like the standing views and finishes: `out/sit-<facing>.png` in a
+box of their own, and `"sit"` in `character.json` - each facing's `seat` (the point to put on the chair's seat, a fraction of the
+frame), `seat_height` (in the figure's heights) and its shadow. Which facing to use: the one the chair faces. To have the chair's arm or
+front cover them, paint the chair's front piece in the touch-up page (blue) and draw it over the sitter. `"sit": {"hip", "knee",
+"arm", "elbow"}` in the spec changes the pose (degrees; 88, 88, 10, 50).
+
 ## Touching up by hand (props and characters)
 `${CLAUDE_SKILL_DIR}/scripts/touchup.py SPEC.json` (free) opens a local page with every finished picture of that prop or character
 (a character's walk and standing frames). Offer it when the user sees paper left between the limbs, a halo, a white shirt or shoe the

@@ -31,7 +31,7 @@ def target(spec_path, out=None):
     """(kind, out folder, [(rel, file)]): a character's frames (frames/walk-*, frames/idle-*) or a prop's sprite.png (one per view)"""
     p = Path(spec_path).resolve(); s = json.loads(p.read_text(encoding='utf-8')); d = Path(out).resolve() if out else p.parent / s['name']
     if (d / 'frames').is_dir():
-        files = sorted((d / 'frames').glob('walk-*.png'), key=_frame_order) + sorted((d / 'frames').glob('idle-*.png'))
+        files = sorted((d / 'frames').glob('walk-*.png'), key=_frame_order) + sorted((d / 'frames').glob('idle-*.png')) + sorted((d / 'frames').glob('sit-*.png'))
         return 'character', d, [(f'frames/{f.name}', f) for f in files]
     sp = sorted(d.glob('sprite.png')) + sorted(d.glob('turn-*/sprite.png')) + sorted(d.glob('*-*/sprite.png'))
     seen, out = set(), []
@@ -79,9 +79,9 @@ def cells_for(d, rel):
         dr, k = m.group(1), int(m.group(2)); g, n = k // 4, k % 4
         pats = [f'walk-{dr}-single-{k}-1-', f'walk-{dr}-drawn-{g}-{n}-']
     else:
-        dr = re.match(r'idle-(.+)\.png$', name).group(1)
+        what, dr = re.match(r'(idle|sit)-(.+)\.png$', name).groups()
         groups = (['south', 'south-east', 'south-west', 'east'], ['west', 'north-east', 'north-west', 'north'])
-        g = next(i for i, ds in enumerate(groups) if dr in ds); pats = [f'idle-drawn-{g}-{groups[g].index(dr)}-']
+        g = next(i for i, ds in enumerate(groups) if dr in ds); pats = [f'{what}-drawn-{g}-{groups[g].index(dr)}-']
     for p in pats:
         got = sorted(cut.glob(f'{p}*.png'), key=lambda f: f.stat().st_mtime, reverse=True)
         if got: return got
