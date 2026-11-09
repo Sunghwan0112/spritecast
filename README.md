@@ -427,8 +427,8 @@ The renders run in a headless browser on your computer with nothing loaded from 
 ## Roadmap
 
 What is planned next, roughly in this order (no dates - it moves with feedback):
-- **Sitting on a given seat, and riding**: posed in 3D on the seat's own shape (a sofa's depth, a ride's footwell), and the seat's front
-  worked out from the 3D (today: any chair, the front painted by hand).
+- **Seat-fitted poses, and riding** (sitting itself is done - see Sitting): a pose shaped to each seat (leaning back on a deep sofa, feet
+  on a ride's footrest) instead of one seated pose for every chair, and characters riding in carts and vehicles.
 - **Turning objects**: a vehicle or a ride rotated through many angles, so it turns smoothly instead of snapping between 8 facings.
 - **Night versions**: a mask of what gives light (windows, bulbs, neon), so your engine can light just those parts after dark.
 - **Walk-through props, automatic**: the front piece worked out from the 3D guide (today it is painted by hand on the touch-up page).
