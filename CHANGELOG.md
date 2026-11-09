@@ -16,6 +16,7 @@ Changes made because of a report or a request are marked *(feedback)*.
   the four turns of the armchair, the Tripo armchair, and seats from the author's game (a dining chair from both sides, a church pew,
   a curved park bench from both sides - `examples/seated/`).
 - On the touch-up page a seated character is **dragged to where they should sit**; letting go re-makes the seat there. *(feedback)*
+- A **polygon** on the touch-up page (P): click the corners, close it, and it is filled in the colour you are painting (or erased). *(feedback)*
 - Curved blocks (`"arc"`) for round things like a curved bench.
 - `charpipe.py pack`: the strips made again from frames/ without finishing again.
 - **The cut-out no longer falls back quietly**: without onnxruntime, `finish` stops and says so, instead of cutting by the paper's

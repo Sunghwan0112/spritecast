@@ -39,6 +39,7 @@
     <button data-m="back"><span class="sw" style="background:var(--green)"></span>Bring back</button>
     <button data-m="front"><span class="sw" style="background:var(--blue)"></span>Front piece</button>
     <button data-m="erase">Eraser</button>
+    <button id="polyb">⬠ Polygon</button>
   </div>
   <div class="grp">size <input id="size" type="range" min="1" max="60" value="8"><span id="sizev">8</span></div>
   <div class="grp">zoom <button id="zo">−</button><span id="zv">3×</span><button id="zi">+</button></div>
@@ -49,7 +50,7 @@
     <button id="undo">Undo</button>
   </div>
   <span id="msg"></span>
-  <span class="help">1 2 3 E modes · [ ] size · Z undo · ←→ next · saved as you paint · 🪑 seats: drag the sitter</span>
+  <span class="help">1 2 3 E modes · P polygon · [ ] size · Z undo · ←→ next · saved as you paint · 🪑 seats: drag the sitter</span>
 </header>
 <nav id="list"></nav>
 <main id="stage"><div id="wrap"><canvas id="cv"></canvas></div></main>
@@ -127,6 +128,33 @@ function draw() {
   if (showRes) { cx.drawImage(result(), 0, 0, cv.width, cv.height); return; }
   cx.drawImage(base, 0, 0, cv.width, cv.height);
   cx.globalAlpha = 0.55; cx.drawImage(mask, 0, 0, cv.width, cv.height); cx.globalAlpha = 1;
+  drawPoly();
+}
+// ---- polygon: click the corners; double-click, Enter or the first corner again closes it and fills it in the current mode (red, green,
+// blue, or the eraser); Backspace takes the last corner back, Esc drops it
+let poly = false, pts = [], hover = null;
+function drawPoly() {
+  if (!poly || !pts.length) return;
+  const c = mode === 'erase' ? [0, 0, 0] : COL[mode];
+  cx.save(); cx.strokeStyle = `rgb(${c.join(',')})`; cx.lineWidth = 2; cx.setLineDash([6, 4]); cx.beginPath();
+  pts.forEach(([x, y], i) => (i ? cx.lineTo : cx.moveTo).call(cx, x * zoom, y * zoom));
+  if (hover) cx.lineTo(hover[0] * zoom, hover[1] * zoom);
+  cx.stroke(); cx.setLineDash([]); cx.fillStyle = '#fff';
+  for (const [x, y] of pts) { cx.beginPath(); cx.arc(x * zoom, y * zoom, 4, 0, 7); cx.fill(); cx.stroke(); }
+  cx.restore();
+}
+function closePoly() {
+  if (pts.length < 3) { pts = []; draw(); return; }
+  undo.push(mctx.getImageData(0, 0, mask.width, mask.height)); if (undo.length > 40) undo.shift();
+  // filled pixel by pixel (inside the outline by the even-odd rule): the colours must stay pure to be read back
+  const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+  const x0 = Math.max(0, Math.floor(Math.min(...xs))), x1 = Math.min(mask.width - 1, Math.ceil(Math.max(...xs)));
+  const y0 = Math.max(0, Math.floor(Math.min(...ys))), y1 = Math.min(mask.height - 1, Math.ceil(Math.max(...ys)));
+  const inside = (x, y) => { let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, yi] = pts[i], [xj, yj] = pts[j];
+    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
+  if (mode !== 'erase') { const [R, G, B] = COL[mode]; mctx.fillStyle = `rgb(${R},${G},${B})`; }
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (inside(x + 0.5, y + 0.5)) { if (mode === 'erase') mctx.clearRect(x, y, 1, 1); else mctx.fillRect(x, y, 1, 1); }
+  pts = []; hover = null; dirty = true; draw(); queueSave();
 }
 
 function result() {        // what --apply will make: green from the drawing, red cleared (the front piece only outlined by its colour)
@@ -152,11 +180,19 @@ function dab(x, y) {
   for (let yy = y0; yy <= y0 + n; yy++) for (let xx = x0; xx <= x0 + n; xx++) if ((xx + 0.5 - x) ** 2 + (yy + 0.5 - y) ** 2 <= r * r + 0.25) mctx.fillRect(xx, yy, 1, 1);
 }
 function stroke(a, b) { const d = Math.hypot(b[0] - a[0], b[1] - a[1]), n = Math.max(1, Math.ceil(d / Math.max(0.5, size / 4))); for (let i = 0; i <= n; i++) dab(a[0] + (b[0] - a[0]) * i / n, a[1] + (b[1] - a[1]) * i / n); }
+cv.addEventListener('dblclick', (e) => { if (poly && !seat) { e.preventDefault(); pts.pop(); closePoly(); } });
+cv.addEventListener('pointermove', (e) => { if (poly && pts.length && !seat) { hover = at(e); draw(); } });
 let grab = null;
 cv.addEventListener('pointerdown', (e) => { if (seat) { grab = [e.clientX, e.clientY, ...seat.n]; cv.setPointerCapture(e.pointerId); } });
 cv.addEventListener('pointermove', (e) => { if (seat && grab) { seat.n = [grab[2] + Math.round((e.clientX - grab[0]) / zoom), grab[3] + Math.round((e.clientY - grab[1]) / zoom)]; drawSeat(); } });
 cv.addEventListener('pointerup', () => { if (seat && grab) { grab = null; saveSeat(); } });
-cv.addEventListener('pointerdown', (e) => { if (seat || !base || showRes) return; down = true; cv.setPointerCapture(e.pointerId); undo.push(mctx.getImageData(0, 0, mask.width, mask.height)); if (undo.length > 40) undo.shift(); last = at(e); dab(...last); dirty = true; draw(); });
+cv.addEventListener('pointerdown', (e) => {
+  if (seat || !base || showRes) return;
+  if (poly) {
+    const p = at(e);
+    if (pts.length > 2 && Math.hypot((p[0] - pts[0][0]) * zoom, (p[1] - pts[0][1]) * zoom) < 10) return closePoly();
+    pts.push(p); draw(); return;
+  } down = true; cv.setPointerCapture(e.pointerId); undo.push(mctx.getImageData(0, 0, mask.width, mask.height)); if (undo.length > 40) undo.shift(); last = at(e); dab(...last); dirty = true; draw(); });
 cv.addEventListener('pointermove', (e) => { if (!down) return; const p = at(e); stroke(last, p); last = p; draw(); });
 cv.addEventListener('pointerup', () => { if (!down) return; down = false; queueSave(); });
 
@@ -170,8 +206,10 @@ async function flush() {
   } catch (e) { dirty = true; $('msg').textContent = 'not saved - is touchup.py still running?'; }
 }
 
-function setMode(m) { mode = m; document.querySelectorAll('#modes button').forEach((b) => b.classList.toggle('on', b.dataset.m === m)); }
-document.querySelectorAll('#modes button').forEach((b) => b.onclick = () => !b.disabled && setMode(b.dataset.m));
+function setMode(m) { mode = m; document.querySelectorAll('#modes button[data-m]').forEach((b) => b.classList.toggle('on', b.dataset.m === m)); draw(); }
+document.querySelectorAll('#modes button[data-m]').forEach((b) => b.onclick = () => !b.disabled && setMode(b.dataset.m));
+$('polyb').onclick = () => { poly = !poly; pts = []; hover = null; $('polyb').classList.toggle('on', poly);
+  $('msg').textContent = poly ? 'polygon: click the corners; double-click, Enter or the first corner closes it (in the current colour)' : ''; draw(); };
 $('size').oninput = (e) => { size = +e.target.value; $('sizev').textContent = size; };
 const setZoom = (z) => { zoom = Math.max(1, Math.min(10, z)); $('zv').textContent = zoom + '×'; draw(); };
 $('zi').onclick = () => setZoom(zoom + 1); $('zo').onclick = () => setZoom(zoom - 1);
@@ -185,11 +223,15 @@ addEventListener('keydown', (e) => {
     e.preventDefault(); const d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
     seat.n = [seat.n[0] + d[0], seat.n[1] + d[1]]; drawSeat(); clearTimeout(seat.t); seat.t = setTimeout(saveSeat, 700); return;
   }
+  if (poly && e.key === 'Enter') { e.preventDefault(); return closePoly(); }
+  if (poly && e.key === 'Escape') { pts = []; hover = null; return draw(); }
+  if (poly && e.key === 'Backspace' && pts.length) { e.preventDefault(); pts.pop(); return draw(); }
   const k = e.key.toLowerCase();
   if (k === '1') setMode('clear'); else if (k === '2' && src) setMode('back'); else if (k === '3' && kind === 'prop') setMode('front'); else if (k === 'e') setMode('erase');
   else if (k === '[') { size = Math.max(1, size - 1); $('size').value = size; $('sizev').textContent = size; }
   else if (k === ']') { size = Math.min(60, size + 1); $('size').value = size; $('sizev').textContent = size; }
   else if (k === 'z') $('undo').onclick();
+  else if (k === 'p') $('polyb').onclick();
   else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); open(cur + 1); }
   else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); open(cur - 1); }
 });

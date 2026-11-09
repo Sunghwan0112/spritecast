@@ -132,6 +132,7 @@ cut-out took for the paper, or wants a walk-in prop's front piece. They paint, i
   a prop: the drawing laid like the sprite, `sprite-src.png`) - "drawing under" shows it, "result" shows what applying will make;
 - **blue - front piece** (props): what stands in front of a person inside the thing (an arch's near posts and curve, a gazebo's roof,
   a chair's near armrest) → `sprite-front.png` and `"front"` in `sprite.json`: the game draws the sprite behind them and this over them.
+- **⬠ polygon** (P): corners clicked, closed with a double-click, Enter or the first corner - filled in the current colour (or erased).
 - **🪑 a seat** (props with seat.py's sitters): drag the sitter, or the arrow keys a pixel at a time; letting go makes the seat
   again from there (`nudge.json`) and works its front piece out anew.
 Then `touchup.py SPEC.json --apply` (characters: the strips are packed again). `finish` lays the paintings on again by itself, so

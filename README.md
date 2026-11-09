@@ -356,6 +356,7 @@ character, painted in the browser and saved as you go.
 | red | clears: made see-through |
 | green | brings back: those pixels taken from the drawing itself (turn on "drawing under" to see it) |
 | blue (props) | the **front piece**: what stands in front of a character inside the thing - an arch's near posts, a gazebo's roof, a chair's near armrest |
+| ⬠ polygon (P) | click the corners and close it (double-click, Enter, or the first corner): filled in the colour you are painting, or erased |
 | 🪑 (a seat) | drag the seated character (or the arrow keys); letting go re-makes the seat and its front piece from there |
 
 Then `touchup.py <spec>.json --apply` (a character's strips are packed again). A prop with a front piece gets `sprite-front.png` and
