@@ -129,8 +129,8 @@ first drawing; the slash's lower frames are mostly deep bends drawn a touch upri
 let the user keep them or redraw. When a frame is still wrong, show it beside its render before redrawing.
 
 ## Smaller sprites
-Frames come out ~250 px tall. For a smaller game, resize the finished frames (LANCZOS, then a hard alpha cut so the
-edge stays crisp).
+Frames come out ~250 px tall. Only when the user asks for a smaller size, resize the finished frames (LANCZOS, then a hard
+alpha cut so the edge stays crisp) - into a new folder, never over the strips in `out/`.
 
 ## Sitting (people) - details in [reference/sitting.md](reference/sitting.md)
 Offer it once a character walks. 1) `charpipe.py sit CHAR.json` (free): the rig seated in 8 facings, on nothing - show the renders.
