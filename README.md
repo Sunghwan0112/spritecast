@@ -279,6 +279,12 @@ drawn once. The umbrella slash is harder (a thin thing that swings round the bod
 itself, and what is left fits a little looser where she bends deep - a pose drawn a touch more upright, which reads fine in motion.
 Those frames are listed for you to look at; keep them or redraw them.
 
+Smaller sprites: the same frames simply downscaled to 64 and 32 px tall (no repainting, shown enlarged). At 64 the hair, raincoat,
+boots and umbrella all read; at 32 the pose and colours hold, but the face is mostly gone - a plain resize, nothing made for that size
+yet (see the [Roadmap](#roadmap)).
+
+![the run, jump and slash as made, at 64 px and at 32 px tall](docs/actions-small.gif)
+
 ### Skipping the drawing: the 3D renders as the frames
 
 With `"draw": false` in the spec, no image model draws the frames: the 3D model's own renders (toon-shaded, its own texture) are
@@ -448,6 +454,8 @@ What is planned next, roughly in this order (no dates - it moves with feedback):
 - **Night versions**: a mask of what gives light (windows, bulbs, neon), so your engine can light just those parts after dark.
 - **Walk-through props, automatic**: the front piece worked out from the 3D guide (today it is painted by hand on the touch-up page).
 - **More actions and things to hold**: run, jump and slash are in; next, more held things (a sword, a staff) and an idle breath.
+- **Small sprites**: a pixel-art pass for downscaling (a 1 px outline, a small palette, the eyes placed from the 3D head), and for
+  32 px and under, a bigger-headed build of the same rig so the face survives.
 - **Engine exports**: sprite sheets with Godot, Unity and Aseprite files ready to import.
 
 See [CHANGELOG.md](CHANGELOG.md) for what each version changed.
