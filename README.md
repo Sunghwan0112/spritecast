@@ -285,7 +285,7 @@ nothing redrawn and `out/` left as it is (`"frame_px"` in the spec sets the defa
 boots and umbrella all read; at 32 the pose and colours hold, but the face is mostly gone - a plain resize, nothing made for that size
 yet (see the [Roadmap](#roadmap)).
 
-![the run, jump and slash as made, at 64 px and at 32 px tall](docs/actions-small.gif)
+![the run, jump and slash as made (256 px), and from pack --px 64 and --px 32](docs/actions-small.gif)
 
 ### Skipping the drawing: the 3D renders as the frames
 
