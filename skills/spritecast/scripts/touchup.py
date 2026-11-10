@@ -33,7 +33,9 @@ def target(spec_path, out=None):
     """(kind, out folder, [(rel, file)]): a character's frames (frames/walk-*, frames/idle-*) or a prop's sprite.png (one per view)"""
     p = Path(spec_path).resolve(); s = json.loads(p.read_text(encoding='utf-8')); d = Path(out).resolve() if out else p.parent / s['name']
     if (d / 'frames').is_dir():
-        files = sorted((d / 'frames').glob('walk-*.png'), key=_frame_order) + sorted((d / 'frames').glob('idle-*.png')) + sorted((d / 'frames').glob('sit-*.png'))
+        allf = list((d / 'frames').glob('*.png'))
+        seq = sorted([f for f in allf if _seq(f.name)], key=lambda f: (_seq(f.name)[0] != 'walk', _seq(f.name)))
+        files = seq + sorted(f for f in allf if f.name.startswith('idle-')) + sorted(f for f in allf if f.name.startswith('sit-'))
         return 'character', d, [(f'frames/{f.name}', f) for f in files]
     sp = sorted(d.glob('sprite.png')) + sorted(d.glob('turn-*/sprite.png')) + sorted(d.glob('*-*/sprite.png'))
     seen, out = set(), []
@@ -47,6 +49,17 @@ def target(spec_path, out=None):
 def seats_of(d):
     """the seated characters put on this prop by seat.py: [(rel of the seat's folder, its folder)]"""
     return [(p.parent.relative_to(d).as_posix(), p.parent) for p in sorted(d.glob('**/seat/*/seat.json'))]
+
+
+DIRS = sorted(['south', 'south-east', 'east', 'north-east', 'north', 'north-west', 'west', 'south-west'], key=len, reverse=True)
+
+
+def _seq(name):
+    """'run-south-east-3.png' → ('run', 'south-east', 3): a frame of the walk or of an action; None for a standing or seated view"""
+    for dr in DIRS:
+        m = re.match(rf'(.+)-{dr}-(\d+)\.png$', name)
+        if m and m.group(1) not in ('idle', 'sit'): return m.group(1), dr, int(m.group(2))
+    return None
 
 
 def _frame_order(f):
@@ -80,11 +93,10 @@ def base_of(d, rel, f, st):
 # --- where a character's frame came from -------------------------------------------------------------------------------------------------
 def cells_for(d, rel):
     """the cut cells (frames/cut/: the drawing's colours kept under the cut-out's alpha) this frame can have come from, newest first"""
-    name = Path(rel).name; cut = d / 'frames/cut'
-    m = re.match(r'walk-(.+)-(\d+)\.png$', name)
+    name = Path(rel).name; cut = d / 'frames/cut'; m = _seq(name)
     if m:
-        dr, k = m.group(1), int(m.group(2)); g, n = k // 4, k % 4
-        pats = [f'walk-{dr}-single-{k}-1-', f'walk-{dr}-drawn-{g}-{n}-']
+        sq, dr, k = m; g, n = k // 4, k % 4
+        pats = [f'{sq}-{dr}-single-{k}-1-', f'{sq}-{dr}-drawn-{g}-{n}-']
     else:
         what, dr = re.match(r'(idle|sit)-(.+)\.png$', name).groups()
         groups = (['south', 'south-east', 'south-west', 'east'], ['west', 'north-east', 'north-west', 'north'])

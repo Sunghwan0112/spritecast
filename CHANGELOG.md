@@ -3,6 +3,21 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.8.0 — 2026-11-10
+
+- **More actions**: `"actions"` in a character's spec - run, jump and a slash (Tripo's presets, or any clip in your own rig), each
+  rendered, drawn and finished in 8 facings like the walk, in its own strips. `"hold"` puts something built from shapes in the right
+  hand (a closed umbrella) for the slash, rendered on a wider canvas so it never runs off the frame; such frames are fitted by
+  outline overlap without steadying the head (that warped the umbrella crossing it). `"head": "as_render"` (the slash's default)
+  draws the head bowed as the render instead of the walk's eyes-ahead, and `redraw` covers the actions: a weapon drawn in the wrong
+  place (on the other side, or raised where the render has it low) is redrawn by itself; a frame only a little off is left for you to
+  look at (`redraw --low` redraws it too). *(feedback)*
+- The action's prompt names it and leaves the pose to the renders: a slash spelled out ("raise it overhead, swing it down") had
+  the umbrella drawn overhead where the render holds it at the side. Each cell is told where the held thing is in its render, and
+  when the body hides it (seen from behind) not to draw it; the frame rules no longer say "nothing held" for an action that holds
+  something. The weapon checks count only the part that shows and pass a thin thing drawn a few degrees off. *(feedback)*
+- The rain girl example runs, jumps and slashes (`docs/actions.gif`).
+
 ## 0.7.0 — 2026-11-09
 
 - **Touch-up page** (`touchup.py`): fix finished props and character frames by hand in the browser - red clears (paper left between

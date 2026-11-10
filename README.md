@@ -264,6 +264,21 @@ The cat is in [`examples/tabby_cat`](examples/tabby_cat): an orange tabby in a l
 turnaround, spec, strips, shadows and sheet - 30 Tripo credits and about $2.5 of drawing, redraws and design tries included. Its
 frames fit their renders at 0.76-0.97 (north-east and north-west mixed frame by frame with `"mix"`, see reference/character.md).
 
+### More actions: run, jump, slash
+
+Beside the walk, a character can run, jump or swing something. List them in the spec, `"actions": ["run", "jump", {"name": "slash",
+"hold": "umbrella"}]`: the rig gets those animations from Tripo (about 10 credits each; run, jump, slash, shoot, dive, climb, fall,
+hurt and turn are there), and each is rendered, drawn and finished in 8 facings like the walk, into its own strips with a shadow per
+frame. A slash needs something in the hand: `"hold"` builds it from simple shapes and puts it in the right hand, so it moves with
+every frame (a closed umbrella for now). With your own rigged model, any clip in it can be an action.
+
+![the rain girl running, jumping and slashing with her umbrella, seen from the front and from behind](docs/actions.gif)
+
+**Most of it comes out in one go.** The rain girl's walk, run and jump fit their 3D renders at 0.78 or better in every frame, all
+drawn once. The umbrella slash is harder (a thin thing that swings round the body): a weapon drawn in the wrong place is redrawn by
+itself, and what is left fits a little looser where she bends deep - a pose drawn a touch more upright, which reads fine in motion.
+Those frames are listed for you to look at; keep them or redraw them.
+
 ### Skipping the drawing: the 3D renders as the frames
 
 With `"draw": false` in the spec, no image model draws the frames: the 3D model's own renders (toon-shaded, its own texture) are
@@ -432,7 +447,7 @@ What is planned next, roughly in this order (no dates - it moves with feedback):
 - **Turning objects**: a vehicle or a ride rotated through many angles, so it turns smoothly instead of snapping between 8 facings.
 - **Night versions**: a mask of what gives light (windows, bulbs, neon), so your engine can light just those parts after dark.
 - **Walk-through props, automatic**: the front piece worked out from the 3D guide (today it is painted by hand on the touch-up page).
-- **More actions**: idle breathing, running, an attack, beside the walk.
+- **More actions and things to hold**: run, jump and slash are in; next, more held things (a sword, a staff) and an idle breath.
 - **Engine exports**: sprite sheets with Godot, Unity and Aseprite files ready to import.
 
 See [CHANGELOG.md](CHANGELOG.md) for what each version changed.

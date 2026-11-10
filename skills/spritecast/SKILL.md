@@ -102,6 +102,32 @@ per sheet (its height is mostly the tail), so a low score there is the drawing i
 Then tell the user the shadows are per frame (`out/shadows/`, draw them at ~30 % under the sprites). Matching outfits (`facecheck`),
 the anchor on the soles, and what to do when the cut-out stops for want of onnxruntime: [reference/character.md](reference/character.md#notes).
 
+## More actions: run, jump, a slash with something held (people)
+`"actions": ["run", "jump", {"name": "slash", "hold": "umbrella"}]` in the spec, before `3d` or `rig --again` (~10 Tripo credits an
+action; Tripo's biped presets: run, jump, slash, shoot, dive, climb, fall, hurt, turn - three at most beside the walk and idle; with
+the user's own rig, any clip by name: `{"name": "attack", "clip": "Sword Slash"}`). `render` renders each in 8 facings, `draw` draws
+them after the walk (~$0.11 a sheet, 2 sheets a facing), `finish` fits and packs → `out/<name>-<facing>.png` and `"actions"` in
+`character.json` (frame, anchor, frames, loop, fps, shadows). `"draw": false`: the renders are the frames. A one-shot action (jump,
+slash) plays once, its first frame to its last; a slash or a shot needs something in the hand - `"hold"` builds it from shapes on the
+right hand (`umbrella` for now; `{"kind", "length", "color", "grip"}`), so it is in every render and drawn where the render has it.
+Show the renders first; a clip with a long still tail (Tripo's slash is 6.6 s, its swing 0.6-2.7) takes `"t0"` / `"t1"`.
+**The head:** the walk's prompt tells the model to keep the eyes ahead and the chin level (a rig's walk looks down). For an action whose
+head bows or turns with the motion - a slash, a crouch, a shot aimed low - set `"head": "as_render"` (the slash has it by default): the
+head is drawn bowed and turned exactly as the render, never lifted to face the viewer - in the facings where the face shows (south,
+south-east, south-west); the side and back views keep the walk's words. Measured on the slash, every frame both ways: the face-on facings
+went from 0.786 to 0.837 overlap (17 → 20 of 24 frames passing), the side and back views did slightly worse with it (0.791 → 0.771). **What `redraw` does with actions:** a held thing drawn in the wrong place is redrawn by itself (twice at most, the better kept) -
+the render's held thing is rendered apart, so a frame is wrong when the drawing covers under half of where it sticks out of the body
+(`HELD_MIN`), or more than 8 % of the drawing lies well off the render's outline (`EXTRA_MAX`: the umbrella on the other side, or
+raised where the render has it low - seen from behind the model swaps the hands). A frame that is only a little off (a lower overlap,
+the pose right) is listed, not redrawn: show the user those frames beside their renders and let them choose; `redraw --low` redraws
+them too. **The prompt** names the action only (`words`) and leaves the pose to the renders (`pose`: each cell one moment, the arm and the
+held thing where its render has them) - moves spelled out ("raise it overhead, swing it down") had it drawn overhead where the render
+has it at the side. Each cell gets the held thing's place in its render; where the body hides it (seen from behind) the cell says so and
+not to draw it, and the checks count only the part that shows. A thin thing drawn a few degrees off misses its render's pixels: one
+pointing the same way (within 25°) from the same side passes. The rain girl's run and jump fit at 0.78+ in every frame on the
+first drawing; the slash's lower frames are mostly deep bends drawn a touch upright - fine in motion: show them beside their renders and
+let the user keep them or redraw. When a frame is still wrong, show it beside its render before redrawing.
+
 ## Sitting (people) - details in [reference/sitting.md](reference/sitting.md)
 Offer it once a character walks. 1) `charpipe.py sit CHAR.json` (free): the rig seated in 8 facings, on nothing - show the renders.
 2) `sit CHAR.json --draw` (~$0.22, after the user agrees; `--yes`): drawn and finished → `out/sit-<facing>.png` and `"sit"` in

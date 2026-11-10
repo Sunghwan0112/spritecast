@@ -22,6 +22,8 @@ scene.add(new THREE.AmbientLight(0xffffff, 2.3));
 const sun = new THREE.DirectionalLight(0xfff4e8, 1.4); sun.position.set(2, 4, 3); scene.add(sun);
 const cam = new THREE.OrthographicCamera(-VIEW_H / 2, VIEW_H / 2, VIEW_H / 2, -VIEW_H / 2, 0.1, 50);
 const aim = () => { cam.position.set(0, 0.5 + 10 * Math.sin(PITCH), 10 * Math.cos(PITCH)); cam.lookAt(0, 0.5, 0); cam.updateProjectionMatrix(); };
+// a bigger canvas at the same scale (px a unit) and the same middle: room for what a held thing sweeps past the walk's frame
+window.setCanvas = (px) => { const h = VIEW_H * px / SIZE; renderer.setSize(px, px); cam.left = -h / 2; cam.right = h / 2; cam.top = h / 2; cam.bottom = -h / 2; cam.updateProjectionMatrix(); return px; };
 aim();
 // facing → turn about the up axis (south: toward the viewer, east: to the right of the screen)
 const FACING = { 'south': 0, 'south-east': 45, 'east': 90, 'north-east': 135, 'north': 180, 'north-west': -135, 'west': -90, 'south-west': -45 };
@@ -93,8 +95,9 @@ function shoulders(up, wide) {
   for (const [k, s] of [['Left', 1], ['Right', -1]]) { turn(`${k}Shoulder`, s * up); root.updateMatrixWorld(true); turn(`${k}Arm`, -s * up); }
 }
 
+const isHeld = (o) => { let p = o; while (p) { if (p === held) return true; p = p.parent; } return false; };
 window.frames = (clipName, dir, n, t0, t1, head, up = 0, wide = 1, shadows = false) => {
-  window.shadowShots = [];
+  window.shadowShots = []; window.heldShots = []; window.bodyShots = [];
   root.rotation.y = FACING[dir] * Math.PI / 180;
   mixer.stopAllAction();
   const clip = clips.find((c) => c.name === clipName) || clips[0];
@@ -107,6 +110,12 @@ window.frames = (clipName, dir, n, t0, t1, head, up = 0, wide = 1, shadows = fal
     if (hips) { hips.position.x = x0; hips.position.z = z0; }      // the walk stays on the spot
     root.updateMatrixWorld(true); shoulders(up, wide); root.updateMatrixWorld(true); headUp(head); root.updateMatrixWorld(true);
     renderer.render(scene, cam); out.push(renderer.domElement.toDataURL('image/png'));
+    if (held && window.wantHeld) {       // the held thing alone, and the body alone → window.heldShots / bodyShots (where the held thing should be drawn)
+      const others = []; root.traverse((o) => { if (o.isMesh && !isHeld(o)) { others.push(o); o.visible = false; } });
+      renderer.render(scene, cam); window.heldShots.push(renderer.domElement.toDataURL('image/png'));
+      others.forEach((o) => { o.visible = true; }); held.visible = false;
+      renderer.render(scene, cam); window.bodyShots.push(renderer.domElement.toDataURL('image/png')); held.visible = true;
+    }
     if (shadows) {                       // the same pose, flat on the ground → window.shadowShots
       root.traverse((o) => { if (o.isMesh) o.material = o.userData.flat; });
       renderer.render(scene, cam); window.shadowShots.push(renderer.domElement.toDataURL('image/png'));
@@ -115,6 +124,39 @@ window.frames = (clipName, dir, n, t0, t1, head, up = 0, wide = 1, shadows = fal
   }
   return out;
 };
+// ---- something held in the right hand (an action's "hold") ----------------------------------------------------------------------------
+// Built here from simple shapes at real proportions (the figure is 1 unit tall: `size` is the figure's height in metres) and parented
+// to the hand bone, so it follows every frame of the clip. `grip` turns it in the hand (degrees about the hand's x, y, z) and `slide`
+// moves the hand along it (0: held at the handle).
+let held = null;
+const HOLDS = {
+  umbrella: (o) => {                              // a closed umbrella: a J handle, the shaft, the furled canopy, a tip
+    const g = new THREE.Group(), col = new THREE.Color(o.color || '#f2c21b'), dark = new THREE.Color(o.handle || '#5a3b22');
+    const L = (o.length || 0.85) / (o.size || 1.7);               // its length as a share of the figure's height
+    const mat = (c) => new THREE.MeshToonMaterial({ color: c, gradientMap: rampTex() });
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(L * 0.012, L * 0.012, L * 0.95, 12), mat(new THREE.Color('#d9d9d9'))); shaft.position.y = L * 0.475; g.add(shaft);
+    const canopy = new THREE.Mesh(new THREE.CylinderGeometry(L * 0.01, L * 0.055, L * 0.62, 16), mat(col)); canopy.position.y = L * 0.62; g.add(canopy);   // furled: thin at the tip
+    const band = new THREE.Mesh(new THREE.CylinderGeometry(L * 0.04, L * 0.04, L * 0.025, 16), mat(col.clone().multiplyScalar(0.8))); band.position.y = L * 0.5; g.add(band);
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(L * 0.012, L * 0.06, 10), mat(new THREE.Color('#bdbdbd'))); tip.position.y = L * 0.97; g.add(tip);
+    const hook = new THREE.Mesh(new THREE.TorusGeometry(L * 0.05, L * 0.016, 10, 24, Math.PI), mat(dark)); hook.rotation.z = Math.PI; hook.position.set(L * 0.05, 0, 0); g.add(hook);
+    const grip = new THREE.Mesh(new THREE.CylinderGeometry(L * 0.018, L * 0.018, L * 0.12, 12), mat(dark)); grip.position.y = L * 0.06; g.add(grip);
+    return g;
+  },
+};
+let _ramp = null;
+function rampTex() { if (_ramp) return _ramp; const s = new Uint8Array([90, 170, 255]); _ramp = new THREE.DataTexture(s, 3, 1, THREE.RedFormat); _ramp.minFilter = _ramp.magFilter = THREE.NearestFilter; _ramp.needsUpdate = true; return _ramp; }
+window.setHold = (kind, o = {}) => {
+  window.clearHold(); if (!kind || !HOLDS[kind]) return false;
+  const hand = bones.RightHand || bones.mixamorigRightHand; if (!hand) return false;
+  const obj = HOLDS[kind](o); obj.traverse((m) => { if (m.isMesh) { m.userData.toon = m.material; m.userData.flat = flatMaterial(); m.frustumCulled = false; } });
+  const wrap = new THREE.Group(); wrap.add(obj); hand.add(wrap); root.updateMatrixWorld(true);
+  const ws = new THREE.Vector3(); hand.getWorldScale(ws); wrap.scale.setScalar(1 / ws.x);          // its size in the figure's units, whatever the bone's scale
+  const [rx, ry, rz] = (o.grip || [0, 0, 90]).map((v) => v * Math.PI / 180); wrap.rotation.set(rx, ry, rz);
+  const [px, py, pz] = o.offset || [0, 0.08, 0.02]; wrap.position.set(px / ws.x, py / ws.x, pz / ws.x);   // into the palm, in figure units
+  obj.position.y = -(o.slide || 0) * (o.length || 0.85) / (o.size || 1.7);
+  held = wrap; return true;
+};
+window.clearHold = () => { if (held && held.parent) held.parent.remove(held); held = null; };
 // ---- seated -------------------------------------------------------------------------------------------------------------------------
 // The standing pose (the idle clip's first frame) bent into sitting: the thighs forward to level (hip `hipDeg`), the shins back down
 // (knee `kneeDeg`), the upper arms a little forward and the forearms bent so the hands rest on the thighs; the figure then lowered
