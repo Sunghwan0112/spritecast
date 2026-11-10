@@ -128,6 +128,13 @@ pointing the same way (within 25°) from the same side passes. The rain girl's r
 first drawing; the slash's lower frames are mostly deep bends drawn a touch upright - fine in motion: show them beside their renders and
 let the user keep them or redraw. When a frame is still wrong, show it beside its render before redrawing.
 
+## Smaller sprites (asked for by many users)
+Frames come out ~250 px tall. For a smaller game, nothing in the pipeline is made for that size yet: resize the finished frames (LANCZOS,
+then a hard alpha cut so the edge stays crisp) and tell the user what to expect - at 64 px tall the hair, outfit and held things read,
+at 32 px the pose and colours hold but the face is mostly gone (the README's docs/actions-small.gif shows both). A pixel-art pass
+(outline, small palette, the eyes placed from the 3D head) and a bigger-headed build of the rig for 32 px and under are planned, not
+here: don't promise them as available.
+
 ## Sitting (people) - details in [reference/sitting.md](reference/sitting.md)
 Offer it once a character walks. 1) `charpipe.py sit CHAR.json` (free): the rig seated in 8 facings, on nothing - show the renders.
 2) `sit CHAR.json --draw` (~$0.22, after the user agrees; `--yes`): drawn and finished → `out/sit-<facing>.png` and `"sit"` in

@@ -17,6 +17,8 @@ Changes made because of a report or a request are marked *(feedback)*.
   when the body hides it (seen from behind) not to draw it; the frame rules no longer say "nothing held" for an action that holds
   something. The weapon checks count only the part that shows and pass a thin thing drawn a few degrees off. *(feedback)*
 - The rain girl example runs, jumps and slashes (`docs/actions.gif`).
+- **Smaller sprites**, asked for by many: the actions downscaled to 64 and 32 px tall (`docs/actions-small.gif`) - a plain resize
+  for now (at 32 px the face is mostly gone); a pixel-art pass and a bigger-headed build for small sizes are on the roadmap. *(feedback)*
 
 ## 0.7.0 — 2026-11-09
 
