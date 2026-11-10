@@ -272,7 +272,7 @@ hurt and turn are there), and each is rendered, drawn and finished in 8 facings 
 frame. A slash needs something in the hand: `"hold"` builds it from simple shapes and puts it in the right hand, so it moves with
 every frame (a closed umbrella for now). With your own rigged model, any clip in it can be an action.
 
-![the rain girl running, jumping and slashing with her umbrella, seen from the front and from behind](docs/actions.gif)
+![the rain girl running, jumping and slashing with her umbrella - the slash seen from the side](docs/actions.gif)
 
 **Most of it comes out in one go.** The rain girl's walk, run and jump fit their 3D renders at 0.78 or better in every frame, all
 drawn once. The umbrella slash is harder (a thin thing that swings round the body): a weapon drawn in the wrong place is redrawn by
