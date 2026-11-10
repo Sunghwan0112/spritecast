@@ -19,5 +19,6 @@
   }
  ],
  "height_m": 1.3,
- "notes": "The raincoat is one plain yellow all over: no dark line, stripe or seam on it anywhere - not down its sides or back, not along the inside of the sleeves or arms. The 3D render shows dark streaks there by mistake; leave them out."
+ "notes": "The raincoat is one plain yellow all over: no dark line, stripe or seam on it anywhere - not down its sides or back, not along the inside of the sleeves or arms. The 3D render shows dark streaks there by mistake; leave them out.",
+ "rig_glb": "rig.glb"
 }

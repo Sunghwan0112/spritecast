@@ -56,7 +56,7 @@ def load(path):
     s = json.loads(Path(path).read_text(encoding='utf-8')); base = Path(path).resolve().parent
     for k in ('name', 'description', 'design'):
         if k not in s: sys.exit(f'spec: "{k}" is missing')
-    for k in ('design', 'face', 'photo'):
+    for k in ('design', 'face', 'photo', 'rig_glb', 'model_glb'):
         if s.get(k): s[k] = str((base / s[k]).resolve())
     s.setdefault('white_shoes', False); os.environ['SPRITECAST_WHITE_SHOES'] = '1' if s.get('white_shoes') else '0'; s.setdefault('head_up', 24); s.setdefault('shoulder_up', 15); s.setdefault('shoulder_wide', 1.05); s.setdefault('pitch', 30); s.setdefault('frames', 8); s.setdefault('neck', 0.16)
     s.setdefault('walk', {'clip': 'walk', 't0': 0, 't1': 1.1835}); s.setdefault('idle', {'clip': 'idle', 't': 0})

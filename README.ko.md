@@ -243,7 +243,12 @@ $PYTHON skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # 그
 
 다른 옵션(같은 사람의 여러 옷, 신발 바닥에 앵커 두기)과 요령은 [reference/character.md](skills/spritecast/reference/character.md)에
 있어요. 위 여자아이 예시는 [`examples/rain_girl`](examples/rain_girl)에 있어요(일러스트, 턴어라운드, 사양, 스트립, 그림자, `character.json`, 전체 시트).
-Tripo만으로 만들었고 그리기 약 $1.7, Tripo 85크레딧이 들었어요.
+
+Tripo만으로 만들었고 그리기 약 $1.7, Tripo 85크레딧이 들었어요. 리그를 단 3D 모델(`rig.glb`, 걷기·달리기·점프·베기 포함, 저장소의 나머지처럼 MIT)도 있어서, 키도 비용도 없이 3D 쪽 전체를 해 볼 수
+있어요. 폴더를 복사해 사양에 `"draw": false`를 넣고 `charpipe.py render rain_girl.json`, 이어서 `finish`를 돌리면 3D 모델 그대로
+스트립, 그림자, 앵커가 나와요. 사양의 `"notes"` 쓰임새도 볼 수 있어요. 3D 렌더에는 비옷 옆선과 팔 안쪽에 검은 줄이 생겼는데,
+`notes`에 한 줄("어디에도 어두운 선, 줄, 솔기 없음... 빼라")을 넣었더니 모든 프레임에서 그 줄을 빼고 그렸어요. 모델의 결함을 3D가
+아니라 그리는 단계에서 고친 거예요.
 
 ### 네발 동물
 
@@ -484,4 +489,4 @@ $PYTHON skills/spritecast/scripts/seat.py <prop>.json <name>.json --height 1.3  
   [엔진에 넣는 법](#엔진에-넣는-법) 참고.
 
 ## 라이선스
-MIT. 동봉한 three.js(`skills/spritecast/scripts/vendor/three`)도 MIT이고 © three.js authors예요.
+MIT - 코드와 예시(그림, 스트립, 비옷 소녀의 리그 모델까지) 모두요. 동봉한 three.js(`skills/spritecast/scripts/vendor/three`)도 MIT이고 © three.js authors예요.

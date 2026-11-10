@@ -245,7 +245,12 @@ is still Tripo's.
 More options (several outfits, anchoring on the soles) and lessons:
 [reference/character.md](skills/spritecast/reference/character.md). The girl above is in
 [`examples/rain_girl`](examples/rain_girl): her illustration, turnaround, spec, strips, shadows, `character.json` and the sheet.
-She was made with Tripo alone: about $1.7 of drawing and 85 Tripo credits.
+She was made with Tripo alone: about $1.7 of drawing and 85 Tripo credits. Her rigged model is there too (`rig.glb`, with its walk,
+run, jump and slash, MIT like the rest of the repo), so you can try the whole 3D side with no keys and nothing paid: copy the folder,
+add `"draw": false` to the spec and run `charpipe.py render rain_girl.json` then `finish` - the strips, shadows and anchors come
+from the 3D model itself. Her spec also shows what `"notes"` is for: the 3D render had dark streaks down the raincoat's sides and
+inside the arms, and one line in `notes` ("no dark line, stripe or seam on it anywhere... leave them out") had them drawn out of
+every frame - a flaw in the model fixed in the drawing, not in 3D.
 
 ### Four-legged animals
 
@@ -496,4 +501,4 @@ Feedback decides what comes next, and what changed because of it is marked in th
   [Putting it in your engine](#putting-it-in-your-engine) for Phaser, Godot and Unity.
 
 ## License
-MIT. three.js (bundled in `skills/spritecast/scripts/vendor/three`) is MIT, © three.js authors.
+MIT - the code and the examples (pictures, strips and the rain girl's rigged model alike). three.js (bundled in `skills/spritecast/scripts/vendor/three`) is MIT, © three.js authors.
