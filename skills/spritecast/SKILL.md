@@ -128,9 +128,10 @@ pointing the same way (within 25°) from the same side passes. The rain girl's r
 first drawing; the slash's lower frames are mostly deep bends drawn a touch upright - fine in motion: show them beside their renders and
 let the user keep them or redraw. When a frame is still wrong, show it beside its render before redrawing.
 
-## Smaller sprites
-Frames come out ~250 px tall. Only when the user asks for a smaller size, resize the finished frames (LANCZOS, then a hard
-alpha cut so the edge stays crisp) - into a new folder, never over the strips in `out/`.
+## Other sizes
+Frames come out 256 px tall (`"frame_px"`; the drawings are ~4× that). Only when the user asks for another size: `charpipe.py pack
+CHAR.json --px <height>` (free, nothing redrawn) → `out-<height>px/` with its own strips, shadows and character.json; `out/` is left as
+it is.
 
 ## Sitting (people) - details in [reference/sitting.md](reference/sitting.md)
 Offer it once a character walks. 1) `charpipe.py sit CHAR.json` (free): the rig seated in 8 facings, on nothing - show the renders.

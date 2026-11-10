@@ -279,7 +279,9 @@ drawn once. The umbrella slash is harder (a thin thing that swings round the bod
 itself, and what is left fits a little looser where she bends deep - a pose drawn a touch more upright, which reads fine in motion.
 Those frames are listed for you to look at; keep them or redraw them.
 
-Smaller sprites (you asked): the same frames simply downscaled to 64 and 32 px tall (no repainting, shown enlarged). At 64 the hair, raincoat,
+**Any size you need** (you asked): frames come out 256 px tall, and `charpipe.py pack CHAR.json --px 64` makes another set at
+any height from the same drawings (drawn ~4× bigger) - strips, shadows and `character.json` at that size, in `out-64px/`, with
+nothing redrawn and `out/` left as it is (`"frame_px"` in the spec sets the default). Below, 64 and 32 px tall (shown enlarged). At 64 the hair, raincoat,
 boots and umbrella all read; at 32 the pose and colours hold, but the face is mostly gone - a plain resize, nothing made for that size
 yet (see the [Roadmap](#roadmap)).
 

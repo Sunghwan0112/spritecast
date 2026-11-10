@@ -26,7 +26,8 @@ own rigged model as "rig_glb").
     python charpipe.py sit        CHAR.json --draw [--yes]
                                                       PAID (~$0.22, two sheets of 4): drawn like the standing views → out/sit-<facing>.png,
                                                       "sit" in character.json (each facing's seat point and height)
-    python charpipe.py pack       CHAR.json           free: frames/ → out/ strips again (after touchup.py --apply; finish does it too)
+    python charpipe.py pack       CHAR.json           free: frames/ → out/ strips again (after touchup.py --apply; finish does it too);
+                                                      --px 64: frames 64 px tall into out-64px/ instead
     python charpipe.py preview    CHAR.json           free: out/sheet.png (every frame), out/walk-<facing>.gif, out/walk-all.mp4 (ffmpeg)
     python charpipe.py facecheck  REF.json --with A.json,B.json [--apply]
                                                       free (needs mediapipe): the head for the height of A, B… against REF's, facing by
@@ -1028,9 +1029,17 @@ def action_dirs(s):
     return [x for x in DIRS if x not in s['mirrored']]
 
 
-def pack(s, d, report):
+def pack_px(s, d, px):
+    """`pack`: out/ again from frames/, or with --px a smaller (or bigger) set in its own folder, the report kept"""
+    old = d / 'out/character.json'; rep = json.loads(old.read_text()).get('report', {}) if old.exists() else {}
+    if not px: return pack(s, d, rep)
+    s['frame_px'] = px; (d / f'out-{px}px').mkdir(exist_ok=True); pack(s, d, rep, f'out-{px}px')
+
+
+def pack(s, d, report, out='out'):
     """strips at frame_px: one box for every frame, so the feet stay put; the anchor is the 3D ground under the character's middle, or
-    with "anchor": "soles" the bottom of its shoes standing (what a game whose other characters stand on their soles wants)"""
+    with "anchor": "soles" the bottom of its shoes standing (what a game whose other characters stand on their soles wants). `out`: the
+    folder they go in (`pack --px 64` → out-64px/, from the same full-size frames)"""
     own = tuple(f'{n}-' for n in ['sit'] + list(s['actions']))
     files = [f for f in sorted((d / 'frames').glob('*.png')) if not f.name.startswith(own)]   # (seated views and actions get their own box below)
     if not files: sys.exit('finish: nothing drawn yet')
@@ -1044,7 +1053,7 @@ def pack(s, d, report):
     k = s['frame_px'] / (box[3] - box[1]); fw, fh = round((box[2] - box[0]) * k), s['frame_px']
     meta = {'frame': [fw, fh], 'anchor': [round((S / 2 - box[0]) / (box[2] - box[0]), 4), round((foot - box[1]) / (box[3] - box[1]), 4)], 'walk': {}, 'idle': {},
             'fps': round(s['frames'] / (s['walk']['t1'] - s['walk']['t0']), 2), 'shadows': {'walk': {}, 'idle': {}}, 'report': report}
-    (d / 'out/shadows').mkdir(exist_ok=True)
+    (d / out / 'shadows').mkdir(exist_ok=True)
 
     def shadow(src, name):
         """the frame's 3D shadow at the strips' scale → {file, offset}: its top-left from the frame's top-left, in frame px (it falls
@@ -1052,19 +1061,19 @@ def pack(s, d, report):
         if s['shadow'] != '3d' or not src.exists(): return None
         sh, (x0, y0) = CL.shadow_3d(src)
         if sh is None: return None
-        sh = sh.resize((max(1, round(sh.width * k)), max(1, round(sh.height * k))), Image.LANCZOS); sh.save(d / f'out/shadows/{name}.png', optimize=True)
+        sh = sh.resize((max(1, round(sh.width * k)), max(1, round(sh.height * k))), Image.LANCZOS); sh.save(d / out / f'shadows/{name}.png', optimize=True)
         return {'file': f'shadows/{name}.png', 'offset': [round((x0 - box[0]) * k), round((y0 - box[1]) * k)]}
     for dr in DIRS:
         fr = [d / f'frames/walk-{dr}-{i}.png' for i in range(s['frames'])]
         if all(p.exists() for p in fr):
             st = Image.new('RGBA', (fw * len(fr), fh), (0, 0, 0, 0))
             for i, p in enumerate(fr): st.alpha_composite(Image.open(p).crop(box).resize((fw, fh), Image.LANCZOS), (i * fw, 0))
-            st.save(d / f'out/walk-{dr}.png'); meta['walk'][dr] = f'walk-{dr}.png'
+            st.save(d / out / f'walk-{dr}.png'); meta['walk'][dr] = f'walk-{dr}.png'
             shs = [shadow(d / f'render/walk-{dr}-{i}-s.png', f'walk-{dr}-{i}') for i in range(len(fr))]
             if all(shs): meta['shadows']['walk'][dr] = shs
         p = d / f'frames/idle-{dr}.png'
         if p.exists():
-            Image.open(p).crop(box).resize((fw, fh), Image.LANCZOS).save(d / f'out/idle-{dr}.png'); meta['idle'][dr] = f'idle-{dr}.png'
+            Image.open(p).crop(box).resize((fw, fh), Image.LANCZOS).save(d / out / f'idle-{dr}.png'); meta['idle'][dr] = f'idle-{dr}.png'
             sh = shadow(d / f'render/idle-{dr}-s.png', f'idle-{dr}')
             if sh: meta['shadows']['idle'][dr] = sh
     for name, a in s['actions'].items():
@@ -1081,14 +1090,14 @@ def pack(s, d, report):
         for dr, ps in fr.items():
             st = Image.new('RGBA', (aw * len(ps), ah), (0, 0, 0, 0))
             for i, p in enumerate(ps): st.alpha_composite(Image.open(p).crop(ab).resize((aw, ah), Image.LANCZOS), (i * aw, 0))
-            st.save(d / f'out/{name}-{dr}.png'); e['strips'][dr] = f'{name}-{dr}.png'
+            st.save(d / out / f'{name}-{dr}.png'); e['strips'][dr] = f'{name}-{dr}.png'
             shs = []
             for i in range(len(ps)):
                 src = d / f'render/{name}-{dr}-{i}-s.png'
                 if s['shadow'] != '3d' or not src.exists(): break
                 shi, (x0, y0) = CL.shadow_3d(src)
                 if shi is None: break
-                shi = shi.resize((max(1, round(shi.width * k)), max(1, round(shi.height * k))), Image.LANCZOS); shi.save(d / f'out/shadows/{name}-{dr}-{i}.png', optimize=True)
+                shi = shi.resize((max(1, round(shi.width * k)), max(1, round(shi.height * k))), Image.LANCZOS); shi.save(d / out / f'shadows/{name}-{dr}-{i}.png', optimize=True)
                 shs.append({'file': f'shadows/{name}-{dr}-{i}.png', 'offset': [round((x0 - ab[0]) * k), round((y0 - ab[1]) * k)]})
             if len(shs) == len(ps): e['shadows'][dr] = shs
         meta.setdefault('actions', {})[name] = e
@@ -1102,7 +1111,7 @@ def pack(s, d, report):
         for dr in DIRS:
             p = d / f'frames/sit-{dr}.png'
             if not p.exists(): continue
-            Image.open(p).crop(sb).resize((sw, shh), Image.LANCZOS).save(d / f'out/sit-{dr}.png')
+            Image.open(p).crop(sb).resize((sw, shh), Image.LANCZOS).save(d / out / f'sit-{dr}.png')
             e = {'file': f'sit-{dr}.png'}
             if dr in seats:
                 sx, sy = seats[dr]['seat']; e['seat'] = [round((sx * S - sb[0]) / (sb[2] - sb[0]), 4), round((sy * S - sb[1]) / (sb[3] - sb[1]), 4)]
@@ -1111,11 +1120,11 @@ def pack(s, d, report):
             if s['shadow'] == '3d' and src.exists():
                 shi, (x0, y0) = CL.shadow_3d(src)
                 if shi is not None:
-                    shi = shi.resize((max(1, round(shi.width * k)), max(1, round(shi.height * k))), Image.LANCZOS); shi.save(d / f'out/shadows/sit-{dr}.png', optimize=True)
+                    shi = shi.resize((max(1, round(shi.width * k)), max(1, round(shi.height * k))), Image.LANCZOS); shi.save(d / out / f'shadows/sit-{dr}.png', optimize=True)
                     e['shadow'] = {'file': f'shadows/sit-{dr}.png', 'offset': [round((x0 - sb[0]) * k), round((y0 - sb[1]) * k)]}
             meta['sit'][dr] = e
-    (d / 'out/character.json').write_text(json.dumps(meta, indent=1))
-    print(f"finish: {d / 'out'}  {len(meta['walk'])} walks, {len(meta['idle'])} standing, frame {fw}x{fh}, anchor {meta['anchor']}, "
+    (d / out / 'character.json').write_text(json.dumps(meta, indent=1))
+    print(f"finish: {d / out}  {len(meta['walk'])} walks, {len(meta['idle'])} standing, frame {fw}x{fh}, anchor {meta['anchor']}, "
           f"3D shadows for {len(meta['shadows']['walk'])} walks" + ('' if meta['shadows']['walk'] else ' (none: re-run `render` for the -s.png shadows)'))
 
 
@@ -1171,10 +1180,11 @@ if __name__ == '__main__':
     ap.add_argument('--draw', action='store_true', help='sit: draw the seated views (PAID, ~$0.22) and finish them')
     ap.add_argument('--low', action='store_true', help='redraw: an action\'s sheets that are only a little off the render too')
     ap.add_argument('spec'); ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', action='store_true'); ap.add_argument('--only')
+    ap.add_argument('--px', type=int, help='pack: frames this many px tall into out-<px>px/ (the drawings resized once; out/ left as it is)')
     ap.add_argument('--no-render', action='store_true', help='rig: stop before the renders')
     ap.add_argument('--with', dest='others', help='facecheck: the other characters\' specs, comma-separated')
     ap.add_argument('--apply', action='store_true', help='facecheck: write the factors into the other specs as "head_fit"')
     a = ap.parse_args(); s, d = load(a.spec); SPEC_PATH = a.spec
     {'turnaround': lambda: turnaround(s, d, a), '3d': lambda: make3d(s, d, a), 'model': lambda: model(s, d, a), 'rig': lambda: rig(s, d, a), 'render': lambda: render(s, d, a.only.split(',') if a.only else None),
-     'draw': lambda: draw(s, d, a), 'redraw': lambda: redraw(s, d, a), 'finish': lambda: finish(s, d), 'pack': lambda: pack(s, d, {}), 'sit': lambda: sit_draw(s, d, a) if a.draw else sit_render(s, d), 'preview': lambda: preview(s, d),
+     'draw': lambda: draw(s, d, a), 'redraw': lambda: redraw(s, d, a), 'finish': lambda: finish(s, d), 'pack': lambda: pack_px(s, d, a.px), 'sit': lambda: sit_draw(s, d, a) if a.draw else sit_render(s, d), 'preview': lambda: preview(s, d),
      'facecheck': lambda: __import__('facecheck').run(a.spec, (a.others or '').split(','), a.apply)}[a.step]()

@@ -57,7 +57,7 @@ Three OKs: `turnaround`, `3d` (= `model` + `rig` + `render`), `draw` (then `fini
 | `frames` | walk frames (8) |
 | `walk` / `idle` | clip names and times: `{"clip": "walk", "t0": 0, "t1": 1.1835}` (one stride of Tripo's walk), `{"clip": "idle", "t": 0}` |
 | `neck` | where the neck is, as a share of the figure's height from the top (0.16), for steadying the heads |
-| `frame_px` | output frame height (256) |
+| `frame_px` | output frame height (256); `pack --px N` makes another set at N px in `out-Npx/` |
 | `light` | `"right"` (default: shadows fall up and to the left) or `"left"`, as for props |
 | `shadow` | `"3d"` (default): each frame's shadow from the 3D body; `"none"` leaves them out |
 | `anchor` | `"ground"` (default): the feet are the 3D ground under the character's middle; `"soles"`: the bottom of the shoes standing (2 px under the lowest painted pixel of the standing front). In this view the ground under the middle is 4-7 game px above the near sole, so next to characters anchored on their soles a `"ground"` one stands sunk in |
