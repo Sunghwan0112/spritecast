@@ -3,6 +3,14 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.9.0 — 2026-11-10
+
+- **Sharper at any size**: characters are rendered and fitted at 1024 px (`"render_px"`; it was 512, which kept about half of what
+  was drawn), so `pack --px` gives sharp sets bigger than 256 too. Nothing is redrawn: a project rendered at 512 before keeps that
+  until `render_px` is set and `render` + `finish` run again. *(feedback)*
+- `finish` about twice as fast, with exactly the same frames: the head-size search compares every shift at once in whole numbers
+  (it resized the head 2 million times), and the shadows' gap closing uses a separable filter.
+
 ## 0.8.0 — 2026-11-10
 
 - **More actions**: `"actions"` in a character's spec - run, jump and a slash (Tripo's presets, or any clip in your own rig), each

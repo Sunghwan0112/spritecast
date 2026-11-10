@@ -280,6 +280,7 @@ def white_key(im):
     return ~bg
 
 
+PX = 1.0      # the renders' resolution against the 512 px they were made for (charpipe sets it from "render_px"): px constants scale by it
 MARGIN = 64   # each sheet cell is cut this much wider each side: a stride's foot drawn over the cell's edge is kept, not cut flat
 SPLIT = 0.47  # where the upper body ends and the legs begin, as a share of the figure's height from the top
 
@@ -313,7 +314,8 @@ def place(fig, ren, top):
     rn = np.array(ren); S = rn.shape[0]; b0 = _box(rn); ra = rn[..., 3] > 128; sa = np.array(fig)[..., 3] > 127
     hh = min(fig.height, S - top); best = (-1, round((b0[0] + b0[2]) / 2 - fig.width / 2))
     s_in, r_all = int(sa[:hh].sum()), int(ra.sum())          # overlap = both / (figure + render - both): only the figure's window counted
-    for dx in range(-60, 61, 2):
+    r = round(60 * PX); st = max(1, round(2 * PX))
+    for dx in range(-r, r + 1, st):
         x0 = round((b0[0] + b0[2]) / 2 - fig.width / 2 + dx)
         if x0 < 0 or x0 + fig.width > S: continue
         both = int((ra[top:top + hh, x0:x0 + fig.width] & sa[:hh]).sum())
@@ -364,12 +366,14 @@ def fit_walk(sprites, rens, split=SPLIT, own=(), mult=None):
     return out, ious
 
 
-def shadow_3d(spng, close=5):
+def shadow_3d(spng, close=None):
     """the 3D figure's own shadow (render_char.html's flat pass) as a clean mask: gaps closed, no pinholes, no specks → (RGBA black with
     the shadow in alpha, its top-left corner in the render's px)"""
     from PIL import ImageFilter
+    close = close or (round(5 * PX) | 1)
     m = Image.fromarray(((np.array(Image.open(spng).convert('RGBA'))[..., 3] > 127) * 255).astype(np.uint8))
-    m = m.filter(ImageFilter.MaxFilter(close)).filter(ImageFilter.MinFilter(close))
+    a = ndimage.minimum_filter(ndimage.maximum_filter(np.array(m), close, mode='nearest'), close, mode='nearest')   # (PIL's Max/MinFilter,
+    m = Image.fromarray(a)                                                                 # the same square, separable: ~50x faster)
     a = ndimage.binary_fill_holes(np.array(m) > 0); lab, n = ndimage.label(a)
     if n:
         sizes = ndimage.sum(np.ones_like(lab), lab, range(1, n + 1)); a = np.isin(lab, np.nonzero(sizes >= 0.02 * sizes.max())[0] + 1)
@@ -389,29 +393,41 @@ def _figure(a):
 
 
 def head_scale(ref, img, neck):
-    """how big img's head is against ref's: ref's head band searched over scale and shift in img"""
+    """how big img's head is against ref's: ref's head band searched over scale and shift in img (at the 512 px it was tuned for - a
+    ratio, the same at any size)"""
+    if PX > 1:
+        ref, img = (x.resize((round(x.width / PX), round(x.height / PX)), Image.LANCZOS) for x in (ref, img))
     A = np.array(ref).astype(float); B = np.array(img).astype(float); t0, H0 = _figure(A); t1, _ = _figure(B)
     R = A[max(0, t0 - 4):int(t0 + 0.92 * neck * H0)]; xs = np.nonzero((R[..., 3] > 100).any(0))[0]
     x0 = max(0, xs[0] - 6); R = R[:, x0:xs[-1] + 7]; rim = Image.fromarray(R.astype(np.uint8)); best = None
 
-    def score(s, dx, dy):
+    rgbB, aB = B[..., :3].astype(np.int16), B[..., 3] > 100          # (whole numbers: the sums are exact, as in floats)
+
+    def scores(s, dys, dxs):
+        """every (dy, dx) for one scale at once, the rim resized once: [(e, dx, dy)] in the order dy, then dx (None where off the picture
+        or empty) - the same sums as one window at a time, ~40x faster"""
         K = np.array(rim.resize((max(1, round(rim.width * s)), max(1, round(rim.height * s))), Image.BILINEAR)).astype(float)
-        h, w = K.shape[:2]; y = t1 - round(4 * s) + dy; x = round(x0 + (rim.width - w) / 2) + dx
-        if y < 0 or x < 0 or y + h > B.shape[0] or x + w > B.shape[1]: return None
-        P = B[y:y + h, x:x + w]; m = (K[..., 3] > 100) | (P[..., 3] > 100)
-        if not m.any(): return None
-        return (np.abs(K[..., :3] - P[..., :3]).sum(2) * m).sum() / m.sum() + 2 * ((K[..., 3] > 100) != (P[..., 3] > 100)).mean() * 255
+        h, w = K.shape[:2]; Ka = K[..., 3] > 100; out = []
+        Kt = K[..., :3].transpose(0, 2, 1)[:, None].astype(np.int16); Kt_a = Ka[:, None]        # (h, 1, 3, w), (h, 1, w)
+        for dy in dys:
+            y = t1 - round(4 * s) + dy; ok = [dx for dx in dxs if 0 <= y and y + h <= B.shape[0]]
+            xs_ = [round(x0 + (rim.width - w) / 2) + dx for dx in ok]; good = [(dx, x) for dx, x in zip(ok, xs_) if x >= 0 and x + w <= B.shape[1]]
+            if not good:
+                out += [None] * len(dxs); continue
+            X = np.array([x for _, x in good]); P = np.lib.stride_tricks.sliding_window_view(rgbB[y:y + h], w, axis=1)[:, X]   # (h, n, 3, w)
+            Pa = np.lib.stride_tricks.sliding_window_view(aB[y:y + h], w, axis=1)[:, X]                                         # (h, n, w)
+            m = Kt_a | Pa; ms = m.sum((0, 2))
+            e = (np.abs(Kt - P).sum(2, dtype=np.int32) * m).sum((0, 2), dtype=np.int64) / np.maximum(ms, 1) + 2 * (Kt_a != Pa).mean((0, 2)) * 255
+            got = {dx: (None if ms[j] == 0 else float(e[j])) for j, (dx, _) in enumerate(good)}
+            out += [(got[dx], dx, dy) if got.get(dx) is not None else None for dx in dxs]
+        return out
     for s in np.arange(0.86, 1.141, 0.01):
-        for dy in range(-6, 7, 3):
-            for dx in range(-40, 41, 4):
-                e = score(s, dx, dy)
-                if e is not None and (best is None or e < best[0]): best = (e, s, dx, dy)
+        for r in scores(s, range(-6, 7, 3), range(-40, 41, 4)):
+            if r is not None and (best is None or r[0] < best[0]): best = (r[0], s, r[1], r[2])
     _, s0, dx0, dy0 = best
     for s in np.arange(s0 - 0.012, s0 + 0.0121, 0.003):
-        for dy in range(dy0 - 2, dy0 + 3):
-            for dx in range(dx0 - 3, dx0 + 4):
-                e = score(s, dx, dy)
-                if e is not None and e < best[0]: best = (e, s, dx, dy)
+        for r in scores(s, range(dy0 - 2, dy0 + 3), range(dx0 - 3, dx0 + 4)):
+            if r is not None and r[0] < best[0]: best = (r[0], s, r[1], r[2])
     return best[1]
 
 
@@ -432,7 +448,7 @@ def flip_onto(im, ren):
     figure, not about the picture's middle: flipped where it stood, a frame came out ~18 px off its render - 0.42-0.76 overlap where it
     fits at 0.83-0.90)"""
     a = np.asarray(im.convert('RGBA').transpose(Image.FLIP_LEFT_RIGHT)); r = np.asarray(Image.open(ren).convert('RGBA'))[..., 3] > 128; m = a[..., 3] > 127
-    dx = max(range(-60, 61), key=lambda s: (np.roll(m, s, 1) & r).sum() / max(1, (np.roll(m, s, 1) | r).sum()))
+    r = round(60 * PX); dx = max(range(-r, r + 1), key=lambda s: (np.roll(m, s, 1) & r).sum() / max(1, (np.roll(m, s, 1) | r).sum()))
     out = np.zeros_like(a)
     if dx >= 0: out[:, dx:] = a[:, :a.shape[1] - dx]
     else: out[:, :dx] = a[:, -dx:]
@@ -472,10 +488,11 @@ def steady(frames, neck=0.16):
     return [rescale_head(f, c, neck) if abs(c - 1) >= 0.004 else f for f, c in zip(frames, total)], total
 
 
-def clear_white(im, ren=None, min_area=12):
+def clear_white(im, ren=None, min_area=None):
     """the white background left enclosed between the arms and the body, between the legs (the key only floods from the edge).
     With the frame's render (`ren`), only where the render is empty (a gap in the 3D body): light clothes - grey sweatpants, a white
     shirt - are never taken for background"""
+    min_area = min_area or round(12 * PX * PX)
     a = np.array(im.convert('RGBA')).astype(float); rgb = a[..., :3]; al = a[..., 3]; mn, sp = rgb.min(2), rgb.max(2) - rgb.min(2)
     gap = np.ones(al.shape, bool) if ren is None else ~ndimage.binary_dilation(np.array(ren.convert('RGBA'))[..., 3] > 40, iterations=3)
     # a hole is ENCLOSED by the figure: the key already took all the white joined to the outside, so white touching the transparent
@@ -499,8 +516,9 @@ def clear_white(im, ren=None, min_area=12):
     return Image.fromarray(a.clip(0, 255).astype(np.uint8))
 
 
-def defringe(im, band=3, inner=4):
+def defringe(im, band=None, inner=None):
     """the white halo round dark outlines (hair): edge pixels unmixed against the colour a few px inside"""
+    band, inner = band or round(3 * PX), inner or round(4 * PX)
     a = np.array(im.convert('RGBA')).astype(float); al = a[..., 3]; solid = al > 127
     d = ndimage.distance_transform_edt(solid); _, (iy, ix) = ndimage.distance_transform_edt(~(d >= inner), return_indices=True)
     F = a[iy, ix, :3]; lum = lambda c: c[..., 0] * 0.299 + c[..., 1] * 0.587 + c[..., 2] * 0.114

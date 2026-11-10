@@ -68,6 +68,10 @@ def load(path):
     s.setdefault('anchor', 'ground')
     if s['anchor'] not in ('ground', 'soles'): sys.exit('spec: "anchor" is "ground" (the 3D ground under the middle) or "soles" (the bottom of the shoes)')
     d = base / s['name']
+    # the renders' size: 1024 (the drawings are ~850 px tall - at 512 half their detail went), or what an earlier render was made at, so a
+    # project rendered before keeps working; "render_px" in the spec to change it (then `render` and `finish` again - nothing is redrawn)
+    rj = d / 'render/render.json'
+    s.setdefault('render_px', (json.loads(rj.read_text()).get('px', 512) if rj.exists() else 1024)); CL.PX = s['render_px'] / 512
     for sub in ('turnaround', 'model', 'rig', 'render', 'draw', 'frames', 'out'): (d / sub).mkdir(parents=True, exist_ok=True)
     s['mix'] = [sorted((x, PAIR[x])) for x in (s.get('mix') or []) if x in PAIR]     # pairs mixed frame by frame (both drawn)
     s['actions'] = actions_of(s)
@@ -335,7 +339,7 @@ def render(s, d, only=None):
     with sync_playwright() as pw:
         br = BROWSER.launch(pw)
         pg = br.new_page(); pg.route('http://spritecast.local/**', serve); pg.goto('http://spritecast.local/render_char.html')
-        pg.wait_for_function('window.ready === true', timeout=30000)
+        pg.wait_for_function('window.ready === true', timeout=30000); pg.evaluate('(r) => window.setRes(r)', CL.PX)
         if animal:
             info = pg.evaluate('([u, p, l]) => window.loadQuad(u, p, l)', ['http://spritecast.local/asset/rig.glb', s['pitch'], s['light']])
             print('render: skeleton found -', json.dumps({k: info[k] for k in ('bones', 'tail', 'faced', 'height', 'length')}))
@@ -344,7 +348,7 @@ def render(s, d, only=None):
                 for k, u in enumerate(pg.evaluate('window.shadowShots')): save(u, d / f'render/walk-{dr}-{k}-s.png')
                 save(pg.evaluate('(a) => window.quadFrames(...a)', [dr, s['frames'], True, True])[0], d / f'render/idle-{dr}.png')
                 save(pg.evaluate('window.shadowShots')[0], d / f'render/idle-{dr}-s.png')
-            br.close(); (d / 'render/render.json').write_text(json.dumps(info, indent=1))
+            br.close(); info['px'] = s['render_px']; (d / 'render/render.json').write_text(json.dumps(info, indent=1))
             return print(f"render: {d / 'render'} - look at them (walk-south-*, walk-east-*: four legs, the head forward, the tail behind) before `draw`")
         info = pg.evaluate('([u, p, l]) => window.load(u, p, l)', ['http://spritecast.local/asset/rig.glb', s['pitch'], s['light']])
         w, i = s['walk'], s['idle']
@@ -379,7 +383,7 @@ def render(s, d, only=None):
             info.setdefault('actions', {})[name] = {'clip': a['clip'], 't0': t0, 't1': t1, 'frames': n, 'loop': a['loop'], 'canvas': canvas}
             print(f'render: {name} - {n} frames of "{a["clip"]}" {t0:.2f}-{t1:.2f} s, 8 facings')
         br.close()
-    (d / 'render/render.json').write_text(json.dumps(info, indent=1))
+    info['px'] = s['render_px']; (d / 'render/render.json').write_text(json.dumps(info, indent=1))
     print(f"render: {d / 'render'}  clips {[c['name'] for c in info['clips']]} - look at them (walk-south-*, walk-east-*) before `draw`")
 
 
@@ -476,12 +480,12 @@ def draw_walk(s, d, dr, again, only_groups=None, name='walk'):
             hp, bp = d / f'render/{name}-{dr}-{k}-held.png', d / f'render/{name}-{dr}-{k}-body.png'
             if not hold or not hp.exists() or not bp.exists(): continue
             H = np.asarray(Image.open(hp))[..., 3] > 128; B = np.asarray(Image.open(bp))[..., 3] > 128
-            if H.sum() < 60 or not B.any(): continue
+            if H.sum() < 60 * CL.PX ** 2 or not B.any(): continue
             V = held_visible(d, name, dr, k)
-            if V.sum() < max(60, 0.15 * H.sum()):        # the body is in front of it (seen from behind, held before her): said so, or it gets drawn sticking out somewhere
+            if V.sum() < max(60 * CL.PX ** 2, 0.15 * H.sum()):        # the body is in front of it (seen from behind, held before her): said so, or it gets drawn sticking out somewhere
                 sides.append(f'cell {n_ + 1}: hidden behind the body - from this side the body covers it completely, so do NOT draw it'); continue
             hy, hx = [v.mean() for v in np.nonzero(V)]; by, bx = [v.mean() for v in np.nonzero(B)]; ys = np.nonzero(B.any(1))[0]
-            lr = 'to the LEFT of the body (the left side of the picture)' if hx < bx - 8 else 'to the RIGHT of the body (the right side of the picture)' if hx > bx + 8 else 'in front of or behind the body'
+            lr = 'to the LEFT of the body (the left side of the picture)' if hx < bx - 8 * CL.PX else 'to the RIGHT of the body (the right side of the picture)' if hx > bx + 8 * CL.PX else 'in front of or behind the body'
             ud = 'raised above the head' if hy < ys.min() + 0.15 * (ys.max() - ys.min()) else 'held low' if hy > by else 'at chest height'
             part = ' (partly hidden behind the body: draw only the part the render shows)' if V.sum() < 0.6 * H.sum() else ''
             sides.append(f'cell {n_ + 1}: {lr}, {ud}{part}')
@@ -538,14 +542,14 @@ def sit_render(s, d):
     seats, o = {}, s.get('sit') or {}
     with sync_playwright() as pw:
         br = BROWSER.launch(pw); pg = br.new_page(); pg.route('http://spritecast.local/**', serve); pg.goto('http://spritecast.local/render_char.html')
-        pg.wait_for_function('window.ready === true', timeout=30000)
+        pg.wait_for_function('window.ready === true', timeout=30000); pg.evaluate('(r) => window.setRes(r)', CL.PX)
         pg.evaluate('([u, p, l]) => window.load(u, p, l)', ['http://spritecast.local/asset/rig.glb', s['pitch'], s['light']])
         for dr in DIRS:
             save(pg.evaluate('(a) => window.sitFrames(...a)', [dr, s['head_up'], s['shoulder_up'], s['shoulder_wide'], o, True]), d / f'render/sit-{dr}.png')
             save(pg.evaluate('window.shadowShots')[0], d / f'render/sit-{dr}-s.png'); save(pg.evaluate('window.heightShot'), d / f'render/sit-{dr}-h.png')
             seats[dr] = pg.evaluate('window.seatInfo')
         br.close()
-    seats['_'] = {'px': 512, 'view_h': 1.25, 'pitch': s['pitch'], 'heights': 'render/sit-<facing>-h.png: (R*256+G)/65535*view_h figure heights'}
+    seats['_'] = {'px': round(512 * CL.PX), 'view_h': 1.25, 'pitch': s['pitch'], 'heights': 'render/sit-<facing>-h.png: (R*256+G)/65535*view_h figure heights'}
     (d / 'render/sit.json').write_text(json.dumps(seats, indent=1))
     print(f"sit: {d / 'render'}/sit-*.png - seated on nothing, the seat {seats['south']['seatY']:.2f} of the height up; look at them, then `sit --draw`")
 
@@ -672,10 +676,10 @@ def held_cover(frame, d, name, dr, k):
     from scipy import ndimage
     hp, bp = d / f'render/{name}-{dr}-{k}-held.png', d / f'render/{name}-{dr}-{k}-body.png'
     if not hp.exists() or not bp.exists(): return 1.0
-    B0 = np.asarray(Image.open(bp))[..., 3] > 128; B = ndimage.binary_dilation(B0, iterations=6)
+    B0 = np.asarray(Image.open(bp))[..., 3] > 128; B = ndimage.binary_dilation(B0, iterations=round(6 * CL.PX))
     out = held_visible(d, name, dr, k) & ~B
-    if out.sum() < 60: return 1.0
-    a = np.asarray(frame)[..., 3] > 100; A = ndimage.binary_dilation(a, iterations=4)          # (a little slack: the drawing is thicker or thinner)
+    if out.sum() < 60 * CL.PX ** 2: return 1.0
+    a = np.asarray(frame)[..., 3] > 100; A = ndimage.binary_dilation(a, iterations=round(4 * CL.PX))          # (a little slack: the drawing is thicker or thinner)
     cov = float((out & A).sum() / out.sum())
     if cov < HELD_MIN:
         lab, n = ndimage.label(a & ~B)
@@ -692,7 +696,7 @@ def held_extra(frame, d, name, dr, k):
     right frames measured 0-5 %, the ones with the umbrella on the wrong side 10-20 %"""
     from scipy import ndimage
     A = np.asarray(frame)[..., 3] > 100; R = np.asarray(Image.open(d / f'render/{name}-{dr}-{k}.png'))[..., 3] > 128
-    return round(float((A & ~ndimage.binary_dilation(R, iterations=10)).sum() / max(1, A.sum())), 3)
+    return round(float((A & ~ndimage.binary_dilation(R, iterations=round(10 * CL.PX))).sum() / max(1, A.sum())), 3)
 
 
 def held_fit(sprites, rens):
@@ -712,7 +716,7 @@ def held_fit(sprites, rens):
             y, x = iy - (A.shape[0] - 1), ix - (A.shape[1] - 1)
             f = Image.new('RGBA', r.size, (0, 0, 0, 0)); f.paste(big, (int(x), int(y)), big)
             fa = np.asarray(f).copy(); m = fa[..., 3] > 20
-            near = ndimage.binary_dilation(R > 0, iterations=max(12, round(0.04 * r.size[1])))          # (within ~4 % of the frame of the 3D outline)
+            near = ndimage.binary_dilation(R > 0, iterations=max(round(12 * CL.PX), round(0.04 * r.size[1])))          # (within ~4 % of the frame of the 3D outline)
             lab, nlab = ndimage.label(m)
             for j in range(1, nlab + 1):
                 if not (near & (lab == j)).any(): fa[lab == j] = 0

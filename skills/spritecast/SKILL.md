@@ -129,7 +129,9 @@ first drawing; the slash's lower frames are mostly deep bends drawn a touch upri
 let the user keep them or redraw. When a frame is still wrong, show it beside its render before redrawing.
 
 ## Other sizes
-Frames come out 256 px tall (`"frame_px"`; the drawings are ~4× that). Only when the user asks for another size: `charpipe.py pack
+Frames come out 256 px tall (`"frame_px"`); the finished frames in `frames/` keep the drawings' detail (rendered at `"render_px"`
+1024 - a project rendered before at 512 keeps it until `render_px` is set and `render` + `finish` run again, nothing redrawn), so
+bigger stays sharp too. Only when the user asks for another size: `charpipe.py pack
 CHAR.json --px <height>` (free, nothing redrawn) → `out-<height>px/` with its own strips, shadows and character.json; `out/` is left as
 it is.
 

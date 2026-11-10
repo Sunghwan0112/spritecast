@@ -23,6 +23,7 @@ const sun = new THREE.DirectionalLight(0xfff4e8, 1.4); sun.position.set(2, 4, 3)
 const cam = new THREE.OrthographicCamera(-VIEW_H / 2, VIEW_H / 2, VIEW_H / 2, -VIEW_H / 2, 0.1, 50);
 const aim = () => { cam.position.set(0, 0.5 + 10 * Math.sin(PITCH), 10 * Math.cos(PITCH)); cam.lookAt(0, 0.5, 0); cam.updateProjectionMatrix(); };
 // a bigger canvas at the same scale (px a unit) and the same middle: room for what a held thing sweeps past the walk's frame
+window.setRes = (r) => { renderer.setPixelRatio(r); return r; };       // more pixels for the same view ("render_px")
 window.setCanvas = (px) => { const h = VIEW_H * px / SIZE; renderer.setSize(px, px); cam.left = -h / 2; cam.right = h / 2; cam.top = h / 2; cam.bottom = -h / 2; cam.updateProjectionMatrix(); return px; };
 aim();
 // facing → turn about the up axis (south: toward the viewer, east: to the right of the screen)
