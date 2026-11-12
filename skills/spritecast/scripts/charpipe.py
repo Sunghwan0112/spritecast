@@ -62,7 +62,17 @@ def load(path):
     s.setdefault('white_shoes', False); os.environ['SPRITECAST_WHITE_SHOES'] = '1' if s.get('white_shoes') else '0'; s.setdefault('head_up', 24); s.setdefault('shoulder_up', 15); s.setdefault('shoulder_wide', 1.05); s.setdefault('pitch', 30); s.setdefault('frames', 8); s.setdefault('neck', 0.16)
     s.setdefault('walk', {'clip': 'walk', 't0': 0, 't1': 1.1835}); s.setdefault('idle', {'clip': 'idle', 't': 0})
     s.setdefault('frame_px', 256); s.setdefault('light', 'right'); s.setdefault('shadow', '3d'); s.setdefault('modeler', 'tripo'); s.setdefault('kind', 'person'); s.setdefault('redo_below', 0.75); s.setdefault('draw', True)
-    m = s.get('mirror', False); m = ['west', 'north-west', 'south-west'] if m is True else (m or [])   # default: every facing drawn
+    # SOMETHING CARRIED ALL THE TIME ("hold" in the spec itself, not in one action): in the hand through the walk, the standing views and
+    # every action that has no "hold" of its own. A figure with a thing in one hand is not its own mirror image - flipped, the thing
+    # changes hands - so nothing is ever flipped for it ("mirror": "never", which a symmetrical character can ask for too).
+    if s.get('hold'):
+        s['hold'] = {'kind': s['hold']} if isinstance(s['hold'], str) else dict(s['hold'])
+        if s['hold'].get('in_model') and not s['hold'].get('words'): sys.exit('spec: "hold" with "in_model": true (the thing is part of the rigged model) needs "words": what it is and in which hand, e.g. "In the LEFT hand: a black pistol."')
+        if s.get('mirror') not in (None, False, 'never'): sys.exit('spec: with "hold" (something carried in one hand) no facing can be flipped from its pair - the thing would change hands. Take "mirror" out, or set it to "never"')
+        if s.get('mix'): sys.exit('spec: with "hold" (something carried in one hand) facings cannot be mixed with their flipped pair ("mix") - the thing would change hands')
+        s['mirror'] = 'never'
+    s['never_flip'] = s.get('mirror') == 'never'
+    m = s.get('mirror', False); m = [] if s['never_flip'] else ['west', 'north-west', 'south-west'] if m is True else (m or [])   # default: every facing drawn
     bad = [x for x in m if x not in PAIR or PAIR[x] in m]
     if bad: sys.exit(f'spec: "mirror" lists facings flipped from their pair (east/west, north-east/north-west, south-east/south-west), not both of a pair: {bad}')
     if s['kind'] not in ('person', 'animal'): sys.exit('spec: "kind" is "person" or "animal"')
@@ -76,7 +86,8 @@ def load(path):
     for sub in ('turnaround', 'model', 'rig', 'render', 'draw', 'frames', 'out'): (d / sub).mkdir(parents=True, exist_ok=True)
     s['mix'] = [sorted((x, PAIR[x])) for x in (s.get('mix') or []) if x in PAIR]     # pairs mixed frame by frame (both drawn)
     s['actions'] = actions_of(s)
-    s['mirrored'] = [x for x in mirror_choices(d, m) if not any(x in p for p in s['mix'])]
+    if s['never_flip'] and s['mix']: sys.exit('spec: "mirror": "never" and "mix" (facings mixed with their flipped pair) contradict each other')
+    s['mirrored'] = [] if s['never_flip'] else [x for x in mirror_choices(d, m) if not any(x in p for p in s['mix'])]   # (never: what an earlier `redraw` chose is left aside too)
     return s, d
 
 
@@ -90,6 +101,7 @@ def mirror_choices(d, m):
 
 
 def best_pairs(d, s=None):
+    if (s or {}).get('never_flip'): return []
     f = d / 'draw/mirror.json'
     out = [k.split('|') for k, v in (json.loads(f.read_text()) if f.exists() else {}).items() if v == 'best']
     return out + [p for p in ((s or {}).get('mix') or []) if p not in out]
@@ -360,24 +372,49 @@ def render(s, d, only=None):
         w, i = s['walk'], s['idle']
         old = json.loads((d / 'render/render.json').read_text()) if only and (d / 'render/render.json').exists() else {}
         if old.get('actions'): info['actions'] = old['actions']
+        def put(hold, name, clip=None, t=0):                                 # a held thing built from shapes (render_char.html HOLDS), at real size, on its hand's bone
+            if not hold or (isinstance(hold, dict) and hold.get('in_model')): return False       # (in_model: the rig has it already)
+            h = {'kind': hold} if isinstance(hold, str) else dict(hold)
+            h.setdefault('size', s.get('height_m', 1.7))
+            if h['kind'] == 'umbrella': h.setdefault('grip', [0, 0, -90])
+            if pg.evaluate('([k, o]) => window.setHold(k, o)', [h['kind'], h]):
+                hi = pg.evaluate('window.holdInfo') or {}; fi = hi.get('fingers') or {}
+                if os.environ.get('SPRITECAST_HOLD_DEBUG'): print('render: hold', json.dumps({k: hi.get(k) for k in ('thumb_rest', 'thumb_got')}))
+                if fi: print(f"render: {name}: the {h.get('hand', 'right')} hand closed on the {h['kind']} - " + ', '.join(f"{k.lower()} {'/'.join(str(v) for v in e['deg'])}° ({'as its neighbours' if e.get('as_neighbours') else 'tip ' + format(e['tip_off_surface'] * 100, '+.1f') + '% of the height off its surface'})" for k, e in fi.items()) + (f"; the thumb on the face opposite the fingers: its last joint {hi['thumb']['joint_to_side'] * 100:.1f}% of the height from its place, its tip {hi['thumb']['tip_to_outer'] * 100:.1f}% from its, never nearer the handle's middle than {hi['thumb']['nearest_to_middle_in_radii']} of its radius" if hi.get('thumb') else ''))
+                yaws = [0, 60, 120, 180, 240, 300, 1000, 1001]; shots = pg.evaluate('(a) => window.handShots(...a)', [clip or i['clip'], t, yaws])
+                if shots:                                    # the hand from all round, with the thing (top) and without (bottom): LOOK before `draw`
+                    import io
+                    ims = [Image.open(io.BytesIO(base64.b64decode(u.split(',', 1)[1]))).convert('RGBA').resize((360, 360), Image.LANCZOS) for u in shots]
+                    sh = Image.new('RGBA', (360 * len(yaws), 720), (235, 235, 235, 255))
+                    for n, im in enumerate(ims): sh.alpha_composite(im, ((n % len(yaws)) * 360, (n // len(yaws)) * 360))
+                    sh.convert('RGB').save(d / f'render/hand-{name}.png'); print(f"render: {name}: the hand from all round → {d / f'render/hand-{name}.png'} - LOOK at it: the fingers on one face of the handle, the thumb on the face opposite, nothing through it")
+                return True
+            print(f"render: {name}: can't hold \"{h['kind']}\" (known: umbrella, pistol, watergun) or the rig has no {h.get('hand', 'right')} hand bone"); return False
+        carried = (not only) and put(s.get('hold'), 'walk', i['clip'], i['t'])
+        pg.evaluate('(w) => { window.wantHeld = w; }', bool(carried))
         for dr in ([] if only else DIRS):                    # (--only <actions>: those alone, the walk's renders kept)
             for k, u in enumerate(pg.evaluate('(a) => window.frames(...a)', [w['clip'], dr, s['frames'], w['t0'], w['t1'], s['head_up'], s['shoulder_up'], s['shoulder_wide'], True])):
                 save(u, d / f'render/walk-{dr}-{k}.png')
             for k, u in enumerate(pg.evaluate('window.shadowShots')): save(u, d / f'render/walk-{dr}-{k}-s.png')   # each frame's 3D shadow
+            if carried:
+                for k, u in enumerate(pg.evaluate('window.heldShots')): save(u, d / f'render/walk-{dr}-{k}-held.png')     # the carried thing alone
+                for k, u in enumerate(pg.evaluate('window.bodyShots')): save(u, d / f'render/walk-{dr}-{k}-body.png')    # the body alone
             save(pg.evaluate('(a) => window.frames(...a)', [i['clip'], dr, 1, i['t'], i['t'] + 1e-4, s['head_up'], s['shoulder_up'], s['shoulder_wide'], True])[0], d / f'render/idle-{dr}.png')
             save(pg.evaluate('window.shadowShots')[0], d / f'render/idle-{dr}-s.png')
+            if carried: save(pg.evaluate('window.heldShots')[0], d / f'render/idle-{dr}-held.png'); save(pg.evaluate('window.bodyShots')[0], d / f'render/idle-{dr}-body.png')
+        pg.evaluate('() => { window.wantHeld = false; }'); pg.evaluate('() => window.clearHold()')
+        if not only and not carried:                         # an earlier render's carried thing is not this one's
+            for f in list((d / 'render').glob('walk-*-held.png')) + list((d / 'render').glob('walk-*-body.png')) + list((d / 'render').glob('idle-*-held.png')) + list((d / 'render').glob('idle-*-body.png')): f.unlink()
         clips = {c['name']: c['duration'] for c in info['clips']}
         for name, a in [(n, x) for n, x in s['actions'].items() if not only or n in only]:   # each action through its clip (a one-shot one from its first frame to its last)
             if a['clip'] not in clips: print(f"render: {name}: no clip \"{a['clip']}\" in the rig ({', '.join(clips)}) - left out"); continue
             t0, t1, n = a['t0'], a['t1'] if a['t1'] is not None else clips[a['clip']], a['frames']
             t1x = t1 if a['loop'] else t0 + (t1 - t0) * n / max(1, n - 1)
-            hold = a.get('hold'); canvas = a.get('canvas') or (768 if hold else 512)
+            hold = a.get('hold'); small = isinstance(hold, dict) and (hold.get('in_model') or hold.get('kind') in ('pistol', 'watergun'))
+            canvas = a.get('canvas') or (768 if hold and not small else 512)       # (a pistol stays inside the walk's frame)
             pg.evaluate('(px) => window.setCanvas(px)', canvas)       # (a held thing reaches past the walk's 512 px frame: 768 at the same scale)
-            if hold:                                          # something in the right hand, built from shapes (render_char.html HOLDS), at real size
-                h = {'kind': hold} if isinstance(hold, str) else dict(hold)
-                h.setdefault('size', s.get('height_m', 1.7)); h.setdefault('grip', [0, 0, -90])
-                if not pg.evaluate('([k, o]) => window.setHold(k, o)', [h['kind'], h]): print(f"render: {name}: can't hold \"{h['kind']}\" (umbrella is known)")
-            pg.evaluate('(w) => { window.wantHeld = w; }', bool(hold))
+            shown = put(hold, name, a['clip'], t0)
+            pg.evaluate('(w) => { window.wantHeld = w; }', bool(shown))
             for dr in action_dirs(s) + [x for x in s['mirrored']]:
                 for k, u in enumerate(pg.evaluate('(a) => window.frames(...a)', [a['clip'], dr, n, t0, t1x, s['head_up'], s['shoulder_up'], s['shoulder_wide'], True])):
                     save(u, d / f'render/{name}-{dr}-{k}.png')
@@ -419,7 +456,42 @@ def head_words(dr, animal=False):
     return 'a three-quarter view exactly as the render, looking where the body goes, NOT turned toward the viewer, the eyes open, the chin level'
 
 
-def frame_rules(s, held=False):
+def hand_of(hold):
+    return 'left' if isinstance(hold, dict) and hold.get('hand') == 'left' else 'right'
+
+
+def stem_of(name, dr, k=None):
+    return f'{name}-{dr}' if k is None else f'{name}-{dr}-{k}'          # the standing views have one render a facing: idle-<facing>
+
+
+def held_where(d, stem, cell):
+    """where the held thing is in one cell's render, in words (seen from behind the model swaps the hands) - '' with no render of it"""
+    hp, bp = d / f'render/{stem}-held.png', d / f'render/{stem}-body.png'
+    if not hp.exists() or not bp.exists(): return ''
+    H = np.asarray(Image.open(hp))[..., 3] > 128; B = np.asarray(Image.open(bp))[..., 3] > 128
+    if H.sum() < 60 * CL.PX ** 2 or not B.any(): return ''
+    V = _visible(d, stem)
+    if V.sum() < max(60 * CL.PX ** 2, 0.15 * H.sum()):        # the body is in front of it (seen from behind, held before her): said so, or it gets drawn sticking out somewhere
+        return f'cell {cell}: hidden behind the body - from this side the body covers it completely, so do NOT draw it'
+    hy, hx = [v.mean() for v in np.nonzero(V)]; by, bx = [v.mean() for v in np.nonzero(B)]; ys = np.nonzero(B.any(1))[0]
+    lr = 'to the LEFT of the body (the left side of the picture)' if hx < bx - 8 * CL.PX else 'to the RIGHT of the body (the right side of the picture)' if hx > bx + 8 * CL.PX else 'in front of or behind the body'
+    ud = 'raised above the head' if hy < ys.min() + 0.15 * (ys.max() - ys.min()) else 'held low' if hy > by else 'at chest height'
+    part = ' (partly hidden behind the body: draw only the part the render shows)' if V.sum() < 0.6 * H.sum() else ''
+    return f'cell {cell}: {lr}, {ud}{part}'
+
+
+def held_words(hold, d, name, dr, sides):
+    """the sentences about what is held: what it is and in which hand, its parts, and where each cell's render has it"""
+    if not hold: return ''
+    hk = hold if isinstance(hold, str) else hold.get('kind'); hand = hand_of(hold); own = isinstance(hold, dict) and hold.get('words')
+    held = ' ' + (own or HOLD_WORDS.get(hk, f'In the {hand} hand: the {hk} the render shows.').replace('RIGHT hand', f'{hand.upper()} hand'))
+    if not own and (hk not in HOLD_WORDS or (isinstance(hold, dict) and hold.get('parts'))): held += parts_words(hold, d, name, dr)      # (the umbrella's own sentence has its parts already)
+    sides = [x for x in sides if x]
+    if sides: held += ' Where it is in each cell, as the renders have it: ' + '; '.join(sides) + '.'
+    return held
+
+
+def frame_rules(s, held=False, hand='right'):
     if s['kind'] == 'animal':
         return ("For each cell, as for a single frame: redraw the render as a finished illustration in exactly the style of the character reference. "
                 "The pose must match the render EXACTLY: the same position and size, the same body direction, the same angle of each of the four "
@@ -428,7 +500,7 @@ def frame_rules(s, held=False):
                 f"The animal: {s['description']} " + (s.get('notes') or '') + " Plain white background, no shadow on the ground, no text.")
     return ("For each cell, as for a single frame: redraw the render as a finished illustration in exactly the style of the character reference. "
             "The pose must match the render EXACTLY: the same position and size, the same body direction, the same angle of every limb and of "
-            "the head, the same camera angle from above - " + ("nothing added but what the right hand holds, nothing moved" if held else "nothing added, nothing held, nothing moved") + ". The feet and shoes exactly as in the render, "
+            "the head, the same camera angle from above - " + (f"nothing added but what the {hand} hand holds, nothing moved" if held else "nothing added, nothing held, nothing moved") + ". The feet and shoes exactly as in the render, "
             "flat and rigid. Hair and loose clothes may go a little past the render's outline, nothing else. "
             "Small or thin things worn on the head or the body (a headband, ears or antennae on it, a bow, a hat's brim, straps) are drawn as "
             "the turnaround shows them, NOT as the render does - the 3D model makes them rough: seen from behind, only their backs show "
@@ -467,7 +539,7 @@ def refs_and_words(s, d, extra):
 
 
 def draw_walk(s, d, dr, again, only_groups=None, name='walk'):
-    a = s['actions'].get(name) or {'frames': s['frames'], 'words': 'walking'}
+    a = s['actions'].get(name) or {'frames': s['frames'], 'words': 'walking', 'hold': s.get('hold')}
     paths = [d / f'render/{name}-{dr}-{i}.png' for i in range(a['frames'])]; bb = union(paths); cost = 0
     groups = [list(range(i, min(i + 4, len(paths)))) for i in range(0, len(paths), 4)]
     front0 = d / 'draw/walk-south-drawn-0.png'
@@ -480,29 +552,13 @@ def draw_walk(s, d, dr, again, only_groups=None, name='walk'):
         extra += ([(d / f'draw/{name}-{dr}-drawn-0.png', 'the first half of this same animation, already drawn: continue it exactly - the same '
                     + who + ', but the legs and the stride of THIS sheet\'s renders (image 1), NOT the first half\'s poses')] if g else [])
         imgs, words = refs_and_words(s, d, extra)
-        hold = a.get('hold'); hk = hold if isinstance(hold, str) else (hold or {}).get('kind')
-        sides = []
-        for n_, k in enumerate(idx):                     # where the held thing is in each cell's render, in words (seen from behind the model swaps the hands)
-            hp, bp = d / f'render/{name}-{dr}-{k}-held.png', d / f'render/{name}-{dr}-{k}-body.png'
-            if not hold or not hp.exists() or not bp.exists(): continue
-            H = np.asarray(Image.open(hp))[..., 3] > 128; B = np.asarray(Image.open(bp))[..., 3] > 128
-            if H.sum() < 60 * CL.PX ** 2 or not B.any(): continue
-            V = held_visible(d, name, dr, k)
-            if V.sum() < max(60 * CL.PX ** 2, 0.15 * H.sum()):        # the body is in front of it (seen from behind, held before her): said so, or it gets drawn sticking out somewhere
-                sides.append(f'cell {n_ + 1}: hidden behind the body - from this side the body covers it completely, so do NOT draw it'); continue
-            hy, hx = [v.mean() for v in np.nonzero(V)]; by, bx = [v.mean() for v in np.nonzero(B)]; ys = np.nonzero(B.any(1))[0]
-            lr = 'to the LEFT of the body (the left side of the picture)' if hx < bx - 8 * CL.PX else 'to the RIGHT of the body (the right side of the picture)' if hx > bx + 8 * CL.PX else 'in front of or behind the body'
-            ud = 'raised above the head' if hy < ys.min() + 0.15 * (ys.max() - ys.min()) else 'held low' if hy > by else 'at chest height'
-            part = ' (partly hidden behind the body: draw only the part the render shows)' if V.sum() < 0.6 * H.sum() else ''
-            sides.append(f'cell {n_ + 1}: {lr}, {ud}{part}')
-        held = (' ' + ((hold or {}).get('words') if isinstance(hold, dict) and hold.get('words') else HOLD_WORDS.get(hk, f'In the right hand: the {hk} the render shows.'))) if hold else ''
-        if hold and not (isinstance(hold, dict) and hold.get('words')) and (hk not in HOLD_WORDS or (isinstance(hold, dict) and hold.get('parts'))): held += parts_words(hold, d, name, dr)      # (the umbrella's own sentence has its parts already)
-        if sides: held += ' Where it is in each cell, as the renders have it: ' + '; '.join(sides) + '.'
+        hold = a.get('hold')
+        held = held_words(hold, d, name, dr, [held_where(d, stem_of(name, dr, k), n_ + 1) for n_, k in enumerate(idx)] if hold else [])
         P = (f"Image 1 is a SHEET of {len(idx)} separate frames of one {a['words']} animation, side by side, read left to right - every cell a 3D render "
              f"of the same {who} in one moment of it, seen from a game camera from above. " + (a['pose'] + ' ' if a.get('pose') else '') + "Redraw EVERY cell as a finished illustration, "
              "keeping the sheet exactly as it is: the same cells, each figure at exactly the same position, size and pose - the legs, the stride, "
              + ("the tail" if who == 'animal' else "the arms") + f" exactly as each cell's render; nothing added between the cells, no borders, no numbers. The same {who} in every cell. "
-             f"THE HEAD in every cell: {head_as_render(dr) if a.get('head') == 'as_render' and dr.startswith('south') else head_words(dr, who == 'animal')}.{held} {words}\n" + frame_rules(s, bool(hold)))
+             f"THE HEAD in every cell: {head_as_render(dr) if a.get('head') == 'as_render' and dr.startswith('south') else head_words(dr, who == 'animal')}.{held} {words}\n" + frame_rules(s, bool(hold), hand_of(hold)))
         (d / f'draw/{name}-{dr}-prompt-{g}.txt').write_text(P)
         try: cost += gpt(P, [rs] + imgs, out, '1536x1024')
         except Refused: print(f'draw: {out.name} turned down by OpenAI\'s safety check three times - left as it was; run it again later, or say less about skin and length in the description')
@@ -520,10 +576,11 @@ def draw_idle(s, d, again):
         extra += ([(d / 'draw/idle-drawn-0.png', "the same character's other standing views, already drawn: exactly the same")] if g else [])
         imgs, words = refs_and_words(s, d, extra)
         turns = '; '.join(f'cell {n + 1}: {head_words(x, who == "animal")}' for n, x in enumerate(ds))
+        hold = s.get('hold'); held = held_words(hold, d, 'walk', ds[0], [held_where(d, stem_of('idle', x), n + 1) for n, x in enumerate(ds)] if hold else [])
         P = (f"Image 1 is a SHEET of 4 separate figures side by side - every cell a 3D render of the same {who} standing still, each turned a "
              "different way, seen from a game camera from above. Redraw EVERY cell as a finished illustration, keeping the sheet exactly as it is: "
              f"each figure at exactly the same position, size, pose and turn; nothing added between the cells. The same {who} in all 4. "
-             f"THE HEADS - {turns}. {words}\n" + frame_rules(s))
+             f"THE HEADS - {turns}.{held} {words}\n" + frame_rules(s, bool(hold), hand_of(hold)))
         (d / f'draw/idle-prompt-{g}.txt').write_text(P)
         try: cost += gpt(P, [rs] + imgs, out, '1536x1024')
         except Refused: print(f'draw: {out.name} turned down by OpenAI\'s safety check three times - left as it was; run it again later, or say less about skin and length in the description')
@@ -664,9 +721,13 @@ EXTRA_MAX = 0.08    # ... or more than this share of the drawing lies well off t
 def held_visible(d, name, dr, k):
     """where the held thing shows in the render - not behind the body: its own render's pixels outside the body, or inside it where the full
     render differs from the body alone (the thing in front there)"""
-    F = np.asarray(Image.open(d / f'render/{name}-{dr}-{k}.png').convert('RGBA')).astype(int)
-    Bi = np.asarray(Image.open(d / f'render/{name}-{dr}-{k}-body.png').convert('RGBA')).astype(int)
-    H = np.asarray(Image.open(d / f'render/{name}-{dr}-{k}-held.png'))[..., 3] > 128
+    return _visible(d, stem_of(name, dr, k))
+
+
+def _visible(d, stem):
+    F = np.asarray(Image.open(d / f'render/{stem}.png').convert('RGBA')).astype(int)
+    Bi = np.asarray(Image.open(d / f'render/{stem}-body.png').convert('RGBA')).astype(int)
+    H = np.asarray(Image.open(d / f'render/{stem}-held.png'))[..., 3] > 128
     return H & ((Bi[..., 3] <= 128) | (np.abs(F - Bi)[..., :3].sum(-1) > 40))
 
 
@@ -908,6 +969,10 @@ def finish(s, d):
             frames, scales = CL.steady(frames, s['neck'])
         for i, f in enumerate(frames): CL.defringe(CL.clear_white_unless_ai(f, Image.open(d / f'render/walk-{dr}-{i}.png'))).save(d / f'frames/walk-{dr}-{i}.png')
         report[dr] = {'overlap': ious, 'head_scale': [round(x, 3) for x in scales]}
+        if s.get('hold') and (d / f'render/walk-{dr}-0-held.png').exists():      # the carried thing where its render has it, in every frame (as an action's)
+            cov = [held_cover(f, d, 'walk', dr, i) for i, f in enumerate(frames)]; ext = [held_extra(f, d, 'walk', dr, i) for i, f in enumerate(frames)]
+            report[dr].update({'held': cov, 'extra': ext}); wrong = [i + 1 for i, (c, x) in enumerate(zip(cov, ext)) if c < HELD_MIN or x > EXTRA_MAX]
+            if wrong: print(f'finish: walk {dr} - the carried thing not where the render has it in frames {wrong} (`redraw` draws those sheets again)')
         print(f'finish: walk {dr} overlap {min(ious):.2f}-{max(ious):.2f}', '  LOW - look at it' if min(ious) < 0.7 else '', flush=True)
     for name in s['actions']: finish_action(s, d, name, report)
     if s['kind'] != 'animal': even_heads(s, d, report, 'walk'); head_fit(s, d, report, 'walk')
@@ -961,9 +1026,10 @@ def low_sheets(s, d):
     if rep.get('draw') is False: return out
     for dr in DIRS:
         if (rep.get(dr) or {}).get('mirrored_from') or (rep.get(dr) or {}).get('from'): continue
-        ov = (rep.get(dr) or {}).get('overlap') or []
+        ov = (rep.get(dr) or {}).get('overlap') or []; cov = (rep.get(dr) or {}).get('held') or [1.0] * len(ov); ext = (rep.get(dr) or {}).get('extra') or [0.0] * len(ov)
         for g in range(0, len(ov), 4):
-            if min(ov[g:g + 4]) < s['redo_below']: out.append((dr, g // 4, min(ov[g:g + 4]), sum(ov[g:g + 4]) / len(ov[g:g + 4])))
+            wrong = min(cov[g:g + 4]) < HELD_MIN or max(ext[g:g + 4]) > EXTRA_MAX            # the carried thing in the other hand, or where the render has none
+            if min(ov[g:g + 4]) < s['redo_below'] or wrong: out.append((dr, g // 4, min(ov[g:g + 4]), sum(ov[g:g + 4]) / len(ov[g:g + 4])))
     return out
 
 
@@ -980,10 +1046,11 @@ def draw_single(s, d, dr, k):
     rs = d / f'draw/walk-{dr}-single-{k}-render.png'; sheet_of([bp, paths[k], bp, bp], bb, rs)
     who = 'animal' if s['kind'] == 'animal' else 'person'
     imgs, words = refs_and_words(s, d, [(d / f'draw/walk-{dr}-drawn-{k // 4}.png', f'the rest of this walk, already drawn: exactly the same {who}, size and style')])
+    hold = s.get('hold'); held = held_words(hold, d, 'walk', dr, [held_where(d, stem_of('walk', dr, k), 2)] if hold else [])
     P = (f"Image 1 is a sheet of four cells with ONE figure in it, in the second cell: a 3D render of a {who} in one moment of a walk, seen from a "
          "game camera from above. Redraw THAT figure as a finished illustration at exactly the same position, size and pose - the legs, the "
          + ("tail" if who == 'animal' else "arms") + " and the head exactly as the render - and leave the other three cells plain white, nothing in them. "
-         f"THE HEAD: {head_words(dr, who == 'animal')}. {words}\n" + frame_rules(s))
+         f"THE HEAD: {head_words(dr, who == 'animal')}.{held} {words}\n" + frame_rules(s, bool(hold), hand_of(hold)))
     (d / f'draw/walk-{dr}-single-{k}-prompt.txt').write_text(P)
     out = d / f'draw/walk-{dr}-single-{k}.png'
     try: return gpt(P, [rs] + imgs, out, '1536x1024')
@@ -1035,6 +1102,7 @@ def redraw(s, d, args):
     """a sheet with a frame under `redo_below` drawn again, up to twice; then a facing still under it is settled with its mirror pair
     (east/west, north-east/north-west, south-east/south-west): the pair drawn too if it was being flipped, and whichever of the two fits its
     renders better is flipped onto the other; south and north, which have no pair, get their low frames drawn alone (once).
+    With "mirror": "never" (or a "hold" in the spec) nothing is flipped: every facing is settled as south and north are.
     Each time the drawing that fits better is kept."""
     if not (d / 'out/character.json').exists(): sys.exit('redraw: run `finish` first')
     if s['actions']: redraw_actions(s, d, args)
@@ -1042,8 +1110,9 @@ def redraw(s, d, args):
     low = low_sheets(s, d)
     sheets = [x for x in low if tries(d, f'walk-{x[0]}-drawn-{x[1]}') < 2]
     done = {x[0] for x in low if tries(d, f'walk-{x[0]}-drawn-{x[1]}') >= 2}          # facings whose low sheets were drawn twice
-    pairs = sorted(x for x in done if x in PAIR and not tries(d, f'pair-{x}'))
-    singles = [(dr, k, rep[dr]['overlap'][k]) for dr, g, _, _ in low if dr in done and dr not in PAIR and tries(d, f'walk-{dr}-drawn-{g}') >= 2
+    flip = not s['never_flip']                            # "mirror": "never" (or something carried): every facing is settled as south and north are - its low frames drawn alone
+    pairs = sorted(x for x in done if flip and x in PAIR and not tries(d, f'pair-{x}'))
+    singles = [(dr, k, rep[dr]['overlap'][k]) for dr, g, _, _ in low if dr in done and (dr not in PAIR or not flip) and tries(d, f'walk-{dr}-drawn-{g}') >= 2
                for k in range(g * 4, min(g * 4 + 4, s['frames'])) if rep[dr]['overlap'][k] < s['redo_below'] and not tries(d, f'walk-{dr}-single-{k}')]
     groups = -(-s['frames'] // 4)
     pair_sheets = {p: [g for g in range(groups) if not (d / f'draw/walk-{PAIR[p]}-drawn-{g}.png').exists()] for p in pairs}
@@ -1106,6 +1175,15 @@ HOLD_WORDS = {'umbrella': 'In the RIGHT hand: a closed, furled umbrella held lik
                          'render has them - do not move the hands together and do not lengthen the handle to fill the gap. '
                          'It is on the SAME side of the body and points the SAME way as in that cell\'s render, also when she is seen from '
                          'behind (do not swap it to the other hand or the other side), raised only where the render raises it.'}
+HOLD_WORDS['pistol'] = ('In the RIGHT hand: a small handgun - draw it exactly where and how the render shows it, the same size, pointing the same way. '
+                        'It has TWO PARTS, the same in every cell: a dark brown grip, in the fist; and above it a dark grey metal slide and barrel, as long as '
+                        'the render has it (not longer, no silencer, no scope). It stays in the SAME hand and on the SAME side of the body as in that '
+                        'cell\'s render, also when the figure is seen from behind (do not swap it to the other hand or the other side); the other hand is empty.')
+HOLD_WORDS['watergun'] = ('In the RIGHT hand: a small toy water pistol, bright plastic - draw it exactly where and how the render shows it, the same size, pointing the '
+                          'same way. Its PARTS, the same in every cell: an orange grip, in the fist; a bright blue body with a short orange nozzle at its end; and a small '
+                          'round green water tank on top of the body. A toy: chunky and rounded, in the colours the render has - not a real gun, not black or metal. '
+                          'It stays in the SAME hand and on the SAME side of the body as in that cell\'s render, also when the figure is seen from behind (do not swap '
+                          'it to the other hand or the other side); the other hand is empty.')
 TRIPO_PRESETS = {'run', 'jump', 'dive', 'climb', 'fall', 'hurt', 'turn', 'slash', 'shoot'}
 
 
@@ -1116,7 +1194,11 @@ def actions_of(s):
         a = {'name': a} if isinstance(a, str) else dict(a); n = a['name']
         if n in ('walk', 'idle', 'sit'): sys.exit(f'spec: "{n}" is made already - not an action')
         e = {'clip': n, 't0': 0, 't1': None, 'frames': s['frames'], 'loop': True, 'words': n}
-        e.update(ACTION_DEFAULTS.get(n, {})); e.update({k: v for k, v in a.items() if k != 'name'}); out[n] = e
+        e.update(ACTION_DEFAULTS.get(n, {})); e.update({k: v for k, v in a.items() if k != 'name'})
+        if 'hold' not in e and s.get('hold'): e['hold'] = s['hold']                  # what the character carries; "hold": false in an action: the hand empty there
+        if not e.get('hold'): e.pop('hold', None)
+        if hand_of(e.get('hold')) == 'left' and 'words' not in a: e['words'] = e['words'].replace('right hand', 'left hand')
+        out[n] = e
     return out
 
 

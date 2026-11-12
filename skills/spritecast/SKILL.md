@@ -110,7 +110,10 @@ the user's own rig, any clip by name: `{"name": "attack", "clip": "Sword Slash"}
 them after the walk (~$0.11 a sheet, 2 sheets a facing), `finish` fits and packs → `out/<name>-<facing>.png` and `"actions"` in
 `character.json` (frame, anchor, frames, loop, fps, shadows). `"draw": false`: the renders are the frames. A one-shot action (jump,
 slash) plays once, its first frame to its last; a slash or a shot needs something in the hand - `"hold"` builds it from shapes on the
-right hand (`umbrella` for now; `{"kind", "length", "color", "grip"}`), so it is in every render and drawn where the render has it.
+hand (`umbrella`, `pistol`, `watergun`; `{"kind", "hand": "left"|"right", "length", "color", "grip"}`), so it is in every render and drawn where the render has it.
+`"hold"` in the spec itself (not in one action) is carried all the time - walk, standing, every action - and then nothing is ever flipped
+(`"mirror": "never"`, also on its own for a character that is not the same on both sides). The hand closes on the handle by itself:
+**open `render/hand-<name>.png` and read the line `render` prints before any paid sheet** (reference/character.md, "the hand closes on it").
 Show the renders first; a clip with a long still tail (Tripo's slash is 6.6 s, its swing 0.6-2.7) takes `"t0"` / `"t1"`.
 **The head:** the walk's prompt tells the model to keep the eyes ahead and the chin level (a rig's walk looks down). For an action whose
 head bows or turns with the motion - a slash, a crouch, a shot aimed low - set `"head": "as_render"` (the slash has it by default): the

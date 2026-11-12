@@ -60,7 +60,7 @@ window.load = async (url, pitch = 30, light = 'right') => {
       o.userData.toon = o.material; o.userData.flat = flatMaterial();
       o.frustumCulled = false;
     }
-    if (o.isBone) { bones[o.name.replace(/^mixamorig:?/i, '')] = o; o.userData.restPos = o.position.clone(); if (!hips && /hip|pelvis/i.test(o.name)) hips = o; }
+    if (o.isBone) { bones[o.name.replace(/^mixamorig:?/i, '')] = o; o.userData.restPos = o.position.clone(); o.userData.restQ = o.quaternion.clone(); if (!hips && /hip|pelvis/i.test(o.name)) hips = o; }
   });
   mixer = new THREE.AnimationMixer(m); clips = g.animations;
   return { clips: clips.map((c) => ({ name: c.name, duration: c.duration })), height: h, footY: 0.5 + 0.5 * Math.cos(PITCH) / VIEW_H };
@@ -109,6 +109,7 @@ window.frames = (clipName, dir, n, t0, t1, head, up = 0, wide = 1, shadows = fal
     if (hips && x0 === null) { mixer.setTime(t0); x0 = hips.position.x; z0 = hips.position.z; }
     mixer.setTime(t);
     if (hips) { hips.position.x = x0; hips.position.z = z0; }      // the walk stays on the spot
+    curlFingers();
     root.updateMatrixWorld(true); shoulders(up, wide); root.updateMatrixWorld(true); headUp(head); root.updateMatrixWorld(true);
     renderer.render(scene, cam); out.push(renderer.domElement.toDataURL('image/png'));
     if (held && window.wantHeld) {       // the held thing alone, and the body alone → window.heldShots / bodyShots (where the held thing should be drawn)
@@ -125,11 +126,26 @@ window.frames = (clipName, dir, n, t0, t1, head, up = 0, wide = 1, shadows = fal
   }
   return out;
 };
-// ---- something held in the right hand (an action's "hold") ----------------------------------------------------------------------------
+// ---- something held in a hand (an action's "hold", or the character's own: carried through the walk and the standing views too) ------
 // Built here from simple shapes at real proportions (the figure is 1 unit tall: `size` is the figure's height in metres) and parented
 // to the hand bone, so it follows every frame of the clip. `grip` turns it in the hand (degrees about the hand's x, y, z) and `slide`
-// moves the hand along it (0: held at the handle).
-let held = null;
+// moves the hand along it (0: held at the handle). `hand`: "right" (default) or "left"; `grip` and `offset` given in the spec are taken
+// as written for either hand - look at the renders.
+let held = null, heldSide = 'Right', heldCurl = null;
+// THE HAND CLOSES ON WHAT IT HOLDS. A rig's walk has the fingers out straight: a grip lay against an open palm, and the drawing over
+// it had an open hand beside a floating gun. Each finger of the holding hand is bent from its rest pose at its three joints (the
+// clip's own finger motion is given up for that hand) - for whatever is held by a handle.
+const FINGERS = ['Index', 'Middle', 'Ring', 'Pinky'];
+function curlFingers() {
+  if (!held || !heldCurl) return;
+  const ax = new THREE.Vector3(...heldCurl.axis), bend = (b, dg) => { if (b && b.userData.restQ) b.quaternion.copy(b.userData.restQ).multiply(new THREE.Quaternion().setFromAxisAngle(ax, dg * Math.PI / 180)); };
+  for (const f of FINGERS) (heldCurl.each[f] || heldCurl.deg).forEach((dg, k) => bend(bones[`${heldSide}Hand${f}${k + 1}`], dg));
+  if (heldCurl.thumbQ) heldCurl.thumbQ.forEach((q, k) => { const b = bones[`${heldSide}HandThumb${k + 1}`]; if (b && q) b.quaternion.copy(q); });
+  else heldCurl.thumb.forEach((dg, k) => bend(bones[`${heldSide}HandThumb${k + 1}`], dg));
+}
+function openFingers() {
+  for (const s of ['Left', 'Right']) for (const f of [...FINGERS, 'Thumb']) for (const k of [1, 2, 3]) { const b = bones[`${s}Hand${f}${k}`]; if (b && b.userData.restQ) b.quaternion.copy(b.userData.restQ); }
+}
 const HOLDS = {
   umbrella: (o) => {                              // a closed umbrella: a J handle, the shaft, the furled canopy, a tip
     const g = new THREE.Group(), col = new THREE.Color(o.color || '#f2c21b'), dark = new THREE.Color(o.handle || '#5a3b22');
@@ -141,23 +157,159 @@ const HOLDS = {
     const tip = new THREE.Mesh(new THREE.ConeGeometry(L * 0.012, L * 0.06, 10), mat(new THREE.Color('#bdbdbd'))); tip.position.y = L * 0.97; g.add(tip);
     const hook = new THREE.Mesh(new THREE.TorusGeometry(L * 0.05, L * 0.016, 10, 24, Math.PI), mat(dark)); hook.rotation.z = Math.PI; hook.position.set(L * 0.05, 0, 0); g.add(hook);
     const grip = new THREE.Mesh(new THREE.CylinderGeometry(L * 0.018, L * 0.018, L * 0.12, 12), mat(dark)); grip.position.y = L * 0.06; g.add(grip);
+    g.userData.grip = { at: [0, L * 0.06, 0], r: L * 0.018 };       // where the handle's middle is, and its radius (figure units)
+    return g;
+  },
+  pistol: (o) => {                                // a handgun: the slide and barrel along +y (the way the fingers point), the grip back from it along +x
+    const g = new THREE.Group(), q = new THREE.Group(), L = (o.length || 0.18) / (o.size || 1.7), col = new THREE.Color(o.color || '#2b2d33'), dark = new THREE.Color(o.handle || '#4a3526');
+    const mat = (c) => new THREE.MeshToonMaterial({ color: c, gradientMap: rampTex() });
+    const slide = new THREE.Mesh(new THREE.BoxGeometry(L * 0.2, L, L * 0.16), mat(col)); slide.position.set(-L * 0.1, L * 0.3, 0); q.add(slide);
+    const grip = new THREE.Mesh(new THREE.CylinderGeometry(L * 0.065, L * 0.065, L * 0.55, 12), mat(dark)); grip.position.set(L * 0.25, -L * 0.06, 0); grip.rotation.z = Math.PI / 2 + 0.25; q.add(grip);   // round and thin enough for the hand to close on
+    const guard = new THREE.Mesh(new THREE.BoxGeometry(L * 0.05, L * 0.3, L * 0.06), mat(col)); guard.position.set(L * 0.2, L * 0.16, 0); q.add(guard);
+    q.position.set(-L * 0.25, L * 0.06, 0); g.add(q);                // the middle of the grip at the origin: that is what the palm closes on
+    g.userData.grip = { at: [0, 0, 0], r: L * 0.065, hl: L * 0.25 };                 // the grip's radius (a thick box of a grip, the fingers could not get round: it is made thin instead)
+    return g;
+  },
+  watergun: (o) => {                              // a toy water pistol: a bright body and nozzle along +y, a tank on top, the grip back along +x
+    const g = new THREE.Group(), q = new THREE.Group(), L = (o.length || 0.2) / (o.size || 1.7), col = new THREE.Color(o.color || '#27a5e8'), hand = new THREE.Color(o.handle || '#ff7a1a'), tank = new THREE.Color(o.tank || '#58c66a');
+    const mat = (c) => new THREE.MeshToonMaterial({ color: c, gradientMap: rampTex() });
+    const body = new THREE.Mesh(new THREE.BoxGeometry(L * 0.22, L * 0.78, L * 0.18), mat(col)); body.position.set(-L * 0.11, L * 0.2, 0); q.add(body);
+    const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(L * 0.05, L * 0.07, L * 0.22, 10), mat(hand)); nozzle.position.set(-L * 0.11, L * 0.7, 0); q.add(nozzle);
+    const tk = new THREE.Mesh(new THREE.CylinderGeometry(L * 0.13, L * 0.13, L * 0.36, 14), mat(tank)); tk.position.set(-L * 0.32, L * 0.12, 0); q.add(tk);
+    const grip = new THREE.Mesh(new THREE.CylinderGeometry(L * 0.065, L * 0.065, L * 0.5, 12), mat(hand)); grip.position.set(L * 0.22, -L * 0.06, 0); grip.rotation.z = Math.PI / 2 + 0.25; q.add(grip);   // round and thin enough for the hand to close on
+    const guard = new THREE.Mesh(new THREE.BoxGeometry(L * 0.05, L * 0.28, L * 0.06), mat(col)); guard.position.set(L * 0.2, L * 0.16, 0); q.add(guard);
+    q.position.set(-L * 0.22, L * 0.06, 0); g.add(q);                // the middle of the grip at the origin: that is what the palm closes on
+    g.userData.grip = { at: [0, 0, 0], r: L * 0.065, hl: L * 0.25 };                 // the grip's radius (a thick box of a grip, the fingers could not get round: it is made thin instead)
     return g;
   },
 };
+const CURL = [60, 75, 55];
+const _GUN = { grip: [0, 0, 0], left: [0, 180, 0] };                                 // the grip to the back, the barrel down the fingers
+const HOLD_GRIP = { pistol: _GUN, watergun: _GUN };   // a kind's own place in the hand: the grip to the back, the barrel down the fingers (the default suits a long thing held by its end)
 let _ramp = null;
 function rampTex() { if (_ramp) return _ramp; const s = new Uint8Array([90, 170, 255]); _ramp = new THREE.DataTexture(s, 3, 1, THREE.RedFormat); _ramp.minFilter = _ramp.magFilter = THREE.NearestFilter; _ramp.needsUpdate = true; return _ramp; }
 window.setHold = (kind, o = {}) => {
   window.clearHold(); if (!kind || !HOLDS[kind]) return false;
-  const hand = bones.RightHand || bones.mixamorigRightHand; if (!hand) return false;
+  const side = o.hand === 'left' ? 'Left' : 'Right', own = HOLD_GRIP[kind] || {}, flip = side === 'Left' ? -1 : 1;
+  const hand = bones[side + 'Hand'] || bones['mixamorig' + side + 'Hand']; if (!hand) return false;
   const obj = HOLDS[kind](o); obj.traverse((m) => { if (m.isMesh) { m.userData.toon = m.material; m.userData.flat = flatMaterial(); m.frustumCulled = false; } });
   const wrap = new THREE.Group(); wrap.add(obj); hand.add(wrap); root.updateMatrixWorld(true);
   const ws = new THREE.Vector3(); hand.getWorldScale(ws); wrap.scale.setScalar(1 / ws.x);          // its size in the figure's units, whatever the bone's scale
-  const [rx, ry, rz] = (o.grip || [0, 0, 90]).map((v) => v * Math.PI / 180); wrap.rotation.set(rx, ry, rz);
-  const [px, py, pz] = o.offset || [0, 0.08, 0.02]; wrap.position.set(px / ws.x, py / ws.x, pz / ws.x);   // into the palm, in figure units
+  const gr = o.grip || (side === 'Left' && own.left) || own.grip || [0, 0, 90];                    // (looked at in the renders, hand by hand: the two hand bones are not mirror images of each other)
+  const [rx, ry, rz] = gr.map((v) => v * Math.PI / 180); wrap.rotation.set(rx, ry, rz);
+  const [px, py, pz] = o.offset || (own.offset || [0, 0.08, 0.02]).map((v, i) => (i === 1 ? 1 : flip) * v);   // (the left palm faces the other way: x and z)
+  wrap.position.set(px / ws.x, py / ws.x, pz / ws.x);   // into the palm, in figure units
   obj.position.y = -(o.slide || 0) * (o.length || 0.85) / (o.size || 1.7);
-  held = wrap; return true;
+  heldSide = side;
+  // THE HANDLE IN THE FIST. Where the fist is comes from the finger bones, not from a number: the handle's middle goes under the first
+  // joints of the fingers, on the palm's side of them by the handle's own half-thickness, and the fingers are bent just as far as
+  // it takes to go round a handle that thick (a thin one: a tight fist; a thick one: a looser hand, the handle still inside it).
+  const gp = obj.userData.grip;                                                                        // a thing with a handle says where it is and how thick; one without (a ball on the palm) leaves the hand open
+  const c = o.curl === undefined ? !!gp : o.curl;                                                      // false: an open hand; or the degrees at the three joints
+  const axis = o.curl_axis || [side === 'Left' ? -1 : 1, 0, 0], K = (f, k) => bones[`${side}Hand${f}${k}`];
+  let deg = Array.isArray(c) ? c : CURL, gpPlace = null; const each = {}, info = { kind, hand: side }; const m1 = K('Middle', 1), m2 = K('Middle', 2), i1 = K('Index', 1), p1 = K('Pinky', 1);
+  if (c && gp && m1 && m2 && m1.userData.restQ) {
+    const d = m2.position.clone().applyQuaternion(m1.userData.restQ).normalize();                       // the way the fingers point, in the hand's frame
+    const palm = new THREE.Vector3(...axis).applyQuaternion(m1.userData.restQ).normalize().cross(d).normalize();   // the way they bend: toward the palm
+    // ROUND IT, NOT THROUGH IT - WORKED OUT FINGER BY FINGER, TO THE FINGERTIP. Seen along the handle, the handle is a shape (a box
+    // a by b, or a circle) and a finger is three straight pieces of some thickness, starting at its own first joint. The handle is
+    // laid against the palm with its far edge just under the first joints. Then each joint, from the hand outward, is bent until its
+    // piece touches the handle - never further: so every piece lies ON it, and the fingertip ends on its surface, not inside it.
+    // (Bent by a fixed amount the fingers went through a thick grip; by one circle for all, the tips still sank in.)
+    const tf = (o.finger || 0.009) / ws.x, box = gp.half ? [(o.grip_half || gp.half)[0] / ws.x, (o.grip_half || gp.half)[1] / ws.x] : null, r = (o.grip_r || gp.r || 0) / ws.x;
+    const A = box ? box[0] : r, Bh = box ? box[1] : r;                                                  // its half-size along the fingers, and off the palm
+    const mid = i1 && p1 ? i1.position.clone().add(p1.position).multiplyScalar(0.5) : m1.position.clone();
+    if (!o.offset) wrap.position.copy(mid).addScaledVector(palm, Bh + tf).addScaledVector(d, tf - A);
+    obj.position.set(-gp.at[0], -gp.at[1] + obj.position.y, -gp.at[2]);                                 // (the handle's middle, not the thing's end, is what sits there)
+    const C = wrap.position, inside = (x, y) => box ? (Math.abs(x) < A + tf && Math.abs(y) < Bh + tf) : Math.hypot(x, y) < r + tf;
+    info.fingers = {}; gpPlace = { C: C.clone(), d, palm, A, Bh, tf };
+    if (!Array.isArray(c)) for (const f of FINGERS) {
+      const k1 = K(f, 1); if (!k1) continue;
+      // AS A FINGER BENDS: its three joints together, in a finger's own proportions (the first two about alike, the last about two
+      // thirds of the middle one) - until some piece of it touches the handle. Then the outer two go on together, then the last
+      // alone, each only as far as a finger can and never past its share. (Each joint bent by itself until it touched gave a
+      // finger straight at the hand, hooked 85° in the middle and straight again at the tip: on the handle, and not a hand.)
+      const rel = k1.position.clone().sub(C), x0 = rel.dot(d), y0 = rel.dot(palm), len = [2, 3, 4].map((k) => K(f, k) ? K(f, k).position.length() : 0);
+      const MAXJ = [90, 100, 70];
+      const hits = (ang) => { let x = x0, y = y0, phi = 0; for (let j = 0; j < 3; j++) { phi += ang[j] * Math.PI / 180; for (let s = 0.2; s <= 1.001; s += 0.1) if (inside(x + s * len[j] * Math.cos(phi), y + s * len[j] * Math.sin(phi))) return true; x += len[j] * Math.cos(phi); y += len[j] * Math.sin(phi); } return false; };
+      const tipOf2 = (ang) => { let x = x0, y = y0, phi = 0; for (let j = 0; j < 3; j++) { phi += ang[j] * Math.PI / 180; x += len[j] * Math.cos(phi); y += len[j] * Math.sin(phi); } return [x, y]; };
+      let out = [0, 0, 0];
+      const grow = (step) => { for (let q = 0; q < 200; q++) { const nx = step(out); if (!nx || nx.some((v, j) => v > MAXJ[j]) || hits(nx)) break; out = nx; } };
+      grow((a) => [a[0] + 0.9, a[1] + 1, a[2] + 0.67]);                                                // all three together
+      grow((a) => [a[0], a[1] + 1, a[2] + 0.67]);                                                      // the outer two
+      grow((a) => (a[2] + 1 <= 0.9 * a[1] ? [a[0], a[1], a[2] + 1] : null));                          // the tip, never more than its middle joint
+      out = out.map((v) => Math.round(v)); const [x, y] = tipOf2(out);
+      each[f] = out; info.fingers[f] = { deg: out, tip_off_surface: +((box ? Math.max(Math.abs(x) - A, Math.abs(y) - Bh) : Math.hypot(x, y) - r) * ws.x).toFixed(4) };
+    }
+  }
+  // A FINGER GOES WITH ITS NEIGHBOURS. One whose first joint starts against the handle cannot bend by this reckoning at all, and stayed
+  // out straight beside a closed fist: a finger bent much less than the others takes the bend of the one in the middle of them.
+  const done = FINGERS.filter((f) => each[f]);
+  if (done.length > 2) {
+    const mid = done.map((f) => each[f]).sort((p, q) => p[1] - q[1])[Math.floor(done.length / 2)];
+    for (const f of done) if (each[f][0] + each[f][1] < 0.7 * (mid[0] + mid[1])) { each[f] = mid.slice(); info.fingers[f] = { deg: each[f], as_neighbours: true, tip_off_surface: info.fingers[f].tip_off_surface }; }
+  }
+  heldCurl = c ? { deg, each, axis, thumb: o.thumb || [0, 20, 30], thumbQ: null } : null; window.holdInfo = info;
+  // THE THUMB ON THE OPPOSITE FACE (the user: "four fingers - handle - thumb, in that order: that is what holding is"). Reached joint
+  // by joint, each turned toward its place and held to what a thumb can do - not by a guessed bend.
+  if (heldCurl && gpPlace && !o.thumb) {
+    const { C, d, palm, A, Bh, tf } = gpPlace, T = [1, 2, 3].map((k) => K('Thumb', k)), tipB = K('Thumb', 4);
+    if (T[0] && T[1] && T[2]) {
+      curlFingers(); root.updateMatrixWorld(true);
+      const g = d.clone().cross(palm).normalize(), s1 = T[0].position.clone().sub(C).dot(g), hl = gp.hl ? gp.hl / ws.x : Infinity;
+      const rr = Math.max(A, Bh) + tf, W0 = (b) => hand.worldToLocal(b.getWorldPosition(new THREE.Vector3())).sub(C);
+      // FINGERS - HANDLE - THUMB: the handle is held BETWEEN them. The four fingers come round its far side; the thumb comes round the
+      // side opposite, on the OUTSIDE of the handle where it shows, its tip toward the fingertips. (Laid flat on the wrist-side face,
+      // between the handle and the heel of the hand, it looked broken and tucked into the fist - the user: "folded and rolled in".)
+      // Where ALONG the handle the thumb crosses is not free: its middle piece has one length, so its last joint can only be where
+      // that length reaches from the joint before it. (Aimed at a point it could not reach, the thumb stopped short, inside the handle.)
+      const L2 = T[2].position.length(), L3 = tipB ? tipB.position.length() : 0.8 * L2, th0 = (o.thumb_at === undefined ? 20 : o.thumb_at) * Math.PI / 180, jd = -rr * Math.cos(th0), jp = rr * Math.sin(th0), th1 = th0 + L3 / rr; let s = 0.6 * s1;   // round the handle from its wrist side: the last joint a little way round, the tip a thumb-end further
+      const place = () => { const t2 = W0(T[1]), rest = L2 * L2 - (jd - t2.dot(d)) ** 2 - (jp - t2.dot(palm)) ** 2; s = Math.max(-hl + tf, Math.min(hl - tf, rest > 0 ? t2.dot(g) + (t2.dot(g) < 0 ? 1 : -1) * Math.sqrt(rest) : s)); };
+      const at = (dd, pp) => hand.localToWorld(C.clone().addScaledVector(d, dd).addScaledVector(palm, pp).addScaledVector(g, s));
+      place(); let side = at(jd, jp), outer = at(-rr * Math.cos(th1), rr * Math.sin(th1));
+      const W = (b) => b.getWorldPosition(new THREE.Vector3());
+      const tipOf = () => tipB ? W(tipB) : W(T[2]).add(W(T[2]).sub(W(T[1])).multiplyScalar(0.8));
+      const lim = [70, 70, 85].map((x) => x * Math.PI / 180);          // the thumb turns most where it joins the hand
+      const aim = (j, from, to) => {                                                                     // joint j turned so that `from` heads for `to`, within what it can do
+        const b = T[j], pb = W(b), qw = new THREE.Quaternion().setFromUnitVectors(from().sub(pb).normalize(), to.clone().sub(pb).normalize());
+        const bw = b.getWorldQuaternion(new THREE.Quaternion()), pw = b.parent.getWorldQuaternion(new THREE.Quaternion());
+        b.quaternion.copy(pw.invert().multiply(qw).multiply(bw));
+        const ang = b.quaternion.angleTo(b.userData.restQ); if (ang > lim[j]) b.quaternion.copy(b.userData.restQ.clone().slerp(b.quaternion, lim[j] / ang));
+        b.updateMatrixWorld(true);
+      };
+      const co = (v) => { const l = hand.worldToLocal(v.clone()).sub(C); return [l.dot(d), l.dot(palm), l.dot(g)].map((x) => +(x / Math.max(A, Bh)).toFixed(2)); };   // along the fingers, off the palm, along the handle - in handle radii
+      info.thumb_rest = { t1: co(W(T[0])), t2: co(W(T[1])), t3: co(W(T[2])), tip: co(tipOf()), want_joint: co(side), want_tip: co(outer), index1: co(W(K('Index', 1))), tf: +(tf / Math.max(A, Bh)).toFixed(2) };
+      for (let it = 0; it < 40; it++) { aim(1, () => W(T[2]), side); aim(0, () => W(T[2]), side); place(); side = at(jd, jp); }   // the last joint to the handle's near side...
+      outer = at(-rr * Math.cos(th1), rr * Math.sin(th1));
+      for (let it = 0; it < 4; it++) aim(2, tipOf, outer);                                               // ...then the tip round onto its outer face
+      // how near the thumb's two end pieces come to the handle's middle line (under 1: inside it)
+      const Cw = at(0, 0), gw = hand.localToWorld(C.clone().add(g)).sub(hand.localToWorld(C.clone())).normalize(), unit = hand.localToWorld(C.clone().add(d)).sub(hand.localToWorld(C.clone())).length();
+      let clear = Infinity; const pts = [W(T[1]), W(T[2]), tipOf()];
+      for (let k = 0; k < 2; k++) for (let u = 0.3; u <= 1.001; u += 0.1) { const v = pts[k].clone().lerp(pts[k + 1], u).sub(Cw); v.addScaledVector(gw, -v.dot(gw)); clear = Math.min(clear, v.length() / unit / Math.max(A, Bh)); }
+      info.thumb = { joint_to_side: +(W(T[2]).distanceTo(side) / unit * ws.x).toFixed(4), tip_to_outer: +(tipOf().distanceTo(outer) / unit * ws.x).toFixed(4), nearest_to_middle_in_radii: +clear.toFixed(2) };
+      info.thumb_got = { t2: co(W(T[1])), t3: co(W(T[2])), tip: co(tipOf()) };
+      heldCurl.thumbQ = T.map((b) => b.quaternion.clone());
+    }
+  }
+
+  held = wrap; curlFingers(); return true;
 };
-window.clearHold = () => { if (held && held.parent) held.parent.remove(held); held = null; };
+// THE HOLDING HAND, CLOSE: views from all round it, with the thing and without - the grip is a few pixels in a frame, and whether the
+// fingers and the thumb lie round the handle can only be seen from near (charpipe.py lays them out as render/hand-<name>.png).
+window.handShots = (clipName, t, yaws, pitch = 20, view = 0.16) => {
+  if (!held) return [];
+  mixer.stopAllAction(); for (const b of Object.values(bones)) if (b.userData.restQ) b.quaternion.copy(b.userData.restQ);   // the pose the model was made in: the arms out from the body, so the hand can be seen from every side
+  root.rotation.y = 0; curlFingers(); root.updateMatrixWorld(true);
+  const c = held.getWorldPosition(new THREE.Vector3()), keep = [cam.left, cam.right, cam.top, cam.bottom], out = [];
+  cam.left = -view / 2; cam.right = view / 2; cam.top = view / 2; cam.bottom = -view / 2;
+  for (const show of [true, false]) for (const yw of yaws) {
+    const y = yw * Math.PI / 180, p = (yw >= 1000 ? (yw === 1000 ? 80 : -70) : pitch) * Math.PI / 180; held.visible = show;   // (1000: from above, 1001: from below)
+    cam.position.set(c.x + 5 * Math.cos(p) * Math.sin(y), c.y + 5 * Math.sin(p), c.z + 5 * Math.cos(p) * Math.cos(y)); cam.lookAt(c); cam.updateProjectionMatrix();
+    renderer.render(scene, cam); out.push(renderer.domElement.toDataURL('image/png'));
+  }
+  held.visible = true; [cam.left, cam.right, cam.top, cam.bottom] = keep; aim(); return out;
+};
+window.clearHold = () => { if (held && held.parent) held.parent.remove(held); if (held && heldCurl) openFingers(); held = null; heldCurl = null; };
 // ---- seated -------------------------------------------------------------------------------------------------------------------------
 // The standing pose (the idle clip's first frame) bent into sitting: the thighs forward to level (hip `hipDeg`), the shins back down
 // (knee `kneeDeg`), the upper arms a little forward and the forearms bent so the hands rest on the thighs; the figure then lowered

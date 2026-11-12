@@ -3,6 +3,20 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.14.0 — 2026-11-12
+
+- **A character that is not the same on both sides.** `"mirror": "never"` in the spec: nothing is ever flipped from its pair - not by
+  `redraw` either, which until now settled a facing that stayed low with its pair's frames flipped. Such a facing now gets its low
+  frames drawn alone. *(feedback)*
+- **Something carried all the time**: `"hold": {"kind": "pistol", "hand": "left"}` in the spec itself puts it in the hand through the
+  walk, the standing views and every action; the drawing is told which hand and where each render has it, and `finish` checks it is
+  there. `hand` works for an action's own `hold` too. A thing already in your rigged model: `{"in_model": true, "words": "..."}`.
+  A `pistol` and a `watergun` are built in beside the umbrella. *(feedback)*
+- **The hand closes on what it holds**, whatever it is: the handle goes into the fist, the four fingers bend round one side of it
+  (joints together, in a finger's proportions, until they touch - not through it) and the thumb round the other. `render` prints
+  each finger's bends and how far its tip is off the handle, and saves `render/hand-<name>.png`: the hand from all round, to look at
+  before anything is drawn. The guns' grips are thin enough to get a hand round. *(feedback)*
+
 ## 0.13.0 — 2026-11-12
 
 - **Palettes by name**: 15 come with the skill (`--palette pico8`, `gameboy`, `nes`, `c64`, `db32`, `endesga32`...), and

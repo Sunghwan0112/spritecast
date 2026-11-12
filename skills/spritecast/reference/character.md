@@ -45,7 +45,8 @@ Three OKs: `turnaround`, `3d` (= `model` + `rig` + `render`), `draw` (then `fini
 | `modeler` | `"tripo"` (default: one 3D account for the model and the rig) or `"meshy"` (the author's way: Meshy's mesh and texture held up better on faces; needs `MESHY_API_KEY`) |
 | `draw` | `true` (default); `false`: no image model draws the frames - the 3D renders are the frames (toon-shaded, the model's own texture), with the same 3D shadows: ~$0.09 + the 3D only, but softer (no drawn lines, a simpler face, blurrier fur). The image model still draws the turnaround (the ~$0.09); with your own `rig_glb` it draws nothing at all (`render`, `finish` and `preview`, all free) |
 | `mix` | facings mixed frame by frame with their pair, e.g. `["north-east"]`: both drawn, each frame of each the better (by overlap with its render) of its own drawing and the other's flipped; what `redraw` settles a facing with after two tries |
-| `mirror` | `false` (default): all eight drawn; a facing flipped only when `redraw` mixes a pair that stayed low (each frame the better of its own and its pair's flipped). `true`: west, north-west and south-west flipped from east, north-east and south-east - 6 of the 16 walk sheets not drawn (~$0.66 less), only for a design that is the same on both sides (not hair over one shoulder, a logo, a bag, one ear up); or a list of facings to flip from their pair, e.g. `["north-east"]`. A flipped facing is only as good as its pair (a raincoat girl's west flipped 0.75-0.80, drawn 0.83-0.93). Shadows stay each facing's own |
+| `mirror` | `false` (default): all eight drawn; a facing flipped only when `redraw` mixes a pair that stayed low (each frame the better of its own and its pair's flipped). `true`: west, north-west and south-west flipped from east, north-east and south-east - 6 of the 16 walk sheets not drawn (~$0.66 less), only for a design that is the same on both sides (not hair over one shoulder, a logo, a bag, one ear up); or a list of facings to flip from their pair, e.g. `["north-east"]`. A flipped facing is only as good as its pair (a raincoat girl's west flipped 0.75-0.80, drawn 0.83-0.93). Shadows stay each facing's own. `"never"`: nothing is ever flipped, not by `redraw` either - a facing still low after two tries gets its low frames drawn alone, as south and north do. For a character that is NOT the same on both sides (a thing in one hand, an eye patch, one sleeve): flipped, it changes sides. Set by itself when the spec has a `hold` |
+| `hold` | (optional) something the character **carries all the time**, in one hand: there through the walk, the standing views and every action that has no `hold` of its own (`"hold": false` in an action: the hand empty there). `{"kind": "pistol", "hand": "left"}` - `kind`: `pistol`, `watergun` or `umbrella` (built from shapes on the hand's bone at real size; `length` in metres, `color`, `handle`, and `grip` / `offset` to turn and place it - look at the renders). The hand closes on it: the fingers of the holding hand are bent round the handle in every frame, for whatever is held (`"curl": false` for an open hand, or the degrees at the three joints, e.g. `[60, 75, 55]`); `hand`: `"right"` (default) or `"left"`, in an action's own `hold` too. `words`: your own sentence for it. A thing that is already part of your rigged model (`rig_glb`): `{"in_model": true, "words": "In the LEFT hand: a black pistol ..."}` - nothing is attached, the drawing is told what it is and which hand, and nothing is flipped. With a `hold`, `mirror` is `"never"`, and `finish` checks the thing is where each render has it (`redraw` draws the sheets where it is not). Free to try: `render` again and look. Changing it means `draw` again (paid) |
 | `kind` | `"person"` (default) or `"animal"`: a four-legged animal - no rig bought; its skeleton is found from the mesh and it walks in a cat's or a dog's gait (see Animals) |
 | `model_glb` | an animal: your own static model in place of `3d` |
 | `rig_glb` | skip `turnaround`/`model`/`rig`: your own rigged GLB with clips named `walk` and `idle` |
@@ -199,6 +200,34 @@ facing by facing, by face landmarks - hair fools any outline measure - and `--ap
 **The cut-out needs onnxruntime** (in requirements.txt): run every step with the `PYTHON=` doctor.py prints. A Python without it now
 stops `finish` with a message instead of quietly cutting by the paper's white (which takes white clothes away and leaves paper between
 the limbs); `SPRITECAST_KEY=white` cuts by white on purpose.
+
+## A held thing: the hand closes on it - LOOK at the hand before `draw`
+
+`render` (free) closes the holding hand on the handle by itself, for whatever is held, and shows it:
+
+- **What it does.** The handle is laid against the palm with its far edge under the first joints of the fingers. Each finger then bends
+  its three joints together, in a finger's own proportions, until some part of it touches the handle - so the fingers lie round it,
+  not through it. The thumb comes round the other side, on the outside of the handle, its tip toward the fingertips:
+  **fingers - handle - thumb**, the handle between them. A thing with no handle (a ball on the palm) leaves the hand open.
+- **What it prints**, a line per held thing: each finger's three bends and how far its tip is off the handle's surface, then the thumb.
+  Read it: a tip **under 0** is inside the handle; a thumb more than **0.5 %** of the height from its place did not reach;
+  "never nearer the handle's middle than" **under 1** means the thumb goes through it. Any of these: do not draw yet.
+- **What it saves: `render/hand-<walk or action>.png`** - the hand from six sides, from above and from below, with the thing (top row)
+  and without (bottom row), the arm clear of the body. **Open it and look before `draw`.** In a frame the grip is a few pixels: the
+  numbers said "reached" for a thumb that was folded into the fist, and only this picture showed it. Look for: the fingers on one
+  side of the handle and the thumb on the other; no finger out straight beside a closed fist; no finger hooked at one joint only;
+  the handle's ends showing either side of the hand.
+- **When it is not right**, in this order, all free (`render` again each time):
+  1. the handle is too thick to get the hand round → make it thinner: `"grip_r"` (its radius, as a share of the figure's height;
+     the built-in guns' grips were a thick box and were made a thin cylinder for this);
+  2. the fingers sit in it or stand off it → `"finger"` (half a finger's thickness, 0.009);
+  3. the thumb is wrong → `"thumb_at"` (degrees round the handle from its wrist side where the thumb's last joint lies, 20);
+  4. the whole thing sits wrong in the hand → `"grip"` (its turn in the hand) and `"offset"`, as before;
+  5. `"curl": false` for an open hand, or `"curl": [45, 50, 40]` to set the three bends yourself.
+- **A new kind of thing** (in `render_char.html` `HOLDS`) needs one line beyond its shapes: where the middle of its handle is and how
+  thick - `g.userData.grip = { at: [x, y, z], r: radius }` (or `half: [along the fingers, off the palm]` for a box; `hl`: half its
+  length). Everything above then works for it. Tell the user when a thing they ask for is not built in, and build it.
+- Show the user `hand-*.png` with the renders, before the first paid sheet.
 
 ## A held thing: say it part by part
 
