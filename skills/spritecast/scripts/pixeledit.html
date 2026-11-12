@@ -1,0 +1,184 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>SpriteCast pixel edit</title>
+<style>
+  :root { --bg: #23262e; --panel: #2c303a; --line: #3d4250; --text: #e6e8ee; --dim: #9aa1b2; --acc: #f2c21b; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.4 system-ui, sans-serif; display: grid; grid-template-columns: 220px 1fr 240px; height: 100vh; overflow: hidden; }
+  aside { background: var(--panel); padding: 10px; overflow: auto; border-right: 1px solid var(--line); }
+  aside.right { border-right: 0; border-left: 1px solid var(--line); }
+  h1 { font-size: 13px; margin: 0 0 8px; } h2 { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .05em; margin: 14px 0 6px; }
+  button, select { font: inherit; color: var(--text); background: #383d4a; border: 1px solid var(--line); border-radius: 5px; padding: 5px 8px; cursor: pointer; }
+  button:hover { border-color: var(--dim); } button.on { background: var(--acc); color: #1b1b1b; border-color: var(--acc); }
+  .anim { display: block; width: 100%; text-align: left; margin-bottom: 4px; } .anim .n { float: right; color: var(--dim); } .anim.on .n { color: #1b1b1b; }
+  .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; } .tools button { text-align: left; } kbd { float: right; opacity: .6; font: 11px ui-monospace, monospace; }
+  main { display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100vh; }
+  #stage { flex: 1; min-height: 0; overflow: auto; display: grid; place-items: safe center; background: #30343f; }
+  #stage.pan, #stage.pan #view { cursor: grab; }
+  #view { image-rendering: pixelated; cursor: crosshair; box-shadow: 0 0 0 1px var(--line); margin: 40px; }
+  #strip { flex: none; height: 96px; display: flex; gap: 4px; padding: 6px; background: var(--panel); border-top: 1px solid var(--line); overflow-x: auto; }
+  #strip canvas { image-rendering: pixelated; height: 76px; border: 2px solid transparent; border-radius: 4px; background: #3a3e4a; cursor: pointer; flex: none; }
+  #strip canvas.on { border-color: var(--acc); } #strip canvas.mark { box-shadow: inset 0 -4px 0 #e5484d; } #strip canvas.edited { box-shadow: inset 0 4px 0 #4cc38a; }
+  #pal { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; } #pal i { display: block; aspect-ratio: 1; border-radius: 3px; border: 1px solid #0006; cursor: pointer; } #pal i.on { outline: 2px solid var(--acc); }
+  #cur { width: 100%; height: 26px; border-radius: 5px; border: 1px solid var(--line); margin-bottom: 6px; }
+  .row { display: flex; gap: 5px; align-items: center; margin-top: 6px; flex-wrap: wrap; } label { color: var(--dim); }
+  #msg { color: var(--dim); min-height: 34px; margin-top: 10px; } .why { color: #ff9a9d; }
+  #stats { color: var(--dim); } #stats b { color: var(--text); font-weight: 600; } #stats table { border-collapse: collapse; width: 100%; margin-bottom: 8px; } #stats td { padding: 1px 0; vertical-align: top; } #stats td:last-child { text-align: right; color: var(--text); }
+  .bgs i { display: inline-block; width: 18px; height: 18px; border-radius: 4px; border: 1px solid #0008; cursor: pointer; }
+</style></head><body>
+<aside><h1 id="title">pixel edit</h1><div id="anims"></div>
+  <h2>frame</h2><div class="row"><button id="prev">◀</button><button id="play">▶ play</button><button id="next">▶</button></div>
+  <div class="row"><label><input type="checkbox" id="onion"> the frame before, faint</label></div>
+  <div class="row"><label><input type="checkbox" id="grid" checked> grid</label> <label>zoom <input type="range" id="zoom" min="2" max="28" value="7" style="width:80px"></label></div>
+  <div class="row bgs"><label>behind</label> <i data-b="#30343f" style="background:#30343f"></i><i data-b="#111318" style="background:#111318"></i><i data-b="#8a909c" style="background:#8a909c"></i><i data-b="#e9e6df" style="background:#e9e6df"></i><i data-b="#ff3fd0" style="background:#ff3fd0"></i></div>
+  <div id="msg"></div>
+  <h2>how it was made</h2><div id="stats"></div></aside>
+<main><div id="stage"><canvas id="view"></canvas></div><div id="strip"></div></main>
+<aside class="right"><h2>tools</h2><div class="tools">
+    <button data-t="erase">erase <kbd>E</kbd></button><button data-t="pen">pencil <kbd>B</kbd></button>
+    <button data-t="fill">magic erase <kbd>W</kbd></button><button data-t="pick">pick colour <kbd>I</kbd></button>
+    <button data-t="sel">select <kbd>M</kbd></button><button data-t="move">move <kbd>V</kbd></button>
+    <button data-t="swap">change colour <kbd>G</kbd></button><button data-t="back">bring back <kbd>R</kbd></button></div>
+  <div class="row"><label>brush <input type="range" id="bs" min="1" max="6" value="1" style="width:64px"> <span id="bsn">1</span> px <kbd style="float:none">[ ]</kbd></label></div>
+  <div class="row" title="for magic erase and change colour"><label>alike <input type="range" id="tol" min="0" max="90" value="24" style="width:64px"></label><label><input type="checkbox" id="all"> whole frame</label></div>
+  <div class="row"><label><input type="checkbox" id="every"> change colour in every frame</label></div>
+  <div class="row"><button id="copy">copy <kbd>⌃C</kbd></button><button id="paste">paste <kbd>⌃V</kbd></button></div>
+  <div class="row"><button id="pasteall">paste in every frame, same place</button></div>
+  <div class="row"><button id="undo">undo <kbd>⌃Z</kbd></button><button id="redo">redo <kbd>⌃Y</kbd></button></div>
+  <div class="row"><button id="reset">this frame as it was</button></div>
+  <h2>colour</h2><div id="cur"></div><div id="pal"></div>
+  <h2>how</h2><div style="color:var(--dim)">
+    <b>White left over:</b> <i>magic erase</i>, click it. <i>alike</i>: how near a colour counts as the same; <i>whole frame</i>: every pixel of it, not only the patch that touches (mind an eye's white, a snowball).<br>
+    <b>A face:</b> <i>select</i> a good one, copy, go to another frame, paste, click to set it down - or <i>paste in every frame</i>. <i>move</i> drags what is selected; the arrow keys nudge it a pixel.<br>
+    <b>Change colour:</b> click a colour in the frame - it becomes the chosen colour.<br>
+    Wheel zooms, Space + drag (or the middle button) moves the picture, Alt-click picks a colour, Enter plays, ← → step frames. Red bar: marked by the review. Green: edited.</div>
+</aside>
+<script>
+const $ = (q) => document.querySelector(q); let D, A, cur = 0, tool = 'erase', col = [34, 27, 22], Z = 7, base = {}, sel = null, clip = null, pasting = null, playing = null, down = false, last = null, lift = null, space = false, pan = null, bs = 1, gid = 0, lastEdit = 0;
+const E = {}, undo = [], redo = [], T = {};          // E[name][frame] = Map "x,y" -> null (cleared) | [r,g,b];  T[name] = seconds spent on it by hand
+const key = (x, y) => x + ',' + y, view = $('#view'), vx = view.getContext('2d'), stage = $('#stage');
+const ed = (f = cur, n = A.name) => ((E[n] ||= {})[f] ||= new Map());
+function basePx(f, x, y) { const b = base[A.name], i = (y * b.width + f * D.frame[0] + x) * 4, d = b.data; return d[i + 3] ? [d[i], d[i + 1], d[i + 2]] : null; }
+function px(f, x, y) { const e = ed(f).get(key(x, y)); return e === null ? null : e || basePx(f, x, y); }         // the pixel as it shows: the edit, else the base
+function draw() {
+  const [w, h] = D.frame; view.width = w * Z; view.height = h * Z; vx.imageSmoothingEnabled = false; vx.clearRect(0, 0, view.width, view.height);
+  if ($('#onion').checked) { vx.globalAlpha = 0.22; paint(vx, (cur + A.frames - 1) % A.frames, Z); vx.globalAlpha = 1; }
+  paint(vx, cur, Z);
+  if (lift) for (const [dx, dy, c] of lift.px) { vx.fillStyle = `rgb(${c})`; vx.fillRect((lift.x + dx) * Z, (lift.y + dy) * Z, Z, Z); }
+  if ($('#grid').checked && Z >= 5) { vx.strokeStyle = '#ffffff14'; vx.beginPath(); for (let x = 0; x <= w; x++) { vx.moveTo(x * Z + .5, 0); vx.lineTo(x * Z + .5, h * Z); } for (let y = 0; y <= h; y++) { vx.moveTo(0, y * Z + .5); vx.lineTo(w * Z, y * Z + .5); } vx.stroke(); }
+  const s = lift || sel;
+  if (s) { vx.strokeStyle = '#f2c21b'; vx.setLineDash([4, 3]); vx.strokeRect(s.x * Z + .5, s.y * Z + .5, s.w * Z, s.h * Z); vx.setLineDash([]); }
+  if (pasting && clip) { vx.globalAlpha = .85; for (const [dx, dy, c] of clip.px) { vx.fillStyle = `rgb(${c})`; vx.fillRect((pasting.x + dx) * Z, (pasting.y + dy) * Z, Z, Z); } vx.globalAlpha = 1; vx.strokeStyle = '#4cc38a'; vx.strokeRect(pasting.x * Z + .5, pasting.y * Z + .5, clip.w * Z, clip.h * Z); }
+}
+function paint(c, f, z) { const [w, h] = D.frame; for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const p = px(f, x, y); if (p) { c.fillStyle = `rgb(${p})`; c.fillRect(x * z, y * z, z, z); } } }
+function thumbs() {
+  const s = $('#strip'); s.innerHTML = ''; const why = D.review[A.name] || {};
+  for (let f = 0; f < A.frames; f++) { const c = document.createElement('canvas'); c.width = D.frame[0]; c.height = D.frame[1]; paint(c.getContext('2d'), f, 1);
+    c.className = (f === cur ? 'on ' : '') + (why[f] ? 'mark ' : '') + (ed(f).size ? 'edited' : ''); c.title = 'frame ' + (f + 1) + (why[f] ? ' - ' + why[f].join(', ') : ''); c.onclick = () => go(f); s.appendChild(c); }
+  const w = why[cur]; $('#msg').innerHTML = `${A.name} · frame ${cur + 1} of ${A.frames}` + (w ? `<br><span class="why">review: ${w.join(', ')}</span>` : '') + (ed().size ? `<br>${ed().size} pixels edited here` : ''); stats();
+}
+const dur = (s) => s == null ? 'not timed' : s < 90 ? Math.round(s) + ' s' : (s / 60).toFixed(1) + ' min';
+function stats() {          // how much of this was the machine's work and how much the hand's
+  const row = (a) => { let fr = 0, n = 0; for (const m of Object.values(E[a.name] || {})) if (m.size) { fr++; n += m.size; } const t = a.made || {}; return { frames: a.frames, fr, n, op: a.opaque, draw: t.draw_s, cut: t.cut_s, est: t.estimated, hand: T[a.name] || 0 }; };
+  const all = D.animations.map(row), sum = (k) => { const v = all.map((r) => r[k]); return v.every((x) => x == null) ? null : v.reduce((s, x) => s + (x || 0), 0); };
+  const tab = (title, r) => `<b>${title}</b><table><tr><td>AI drawing${r.est ? ' (about)' : ''}</td><td>${dur(r.draw)}</td></tr><tr><td>AI cut-out</td><td>${dur(r.cut)}</td></tr>
+    <tr><td>by hand</td><td>${r.hand ? dur(r.hand) : r.fr ? 'not timed' : '-'}</td></tr><tr><td>frames touched</td><td>${r.fr} of ${r.frames}</td></tr>
+    <tr><td>pixels by hand</td><td>${r.n} (${r.op ? (100 * r.n / r.op).toFixed(2) : 0} %)</td></tr></table>`;
+  $('#stats').innerHTML = tab(A.name, row(A)) + tab('everything here', { frames: sum('frames'), fr: sum('fr'), n: sum('n'), op: sum('op'), draw: sum('draw'), cut: sum('cut'), est: all.some((r) => r.est), hand: sum('hand') });
+}
+function go(f) { drop(); cur = (f + A.frames) % A.frames; sel = null; draw(); thumbs(); }
+function pickAnim(i) { drop(); A = D.animations[i]; cur = 0; sel = null; document.querySelectorAll('.anim').forEach((b, k) => b.classList.toggle('on', k === i)); palette(); draw(); thumbs(); }
+function palette() {                          // the animation's own colours, most used first
+  const b = base[A.name], n = new Map(); for (let i = 0; i < b.data.length; i += 4) if (b.data[i + 3]) { const k = b.data[i] + ',' + b.data[i + 1] + ',' + b.data[i + 2]; n.set(k, (n.get(k) || 0) + 1); }
+  const cs = [...n.entries()].sort((a, b) => b[1] - a[1]).slice(0, 46).map((e) => e[0]); for (const k of ['255,255,255', '34,27,22']) if (!cs.includes(k)) cs.push(k);
+  const p = $('#pal'); p.innerHTML = ''; for (const k of cs) { const i = document.createElement('i'); i.style.background = `rgb(${k})`; i.onclick = () => setCol(k.split(',').map(Number)); i.dataset.k = k; p.appendChild(i); } setCol(col);
+}
+function setCol(c) { col = c; $('#cur').style.background = `rgb(${c})`; document.querySelectorAll('#pal i').forEach((i) => i.classList.toggle('on', i.dataset.k === c.join(','))); }
+function setTool(t) { drop(); tool = t; pasting = null; document.querySelectorAll('.tools button').forEach((b) => b.classList.toggle('on', b.dataset.t === t)); draw(); }
+function setZoom(z, cx, cy) {                 // the picture's point under the pointer stays under it
+  z = Math.max(2, Math.min(28, Math.round(z))); if (z === Z) return; const r = view.getBoundingClientRect(), fx = cx == null ? .5 : (cx - r.left) / r.width, fy = cy == null ? .5 : (cy - r.top) / r.height;
+  Z = z; $('#zoom').value = Z; draw(); const r2 = view.getBoundingClientRect(); if (cx != null) { stage.scrollLeft += r2.left + fx * r2.width - cx; stage.scrollTop += r2.top + fy * r2.height - cy; }
+}
+function at(ev) { const r = view.getBoundingClientRect(); return [Math.floor((ev.clientX - r.left) / Z), Math.floor((ev.clientY - r.top) / Z)]; }
+const inside = (x, y) => x >= 0 && y >= 0 && x < D.frame[0] && y < D.frame[1];
+function begin(f = cur, g = ++gid) { undo.push({ name: A.name, f, m: new Map(ed(f)), g }); if (undo.length > 600) undo.shift(); redo.length = 0; }      // (g: what was changed in many frames at once is undone at once)
+function put(x, y, v, f = cur) { if (!inside(x, y)) return; const b = basePx(f, x, y), e = ed(f);
+  if (v === undefined) e.delete(key(x, y));                                   // bring back
+  else if (v === null) b ? e.set(key(x, y), null) : e.delete(key(x, y));     // clear (nothing to clear where the base is empty)
+  else (b && b[0] === v[0] && b[1] === v[1] && b[2] === v[2]) ? e.delete(key(x, y)) : e.set(key(x, y), v.slice()); }
+function line(a, b, fn) { let [x0, y0] = a, [x1, y1] = b; const dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1; let er = dx - dy;
+  for (;;) { fn(x0, y0); if (x0 === x1 && y0 === y1) break; const e2 = 2 * er; if (e2 > -dy) { er -= dy; x0 += sx; } if (e2 < dx) { er += dx; y0 += sy; } } }
+function patch(t, f, x, y) {                  // the pixels of colour t (or near it, by "alike") in frame f: the patch that touches (x, y), or - no place given - all of them
+  const tol = +$('#tol').value, same = (p) => p && Math.abs(p[0] - t[0]) <= tol && Math.abs(p[1] - t[1]) <= tol && Math.abs(p[2] - t[2]) <= tol, hit = [];
+  if (x == null) { for (let b = 0; b < D.frame[1]; b++) for (let a = 0; a < D.frame[0]; a++) if (same(px(f, a, b))) hit.push([a, b]); return hit; }
+  const seen = new Set([key(x, y)]), q = [[x, y]];
+  while (q.length) { const [a, b] = q.pop(); hit.push([a, b]); for (const [i, j] of [[a + 1, b], [a - 1, b], [a, b + 1], [a, b - 1]]) if (inside(i, j) && !seen.has(key(i, j)) && same(px(f, i, j))) { seen.add(key(i, j)); q.push([i, j]); } }
+  return hit;
+}
+function brush(x, y, v) { const o = (bs - 1) >> 1; for (let j = 0; j < bs; j++) for (let i = 0; i < bs; i++) put(x - o + i, y - o + j, v); }
+function stroke(p) { const v = tool === 'erase' ? null : tool === 'pen' ? col : undefined; line(last || p, p, (x, y) => brush(x, y, v)); last = p; draw(); }
+function grab() {                             // what is selected, lifted off the frame to be moved
+  if (!sel || lift) return; begin(); lift = { x: sel.x, y: sel.y, w: sel.w, h: sel.h, px: [] };
+  for (let y = 0; y < sel.h; y++) for (let x = 0; x < sel.w; x++) { const p = px(cur, sel.x + x, sel.y + y); if (p) { lift.px.push([x, y, p]); put(sel.x + x, sel.y + y, null); } }
+}
+function drop() { if (!lift) return; for (const [dx, dy, c] of lift.px) put(lift.x + dx, lift.y + dy, c); sel = { x: lift.x, y: lift.y, w: lift.w, h: lift.h }; lift = null; save(); draw(); thumbs(); }
+view.onpointerdown = (ev) => { if (space || ev.button) return; const [x, y] = at(ev); if (!inside(x, y)) return; view.setPointerCapture(ev.pointerId);
+  if (pasting && clip) { begin(); for (const [dx, dy, c] of clip.px) put(pasting.x + dx, pasting.y + dy, c); pasting = null; save(); draw(); thumbs(); return; }
+  if (ev.altKey || tool === 'pick') { const p = px(cur, x, y); if (p) setCol(p); return; }
+  if (tool === 'fill') { const t = px(cur, x, y); if (!t) return; begin(); const h = $('#all').checked ? patch(t, cur) : patch(t, cur, x, y); for (const [a, b] of h) put(a, b, null); save(); draw(); thumbs(); $('#msg').innerHTML += `<br>${h.length} pixels erased`; return; }
+  if (tool === 'swap') { const t = px(cur, x, y); if (!t) return; const g = ++gid, every = $('#every').checked; let n = 0;
+    for (const f of every ? [...Array(A.frames).keys()] : [cur]) { const h = every || $('#all').checked ? patch(t, f) : patch(t, f, x, y); if (!h.length) continue; begin(f, g); for (const [a, b] of h) put(a, b, col, f); n += h.length; save(A.name, f); }
+    draw(); thumbs(); $('#msg').innerHTML += `<br>${n} pixels changed`; return; }
+  if (tool === 'sel') { drop(); sel = { x0: x, y0: y, x, y, w: 1, h: 1 }; down = true; draw(); return; }
+  if (tool === 'move') { if (!sel && !lift) { $('#msg').innerHTML = 'move: select something first (M)'; return; } grab(); down = true; last = [x, y]; return; }
+  begin(); down = true; last = null; stroke([x, y]); };
+view.onpointermove = (ev) => { const [x, y] = at(ev);
+  if (pasting && clip) { pasting = { x: x - (clip.w >> 1), y: y - (clip.h >> 1) }; draw(); return; }
+  if (!down) return;
+  if (tool === 'sel') { sel.x = Math.min(sel.x0, x); sel.y = Math.min(sel.y0, y); sel.w = Math.abs(x - sel.x0) + 1; sel.h = Math.abs(y - sel.y0) + 1; draw(); return; }
+  if (tool === 'move') { if (lift) { lift.x += x - last[0]; lift.y += y - last[1]; last = [x, y]; draw(); } return; }
+  stroke([Math.max(0, Math.min(D.frame[0] - 1, x)), Math.max(0, Math.min(D.frame[1] - 1, y))]); };
+view.onpointerup = () => { if (down && tool === 'move') drop(); else if (down && tool !== 'sel') { save(); thumbs(); } down = false; last = null; };
+stage.addEventListener('wheel', (ev) => { ev.preventDefault(); setZoom(Z + (ev.deltaY < 0 ? 1 : -1) * Math.max(1, Math.round(Z / 6)), ev.clientX, ev.clientY); }, { passive: false });
+stage.addEventListener('pointerdown', (ev) => { if (space || ev.button === 1) { pan = [ev.clientX, ev.clientY, stage.scrollLeft, stage.scrollTop]; stage.setPointerCapture(ev.pointerId); ev.preventDefault(); } }, true);
+stage.addEventListener('pointermove', (ev) => { if (pan) { stage.scrollLeft = pan[2] - (ev.clientX - pan[0]); stage.scrollTop = pan[3] - (ev.clientY - pan[1]); } });
+stage.addEventListener('pointerup', () => { pan = null; });
+function copy() { const s = lift || sel; if (!s) return; clip = { x: s.x, y: s.y, w: s.w, h: s.h, px: [] };
+  if (lift) clip.px = lift.px.map((p) => p.slice()); else for (let y = 0; y < s.h; y++) for (let x = 0; x < s.w; x++) { const p = px(cur, s.x + x, s.y + y); if (p) clip.px.push([x, y, p]); }
+  $('#msg').innerHTML = `copied ${clip.px.length} pixels - go to a frame, paste, click to set it down`; }
+function paste() { if (!clip) return; drop(); pasting = { x: clip.x, y: clip.y }; sel = null; draw(); }
+function pasteAll() { if (!clip) return; drop(); const g = ++gid; for (let f = 0; f < A.frames; f++) { begin(f, g); for (const [dx, dy, c] of clip.px) put(clip.x + dx, clip.y + dy, c, f); save(A.name, f); } draw(); thumbs(); $('#msg').innerHTML += `<br>pasted into ${A.frames} frames`; }
+function step(from, to) { drop(); let s = from.pop(); if (!s) return; const g = s.g; let n = 0;
+  for (;;) { if (s.name !== A.name) pickAnim(D.animations.findIndex((a) => a.name === s.name)); to.push({ name: s.name, f: s.f, m: new Map(ed(s.f)), g }); E[s.name][s.f] = s.m; save(s.name, s.f); n++; if (!from.length || from[from.length - 1].g !== g) break; s = from.pop(); }
+  if (n === 1) cur = s.f; draw(); thumbs(); }
+const timers = {};
+function save(name = A.name, f = cur) {       // each frame saved by itself, a quarter of a second after its last change
+  const now = performance.now() / 1000; T[name] = (T[name] || 0) + Math.min(20, lastEdit ? now - lastEdit : 2); lastEdit = now;          // (time at it: the gaps between edits, a pause counted as 20 s at most)
+  const k = name + ' ' + f; clearTimeout(timers[k]); timers[k] = setTimeout(async () => { const set = [], clear = [], [ox, oy] = D.origin;
+    for (const [q, v] of (E[name][f] || new Map())) { const [x, y] = q.split(',').map(Number); v === null ? clear.push([x + ox, y + oy]) : set.push([x + ox, y + oy, ...v]); }
+    await fetch('/save', { method: 'POST', body: JSON.stringify({ name, frame: f, set, clear, seconds: Math.round(T[name]) }) }); }, 250); }
+$('#prev').onclick = () => go(cur - 1); $('#next').onclick = () => go(cur + 1); $('#onion').onchange = draw; $('#grid').onchange = draw; $('#zoom').oninput = (e) => setZoom(+e.target.value);
+const setBs = (n) => { bs = Math.max(1, Math.min(6, n)); $('#bs').value = bs; $('#bsn').textContent = bs; }; $('#bs').oninput = (e) => setBs(+e.target.value);
+document.querySelectorAll('.bgs i').forEach((i) => i.onclick = () => { stage.style.background = i.dataset.b; });
+const playpause = () => { if (playing) { clearInterval(playing); playing = null; $('#play').textContent = '▶ play'; } else { drop(); sel = null; playing = setInterval(() => { cur = (cur + 1) % A.frames; draw(); thumbs(); }, 120); $('#play').textContent = '■ stop'; } };
+$('#play').onclick = playpause; $('#copy').onclick = copy; $('#paste').onclick = paste; $('#pasteall').onclick = pasteAll; $('#undo').onclick = () => step(undo, redo); $('#redo').onclick = () => step(redo, undo);
+$('#reset').onclick = () => { drop(); begin(); ed().clear(); save(); draw(); thumbs(); };
+document.querySelectorAll('.tools button').forEach((b) => b.onclick = () => setTool(b.dataset.t));
+addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('button'); if (b) b.blur(); }); document.querySelectorAll('input').forEach((i) => i.addEventListener('change', () => i.blur()));   // (the keys stay the page's)
+addEventListener('keydown', (e) => { const k = e.key.toLowerCase(), mod = e.ctrlKey || e.metaKey;
+  if (k === ' ') { e.preventDefault(); space = true; stage.classList.add('pan'); return; }
+  if (mod && k === 'z') { e.preventDefault(); return step(e.shiftKey ? redo : undo, e.shiftKey ? undo : redo); } if (mod && k === 'y') { e.preventDefault(); return step(redo, undo); }
+  if (mod && k === 'c') return copy(); if (mod && k === 'v') return paste(); if (mod) return;
+  if (k === 'escape') { drop(); pasting = null; sel = null; draw(); } if (k === 'enter') { e.preventDefault(); playpause(); }
+  const arrow = { arrowleft: [-1, 0], arrowright: [1, 0], arrowup: [0, -1], arrowdown: [0, 1] }[k];
+  if (arrow) { e.preventDefault(); if (tool === 'move' && (sel || lift)) { grab(); lift.x += arrow[0]; lift.y += arrow[1]; draw(); } else if (arrow[0]) go(cur + arrow[0]); return; }
+  if (k === ',') go(cur - 1); if (k === '.') go(cur + 1); if (k === '[') setBs(bs - 1); if (k === ']') setBs(bs + 1); if (k === '+' || k === '=') setZoom(Z + 1); if (k === '-') setZoom(Z - 1);
+  const t = { e: 'erase', b: 'pen', w: 'fill', f: 'fill', i: 'pick', m: 'sel', s: 'sel', v: 'move', g: 'swap', r: 'back' }[k]; if (t) setTool(t); });
+addEventListener('keyup', (e) => { if (e.key === ' ') { space = false; stage.classList.remove('pan'); } });
+(async () => { D = await (await fetch('/data')).json(); $('#title').textContent = `${D.name} · ${D.px} px`; const box = $('#anims');
+  for (const [i, a] of D.animations.entries()) { const im = new Image(); im.src = '/base/' + a.name + '.png'; await im.decode(); const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; const x = c.getContext('2d'); x.drawImage(im, 0, 0); base[a.name] = x.getImageData(0, 0, im.width, im.height);
+    let op = 0; for (let q = 3; q < base[a.name].data.length; q += 4) if (base[a.name].data[q]) op++; a.opaque = op; T[a.name] = a.seconds || 0;
+    E[a.name] = {}; const [ox, oy] = D.origin; for (const [f, e] of Object.entries(a.edits)) { const m = new Map(); for (const [px_, py] of e.clear || []) m.set(key(px_ - ox, py - oy), null); for (const [px_, py, r, g, b] of e.set || []) m.set(key(px_ - ox, py - oy), [r, g, b]); E[a.name][f] = m; }
+    const b = document.createElement('button'); b.className = 'anim'; const n = Object.keys(D.review[a.name] || {}).length; b.innerHTML = a.name + `<span class="n">${n ? n + ' to look at' : a.frames}</span>`; b.onclick = () => pickAnim(i); box.appendChild(b); }
+  Z = Math.max(3, Math.min(16, Math.floor(Math.min((stage.clientHeight - 96) / D.frame[1], (stage.clientWidth - 96) / D.frame[0])))); $('#zoom').value = Z;
+  pickAnim(0); setTool('erase'); window.ready = true; })();
+</script></body></html>

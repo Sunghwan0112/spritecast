@@ -136,6 +136,24 @@ bigger stays sharp too. Only when the user asks for another size: `charpipe.py p
 CHAR.json --px <height>` (free, nothing redrawn) → `out-<height>px/` with its own strips, shadows and character.json; `out/` is left as
 it is.
 
+## Pixel-art sprites (arcade size) - details in [reference/pixel.md](reference/pixel.md)
+When the game is drawn in pixels (a belt-scroller, a fighter, an arcade game) or the user asks for pixel art. Not a filter over the
+illustrated frames: the 3D renders are pixelized into a guide, the image model redraws the guide as pixel art, and the answer is read
+back onto the grid it was drawn on - so it needs the renders only (`render`; the illustrated `draw` is not needed for this).
+`PYTHON pixelart.py CHAR.json` prints the plan and the cost and spends nothing; `--yes` draws (~$0.075 a sheet; a walk is 2 sheets a
+facing, 3 for a side view; an action with something held 4). Offer 96 px (`--px`; the image model's "pixels" do not get smaller, so
+128 comes out about 104 - say so). One facing of one animation first, as the sample: show `out-pixel96/preview.gif`, then the rest.
+Every run ends with its review (`REVIEW: N of M frames to look at`: a pose unlike the render's - overlap under `redo_below` - or the
+held thing missing or left in the hand): show the user `review.png` (each marked frame beside its guide), not every frame;
+`--redraw` says what drawing those sheets again would cost, `--redraw --yes` does it and keeps the better; `--again <sheet>` redraws one sheet. Out: `<clip>-<facing>.png` strips, `shadows/`
+(each frame's 3D shadow), `pixel.json`. **By hand, for what is left** (white between an arm and the body, a face in one frame): `PYTHON pixeledit.py CHAR.json` - a local page
+(a server: run it in the background, give the address) to erase a patch, draw, or copy a good face into another frame; the edits are
+kept and laid on again by every later `pixelart.py` run. **Something thrown** (a snowball): `"hold": {"kind": "snowball", "color": "#bcd6f2",
+"final": "#ffffff", "until": "auto"}` on the action - drawn pale blue so that it shows on white paper, white in the end, let go when
+the hand is fastest; the folder then has the thing's own sprites and `release` in `pixel.json` (frame, point, direction, speed), and
+`<clip>-<facing>-flying.gif` to show. **An animation the rig lacks** (a throw): `PYTHON addclip.py CHAR.json Throw.fbx throw` puts a
+Mixamo FBX into a copy of the rig, free - render it and look before drawing.
+
 ## Sitting (people) - details in [reference/sitting.md](reference/sitting.md)
 Offer it once a character walks. 1) `charpipe.py sit CHAR.json` (free): the rig seated in 8 facings, on nothing - show the renders.
 2) `sit CHAR.json --draw` (~$0.22, after the user agrees; `--yes`): drawn and finished → `out/sit-<facing>.png` and `"sit"` in

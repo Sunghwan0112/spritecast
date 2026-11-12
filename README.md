@@ -1,41 +1,59 @@
 # SpriteCast
 
-**An isometric sprite generator for Claude Code:** game props, characters and 8-direction walks at their real size and your game's camera angle.
-An image model (OpenAI's, with your own key) paints them in your art style over a 3D guide; SpriteCast sets the size, the angle,
-the walk and the shadows.
+**An isometric sprite generator for Claude Code. One illustration in, a game character out:** an 8-direction walk, a run, a jump,
+a slash, a throw - painted, or as real pixel art - at your game's camera angle, with a 3D shadow under every frame. And the props
+to stand beside it, at their real size.
 
-Free and MIT. You pay OpenAI (and Tripo, for walking characters) directly: about $0.07 a prop, about $2.2 and 75 Tripo credits a
-walking character. To try it free with no key, ask Claude to *"try SpriteCast"*.
+An image model (OpenAI's, with your own key) does the drawing. The body, the motion, the angle and the shadow come from 3D, so
+every frame is the same person and she actually walks.
+
+Free and MIT. You pay OpenAI (and Tripo, for the 3D) directly: about $2.2 and 75 Tripo credits a walking character, about $0.07 a
+prop. To try it free with no key, ask Claude to *"try SpriteCast"*.
 
 [한국어](README.ko.md)
 
 ![GPT alone, two tries, against SpriteCast: the same character walking south-east](docs/gpt-alone-vs-guide.gif)
 
-*GPT alone (two tries) against SpriteCast: the same character walking south-east.*
+*The same model, the same character sheet. GPT alone (two tries) against SpriteCast, walking south-east.*
 
 ```
 claude plugin marketplace add Sunghwan0112/spritecast
 claude plugin install spritecast@spritecast
 ```
+Setup, keys and running the scripts yourself: [Install](#install).
 
-![guide → sprite](docs/showcase.png)
+## What you can make
 
-## What it does
+| | |
+|---|---|
+| ![walking in 8 facings](docs/character-walk.gif) | ![running, jumping and slashing with an umbrella](docs/actions.gif) |
+| **[A walk in 8 facings](#walking-characters)** from one illustration, a shadow per frame | **[Actions](#more-actions-run-jump-slash)**: run, jump, slash - or any Mixamo clip |
+| ![pixel-art sprites throwing snowballs five ways on an isometric floor](docs/pixel-throw.gif) | ![an orange tabby in a yellow raincoat walking in 8 facings](docs/animal-walk.gif) |
+| **[Pixel art](#pixel-art-arcade-size)**, about 100 px tall, with things that are held and thrown | **[Four-legged animals](#four-legged-animals)**, with no bought rig |
+| ![the rain girl seated on ten different seats](docs/seats.png) | ![guide → sprite](docs/showcase.png) |
+| **[Sitting](#sitting)** on your props, the armrest in front of her worked out in 3D | **[Props](#props-and-scenery)** at their real size, all on one floor |
 
-Ask an image model for "an isometric armchair" and you get a nice picture at a slightly wrong angle. Ask again and you get a
-different wrong angle and a different size. Put ten of them on one floor and nothing lines up.
+## Things to ask for
 
-A walking character is worse. At the top is GPT alone (the same model, the same character sheet, the walk asked for frame by frame in
-words) against SpriteCast. Each of GPT's frames is a nice drawing, but it doesn't walk: the same leg is in front in all eight frames,
-the arms twitch at random instead of swinging against the legs, the camera is at eye level instead of looking down at the game's 30°, and there is no shadow.
-Both tries are shown as they came out.
+- *"Here's my character (hero.png). Make her walk in 8 directions."*
+- *"Add a run and a jump. And a throw - here's a Mixamo clip (Throw.fbx); put a snowball in her hand."*
+- *"Our game is pixel art. Make her walk and throw as pixel sprites, about 96 px tall."*
+- *"Make her sit, and put her on this armchair."*
+- *"Make a shopkeeper NPC, an old man in a brown cardigan, in four directions."* (a posed figure: a description is enough)
+- *"Make an isometric bookshelf, 1.8 m tall, full of books, in the cozy style."*
+- *"Here's a prop from my game (props/barrel.png). Make a matching crate in that style."*
 
-SpriteCast gives the model a guide that is hard to misread (and when it does misread, you're told):
-1. Claude builds the object from simple blocks at its **real size in metres**.
-2. The blocks are rendered with your game's **exact camera**.
-3. The image model only redraws that guide in your **art style**.
-4. The drawing is cut out and **fitted to the guide's box**, so its size and footprint are the guide's; a drawing whose outline
-   doesn't follow the guide is flagged, not forced. It also gets a baked shadow and an anchor point for your engine.
+## Why it works
+
+Ask an image model for a walk, frame by frame, and each frame is a nice drawing - but it doesn't walk. At the top is GPT alone
+(the same model, the same character sheet, the walk asked for in words) against SpriteCast: the same leg is in front in all eight
+frames, the arms twitch at random instead of swinging against the legs, the camera is at eye level instead of looking down at the
+game's 30°, and there is no shadow. Both tries are shown as they came out.
+
+An image model can't keep a body and a pose from frame to frame. So SpriteCast never asks it to. A 3D model of your character does
+the walking, under your game's exact camera; the image model only **redraws each rendered frame in your illustration's look**; and
+every drawing is then fitted back onto its render and checked against it. A frame where the model drew another pose is flagged
+and can be redrawn - not squeezed to fit. Props work the same way, with blocks at real size in place of the rig.
 
 **What you get from that:**
 - **The angle and size are right.** The solid props in the examples land on their guide at 95–99 % outline overlap; the plant,
@@ -50,172 +68,9 @@ SpriteCast gives the model a guide that is hard to misread (and when it does mis
 - **Your game's view and your style.** 2:1 isometric, true isometric, 3/4 top-down, front or any angle; all four facings of one
   object; the bundled `cozy` style or one picture of your own.
 
-The output is painted (the `cozy` look: smooth shading, fine outlines), not pixel art. For a pixel-art game, give your own style
-picture and a `look` that describes it, and expect it to take a few tries.
-
-## How a session goes
-
-![how a session goes](docs/session.png)
-
-You describe the prop. Claude asks only for what's missing: the size, the facing, your game's view, your style. It renders the
-guide for free and shows it to you. It tells you the cost and waits for your OK. Then you get `sprite.png`, `shadow.png` and
-`sprite.json`.
-
-## Install
-
-In a terminal:
-```
-claude plugin marketplace add Sunghwan0112/spritecast
-claude plugin install spritecast@spritecast
-```
-or inside Claude Code: `/plugin marketplace add Sunghwan0112/spritecast`, then `/plugin install spritecast@spritecast`.
-
-**You also need** only Python 3.9+ and a browser (Chrome, or Edge - every Windows has it). The first time, Claude runs the setup
-check (`doctor.py --fix`): it makes its own venv in `~/.cache/spritecast/` with the few packages (about 10 s), leaves your Python
-alone, and tells you what each thing is for. Nothing to install by hand.
-
-**Running the scripts yourself.** Claude runs them for you. To run them by hand from a clone of this repo, use the Python that
-`doctor.py` prints on its last line (`PYTHON=...`); after `--fix` it is `~/.cache/spritecast/venv/bin/python` (Windows:
-`%USERPROFILE%\.cache\spritecast\venv\Scripts\python.exe`). A plain `python` may not have the packages (`No module named ...`). The commands below
-write it as `$PYTHON`:
-```bash
-python3 skills/spritecast/scripts/doctor.py --fix
-PYTHON=$(python3 skills/spritecast/scripts/doctor.py | sed -n 's/^PYTHON=//p')
-$PYTHON skills/spritecast/scripts/isoprop.py --help
-```
-On Windows, in PowerShell:
-```powershell
-python skills/spritecast/scripts/doctor.py --fix
-$PYTHON = "$env:USERPROFILE\.cache\spritecast\venv\Scripts\python.exe"
-& $PYTHON skills/spritecast/scripts/isoprop.py --help
-```
-There, run the `$PYTHON ...` commands below as `& $PYTHON ...`.
-
-| what | for | needed? |
-|---|---|---|
-| Python 3.9+ | runs the scripts | yes |
-| numpy, pillow, scipy | cutting out, fitting, shadows | yes (set up for you) |
-| playwright + Chrome or Edge | renders the 3D guide on your computer (free) | yes (set up for you; a browser you have is used) |
-| onnxruntime + a 224 MB model | characters only: the AI cut-out that keeps white shoes on white paper | characters (fetched once, by itself) |
-| `OPENAI_API_KEY` | drawing, about $0.07 a prop | to draw |
-| `TRIPO_API_KEY` | characters: the 3D model, its rig and walk | for walking characters |
-
-**Try it first, free, no key:** ask Claude to *"try SpriteCast"*. It renders one of the examples' guides on your computer and
-finishes it with the drawing that came with the example (`isoprop.py try`), so you see the whole way before paying for anything.
-
-Keys: **in the plugin's settings.** When you enable SpriteCast, Claude Code asks for them (`/plugin` → SpriteCast → configure,
-to change them later): the OpenAI key, and the Tripo key if you make walking characters. They are kept in your system's credential
-store, masked, and handed to SpriteCast's scripts when a session starts (restart Claude Code after changing one). A key already in your
-environment still works when the settings have none:
-
-```bash
-export OPENAI_API_KEY=sk-...          # macOS / Linux (add it to ~/.zshrc or ~/.bashrc to keep it)
-```
-```powershell
-setx OPENAI_API_KEY "sk-..."          # Windows (then open a new terminal)
-```
-On Windows the settings reach the scripts only when Claude Code runs its commands in Git Bash (its default when Git is installed); in
-PowerShell use the environment. Your key stays on your computer. It is only sent to OpenAI, and you pay OpenAI for each drawing (about $0.07).
-
-OpenAI may ask you to verify your organisation before a key can use image models (platform.openai.com → Settings →
-Organization): do it once before your first drawing. Set the key before you start Claude Code; a key set while it runs is seen
-only after a restart. Walking characters also need `TRIPO_API_KEY`, from Tripo's API platform, where API credits are bought
-(75 a character, 30 an animal).
-
-## Things to ask for
-
-- *"Make an isometric bookshelf, 1.8 m tall, full of books, in the cozy style."*
-- *"Our game is 3/4 top-down. Make a wooden market stall with a striped awning."*
-- *"Make this sofa in all four facings."* (`views`)
-- *"Make a shopkeeper NPC, an old man in a brown cardigan, in four directions."*
-- *"A street musician, waving, facing south-east."*
-- *"Here's a prop from my game (props/barrel.png). Make a matching crate in that style."*
-
-## Examples
-
-All in [`examples/`](examples), each with its spec and the files it produced (the raw drawings as WebP, to keep the repo small).
-
-| | | |
-|---|---|---|
-| ![](examples/reading_armchair/preview.png) | ![](examples/potted_monstera/preview.png) | ![](examples/arcade_cabinet/preview.png) |
-| `reading_armchair`: 9 blocks: seat, back, arms, legs | `potted_monstera`: a pot, and the plant given as one volume | `arcade_cabinet`: its front faces down-left |
-
-![four facings and a top-down view](docs/views.png)
-`armchair_four_ways`: `views: [0, 90, 180, 270]`. The later views are drawn with the first one as a reference, so it stays the same
-chair. `arcade_cabinet_topdown`: `camera: "topdown"`. `reading_armchair_tripo`: the same armchair from a Tripo model (below).
-
-The examples' 3D models (`reading_armchair_tripo`, and the walking characters' meshes and rigs) were generated with the [Tripo](https://www.tripo3d.ai) API.
-
-## More detail: a 3D model first (Tripo)
-
-![blocks vs a Tripo model as the guide](docs/tripo.png)
-
-Blocks are enough when what matters is where things stand and how big they are. For more detail (curved arms, tapered legs, buttons,
-carving), let [Tripo](https://www.tripo3d.ai) make a real 3D model from the description first. It's fitted into the same real-size box
-the blocks gave, so the arrangement doesn't change, and it becomes the guide. The image model then draws over a real shape, and the 3D
-shadow is the model's own.
-
-```
-$PYTHON skills/spritecast/scripts/isoprop.py model  armchair.json --yes   # Tripo text-to-model (~20-40 Tripo credits, ~2 min); the spec now uses it
-$PYTHON skills/spritecast/scripts/isoprop.py yaws   armchair.json         # free: the model turned four ways; set "model": {"yaw": ...} to the right one
-$PYTHON skills/spritecast/scripts/isoprop.py render armchair.json         # then draw, finish as usual
-```
-Needs `TRIPO_API_KEY`. The blocks stay in the spec as `blocks_draft`.
-
-## Characters
-
-![a mannequin guide and two characters in four facings](docs/characters.png)
-
-Standing characters work the same way. Claude poses a plain mannequin at the person's real height and renders it in each facing (4 or
-8). The image model dresses it as you describe. The first facing is drawn first and the others follow it, so it stays the same person.
-
-```json
-{ "name": "barista",
-  "character": { "height": 1.63, "build": "slim", "directions": ["south-east", "south-west", "north-east", "north-west"] },
-  "description": "a cheerful young café barista: a short dark-brown bob, a cream cable-knit sweater under a forest-green apron, ..." }
-```
-
-The anchor is between the feet. About $0.07 for the first facing and $0.08 for each of the others.
-
-**Poses.** The mannequin has joints. `"pose"` is one of `stand` (default), `wave`, `point`, `hold` (hands together in front: a cup,
-a tray, a book), `arms-crossed` or `walk` (mid-stride). Describe what goes with it ("waving hello", "holding a coffee cup"). Or give the angles yourself, and Claude can adjust them
-for you ("raise the arm higher") and check them in the free render:
-
-```json
-"pose": { "base": "stand", "arm": { "left": [[150, 10], [170, 10]], "right": [[150, 10], [170, 10]] } }
-```
-Each limb is two parts, upper and lower (`[out, forward]` degrees each): turned out to its side, then swung forward. `left` and
-`right` are the figure's own.
-
-![four poses](docs/poses.png)
-
-**Single pictures.** These posed figures are one picture per facing; for a walk, see [Walking characters](#walking-characters).
-Look at every facing yourself (the outline check can't see a head turned the wrong way); redraw one with
-`draw <spec> --yes --again --only north-west`.
-
-## Shadows that match the drawing
-
-The 3D guide's shadow is right for solid things like furniture. But a drawing has things the blocks don't: hair, a coat's hood,
-leaves spilling out of a pot.
-
-So SpriteCast also renders a **height map** of the guide: how high above the floor every pixel is. A point h metres up casts its
-shadow a fixed step away on screen (h times the light's offset), whatever its depth. So each pixel of the drawing takes the height of
-the guide under it, or of the nearest guide pixel for hair or leaves past the guide, and is moved by that step.
-
-The shape is the drawing's. Where it starts is the 3D model's: each foot starts its own shadow, and a pot's shadow starts at its
-base. Only what touches the floor has to be exact. Higher up (from 10 % to 35 % of the object's height) the height eases into a
-smooth one read off the screen, so hair, hats and leaves cast a natural shadow instead of the mannequin's corners. Where it stands
-(the blocks up to 12 cm: shoes, a pot's base) the guide's own 3D shadow is added, so the shadow meets the object as a real one
-would: on the side away from the light, never in front of it. Posed figures and `loose` things get it; solid props keep the 3D
-shadow, and walking characters cast their 3D body's own (below). Choose with `"shadow": "drawn" | "guide"`.
-
-![shadows from the blocks and from the drawing](docs/shadows.png)
-
 ## Walking characters
 
 ![an illustration → 3D → drawn frames → an 8-facing walk](docs/character.png)
-
-![walking in 8 facings](docs/character-walk.gif)
 
 Give it one illustration of a character (facing front, standing straight, no pose) and you get a walk in 8 facings (8 frames each) and 8 standing views, in that
 illustration's look. An image model can't keep a body and a pose from frame to frame, so the motion comes from 3D:
@@ -292,6 +147,48 @@ yet (see the [Roadmap](#roadmap)).
 
 ![the run, jump and slash at 512, 256 (default), 64 and 32 px tall, shown at the same size](docs/actions-small.gif)
 
+### Pixel art (arcade size)
+
+![five facings of the rain girl throwing a snowball, each ball flying its own way over an isometric floor](docs/pixel-throw.gif)
+
+For a game drawn in pixels - a belt-scroller, a fighter, an arcade platformer - the same character as real pixel art, about 100 px
+tall: one colour a pixel, a palette of about 40, a dark outline, no blur, and each frame's 3D shadow. Not a resize of the painted
+frames: the order is the other way round.
+
+![one frame four ways: the 3D render, the pixelized guide, the model's drawing, the sprite](docs/pixel-steps.png)
+
+The 3D render is pixelized into a guide, the image model redraws it as pixel art, and the drawing is **read back on the grid the
+model drew it on** - the head on grid lines of its own, so the eyes and mouth survive - then sized and placed by the render.
+
+```
+$PYTHON skills/spritecast/scripts/pixelart.py hero.json                        # the plan and its cost - spends nothing
+$PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
+```
+About $0.075 a sheet: a walk in all eight facings is 18 sheets (about $1.35); the throw above, five facings, was 14.
+
+- **Things held and thrown.** `"hold": {"kind": "snowball", "until": "auto"}` puts it in the hand and lets it go when the hand
+  moves fastest. `pixel.json` then says which frame, where in the frame, which way and how fast - enough for your engine to spawn
+  the projectile - and you get the ball, its flight shape and a 4-frame burst. The picture above is that data played back.
+- **Any Mixamo animation.** `addclip.py hero.json Throw.fbx throw` carries an FBX clip onto the character's rig, free. The throw
+  above came in that way.
+- **It reviews itself.** Every frame is checked against its render (the pose, the held thing); `--redraw` draws the marked sheets
+  again and keeps the better drawing. The throw's 40 frames all passed after one redraw.
+- **Then a pixel editor for the last bit.** Pixel art is not all to be had by rule. `pixeledit.py hero.json` opens every frame in
+  the browser: magic-erase a patch of left-over white, pencil, change a colour, move a selection, copy a good face into the other
+  frames. The edits are kept and laid on again by every later build.
+
+![the pixel editor: a frame on a grid, the frame before shown faint, the tools, and how much was done by AI and by hand](docs/pixel-edit.png)
+
+How much is left to the hand: very little. For the 40 throw frames, about 6 minutes of AI drawing and 2 of AI cut-out; then the only
+hand work was the magic eraser - a click on each speck of left-over white, in 10 of the 40 frames (131 pixels, 0.15 % of the
+sprites). No face was touched: they are as the pipeline made them. The build prints those numbers every time.
+
+What it doesn't do yet: about 96 px is the size that works (the image model draws its "pixels" about 7.5 px big whatever it is
+asked); 64 px and under needs a design made for that size. The details: [reference/pixel.md](skills/spritecast/reference/pixel.md).
+
+The sprites above are in [`examples/rain_girl/pixel`](examples/rain_girl/pixel): the throw in five facings, a walk in two and the
+umbrella slash as strips, their shadows, the snowball with its flight shape and burst, and `pixel.json` with the release data.
+
 ### Skipping the drawing: the 3D renders as the frames
 
 With `"draw": false` in the spec, no image model draws the frames: the 3D model's own renders (toon-shaded, its own texture) are
@@ -303,6 +200,158 @@ the model's texture as it came (blurrier fur and folds).
 ![the same girl and cat walking: the 3D renders alone against the drawn frames](docs/render-vs-drawn.gif)
 
 ![close-up at the strips' own pixels: 3D only against drawn](docs/render-vs-drawn-zoom.png)
+
+## Sitting
+
+![The rain girl seated in 8 facings, and in the example armchair under its front piece](docs/sitting.png)
+
+Once a character walks, ask Claude to *"make her sit"*. Her 3D model is bent into sitting (thighs level, knees bent, hands on the
+thighs) in 8 facings for free; you look at those renders, then they are drawn like the standing views (two sheets, about $0.22). She
+sits on nothing - your game's chair goes under her. `character.json` gets a `sit` block: for each facing the file, the **seat point**
+(put it on the chair's seat; a fraction of the frame, like `anchor`), the seat's height and the shadow. To put her on one of
+your props, `seat.py` places her on its seat and works out the prop's **front piece for her** (an armrest, a pew's back, a bench's
+backrest) from both of their 3D heights - no painting:
+
+![The rain girl seated on ten seats: an armchair from four sides, the Tripo armchair, a dining chair from both sides, a pew, a curved bench from both sides](docs/seats.png)
+
+It finds the seat's height and which way it faces, and sits her back until her knees reach the seat's edge. If she sits a little off,
+drag her on the touch-up page (below): letting go works the front piece out again from there.
+The details: [reference/sitting.md](skills/spritecast/reference/sitting.md).
+
+```
+$PYTHON skills/spritecast/scripts/charpipe.py sit <name>.json            # free: the seated renders
+$PYTHON skills/spritecast/scripts/charpipe.py sit <name>.json --draw     # ~$0.22: drawn and finished
+$PYTHON skills/spritecast/scripts/seat.py <prop>.json <name>.json --height 1.3   # free: on a prop, its front piece worked out
+```
+
+## Fixing things by hand
+
+![Three seats: the front piece worked out automatically beside the same seat painted and moved by hand](docs/touchup.png)
+
+The automatic steps get you most of the way; the last bit is best done by eye. **Painting by hand is more accurate than any of the
+automatic steps**: above, the pew's back hid the whole girl until it was painted and she was moved up, and the dining chair's and the
+armchair's backs cut her in the wrong places. Cut-outs are not perfect either: a little paper left between an arm and the body, a white
+shirt the cut-out took for the paper. Ask Claude to
+open the touch-up page (or run `$PYTHON skills/spritecast/scripts/touchup.py <spec>.json`): every finished picture of that prop or
+character, painted in the browser and saved as you go.
+
+| colour | does |
+|---|---|
+| red | clears: made see-through |
+| green | brings back: those pixels taken from the drawing itself (turn on "drawing under" to see it) |
+| blue (props) | the **front piece**: what stands in front of a character inside the thing - an arch's near posts, a gazebo's roof, a chair's near armrest |
+| ⬠ polygon (P) | click the corners and close it (double-click, Enter, or the first corner): filled in the colour you are painting, or erased |
+| 🪑 (a seat) | drag the seated character (or the arrow keys); letting go re-makes the seat and its front piece from there |
+
+Then `touchup.py <spec>.json --apply` (a character's strips are packed again). A prop with a front piece gets `sprite-front.png` and
+`"front"` in `sprite.json`: draw the sprite behind whoever stands in it and the front piece over them. `finish` lays the paintings on
+again by itself; a picture drawn again since it was painted keeps its painting aside instead of laying it on a different drawing.
+
+**Pixel sprites** have an editor of their own, pixel by pixel - see [Pixel art](#pixel-art-arcade-size).
+
+## Props and scenery
+
+![guide → sprite](docs/showcase.png)
+
+Ask an image model for "an isometric armchair" and you get a nice picture at a slightly wrong angle. Ask again and you get a
+different wrong angle and a different size. Put ten of them on one floor and nothing lines up.
+
+SpriteCast gives the model a guide that is hard to misread (and when it does misread, you're told):
+1. Claude builds the object from simple blocks at its **real size in metres**.
+2. The blocks are rendered with your game's **exact camera**.
+3. The image model only redraws that guide in your **art style**.
+4. The drawing is cut out and **fitted to the guide's box**, so its size and footprint are the guide's; a drawing whose outline
+   doesn't follow the guide is flagged, not forced. It also gets a baked shadow and an anchor point for your engine.
+
+The props come out painted (the `cozy` look: smooth shading, fine outlines), or in the style of one picture of your own.
+
+## How a session goes
+
+![how a session goes](docs/session.png)
+
+You describe the prop. Claude asks only for what's missing: the size, the facing, your game's view, your style. It renders the
+guide for free and shows it to you. It tells you the cost and waits for your OK. Then you get `sprite.png`, `shadow.png` and
+`sprite.json`.
+
+## Examples
+
+All in [`examples/`](examples), each with its spec and the files it produced (the raw drawings as WebP, to keep the repo small).
+
+| | | |
+|---|---|---|
+| ![](examples/reading_armchair/preview.png) | ![](examples/potted_monstera/preview.png) | ![](examples/arcade_cabinet/preview.png) |
+| `reading_armchair`: 9 blocks: seat, back, arms, legs | `potted_monstera`: a pot, and the plant given as one volume | `arcade_cabinet`: its front faces down-left |
+
+![four facings and a top-down view](docs/views.png)
+`armchair_four_ways`: `views: [0, 90, 180, 270]`. The later views are drawn with the first one as a reference, so it stays the same
+chair. `arcade_cabinet_topdown`: `camera: "topdown"`. `reading_armchair_tripo`: the same armchair from a Tripo model (below).
+
+The examples' 3D models (`reading_armchair_tripo`, and the walking characters' meshes and rigs) were generated with the [Tripo](https://www.tripo3d.ai) API.
+
+## More detail: a 3D model first (Tripo)
+
+![blocks vs a Tripo model as the guide](docs/tripo.png)
+
+Blocks are enough when what matters is where things stand and how big they are. For more detail (curved arms, tapered legs, buttons,
+carving), let [Tripo](https://www.tripo3d.ai) make a real 3D model from the description first. It's fitted into the same real-size box
+the blocks gave, so the arrangement doesn't change, and it becomes the guide. The image model then draws over a real shape, and the 3D
+shadow is the model's own.
+
+```
+$PYTHON skills/spritecast/scripts/isoprop.py model  armchair.json --yes   # Tripo text-to-model (~20-40 Tripo credits, ~2 min); the spec now uses it
+$PYTHON skills/spritecast/scripts/isoprop.py yaws   armchair.json         # free: the model turned four ways; set "model": {"yaw": ...} to the right one
+$PYTHON skills/spritecast/scripts/isoprop.py render armchair.json         # then draw, finish as usual
+```
+Needs `TRIPO_API_KEY`. The blocks stay in the spec as `blocks_draft`.
+
+## Posed characters (from a description)
+
+![a mannequin guide and two characters in four facings](docs/characters.png)
+
+An NPC that only stands needs no illustration and no rig: it works like a prop. Claude poses a plain mannequin at the person's real height and renders it in each facing (4 or
+8). The image model dresses it as you describe. The first facing is drawn first and the others follow it, so it stays the same person.
+
+```json
+{ "name": "barista",
+  "character": { "height": 1.63, "build": "slim", "directions": ["south-east", "south-west", "north-east", "north-west"] },
+  "description": "a cheerful young café barista: a short dark-brown bob, a cream cable-knit sweater under a forest-green apron, ..." }
+```
+
+The anchor is between the feet. About $0.07 for the first facing and $0.08 for each of the others.
+
+**Poses.** The mannequin has joints. `"pose"` is one of `stand` (default), `wave`, `point`, `hold` (hands together in front: a cup,
+a tray, a book), `arms-crossed` or `walk` (mid-stride). Describe what goes with it ("waving hello", "holding a coffee cup"). Or give the angles yourself, and Claude can adjust them
+for you ("raise the arm higher") and check them in the free render:
+
+```json
+"pose": { "base": "stand", "arm": { "left": [[150, 10], [170, 10]], "right": [[150, 10], [170, 10]] } }
+```
+Each limb is two parts, upper and lower (`[out, forward]` degrees each): turned out to its side, then swung forward. `left` and
+`right` are the figure's own.
+
+![four poses](docs/poses.png)
+
+**Single pictures.** These posed figures are one picture per facing; for a walk, see [Walking characters](#walking-characters).
+Look at every facing yourself (the outline check can't see a head turned the wrong way); redraw one with
+`draw <spec> --yes --again --only north-west`.
+
+## Shadows that match the drawing
+
+The 3D guide's shadow is right for solid things like furniture. But a drawing has things the blocks don't: hair, a coat's hood,
+leaves spilling out of a pot.
+
+So SpriteCast also renders a **height map** of the guide: how high above the floor every pixel is. A point h metres up casts its
+shadow a fixed step away on screen (h times the light's offset), whatever its depth. So each pixel of the drawing takes the height of
+the guide under it, or of the nearest guide pixel for hair or leaves past the guide, and is moved by that step.
+
+The shape is the drawing's. Where it starts is the 3D model's: each foot starts its own shadow, and a pot's shadow starts at its
+base. Only what touches the floor has to be exact. Higher up (from 10 % to 35 % of the object's height) the height eases into a
+smooth one read off the screen, so hair, hats and leaves cast a natural shadow instead of the mannequin's corners. Where it stands
+(the blocks up to 12 cm: shoes, a pot's base) the guide's own 3D shadow is added, so the shadow meets the object as a real one
+would: on the side away from the light, never in front of it. Posed figures and `loose` things get it; solid props keep the 3D
+shadow, and walking characters cast their 3D body's own (above). Choose with `"shadow": "drawn" | "guide"`.
+
+![shadows from the blocks and from the drawing](docs/shadows.png)
 
 ## Cameras
 
@@ -353,51 +402,66 @@ this.add.sprite(x, y, 'girl-se').setOrigin(0.4926, 0.8839).play('walk-se');
 ```
 The full format: [reference/character.md](skills/spritecast/reference/character.md#output-nameout).
 
-## Sitting
+## Install
 
-![The rain girl seated in 8 facings, and in the example armchair under its front piece](docs/sitting.png)
-
-Once a character walks, ask Claude to *"make her sit"*. Her 3D model is bent into sitting (thighs level, knees bent, hands on the
-thighs) in 8 facings for free; you look at those renders, then they are drawn like the standing views (two sheets, about $0.22). She
-sits on nothing - your game's chair goes under her. `character.json` gets a `sit` block: for each facing the file, the **seat point**
-(put it on the chair's seat; a fraction of the frame, like `anchor`), the seat's height and the shadow. To put her on one of
-your props, `seat.py` places her on its seat and works out the prop's **front piece for her** (an armrest, a pew's back, a bench's
-backrest) from both of their 3D heights - no painting:
-
-![The rain girl seated on ten seats: an armchair from four sides, the Tripo armchair, a dining chair from both sides, a pew, a curved bench from both sides](docs/seats.png)
-
-It finds the seat's height and which way it faces, and sits her back until her knees reach the seat's edge. If she sits a little off,
-drag her on the touch-up page (below): letting go works the front piece out again from there.
-The details: [reference/sitting.md](skills/spritecast/reference/sitting.md).
-
+In a terminal:
 ```
-$PYTHON skills/spritecast/scripts/charpipe.py sit <name>.json            # free: the seated renders
-$PYTHON skills/spritecast/scripts/charpipe.py sit <name>.json --draw     # ~$0.22: drawn and finished
-$PYTHON skills/spritecast/scripts/seat.py <prop>.json <name>.json --height 1.3   # free: on a prop, its front piece worked out
+claude plugin marketplace add Sunghwan0112/spritecast
+claude plugin install spritecast@spritecast
 ```
+or inside Claude Code: `/plugin marketplace add Sunghwan0112/spritecast`, then `/plugin install spritecast@spritecast`.
 
-## Fixing things by hand
+**You also need** only Python 3.9+ and a browser (Chrome, or Edge - every Windows has it). The first time, Claude runs the setup
+check (`doctor.py --fix`): it makes its own venv in `~/.cache/spritecast/` with the few packages (about 10 s), leaves your Python
+alone, and tells you what each thing is for. Nothing to install by hand.
 
-![Three seats: the front piece worked out automatically beside the same seat painted and moved by hand](docs/touchup.png)
+**Running the scripts yourself.** Claude runs them for you. To run them by hand from a clone of this repo, use the Python that
+`doctor.py` prints on its last line (`PYTHON=...`); after `--fix` it is `~/.cache/spritecast/venv/bin/python` (Windows:
+`%USERPROFILE%\.cache\spritecast\venv\Scripts\python.exe`). A plain `python` may not have the packages (`No module named ...`). The commands below
+write it as `$PYTHON`:
+```bash
+python3 skills/spritecast/scripts/doctor.py --fix
+PYTHON=$(python3 skills/spritecast/scripts/doctor.py | sed -n 's/^PYTHON=//p')
+$PYTHON skills/spritecast/scripts/isoprop.py --help
+```
+On Windows, in PowerShell:
+```powershell
+python skills/spritecast/scripts/doctor.py --fix
+$PYTHON = "$env:USERPROFILE\.cache\spritecast\venv\Scripts\python.exe"
+& $PYTHON skills/spritecast/scripts/isoprop.py --help
+```
+There, run the `$PYTHON ...` commands below as `& $PYTHON ...`.
 
-The automatic steps get you most of the way; the last bit is best done by eye. **Painting by hand is more accurate than any of the
-automatic steps**: above, the pew's back hid the whole girl until it was painted and she was moved up, and the dining chair's and the
-armchair's backs cut her in the wrong places. Cut-outs are not perfect either: a little paper left between an arm and the body, a white
-shirt the cut-out took for the paper. Ask Claude to
-open the touch-up page (or run `$PYTHON skills/spritecast/scripts/touchup.py <spec>.json`): every finished picture of that prop or
-character, painted in the browser and saved as you go.
+| what | for | needed? |
+|---|---|---|
+| Python 3.9+ | runs the scripts | yes |
+| numpy, pillow, scipy | cutting out, fitting, shadows | yes (set up for you) |
+| playwright + Chrome or Edge | renders the 3D guide on your computer (free) | yes (set up for you; a browser you have is used) |
+| onnxruntime + a 224 MB model | characters only: the AI cut-out that keeps white shoes on white paper | characters (fetched once, by itself) |
+| `OPENAI_API_KEY` | drawing, about $0.07 a prop | to draw |
+| `TRIPO_API_KEY` | characters: the 3D model, its rig and walk | for walking characters |
 
-| colour | does |
-|---|---|
-| red | clears: made see-through |
-| green | brings back: those pixels taken from the drawing itself (turn on "drawing under" to see it) |
-| blue (props) | the **front piece**: what stands in front of a character inside the thing - an arch's near posts, a gazebo's roof, a chair's near armrest |
-| ⬠ polygon (P) | click the corners and close it (double-click, Enter, or the first corner): filled in the colour you are painting, or erased |
-| 🪑 (a seat) | drag the seated character (or the arrow keys); letting go re-makes the seat and its front piece from there |
+**Try it first, free, no key:** ask Claude to *"try SpriteCast"*. It renders one of the examples' guides on your computer and
+finishes it with the drawing that came with the example (`isoprop.py try`), so you see the whole way before paying for anything.
 
-Then `touchup.py <spec>.json --apply` (a character's strips are packed again). A prop with a front piece gets `sprite-front.png` and
-`"front"` in `sprite.json`: draw the sprite behind whoever stands in it and the front piece over them. `finish` lays the paintings on
-again by itself; a picture drawn again since it was painted keeps its painting aside instead of laying it on a different drawing.
+Keys: **in the plugin's settings.** When you enable SpriteCast, Claude Code asks for them (`/plugin` → SpriteCast → configure,
+to change them later): the OpenAI key, and the Tripo key if you make walking characters. They are kept in your system's credential
+store, masked, and handed to SpriteCast's scripts when a session starts (restart Claude Code after changing one). A key already in your
+environment still works when the settings have none:
+
+```bash
+export OPENAI_API_KEY=sk-...          # macOS / Linux (add it to ~/.zshrc or ~/.bashrc to keep it)
+```
+```powershell
+setx OPENAI_API_KEY "sk-..."          # Windows (then open a new terminal)
+```
+On Windows the settings reach the scripts only when Claude Code runs its commands in Git Bash (its default when Git is installed); in
+PowerShell use the environment. Your key stays on your computer. It is only sent to OpenAI, and you pay OpenAI for each drawing (about $0.07).
+
+OpenAI may ask you to verify your organisation before a key can use image models (platform.openai.com → Settings →
+Organization): do it once before your first drawing. Set the key before you start Claude Code; a key set while it runs is seen
+only after a restart. Walking characters also need `TRIPO_API_KEY`, from Tripo's API platform, where API credits are bought
+(75 a character, 30 an animal).
 
 ## How it works
 
@@ -460,9 +524,9 @@ What is planned next, roughly in this order (no dates - it moves with feedback):
 - **Turning objects**: a vehicle or a ride rotated through many angles, so it turns smoothly instead of snapping between 8 facings.
 - **Night versions**: a mask of what gives light (windows, bulbs, neon), so your engine can light just those parts after dark.
 - **Walk-through props, automatic**: the front piece worked out from the 3D guide (today it is painted by hand on the touch-up page).
-- **More actions and things to hold**: run, jump and slash are in; next, more held things (a sword, a staff) and an idle breath.
-- **Small sprites**: a pixel-art pass for downscaling (a 1 px outline, a small palette, the eyes placed from the 3D head), and for
-  32 px and under, a bigger-headed build of the same rig so the face survives.
+- **More actions and things to hold**: run, jump and slash are in, and any Mixamo clip can be added (a throw, with a snowball that is let go); next, more held things (a sword, a staff) and an idle breath.
+- **Small sprites**: pixel art at about 96 px is in (see Pixel art); next, 64 px and under - a bigger-headed build of the same rig, so
+  the face survives - and the pixel sprites in all eight facings in one go.
 - **Engine exports**: sprite sheets with Godot, Unity and Aseprite files ready to import.
 
 See [CHANGELOG.md](CHANGELOG.md) for what each version changed.
@@ -494,8 +558,8 @@ Feedback decides what comes next, and what changed because of it is marked in th
   walk and the shadows come from 3D. You can give your own art as the style, or set `"draw": false` so no image model draws a walking
   character's frames: the 3D renders are the frames. The turnaround is still drawn, unless you bring your own rigged model
   ([Skipping the drawing](#skipping-the-drawing-the-3d-renders-as-the-frames)).
-- **What doesn't it do?** Walking characters only walk and stand (more actions are on the [Roadmap](#roadmap)), and start from an
-  illustration facing front, standing straight. Posed single pictures (wave, point, hold...) need only a description. Big flat things like rugs are better drawn top-down and skewed onto the floor
+- **What doesn't it do?** Walking characters start from an illustration facing front, standing straight. Pixel art works at about 96 px, not
+  yet at 32 ([Roadmap](#roadmap)). Posed single pictures (wave, point, hold...) need only a description. Big flat things like rugs are better drawn top-down and skewed onto the floor
   ([tips](skills/spritecast/reference/tips.md)). Look at the results yourself: the outline check can't see a head turned the wrong way.
 - **Which engine?** Any that takes PNGs: you get the sprite, its shadow and the anchor in JSON. See
   [Putting it in your engine](#putting-it-in-your-engine) for Phaser, Godot and Unity.

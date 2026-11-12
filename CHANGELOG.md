@@ -3,6 +3,24 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## Unreleased
+
+- The README is put **character-first**: what you can make (a walk, actions, pixel art, animals, sitting) at the top, props below;
+  the pixel sprites are in `examples/rain_girl/pixel`. *(feedback)*
+- **Pixel-art sprites** (`pixelart.py`, [reference/pixel.md](skills/spritecast/reference/pixel.md)): a character as real pixel art
+  about 96 px tall, from its 3D renders - the renders pixelized into a guide, redrawn as pixel art by the image model, read back
+  onto the grid it was drawn on, sized and placed by the render, cleaned by rule (stray white sorted out by what the guide has
+  there, the outline closed), with each frame's 3D shadow. One command; it prints the plan and the cost before it spends. *(feedback)*
+- **Pixel sprites fixed by hand** (`pixeledit.py`): a page in the browser, frame by frame - erase a patch of left-over white with a
+  click, draw, change a colour, move a selection, copy a good face from one frame into another or into all of them; the edits are
+  kept and laid on again by every later run. It and the run say how it was made: the AI's time, and the frames and pixels by hand. The run
+  also reviews every frame (pose against the render, the held thing) and `--redraw` draws the marked sheets again, keeping the
+  better. *(feedback)*
+- **Something thrown**: a held thing can be let go (`"hold": {"until": "auto"}`) - a snowball, drawn in a colour that shows on white
+  paper (`"color"`) and turned to its real one after (`"final"`); the thing's own sprites, and when, where and which way it leaves
+  the hand in `pixel.json`. *(feedback)*
+- **An animation from an FBX** (`addclip.py`): a Mixamo clip put into a copy of the rig as one more action, no credits. *(feedback)*
+
 ## 0.9.0 — 2026-11-10
 
 - **Sharper at any size**: characters are rendered and fitted at 1024 px (`"render_px"`; it was 512, which kept about half of what
