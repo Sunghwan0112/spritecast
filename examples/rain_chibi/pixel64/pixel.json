@@ -388,14 +388,15 @@
  ],
  "shadow_alpha": 0.3,
  "review": {
-  "throw-north-west": {
+  "throw-west": {
    "0": [
-    "snowball missing"
-   ]
-  },
-  "throw-south-west": {
+    "snowball drawn where the figure hides it"
+   ],
+   "1": [
+    "snowball drawn where the figure hides it"
+   ],
    "2": [
-    "snowball missing"
+    "snowball drawn where the figure hides it"
    ]
   }
  },
@@ -543,22 +544,22 @@
   "throw-west": {
    "frames": 8,
    "sheets": 3,
-   "draw_s": 86.1,
-   "cut_s": 23.6,
+   "draw_s": 99.0,
+   "cut_s": 27.2,
    "hand_frames": 0,
    "hand_px": 0,
    "hand_s": null,
-   "px": 10658
+   "px": 10744
   },
   "throw-south-west": {
    "frames": 8,
    "sheets": 3,
-   "draw_s": 87.4,
-   "cut_s": 23.7,
+   "draw_s": 88.7,
+   "cut_s": 27.4,
    "hand_frames": 0,
    "hand_px": 0,
    "hand_s": null,
-   "px": 11580
+   "px": 11363
   }
  }
 }

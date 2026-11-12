@@ -214,7 +214,7 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 ![작은 캐릭터가 8방향으로 걷고 던지는 64px 세트와, 그걸 줄여 만든 32px 세트](docs/pixel-small.gif)
 
 두 세트 모두 [`examples/rain_chibi`](examples/rain_chibi)에 있어요: 비옷 소녀에서 그린 3등신 디자인, 턴어라운드, 사양 파일,
-`pixel64/`(8방향 걷기와 던지기, 128프레임, 프레임마다 그림자. 검토에서 2개만 남았고 손으로 고친 픽셀은 없어요), 그리고 거기서 만든
+`pixel64/`(8방향 걷기와 던지기, 128프레임, 프레임마다 그림자. 손으로 고친 픽셀은 없어요), 그리고 거기서 만든
 `pixel32/`. 던지기는 Mixamo 클립을 `addclip.py --clear-head 55`로 얹은 거예요. 클립과 리그는 저장소에 넣지 않았어요.
 
 ![같은 작은 캐릭터의 다섯 가지: 64px로 그린 것, 그걸 줄여 만든 32px 세트, 이미지 모델에 32px를 직접 요청한 세 가지](docs/pixel-sizes.ko.png)

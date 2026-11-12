@@ -223,8 +223,7 @@ rougher faces. 64 is the one that comes out well.
 ![the small character walking and throwing in eight facings at 64 px, and the 32-px set made from it](docs/pixel-small.gif)
 
 Both sets are in [`examples/rain_chibi`](examples/rain_chibi): the three-heads design drawn from the rain girl, its turnaround, the
-spec, `pixel64/` (walk and throw in eight facings, 128 frames, each with its shadow; the review left 2 to look at, and no pixel was
-touched by hand) and `pixel32/` made from it. Her throw is a Mixamo clip put on with `addclip.py --clear-head 55`; the clip and the
+spec, `pixel64/` (walk and throw in eight facings, 128 frames, each with its shadow; no pixel was touched by hand) and `pixel32/` made from it. Her throw is a Mixamo clip put on with `addclip.py --clear-head 55`; the clip and the
 rig are not in the repo.
 
 ![the same small character five ways: drawn at 64 px, a 32-px set made from it, and three ways of asking the image model for 32 px](docs/pixel-sizes.png)

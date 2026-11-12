@@ -79,19 +79,33 @@ def bbox(m): ys, xs = np.nonzero(m); return ys.min(), ys.max() + 1, xs.min(), xs
 def hold_kind(clip):
     h = s['actions'].get(clip, {}).get('hold'); return (h if isinstance(h, str) else h.get('kind')) if h else None
 
+def held_seen(clip, dr, i):
+    """the held thing in a frame as the camera has it: (its pixels in all, those of them not hidden by the figure, the thing with
+    what is hidden made see-through). A hand raised behind a big head has the ball behind the head: there to the rig, not to the eye."""
+    hp = d / f'render/{clip}-{dr}-{i}-held.png'
+    if not hp.exists(): return 0, 0, None
+    h = np.asarray(Image.open(hp).convert('RGBA')).astype(int); c = np.asarray(Image.open(d / f'render/{clip}-{dr}-{i}.png').convert('RGBA')).astype(int)
+    on = h[..., 3] > 128; seen = on & (c[..., 3] > 128) & (np.abs(c[..., :3] - h[..., :3]).sum(2) < 60); v = h.copy(); v[~seen] = 0
+    return int(on.sum()), int(seen.sum()), Image.fromarray(v.astype(np.uint8))
+
 def held_words(clip, dr, idx):
     """what is in the hand, cell by cell (told only "where a cell does not show it, do not draw it", GPT drew a snowball in the
     hand in frames after it had been thrown)"""
     k = hold_kind(clip)
     if not k: return ''
-    has = []
+    has, hid = [], []
     for i in idx:
-        hp = d / f'render/{clip}-{dr}-{i}-held.png'; has.append(hp.exists() and (np.asarray(Image.open(hp).convert('RGBA'))[..., 3] > 128).sum() > 40)
-    yes = [str(n + 1) for n, h in enumerate(has) if h]; no = [str(n + 1) for n, h in enumerate(has) if not h]
-    if not yes: return f"THE HANDS ARE EMPTY in every cell: the {k} has been let go and is NOT in the picture - draw nothing in or near the hands.\n"
-    return (f"IN THE HAND in cell{'s' if len(yes) > 1 else ''} {', '.join(yes)}: the {k} the cell shows - draw it as pixel art too, exactly where it is and just as big, in the "
-            "colour the cell has it in (NOT pure white: it must show on the white paper), with the same one-square dark outline as the figure, closed all round. "
-            + (f"In cell{'s' if len(no) > 1 else ''} {', '.join(no)} the hands are EMPTY: the {k} has been let go - draw nothing in or near the hands there.\n" if no else '\n'))
+        n_all, n_seen, _ = held_seen(clip, dr, i); has.append(n_all > 40 and n_seen >= 0.5 * n_all); hid.append(n_all > 40 and n_seen < 0.5 * n_all)
+    yes = [str(n + 1) for n, h in enumerate(has) if h]; no = [str(n + 1) for n, (h, q) in enumerate(zip(has, hid)) if not h and not q]; back = [str(n + 1) for n, q in enumerate(hid) if q]
+    # (a third case: the thing is there to the rig but HIDDEN to the camera - in the far hand, or in a hand raised behind a big head.
+    # Told "the ball is in the hand", the image model drew it in front of the body, at the chest.)
+    behind = (f"In cell{'s' if len(back) > 1 else ''} {', '.join(back)} the {k} is HIDDEN BY THE FIGURE - it is in the hand on the far side of the body, or in a hand raised behind "
+              f"the head: draw that arm exactly where the cell has it, and of the {k} only the little the cell shows past the figure, if any. Do NOT draw a {k} in front of the body, "
+              "at the chest or in the near hand there.\n" if back else '')
+    if not yes and not back: return f"THE HANDS ARE EMPTY in every cell: the {k} has been let go and is NOT in the picture - draw nothing in or near the hands.\n"
+    return ((f"IN THE HAND in cell{'s' if len(yes) > 1 else ''} {', '.join(yes)}: the {k} the cell shows - draw it as pixel art too, exactly where it is and just as big, in the "
+             "colour the cell has it in (NOT pure white: it must show on the white paper), with the same one-square dark outline as the figure, closed all round.\n" if yes else '')
+            + behind + (f"In cell{'s' if len(no) > 1 else ''} {', '.join(no)} the hands are EMPTY: the {k} has been let go - draw nothing in or near the hands there.\n" if no else ''))
 
 def per_sheet(clip, dr):
     """frames to a sheet: four 48-px cells (at 96 px) - or three, or two, wider ones where a frame is too wide for that (a side view's
@@ -111,9 +125,9 @@ def body_sheet(clip, dr, g):
         m = m[y0:y1, x0:x1]; x, y = (CWp - (x1 - x0)) // 2, FOOT - (y1 - y0); sh[y:y + m.shape[0], n * CWp + x:n * CWp + x + m.shape[1]][m] = rgb[y0:y1, x0:x1][m]
         # a held thing gets a dark line round it in the GUIDE: a white snowball on the white paper was not there for GPT to see
         # (it drew the hand empty in the frame where the ball stands clear above the head, with nothing behind it)
-        hp = d / f'render/{clip}-{dr}-{idx[n]}-held.png'
-        if hp.exists():
-            hm_ = (P.down(Image.open(hp).convert('RGBA'), H)[1] >= 0.5)[y0:y1, x0:x1]
+        seen_ = held_seen(clip, dr, idx[n])[2]          # (the line goes round what of it the camera sees: round all of it, a ball behind the head was ringed on the head)
+        if seen_ is not None:
+            hm_ = (P.down(seen_, H)[1] >= 0.5)[y0:y1, x0:x1]
             if hm_.shape == m.shape and hm_.any():
                 ring = ndi.binary_dilation(hm_, np.ones((3, 3))) & ~hm_ & ~(m & ~hm_); cell = sh[y:y + m.shape[0], n * CWp + x:n * CWp + x + m.shape[1]]; cell[ring] = (0.25, 0.25, 0.3)
     Image.fromarray((sh * 255).round().astype(np.uint8)).resize((1536, CHp * Z), Image.NEAREST).save(W / f'{clip}-{dr}-{g}-{H}-in.png')
@@ -435,12 +449,12 @@ def main():
             if iou < s['redo_below']: why_.append(f'pose {iou:.2f}')
             hold_r = s['actions'].get(c, {}).get('hold'); hp_r = d / f'render/{c}-{dr}-{i}-held.png'
             if isinstance(hold_r, dict) and hold_r.get('color') and hp_r.exists():
-                hc_r = np.array([[int(hold_r['color'][k_:k_ + 2], 16) / 255 for k_ in (1, 3, 5)]]); want_ = int((P.down(Image.open(hp_r).convert('RGBA'), hh)[1] >= 0.5).sum())
+                hc_r = np.array([[int(hold_r['color'][k_:k_ + 2], 16) / 255 for k_ in (1, 3, 5)]]); all_r, _, seen_r = held_seen(c, dr, i); want_ = int((P.down(seen_r, hh)[1] >= 0.5).sum())          # (what of it the camera SEES: a ball behind the head is not missing from the drawing - and one drawn in front of the body then is wrong)
                 got_ = int(((im[..., 3] > 0) & (np.sqrt(((P.lab(im[..., :3].reshape(-1, 3) / 255.0) - P.lab(hc_r)) ** 2).sum(1)).reshape(m.shape) < 30)).sum())
                 if want_ >= 6 and got_ < 0.3 * want_: why_.append(f"{hold_r['kind']} missing")
                 if want_ < 3 and got_ > 12:         # one lump of it, not a scatter of pixels that happen to be near its colour (a pale shade on a sleeve)
                     lk_ = (im[..., 3] > 0) & (np.sqrt(((P.lab(im[..., :3].reshape(-1, 3) / 255.0) - P.lab(hc_r)) ** 2).sum(1)).reshape(m.shape) < 30); l2k, nk = ndi.label(lk_)
-                    if nk and ndi.sum(lk_, l2k, np.arange(1, nk + 1)).max() >= 14: why_.append(f"{hold_r['kind']} drawn after it was let go")
+                    if nk and ndi.sum(lk_, l2k, np.arange(1, nk + 1)).max() >= 14: why_.append(f"{hold_r['kind']} drawn " + ('where the figure hides it' if all_r > 40 else 'after it was let go'))
             # WHITE THAT SHOULD NOT BE THERE, sorted out by rule - no hand, this is a skill (the user pointed at two: white between
             # the coat's collar and the chin, white between the umbrella's shaft and the face). GPT leaves paper in small gaps and
             # now and then paints white of its own (a shirt at the neck). The GUIDE it was given says what each white patch is:
