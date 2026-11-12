@@ -154,7 +154,7 @@ say that 64 is the one that comes out well. One facing of one animation first, a
 Every run ends with its review (`REVIEW: N of M frames to look at`: a pose unlike the render's - overlap under `redo_below` - or the
 held thing missing, left in the hand after the release, or drawn in a frame where the figure hides it - a ball in the far hand or behind
 the head): show the user `review.png` (each marked frame beside its guide), not every frame;
-`--redraw` says what drawing those sheets again would cost, `--redraw --yes` does it and keeps the better; `--again <sheet>` redraws one sheet. **Fewer colours or the game's own palette**: `--colours N` / `--palette FILE` (free, also on `proppixel.py`; reference/pixel.md). Out: `<clip>-<facing>.png` strips, `shadows/`
+`--redraw` says what drawing those sheets again would cost, `--redraw --yes` does it and keeps the better; `--again <sheet>` redraws one sheet. **Fewer colours or the game's own palette**: `--colours N` / `--palette NAME|FILE` (free, also on `proppixel.py`; `--palette list` shows the 15 that come with the skill; reference/pixel.md). Out: `<clip>-<facing>.png` strips, `shadows/`
 (each frame's 3D shadow), `pixel.json`. **By hand, for what is left** (white between an arm and the body, a face in one frame): `PYTHON pixeledit.py CHAR.json` - a local page
 (a server: run it in the background, give the address) to erase a patch, draw, or copy a good face into another frame; the edits are
 kept and laid on again by every later `pixelart.py` run. **Something thrown** (a snowball): `"hold": {"kind": "snowball", "color": "#bcd6f2",

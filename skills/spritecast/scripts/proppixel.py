@@ -105,9 +105,12 @@ def split(out):
 
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument('spec'); ap.add_argument('--yes', action='store_true'); ap.add_argument('--ppm', type=float, default=54.0); ap.add_argument('--again', default=''); ap.add_argument('--colours', type=int, default=0, help='how many colours the object has, all its sides together (default: about 28 a side). Free: nothing is drawn again')
+    ap = argparse.ArgumentParser(); ap.add_argument('spec', nargs='?'); ap.add_argument('--yes', action='store_true'); ap.add_argument('--ppm', type=float, default=54.0); ap.add_argument('--again', default=''); ap.add_argument('--colours', type=int, default=0, help='how many colours the object has, all its sides together (default: about 28 a side). Free: nothing is drawn again')
     ap.add_argument('--palette', default='', help="a palette you already have: a .png of it, or a text file with one hex colour a line. Every pixel takes its nearest colour in it. Free")
-    A = ap.parse_args(); spec = json.loads(Path(A.spec).read_text(encoding='utf-8')); d = Path(A.spec).resolve().parent / spec['name']; views = spec.get('views') or []; vs = views or [0]
+    A = ap.parse_args()
+    if A.palette == 'list': import pixelkit as P; P.show_palettes(); return
+    if not A.spec: ap.error('the prop\'s spec (PROP.json) is wanted')
+    spec = json.loads(Path(A.spec).read_text(encoding='utf-8')); d = Path(A.spec).resolve().parent / spec['name']; views = spec.get('views') or []; vs = views or [0]
     if not all((vdir(d, views, v) / 'render.png').exists() for v in vs): sys.exit('proppixel: no guide yet - run `isoprop.py render` on this spec first')
     if len(vs) > 1 and not spec.get('model'): print('NOTE: several views from a BLOCK guide - the image model cannot tell from blocks which face has what on it (it put a screen on the wrong face '
                                                      'in one view of four). For a thing whose sides differ, make its 3D model first (isoprop.py model, ~20 Tripo credits).')

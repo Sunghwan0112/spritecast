@@ -204,7 +204,8 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
   던지기 40프레임은 한 번 다시 그린 뒤 전부 통과했어요.
 - **마지막은 픽셀 에디터로.** 픽셀아트는 규칙만으로 다 되지 않아요. `pixeledit.py hero.json`을 실행하면 모든 프레임이 브라우저에
   떠요. 남은 흰색을 클릭 한 번으로 지우고(매직 지우개), 연필로 찍고, 색을 바꾸고, 선택한 부분을 옮기고, 잘 나온 얼굴을 다른
-  프레임에 복사해요. 고친 건 저장돼서 다음에 다시 만들어도 그대로 얹혀요.
+  프레임에 복사해요. 팔레트에 원하는 색을 추가할 수 있고, 프레임 자체도 복사(중간 동작을 그려 넣기 - 8프레임을 9프레임으로)·삭제·이동할 수
+  있어요. 그림자와 게임용 데이터도 따라 바뀌어요. 고친 건 저장돼서 다음에 다시 만들어도 그대로 얹혀요.
 
 ![픽셀 에디터: 격자 위의 프레임, 흐리게 보이는 앞 프레임, 도구들, AI와 손이 각각 얼마나 했는지](docs/pixel-edit.png)
 
@@ -216,13 +217,22 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 남은 흰색을 클릭 한 번씩, 40프레임 중 10프레임에서 지웠어요(131픽셀, 스프라이트의 0.15%). 얼굴은 손대지 않았어요. 파이프라인이 만든 그대로예요. 이 숫자는 만들
 때마다 출력돼요.
 
-**색 수.** 한 세트는 약 40색으로 나와요. `--colours 16`은 최대 16색으로 줄이고(최소 8), `--palette mygame.hex`는 이미 쓰는
-팔레트에서 가장 가까운 색을 픽셀마다 골라요. 팔레트는 `.png`나, 한 줄에 hex 색 하나씩 적은 텍스트 파일(Lospec의 `.hex`)이면 돼요.
+**색 수.** 한 세트는 약 40색으로 나와요. `--colours 16`은 최대 16색으로 줄이고(최소 8), `--palette`는 정해진
+팔레트에서 가장 가까운 색을 픽셀마다 골라요. 스킬에 들어 있는 15개는 이름으로 쓰고(`--palette pico8`, 목록은 `--palette list`),
+내 파일은 Aseprite가 읽는 형식이면 돼요: `.png` `.gif` `.bmp` `.pcx`, `.hex`(Lospec), `.gpl`, `.pal`, `.act`, `.col`, `.aseprite`.
 둘 다 무료예요. 다시 그리지 않고 같은 그림을 다른 팔레트로 읽기만 해요. 프롭에도 같은 옵션이 있어요. 16색까지는 캐릭터가 잘
 유지되고, 8색에서는 비슷한 색이 합쳐져요(남색 다리가 검정이 돼요). 팔레트에 캐릭터 색과 가까운 색이 없으면 그 색은 바뀌니까,
 결과를 보고 정하세요.
 
 ![같은 스프라이트 세 개: 기본 43색, --colours 32·16·8, 16색 PICO-8 팔레트](docs/pixel-colours.ko.png)
+
+들어 있는 팔레트를 같은 스프라이트 두 개에 입힌 모습이에요. 노란 우비는 팔레트에 노랑이 있어야 해요(`c64`, `gameboy`, `slso8`,
+`sweetie16`에는 없어요).
+
+![우비소녀와 라멘 수레를 15개 팔레트로: aap64, apollo, c64, cga, db16, db32, endesga32, endesga64, gameboy, nes, pico8, resurrect64, slso8, sweetie16, zx](docs/pixel-palettes.png)
+
+*팔레트는 만든 분들의 것이에요: AAP-64(Adigun A. Polack), Apollo(AdamCYounis), DawnBringer 16/32(DawnBringer), Endesga 32/64(ENDESGA),
+Resurrect 64(Kerrie Lake), SLSO8(Luis Miguel Maldonado), Sweetie 16(GrafxKid). [Lospec](https://lospec.com/palette-list)에서 가져왔어요.*
 
 **크기.** 보통 비율의 캐릭터는 96px가 맞아요. **64px는 그 크기에 맞춰 디자인한 캐릭터**(3등신쯤, 자기 3D 모델)에서 되고, 실제로는
 약 70px로 나와요. 그보다 작은 건 이미지 모델에 직접 부탁하지 않아요. 칸이 그렇게 적으면 격자를 못 지키거든요(32px는 네 가지

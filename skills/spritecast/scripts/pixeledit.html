@@ -19,7 +19,8 @@
   #ref { box-shadow: 0 0 0 1px var(--line); flex: none; display: none; background: #30343f; }
   #strip { flex: none; height: 96px; display: flex; gap: 4px; padding: 6px; background: var(--panel); border-top: 1px solid var(--line); overflow-x: auto; }
   #strip canvas { image-rendering: pixelated; height: 76px; border: 2px solid transparent; border-radius: 4px; background: #3a3e4a; cursor: pointer; flex: none; }
-  #strip canvas.on { border-color: var(--acc); } #strip canvas.mark { box-shadow: inset 0 -4px 0 #e5484d; } #strip canvas.edited { box-shadow: inset 0 4px 0 #4cc38a; }
+  #strip canvas.on { border-color: var(--acc); } #strip canvas.mark { box-shadow: inset 0 -4px 0 #e5484d; } #strip canvas.edited { box-shadow: inset 0 4px 0 #4cc38a; } #strip canvas.added { border-style: dashed; border-color: #6ea8fe; } #strip canvas.added.on { border-color: var(--acc); }
+  #pal i.mine { border: 1px dashed #fff9; } #newcol { width: 44px; height: 26px; padding: 0; border: 1px solid var(--line); background: none; }
   #pal { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; } #pal i { display: block; aspect-ratio: 1; border-radius: 3px; border: 1px solid #0006; cursor: pointer; } #pal i.on { outline: 2px solid var(--acc); }
   #cur { width: 100%; height: 26px; border-radius: 5px; border: 1px solid var(--line); margin-bottom: 6px; }
   .row { display: flex; gap: 5px; align-items: center; margin-top: 6px; flex-wrap: wrap; } label { color: var(--dim); }
@@ -29,6 +30,8 @@
 </style></head><body>
 <aside><h1 id="title">pixel edit</h1><div id="anims"></div>
   <h2>frame</h2><div class="row"><button id="prev">◀</button><button id="play">▶ play</button><button id="next">▶</button></div>
+  <div class="row" id="frows"><button id="fdup" title="a copy of this frame, put after it - to draw an in-between on">+ copy</button><button id="fdel" title="take this frame out of the animation">delete</button><button id="fleft" title="this frame one place earlier">◀ move</button><button id="fright" title="this frame one place later">move ▶</button></div>
+  <div class="row" id="frow2"><button id="freset" title="the frames as the pipeline made them: copies gone, frames taken out back, in their order">the pipeline's frames again</button></div>
   <div class="row"><label><input type="checkbox" id="onion"> the frame before, faint</label></div>
   <div class="row"><label><input type="checkbox" id="ref3d"> 3D render beside <kbd style="float:none">3</kbd></label></div>
   <div class="row"><label><input type="checkbox" id="refunder"> 3D render under, faint</label></div>
@@ -50,10 +53,13 @@
   <div class="row"><button id="undo">undo <kbd>⌃Z</kbd></button><button id="redo">redo <kbd>⌃Y</kbd></button></div>
   <div class="row"><button id="reset">this frame as it was</button></div>
   <h2>colour</h2><div id="cur"></div><div id="pal"></div>
+  <div class="row"><input type="color" id="newcol" value="#ff004d" title="any colour"><button id="addcol" title="put this colour in the palette (kept for next time). Shift-click a colour you added to take it out">+ add this colour</button></div>
   <h2>how</h2><div style="color:var(--dim)">
     <b>White left over:</b> <i>magic erase</i>, click it. <i>alike</i>: how near a colour counts as the same; <i>whole frame</i>: every pixel of it, not only the patch that touches (mind an eye's white, a snowball).<br>
     <b>A face:</b> <i>select</i> a good one, copy, go to another frame, paste, click to set it down - or <i>paste in every frame</i>. <i>move</i> drags what is selected; the arrow keys nudge it a pixel.<br>
     <b>Change colour:</b> click a colour in the frame - it becomes the chosen colour.<br>
+    <b>Frames:</b> <i>+ copy</i> puts a copy of this frame after it (dashed blue: yours) - draw the in-between on it; <i>delete</i> takes a frame out; <i>move</i> shifts it a place. The shadow and the game's data follow.<br>
+    <b>A new colour:</b> choose it in the colour box, <i>+ add this colour</i>; it stays in the palette (dashed).<br>
     <b>3D render</b> beside (3) or faint under: what the frame was drawn from, in the same place - to tell paper from a real gap.<br>
     Wheel zooms, Space + drag (or the middle button) moves the picture, Alt-click picks a colour, Enter plays, ← → step frames. Red bar: marked by the review. Green: edited.</div>
 </aside>
@@ -61,11 +67,12 @@
 const $ = (q) => document.querySelector(q); let D, A, cur = 0, tool = 'erase', col = [34, 27, 22], Z = 7, base = {}, sel = null, clip = null, pasting = null, playing = null, down = false, last = null, lift = null, space = false, pan = null, bs = 1, gid = 0, lastEdit = 0;
 const E = {}, undo = [], redo = [], T = {};          // E[name][frame] = Map "x,y" -> null (cleared) | [r,g,b];  T[name] = seconds spent on it by hand
 const key = (x, y) => x + ',' + y, view = $('#view'), vx = view.getContext('2d'), stage = $('#stage');
-const ed = (f = cur, n = A.name) => ((E[n] ||= {})[f] ||= new Map());
-function basePx(f, x, y) { const b = base[A.name], i = (y * b.width + f * D.frame[0] + x) * 4, d = b.data; return d[i + 3] ? [d[i], d[i + 1], d[i + 2]] : null; }
+const AN = (n) => D.animations.find((a) => a.name === n), keyOf = (f = cur, a = A) => a.order[f], baseOf = (f = cur, a = A) => { const k = a.order[f]; return typeof k === 'number' ? k : a.added[k]; };          // a frame's place -> its key (a number: the pipeline's; a name: a copy added here) and the pipeline's frame it is
+const ed = (f = cur, n = A.name) => ((E[n] ||= {})[keyOf(f, AN(n))] ||= new Map());
+function basePx(f, x, y) { const b = base[A.name], i = (y * b.width + baseOf(f) * D.frame[0] + x) * 4, d = b.data; return d[i + 3] ? [d[i], d[i + 1], d[i + 2]] : null; }
 function px(f, x, y) { const e = ed(f).get(key(x, y)); return e === null ? null : e || basePx(f, x, y); }         // the pixel as it shows: the edit, else the base
 const REF = {};          // the 3D render of a frame, fetched when first wanted
-function refOf(n = A.name, f = cur) { const k = n + '/' + f; if (!REF[k]) { const im = new Image(); im.onload = () => { im.ok = true; draw(); }; im.src = '/ref/' + k + '.png'; REF[k] = im; } return REF[k].ok ? REF[k] : null; }
+function refOf(n = A.name, f = cur) { const k = n + '/' + baseOf(f, AN(n)); if (!REF[k]) { const im = new Image(); im.onload = () => { im.ok = true; draw(); }; im.src = '/ref/' + k + '.png'; REF[k] = im; } return REF[k].ok ? REF[k] : null; }
 function draw() {
   const [w, h] = D.frame; view.width = w * Z; view.height = h * Z; vx.imageSmoothingEnabled = false; vx.clearRect(0, 0, view.width, view.height);
   const beside = $('#ref3d').checked, under = $('#refunder').checked, r3 = (beside || under) ? refOf() : null, rc = $('#ref'); rc.style.display = beside ? 'block' : 'none';
@@ -83,8 +90,8 @@ function paint(c, f, z) { const [w, h] = D.frame; for (let y = 0; y < h; y++) fo
 function thumbs() {
   const s = $('#strip'); s.innerHTML = ''; const why = D.review[A.name] || {};
   for (let f = 0; f < A.frames; f++) { const c = document.createElement('canvas'); c.width = D.frame[0]; c.height = D.frame[1]; paint(c.getContext('2d'), f, 1);
-    c.className = (f === cur ? 'on ' : '') + (why[f] ? 'mark ' : '') + (ed(f).size ? 'edited' : ''); c.title = 'frame ' + (f + 1) + (why[f] ? ' - ' + why[f].join(', ') : ''); c.onclick = () => go(f); s.appendChild(c); }
-  const w = why[cur]; $('#msg').innerHTML = `${A.name} · frame ${cur + 1} of ${A.frames}` + (w ? `<br><span class="why">review: ${w.join(', ')}</span>` : '') + (ed().size ? `<br>${ed().size} pixels edited here` : ''); stats();
+    const b = baseOf(f), mine = typeof keyOf(f) !== 'number'; c.className = (f === cur ? 'on ' : '') + (why[b] && !mine ? 'mark ' : '') + (mine ? 'added ' : '') + (ed(f).size ? 'edited' : ''); c.title = 'frame ' + (f + 1) + (mine ? ' - a copy of the pipeline\'s frame ' + (b + 1) : '') + (why[b] && !mine ? ' - ' + why[b].join(', ') : ''); c.onclick = () => go(f); s.appendChild(c); }
+  const w = typeof keyOf() === 'number' ? why[baseOf()] : null; $('#msg').innerHTML = `${A.name} · frame ${cur + 1} of ${A.frames}` + (w ? `<br><span class="why">review: ${w.join(', ')}</span>` : '') + (ed().size ? `<br>${ed().size} pixels edited here` : ''); stats();
 }
 const dur = (s) => s == null ? 'not timed' : s < 90 ? Math.round(s) + ' s' : (s / 60).toFixed(1) + ' min';
 function stats() {          // how much of this was the machine's work and how much the hand's
@@ -100,8 +107,21 @@ function pickAnim(i) { drop(); A = D.animations[i]; cur = 0; sel = null; documen
 function palette() {                          // the animation's own colours, most used first
   const b = base[A.name], n = new Map(); for (let i = 0; i < b.data.length; i += 4) if (b.data[i + 3]) { const k = b.data[i] + ',' + b.data[i + 1] + ',' + b.data[i + 2]; n.set(k, (n.get(k) || 0) + 1); }
   const cs = [...n.entries()].sort((a, b) => b[1] - a[1]).slice(0, 46).map((e) => e[0]); for (const k of ['255,255,255', '34,27,22']) if (!cs.includes(k)) cs.push(k);
-  const p = $('#pal'); p.innerHTML = ''; for (const k of cs) { const i = document.createElement('i'); i.style.background = `rgb(${k})`; i.onclick = () => setCol(k.split(',').map(Number)); i.dataset.k = k; p.appendChild(i); } setCol(col);
+  const mine = (D.colours || []).map((c) => c.join(',')).filter((k) => !cs.includes(k));
+  const p = $('#pal'); p.innerHTML = ''; for (const k of [...cs, ...mine]) { const i = document.createElement('i'), m = mine.includes(k); i.style.background = `rgb(${k})`; if (m) { i.className = 'mine'; i.title = 'added by you - Shift-click takes it out'; }
+    i.onclick = (ev) => { if (m && ev.shiftKey) { D.colours = D.colours.filter((c) => c.join(',') !== k); saveCols(); palette(); } else setCol(k.split(',').map(Number)); }; i.dataset.k = k; p.appendChild(i); } setCol(col);
 }
+function saveCols() { fetch('/colours', { method: 'POST', body: JSON.stringify({ colours: D.colours }) }); }
+function addCol() { const h = $('#newcol').value, c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)); D.colours ||= []; if (!D.colours.some((x) => x.join(',') === c.join(','))) { D.colours.push(c); saveCols(); } palette(); setCol(c); setTool('pen'); }
+// THE FRAMES THEMSELVES: a copy put after this one (an in-between to draw on), a frame taken out, a frame moved a place. The pipeline's frames are numbers in
+// the order, the copies names; the server writes the strip, the shadows and pixel.json to that order. What was undone before is forgotten (places changed).
+async function frames(fn, to) { if (!D.can_add) { $('#msg').innerHTML = 'frames can be copied, deleted and moved after one more build (pixelart.py): this set was built before that was kept'; return; }
+  drop(); if (playing) playpause(); const o = A.order.slice(), ad = { ...A.added }; if (fn(o, ad) === false) return; A.order = o; A.added = ad; A.frames = o.length; undo.length = redo.length = 0; sel = null;
+  await fetch('/frames', { method: 'POST', body: JSON.stringify({ name: A.name, order: o, added: ad }) }); cur = Math.max(0, Math.min(o.length - 1, to())); document.querySelectorAll('.anim .n')[D.animations.indexOf(A)].textContent = A.frames; draw(); thumbs(); }
+const dupFrame = () => { const id = 'x' + Date.now().toString(36), from = cur, m = new Map(ed(cur)); frames((o, ad) => { ad[id] = baseOf(from); o.splice(from + 1, 0, id); (E[A.name] ||= {})[id] = m; }, () => from + 1).then(() => { if (keyOf() === id && m.size) save(); }); };
+const delFrame = () => { const at = cur; frames((o, ad) => { if (o.length < 2) return false; const k = o.splice(at, 1)[0]; if (typeof k !== 'number') { delete ad[k]; delete E[A.name][k]; } }, () => at); };
+const moveFrame = (d) => { const at = cur, to = cur + d; frames((o) => { if (to < 0 || to >= o.length) return false; [o[at], o[to]] = [o[to], o[at]]; }, () => to); };
+const resetFrames = () => { const n = base[A.name].width / D.frame[0]; frames((o, ad) => { for (const k of Object.keys(ad)) { delete ad[k]; delete E[A.name][k]; } o.length = 0; for (let i = 0; i < n; i++) o.push(i); }, () => 0); };
 function setCol(c) { col = c; $('#cur').style.background = `rgb(${c})`; document.querySelectorAll('#pal i').forEach((i) => i.classList.toggle('on', i.dataset.k === c.join(','))); }
 function setTool(t) { drop(); tool = t; pasting = null; document.querySelectorAll('.tools button').forEach((b) => b.classList.toggle('on', b.dataset.t === t)); draw(); }
 function setZoom(z, cx, cy) {                 // the picture's point under the pointer stays under it
@@ -158,20 +178,21 @@ function copy() { const s = lift || sel; if (!s) return; clip = { x: s.x, y: s.y
 function paste() { if (!clip) return; drop(); pasting = { x: clip.x, y: clip.y }; sel = null; draw(); }
 function pasteAll() { if (!clip) return; drop(); const g = ++gid; for (let f = 0; f < A.frames; f++) { begin(f, g); for (const [dx, dy, c] of clip.px) put(clip.x + dx, clip.y + dy, c, f); save(A.name, f); } draw(); thumbs(); $('#msg').innerHTML += `<br>pasted into ${A.frames} frames`; }
 function step(from, to) { drop(); let s = from.pop(); if (!s) return; const g = s.g; let n = 0;
-  for (;;) { if (s.name !== A.name) pickAnim(D.animations.findIndex((a) => a.name === s.name)); to.push({ name: s.name, f: s.f, m: new Map(ed(s.f)), g }); E[s.name][s.f] = s.m; save(s.name, s.f); n++; if (!from.length || from[from.length - 1].g !== g) break; s = from.pop(); }
+  for (;;) { if (s.name !== A.name) pickAnim(D.animations.findIndex((a) => a.name === s.name)); to.push({ name: s.name, f: s.f, m: new Map(ed(s.f)), g }); E[s.name][keyOf(s.f, AN(s.name))] = s.m; save(s.name, s.f); n++; if (!from.length || from[from.length - 1].g !== g) break; s = from.pop(); }
   if (n === 1) cur = s.f; draw(); thumbs(); }
 const timers = {};
 function save(name = A.name, f = cur) {       // each frame saved by itself, a quarter of a second after its last change
   const now = performance.now() / 1000; T[name] = (T[name] || 0) + Math.min(20, lastEdit ? now - lastEdit : 2); lastEdit = now;          // (time at it: the gaps between edits, a pause counted as 20 s at most)
-  const k = name + ' ' + f; clearTimeout(timers[k]); timers[k] = setTimeout(async () => { const set = [], clear = [], [ox, oy] = D.origin;
-    for (const [q, v] of (E[name][f] || new Map())) { const [x, y] = q.split(',').map(Number); v === null ? clear.push([x + ox, y + oy]) : set.push([x + ox, y + oy, ...v]); }
-    await fetch('/save', { method: 'POST', body: JSON.stringify({ name, frame: f, set, clear, seconds: Math.round(T[name]) }) }); }, 250); }
+  const fk = keyOf(f, AN(name)), k = name + ' ' + fk; clearTimeout(timers[k]); timers[k] = setTimeout(async () => { const set = [], clear = [], [ox, oy] = D.origin;
+    for (const [q, v] of (E[name][fk] || new Map())) { const [x, y] = q.split(',').map(Number); v === null ? clear.push([x + ox, y + oy]) : set.push([x + ox, y + oy, ...v]); }
+    await fetch('/save', { method: 'POST', body: JSON.stringify({ name, frame: fk, set, clear, seconds: Math.round(T[name]) }) }); }, 250); }
 $('#prev').onclick = () => go(cur - 1); $('#next').onclick = () => go(cur + 1); $('#onion').onchange = draw; $('#ref3d').onchange = draw; $('#refunder').onchange = draw; $('#grid').onchange = draw; $('#zoom').oninput = (e) => setZoom(+e.target.value);
 const setBs = (n) => { bs = Math.max(1, Math.min(6, n)); $('#bs').value = bs; $('#bsn').textContent = bs; }; $('#bs').oninput = (e) => setBs(+e.target.value);
 document.querySelectorAll('.bgs i').forEach((i) => i.onclick = () => { stage.style.background = i.dataset.b; });
 const playpause = () => { if (playing) { clearInterval(playing); playing = null; $('#play').textContent = '▶ play'; } else { drop(); sel = null; playing = setInterval(() => { cur = (cur + 1) % A.frames; draw(); thumbs(); }, 120); $('#play').textContent = '■ stop'; } };
 $('#play').onclick = playpause; $('#copy').onclick = copy; $('#paste').onclick = paste; $('#pasteall').onclick = pasteAll; $('#undo').onclick = () => step(undo, redo); $('#redo').onclick = () => step(redo, undo);
 $('#reset').onclick = () => { drop(); begin(); ed().clear(); save(); draw(); thumbs(); };
+$('#fdup').onclick = dupFrame; $('#fdel').onclick = delFrame; $('#fleft').onclick = () => moveFrame(-1); $('#fright').onclick = () => moveFrame(1); $('#freset').onclick = resetFrames; $('#addcol').onclick = addCol;
 document.querySelectorAll('.tools button').forEach((b) => b.onclick = () => setTool(b.dataset.t));
 addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('button'); if (b) b.blur(); }); document.querySelectorAll('input').forEach((i) => i.addEventListener('change', () => i.blur()));   // (the keys stay the page's)
 addEventListener('keydown', (e) => { const k = e.key.toLowerCase(), mod = e.ctrlKey || e.metaKey;
@@ -190,5 +211,6 @@ addEventListener('keyup', (e) => { if (e.key === ' ') { space = false; stage.cla
     E[a.name] = {}; const [ox, oy] = D.origin; for (const [f, e] of Object.entries(a.edits)) { const m = new Map(); for (const [px_, py] of e.clear || []) m.set(key(px_ - ox, py - oy), null); for (const [px_, py, r, g, b] of e.set || []) m.set(key(px_ - ox, py - oy), [r, g, b]); E[a.name][f] = m; }
     const b = document.createElement('button'); b.className = 'anim'; const n = Object.keys(D.review[a.name] || {}).length; b.innerHTML = a.name + `<span class="n">${n ? n + ' to look at' : a.frames}</span>`; b.onclick = () => pickAnim(i); box.appendChild(b); }
   Z = Math.max(3, Math.min(16, Math.floor(Math.min((stage.clientHeight - 96) / D.frame[1], (stage.clientWidth - 96) / D.frame[0]))));          // (with the 3D render beside, the wheel zooms out to fit both) $('#zoom').value = Z;
+  if (D.px === 'prop') { $('#frows').style.display = 'none'; $('#frow2').style.display = 'none'; }          // (a prop's frames are its sides)
   pickAnim(0); setTool('erase'); window.ready = true; })();
 </script></body></html>

@@ -110,12 +110,21 @@ machine), give the user the address, stop it when they say they are done. It sav
 | magic erase (W) | click a patch of one colour - white left between an arm and the body - and the whole patch goes. "alike": how near a colour counts as the same; "whole frame": every such pixel, not only the patch that touches |
 | change colour (G) | click a colour in the frame: it becomes the chosen colour - that patch, the whole frame, or (ticked) every frame of the animation |
 | pick colour (I, or Alt-click) | the colour under the pointer |
+| "+ add this colour" | any colour, chosen in the colour box, put in the palette and kept for next time (`pixel/colours-<px>.json`); Shift-click takes it out again |
+| frames: "+ copy", "delete", "◀ move", "move ▶" | **the animation's frames themselves**. "+ copy": a copy of this frame after it (dashed blue) - an in-between to draw on, 8 frames made 9. "delete": the frame left out. "move": a place earlier or later. "the pipeline's frames again" undoes all of it. A character only (a prop's frames are its sides) |
 | select (M), move (V) | drag a box; move drags what is in it, the arrow keys nudge it a pixel |
 | copy, paste (Ctrl+C / Ctrl+V) | a face that came out well in one frame, into another: paste, click to set it down - or "paste in every frame, same place" |
 | bring back (R) | takes the edits off where it is rubbed; "this frame as it was" takes them all off |
 | ◀ ▶ (← →), play (Enter), "the frame before, faint" | to see a fix in motion and against its neighbour |
 | "3D render beside" (3), "3D render under, faint" | the render the frame was drawn from, at the frame's size and place: beside the sprite, or under it. To tell paper from a real gap, and to see what a pose or a part should be |
 | wheel, Space + drag, "behind" | zoom at the pointer, move the picture, the colour behind the sprite (white specks show on a dark one, dark specks on a light one) |
+
+**Frames changed by hand are kept like the edits**: the touch file has `_order` (the pipeline's frames by number, the copies by
+name) and `_added`; the base strips stay the pipeline's. The strip, the shadow strip and `pixel.json` follow at once - the frame
+count, `release.frame` moved to where that frame now is (`null` if the user deleted it: say so, the game has nothing to spawn
+then), and `frames_by_hand`. `pixelart.py` lays the same order out again at the end of every build (its `preview.gif` shows the
+pipeline's frames only). A set built before 0.13 needs one more build first: the page says so. Undo does not reach across a
+change of frames.
 
 Undo (Ctrl+Z) takes back a change made to many frames in one step. The left panel's "how it was made" has, for the animation and for
 everything: the AI's drawing time, the AI cut-out's time, the time spent by hand, the frames touched and the pixels changed by hand
@@ -174,9 +183,14 @@ drawings are read again with another palette - and both work on `pixelart.py` an
 - `--colours N` - N colours at most in the whole set (8 at least; a prop: all its sides together). The faces keep a good third of
   them, and a colour's share of the pixels counts for less than usual, so a small part (navy legs beside a big yellow coat) is not
   the first to go. Down to 16 a character holds up; at 8 near colours merge. Say so, and show the result.
-- `--palette FILE` - the user's own palette (their game's): a `.png`/`.gif` of it, or a text file with one hex colour a line
-  (`#1d2b53`; a Lospec `.hex`; a `.gpl`'s `r g b` lines). Every pixel takes its nearest colour in it; the run prints how many of the
-  palette's colours were used. A palette with nothing near one of the character's colours changes that colour (a yellow coat in a
+- `--palette NAME` - one of the 15 that come with the skill (`skills/spritecast/palettes/`): `pico8` 16, `gameboy` 4, `nes` 55,
+  `c64` 16, `cga` 16, `zx` 15, `sweetie16`, `db16`, `db32`, `endesga32`, `endesga64`, `resurrect64`, `apollo` 46, `aap64`, `slso8` 8.
+  `--palette list` (no spec needed) prints them and points at `palettes/preview.png`, their colours - show the user that picture
+  when they are choosing.
+- `--palette FILE` - the user's own palette (their game's), in what Aseprite reads: an image of it (`.png` `.gif` `.bmp` `.pcx`),
+  `.hex` (one hex colour a line - Lospec), `.gpl` (GIMP), `.pal` (JASC or RIFF), `.act`, `.col`, `.aseprite`/`.ase` (the sprite's own
+  palette; an Adobe swatch `.ase` too). Checked on real `.gpl` and `.aseprite` files; the others on files written to their format.
+- Either way every pixel takes its nearest colour in the palette; the run prints how many of the palette's colours were used. A palette with nothing near one of the character's colours changes that colour (a yellow coat in a
   palette without a yellow): show the result, do not promise it.
 - Colours put in by hand in the editor follow the same palette. The options are not remembered: give them again on every build, or
   the set goes back to its default colours.

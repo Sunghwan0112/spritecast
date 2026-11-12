@@ -3,6 +3,15 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.13.0 — 2026-11-12
+
+- **Palettes by name**: 15 come with the skill (`--palette pico8`, `gameboy`, `nes`, `c64`, `db32`, `endesga32`...), and
+  `--palette list` shows them. Your own palette can be any file Aseprite reads: `.png` `.gif` `.bmp` `.pcx`, `.hex`, `.gpl`, `.pal`,
+  `.act`, `.col`, `.aseprite`. *(feedback)*
+- The pixel editor: **any colour added to the palette**, and **frames copied, deleted and moved** - a copy of a frame to draw an
+  in-between on, a frame taken out, the order changed. The shadow strip and `pixel.json` follow, and every later build lays the
+  same frames out again. *(feedback)*
+
 ## 0.12.0 — 2026-11-12
 
 - **How many colours a pixel set has is yours to say**: `--colours N` (8 at least) on `pixelart.py` and `proppixel.py`, and

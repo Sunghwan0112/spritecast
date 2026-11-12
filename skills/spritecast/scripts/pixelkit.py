@@ -1,4 +1,5 @@
 """Pixel helpers for pixelart.py: area-average downscale, Lab, one palette by k-means, nearest colour, stray-pixel clean-up."""
+from pathlib import Path
 import numpy as np
 from PIL import Image
 FIG = 770.0          # the standing figure's height in the render's frames, px (pixelart.py measures it from the character's own render)
@@ -45,24 +46,95 @@ def clean(idx, m):   # a pixel none of whose 4 neighbours shares its colour take
     return out
 
 
-def load_palette(path):
-    """a palette the user HAS (their game's): a .png / .gif (every colour in it), or a text file with one hex colour a line
-    (#1d2b53 or 1d2b53; a .hex from Lospec, a .gpl's "r g b" lines too) -> its colours, uint8 (n, 3)"""
+PALETTES = Path(__file__).resolve().parent.parent / 'palettes'          # the palettes that come with the skill: <name>.hex, its first line says whose it is
+
+
+def palettes():
+    """the palettes that come with the skill -> [(name, colours, what its first line says)]"""
+    return [(f.stem, len(_text(f.read_text())), f.read_text().splitlines()[0].lstrip('; ').strip()) for f in sorted(PALETTES.glob('*.hex'))]
+
+
+def _text(s):          # one hex colour a line (.hex, Lospec), or "r g b" lines (.gpl of GIMP, .pal of JASC / Paint Shop Pro); other lines are passed over
     import re
-    from pathlib import Path
+    c = []
+    for line in s.splitlines():
+        m = re.fullmatch(r'\s*#?([0-9a-fA-F]{6})\s*', line); g = re.match(r'\s*(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})(\s|$)', line)
+        if m: c.append([int(m.group(1)[k:k + 2], 16) for k in (0, 2, 4)])
+        elif g and all(int(v) < 256 for v in g.groups()[:3]): c.append([int(v) for v in g.groups()[:3]])
+    return c
+
+
+def _aseprite(b):          # an Aseprite sprite (.aseprite / .ase): its palette chunk - the new one (0x2019), or the old (0x0004)
+    import struct
+    new, old = {}, []; n_frames = struct.unpack_from('<H', b, 6)[0]; at = 128
+    for _ in range(n_frames):
+        size, magic, n_old, _dur, _r, n_new = struct.unpack_from('<IHHH2sI', b, at)
+        if magic != 0xF1FA: break
+        q = at + 16
+        for _ in range(n_new or n_old):
+            cs, ct = struct.unpack_from('<IH', b, q)
+            if ct == 0x2019:
+                _n, first, last = struct.unpack_from('<III', b, q + 6); r = q + 6 + 20
+                for k in range(first, last + 1):
+                    fl, cr, cg, cb, _a = struct.unpack_from('<HBBBB', b, r); r += 6; new[k] = [cr, cg, cb]
+                    if fl & 1: r += 2 + struct.unpack_from('<H', b, r)[0]
+            elif ct == 0x0004 and not old:
+                packets = struct.unpack_from('<H', b, q + 6)[0]; r = q + 8
+                for _ in range(packets):
+                    _skip, n = b[r], b[r + 1] or 256; r += 2; old += [list(b[r + 3 * k:r + 3 * k + 3]) for k in range(n)]; r += 3 * n
+            q += cs
+        at += size
+    return [new[k] for k in sorted(new)] or old
+
+
+def _swatch(b):          # Adobe Swatch Exchange (also ".ase"): its RGB and Gray swatches
+    import struct
+    c = []; at = 12
+    for _ in range(struct.unpack_from('>I', b, 8)[0]):
+        kind, ln = struct.unpack_from('>HI', b, at); q = at + 6; at = q + ln
+        if kind != 1: continue
+        q += 2 + 2 * struct.unpack_from('>H', b, q)[0]; model = b[q:q + 4]; q += 4
+        if model == b'RGB ': c.append([round(255 * v) for v in struct.unpack_from('>3f', b, q)])
+        elif model == b'Gray': c.append([round(255 * struct.unpack_from('>f', b, q)[0])] * 3)
+    return c
+
+
+def load_palette(path):
+    """a palette: one that comes with the skill by its NAME (pico8, gameboy, ... - `palettes()`), or the user's own FILE, in what Aseprite
+    reads: an image of it (.png .gif .bmp .pcx: every colour in it), .hex (one hex colour a line - Lospec), .gpl (GIMP), .pal (JASC text,
+    or Microsoft RIFF), .act (Adobe colour table), .col (Animator / Animator Pro), .aseprite / .ase (the sprite's own palette; or an Adobe
+    swatch file)  ->  its colours, uint8 (n, 3), each once, in the file's order"""
+    import struct
     from PIL import Image
     p = Path(path)
-    if p.suffix.lower() in ('.png', '.gif', '.bmp'):
-        a = np.asarray(Image.open(p).convert('RGBA')).reshape(-1, 4); c = np.unique(a[a[:, 3] > 0][:, :3], axis=0)
+    if not p.exists() and (PALETTES / f'{str(path).lower()}.hex').exists(): p = PALETTES / f'{str(path).lower()}.hex'
+    if not p.exists(): raise SystemExit(f"--palette {path}: no such file, and no palette of that name comes with the skill ({', '.join(n for n, _, _ in palettes())} - `--palette list` shows them)")
+    b = p.read_bytes(); ext = p.suffix.lower()
+    if ext in ('.png', '.gif', '.bmp', '.pcx', '.jpg', '.jpeg', '.webp'):
+        a = np.asarray(Image.open(p).convert('RGBA')).reshape(-1, 4); a = a[a[:, 3] > 0][:, :3]; _, first = np.unique(a, axis=0, return_index=True); c = a[np.sort(first)].tolist()
+    elif b[:4] == b'RIFF':          # Microsoft .pal: RIFF, "PAL ", a "data" chunk = version, count, then r g b flags
+        q = b.index(b'data') + 8; n = struct.unpack_from('<H', b, q + 2)[0]; c = [list(b[q + 4 + 4 * k:q + 4 + 4 * k + 3]) for k in range(n)]
+    elif b[:4] == b'ASEF': c = _swatch(b)
+    elif ext in ('.ase', '.aseprite') or (len(b) > 6 and b[4:6] == b'\xe0\xa5'): c = _aseprite(b)
+    elif ext == '.act':          # 256 r g b; then, in some, how many of them are used (2 bytes) and the transparent one
+        n = struct.unpack_from('>H', b, 768)[0] if len(b) >= 772 else 256; c = [list(b[3 * k:3 * k + 3]) for k in range(min(n, 256) or 256)]
+    elif ext == '.col':          # Animator: 256 r g b of 0-63. Animator Pro: an 8-byte head (size, 0xB123, version), then r g b of 0-255
+        if len(b) == 768: c = [[min(255, v * 255 // 63) for v in b[3 * k:3 * k + 3]] for k in range(256)]
+        else: c = [list(b[8 + 3 * k:8 + 3 * k + 3]) for k in range((len(b) - 8) // 3)]
     else:
-        c = []
-        for line in p.read_text().splitlines():
-            m = re.fullmatch(r'\s*#?([0-9a-fA-F]{6})\s*', line); g = re.match(r'\s*(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})\b', line)
-            if m: c.append([int(m.group(1)[k:k + 2], 16) for k in (0, 2, 4)])
-            elif g: c.append([int(v) for v in g.groups()])
-        c = np.array(c, np.uint8).reshape(-1, 3)
-    if not 2 <= len(c) <= 256: raise SystemExit(f'--palette {path}: {len(c)} colours read from it (2 to 256 wanted: a .png of the palette, or a text file with one hex colour a line)')
+        try: c = _text(b.decode('utf-8', 'ignore'))
+        except Exception: c = []
+    c = np.array(c, np.int64).reshape(-1, 3).clip(0, 255).astype(np.uint8)
+    if len(c): _, first = np.unique(c, axis=0, return_index=True); c = c[np.sort(first)]          # (each colour once: an .act is padded with black to 256)
+    if not 2 <= len(c) <= 256: raise SystemExit(f'--palette {path}: {len(c)} colours read from it (2 to 256 wanted). It reads .png .gif .bmp .pcx, .hex, .gpl, .pal, .act, .col, .aseprite / .ase')
     return c
+
+
+def show_palettes():
+    """`--palette list`: what comes with the skill, said in the terminal"""
+    print('palettes that come with the skill (--palette NAME); a picture of them: ' + str(PALETTES / 'preview.png'))
+    for n, k, what in palettes(): print(f'  {n:12} {k:3} colours   {what.split(" - ")[0]} ({what.split(" - ")[1]})')
+    print('or your own file: --palette FILE  (.png .gif .bmp .pcx, .hex, .gpl, .pal, .act, .col, .aseprite / .ase)')
 
 
 def to_palette(rgba, pal):

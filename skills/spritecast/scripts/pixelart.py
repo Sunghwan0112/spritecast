@@ -11,8 +11,9 @@
                             cut-out the pipeline uses for characters (the default where onnxruntime is; ~3 s a frame, once), or rules on the guide
         --colours N         how many colours the whole set has, at most (8 or more; default: about 40 - 24 for the bodies, 13 for the faces).
                             Free to change: nothing is drawn again, the sheets are read with another palette
-        --palette FILE      a palette you already have (your game's): a .png of it, or a text file with one hex colour a line (a .hex from
-                            Lospec). Every pixel takes its nearest colour in it. Free, like --colours
+        --palette NAME|FILE one that comes with the skill by name (pico8, gameboy, nes, db32 ... - `--palette list` shows them), or a file of
+                            yours in what Aseprite reads (.png .gif .bmp .pcx, .hex, .gpl, .pal, .act, .col, .aseprite). Every pixel takes
+                            its nearest colour in it. Free, like --colours
         --no-outline        leave the figure's rim as read (by default every rim pixel that is not dark takes the outline's colour: no gaps)
         --no-face-detail    in the face, a square takes its middle colour like everywhere else (by default a small thing - a glint, a brow, a mouth -
                             that fills a good third of a square wins it)
@@ -34,8 +35,10 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage as ndi
 HERE = Path(__file__).resolve().parent; REPO = HERE
-ap = argparse.ArgumentParser(); ap.add_argument('spec'); ap.add_argument('--px', type=int, default=96); ap.add_argument('--clips', default='walk')
+ap = argparse.ArgumentParser(); ap.add_argument('spec', nargs='?'); ap.add_argument('--px', type=int, default=96); ap.add_argument('--clips', default='walk')
 ap.add_argument('--dirs', default=''); ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', default=''); ap.add_argument('--partial', action='store_true'); ap.add_argument('--no-face-detail', action='store_true'); ap.add_argument('--no-outline', action='store_true'); ap.add_argument('--redraw', action='store_true'); ap.add_argument('--cut', choices=['white', 'ai'], default=None); ap.add_argument('--colours', type=int, default=0); ap.add_argument('--palette', default=''); A = ap.parse_args()
+if A.palette == 'list': sys.path.insert(0, str(Path(__file__).resolve().parent)); import pixelkit as P_; P_.show_palettes(); sys.exit()
+if not A.spec: ap.error('the character\'s spec (CHAR.json) is wanted')
 if A.colours and A.colours < 8: sys.exit('--colours: 8 at least (an outline, two tones of hair, of skin, of each cloth: under that the face goes)')
 if A.cut is None:        # the AI cut-out (the pipeline's own, BiRefNet) wherever it can run; else the rules on white, said aloud
     import importlib.util
@@ -425,6 +428,7 @@ def main():
         # makes. A frame whose outline is no longer the one that was edited (its sheet was drawn anew) has its edits set aside.
         BASES[(c, dr)] = [f.copy() for f in fr]; tj = TOUCH.get(f'{c}-{dr}', {})
         for k_, e_ in tj.items():
+            if not k_.isdigit(): continue          # (a frame ADDED by hand: laid on at the end, with the frames' order - pixeledit.apply_frames)
             n_ = int(k_)
             if n_ >= len(fr): continue
             a_ = np.asarray(fr[n_]).copy(); was_ = int((a_[..., 3] > 0).sum())
@@ -655,6 +659,15 @@ def main():
     j_ = json.loads((out / 'pixel.json').read_text()); j_['review'] = rv; j_['made'] = made; (out / 'pixel.json').write_text(json.dumps(j_, indent=1))
     SPENT[0] += spent
     print(f'{out}: {len(strips)} animations, frame {fw}x{fh}, the figure ~{int(np.median([h.max() - h.min() + 1 for h in hs]))} px, {ncol} colours' + (f', ${spent:.2f} spent' if spent else ', nothing spent') + ' - look at preview.gif')
+    # THE PIPELINE'S OWN pixel.json and shadows kept beside the base strips; then the frames the user ADDED by hand in pixeledit.py (copies of
+    # a frame, drawn on) put back in their places: the strips, the shadow strips, the counts and the frame a thing is let go in
+    import pixeledit as PE, shutil
+    bd_ = W / f'base-{H}'; shutil.copyfile(out / 'pixel.json', bd_ / 'pixel.json'); (bd_ / 'shadows').mkdir(exist_ok=True)
+    for f_ in (out / 'shadows').glob('*.png'): shutil.copyfile(f_, bd_ / 'shadows' / f_.name)
+    add_ = {n_: v_ for n_, v_ in TOUCH.get('_order', {}).items() if v_ and (bd_ / f'{n_}.png').exists()}
+    if add_:
+        for n_ in add_: Image.fromarray(PE.strip_of(bd_ / f'{n_}.png', TOUCH, n_, fw, json.loads((out / 'pixel.json').read_text())['origin'])).save(out / f'{n_}.png')
+        PE.apply_frames(out, bd_, TOUCH); print('  frames copied, taken out or moved by hand (pixeledit.py), laid out again as they were left:', {n_: len(v_) for n_, v_ in add_.items()}, '(preview.gif shows the pipeline\'s frames only)')
     if SMALL: import pixelsmall; pixelsmall.main(A.spec, 64, SMALL)
 
 

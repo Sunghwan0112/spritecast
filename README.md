@@ -214,7 +214,8 @@ About $0.075 a sheet: a walk in all eight facings is 18 sheets (about $1.35); th
   again and keeps the better drawing. The throw's 40 frames all passed after one redraw.
 - **Then a pixel editor for the last bit.** Pixel art is not all to be had by rule. `pixeledit.py hero.json` opens every frame in
   the browser: magic-erase a patch of left-over white, pencil, change a colour, move a selection, copy a good face into the other
-  frames. The edits are kept and laid on again by every later build.
+  frames. Add any colour to the palette; and the frames themselves can be copied (an in-between to draw on - 8 frames made 9),
+  deleted and moved: the shadow and the game's data follow. The edits are kept and laid on again by every later build.
 
 ![the pixel editor: a frame on a grid, the frame before shown faint, the tools, and how much was done by AI and by hand](docs/pixel-edit.png)
 
@@ -228,12 +229,22 @@ hand work was the magic eraser - a click on each speck of left-over white, in 10
 sprites). No face was touched: they are as the pipeline made them. The build prints those numbers every time.
 
 **How many colours.** A set comes out with about 40 colours. `--colours 16` gives it 16 at most (8 is the least), and
-`--palette mygame.hex` gives every pixel its nearest colour in a palette you already have - a `.png` of it, or a text file with one
-hex colour a line (a `.hex` from Lospec). Both are free: nothing is drawn again, the same drawings are read with another palette.
-Props take the same two options. Down to 16 the character holds up well; at 8 close colours merge (her navy legs go black), and a
-palette with nothing near one of her colours will change that colour - look at the result before you keep it.
+`--palette` gives every pixel its nearest colour in a set palette: one of the 15 that come with the skill, by name
+(`--palette pico8`; `--palette list` shows them), or your own file in what Aseprite reads - `.png` `.gif` `.bmp` `.pcx`, `.hex`
+(Lospec), `.gpl`, `.pal`, `.act`, `.col`, `.aseprite`. Both are free: nothing is drawn again, the same drawings are read with
+another palette. Props take the same two options. Down to 16 the character holds up well; at 8 close colours merge (her navy legs
+go black), and a palette with nothing near one of her colours will change that colour - look at the result before you keep it.
 
 ![the same three sprites with the default 43 colours, with --colours 32, 16 and 8, and in the 16-colour PICO-8 palette](docs/pixel-colours.png)
+
+The palettes that come with it, on the same two sprites - a yellow coat needs a yellow in the palette (`c64`, `gameboy`,
+`slso8` and `sweetie16` have none):
+
+![the rain girl and the ramen cart in each of the 15 palettes: aap64, apollo, c64, cga, db16, db32, endesga32, endesga64, gameboy, nes, pico8, resurrect64, slso8, sweetie16, zx](docs/pixel-palettes.png)
+
+*The palettes are their authors': AAP-64 by Adigun A. Polack, Apollo by AdamCYounis, DawnBringer 16/32 by DawnBringer, Endesga 32/64
+by ENDESGA, Resurrect 64 by Kerrie Lake, SLSO8 by Luis Miguel Maldonado, Sweetie 16 by GrafxKid - taken from
+[Lospec](https://lospec.com/palette-list).*
 
 **Sizes.** 96 px is the size for a character of ordinary proportions. **64 px works for a character designed small** - about three
 heads tall, with its own 3D model - and comes out about 70 px. Under that, the image model is never asked: it does not keep to so
