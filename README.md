@@ -161,8 +161,8 @@ frames fit their renders at 0.76-0.97 (north-east and north-west mixed frame by 
 Beside the walk, a character can run, jump or swing something. List them in the spec, `"actions": ["run", "jump", {"name": "slash",
 "hold": "umbrella"}]`: the rig gets those animations from Tripo (about 10 credits each; run, jump, slash, shoot, dive, climb, fall,
 hurt and turn are there), and each is rendered, drawn and finished in 8 facings like the walk, into its own strips with a shadow per
-frame. A slash needs something in the hand: `"hold"` builds it from simple shapes and puts it in the right hand, so it moves with
-every frame (a closed umbrella for now). With your own rigged model, any clip in it can be an action. A held thing is described to the
+frame. A slash needs something in the hand: `"hold"` builds it from simple shapes and puts it in the hand, so it moves with
+every frame (an umbrella, a pistol or a water pistol for now; the right hand, or `"hand": "left"`). With your own rigged model, any clip in it can be an action. A held thing is described to the
 image model part by part - most carefully the end at the hand (the handle, the first stretch of the shaft), which is small and against
 the body and is where it guesses otherwise.
 
@@ -172,6 +172,26 @@ the body and is where it guesses otherwise.
 drawn once. The umbrella slash is harder (a thin thing that swings round the body): a weapon drawn in the wrong place is redrawn by
 itself, and what is left fits a little looser where she bends deep - a pose drawn a touch more upright, which reads fine in motion.
 Those frames are listed for you to look at; keep them or redraw them.
+
+**Something carried all the time, in either hand** (you asked). Put `"hold"` in the spec itself instead of in one action -
+`"hold": {"kind": "watergun", "hand": "left"}` - and the character has it through the walk, the standing views and every action.
+Below, a water pistol in the left hand: the 3D guide above, the drawn frames under it.
+
+![a water pistol carried in the left hand: walking west, walking east and running, the 3D guide above the drawn frames](docs/carry-left-hand.gif)
+
+- **It stays in that hand.** A character with a thing in one hand is not the same on both sides, so no frame is ever made by
+  flipping another - flipped, the thing would change hands. (`"mirror": "never"` asks for the same for any character that is not
+  symmetrical: an eye patch, one sleeve.) Each sheet is told which hand and where its render has the thing, and afterwards every
+  frame is checked against its render: of the 24 frames above, one was named for you to look at.
+- **The hand closes on the handle.** A rig's fingers are out straight, and a drawing over that has an open hand beside a floating
+  gun. So the guide bends the holding hand itself: the handle goes into the fist, the four fingers come round one side of it and
+  the thumb round the other, each finger bent only until it touches. A thick handle gets a looser hand; one too thick to get a
+  hand round is made thinner.
+- **Look at the hand before anything is drawn.** In a frame the grip is a few pixels, so the free `render` step also saves the hand
+  from all round, close up (`render/hand-walk.png`), and prints how far each fingertip is off the handle. Fix it there, at no cost.
+- A thing that is already part of your own rigged model: `"hold": {"in_model": true, "words": "In the LEFT hand: a black pistol."}`.
+
+The example above cost about $0.7 to draw (8 sheets: the walk from three sides and the run from one).
 
 <details>
 <summary><b>Other sizes: 512, 64 and 32 px from the same drawings</b></summary>
