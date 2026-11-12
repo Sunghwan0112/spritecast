@@ -1,26 +1,44 @@
-# SpriteCast
+<h1 align="center">SpriteCast</h1>
 
-**An isometric sprite generator for Claude Code. One illustration in, a game character out:** an 8-direction walk, a run, a jump,
-a slash, a throw - painted, or as real pixel art - at your game's camera angle, with a 3D shadow under every frame. And the props
-to stand beside it, at their real size.
+<p align="center"><b>One illustration in. A game character out.</b><br>
+An isometric sprite generator for Claude Code: 8-direction walks, actions and pixel art<br>
+at your game's camera angle, with a 3D shadow under every frame - and the props to stand beside them.</p>
 
-An image model (OpenAI's, with your own key) does the drawing. The body, the motion, the angle and the shadow come from 3D, so
-every frame is the same person and she actually walks.
-
-Free and MIT. You pay OpenAI (and Tripo, for the 3D) directly: about $2.2 and 75 Tripo credits a walking character, about $0.07 a
-prop. To try it free with no key, ask Claude to *"try SpriteCast"*.
-
-[한국어](README.ko.md)
+<p align="center">
+<a href="#what-you-can-make">What you can make</a> ·
+<a href="#walking-characters">Characters</a> ·
+<a href="#pixel-art-arcade-size">Pixel art</a> ·
+<a href="#props-and-scenery">Props</a> ·
+<a href="#install">Install</a> ·
+<a href="#faq">FAQ</a> ·
+<a href="README.ko.md">한국어</a>
+</p>
 
 ![GPT alone, two tries, against SpriteCast: the same character walking south-east](docs/gpt-alone-vs-guide.gif)
 
-*The same model, the same character sheet. GPT alone (two tries) against SpriteCast, walking south-east.*
+<p align="center"><i>The same model, the same character sheet. GPT alone (two tries) against SpriteCast.</i></p>
 
 ```
 claude plugin marketplace add Sunghwan0112/spritecast
 claude plugin install spritecast@spritecast
 ```
-Setup, keys and running the scripts yourself: [Install](#install).
+
+Then just ask: *"Here's my character (hero.png). Make her walk in 8 directions."*
+**To try it free, with no key**, ask Claude to *"try SpriteCast"*.
+
+An image model (OpenAI's, with your own key) does the drawing. The body, the motion, the angle and the shadow come from 3D - so
+every frame is the same person, and she actually walks.
+
+| | you give | you get | you pay |
+|---|---|---|---|
+| **A walking character** | one illustration | a walk in 8 facings, standing views, a shadow per frame | about $2.2 + 75 Tripo credits |
+| **More actions** | a name, or a Mixamo FBX | run, jump, slash, throw... in 8 facings | about 10 Tripo credits each (an FBX: none) + the drawing |
+| **Pixel art** | a character that walks | pixel sprites about 100 px tall | about $0.075 a sheet (a walk, 8 facings: ~$1.35) |
+| **An animal** | one illustration | a four-legged walk in 8 facings | 30 Tripo credits + the drawing |
+| **Sitting** | a character that walks | seated in 8 facings, placed on your props | about $0.22 |
+| **A prop, or a posed NPC** | a description | a sprite, its shadow, its anchor | about $0.07 (+ $0.08 a further facing) |
+
+Free and MIT. You pay OpenAI and Tripo directly; every paid step shows its cost and waits for your OK.
 
 ## What you can make
 
@@ -45,15 +63,19 @@ Setup, keys and running the scripts yourself: [Install](#install).
 
 ## Why it works
 
-Ask an image model for a walk, frame by frame, and each frame is a nice drawing - but it doesn't walk. At the top is GPT alone
-(the same model, the same character sheet, the walk asked for in words) against SpriteCast: the same leg is in front in all eight
-frames, the arms twitch at random instead of swinging against the legs, the camera is at eye level instead of looking down at the
-game's 30°, and there is no shadow. Both tries are shown as they came out.
+An image model can't keep a body and a pose from one frame to the next. Asked for a walk in words, it gives eight nice drawings
+that don't walk - the comparison at the top, both tries as they came out:
 
-An image model can't keep a body and a pose from frame to frame. So SpriteCast never asks it to. A 3D model of your character does
-the walking, under your game's exact camera; the image model only **redraws each rendered frame in your illustration's look**; and
-every drawing is then fitted back onto its render and checked against it. A frame where the model drew another pose is flagged
-and can be redrawn - not squeezed to fit. Props work the same way, with blocks at real size in place of the rig.
+| GPT alone | SpriteCast |
+|---|---|
+| the same leg in front in all eight frames | the legs come from a 3D walk |
+| the arms twitch at random | the arms swing against the legs |
+| the camera at eye level | your game's camera (30° down by default) |
+| no shadow | the 3D body's own shadow, frame by frame |
+
+So SpriteCast never asks it to. **3D does the moving; the image model only redraws** each rendered frame in your illustration's
+look. Every drawing is then fitted back onto its render and checked against it: a frame drawn in another pose is flagged and can
+be redrawn, never squeezed to fit. Props work the same way, with blocks at real size in place of the rig.
 
 **What you get from that:**
 - **The angle and size are right.** The solid props in the examples land on their guide at 95–99 % outline overlap; the plant,
@@ -92,6 +114,9 @@ from the east ones (each keeping its own shadow), about $0.66 less.
 Cost per character: about $2.2 (OpenAI; ~$1.5 with `"mirror": true`) and 75 Tripo credits (~$0.75; an animal 30). Or bring your
 own rigged GLB (`"rig_glb"`) and skip to `render`.
 
+<details>
+<summary><b>More: the preview video, Meshy, and the example character with her rig</b></summary>
+
 `preview` also makes `walk-all.mp4` (every facing walking at once, with ffmpeg): the quickest way to see a head that grows and
 shrinks or a frame that jumps. Tripo sometimes sends a model back turned sideways or uncoloured; both are fixed for you.
 `"modeler": "meshy"` (and `MESHY_API_KEY`) has [Meshy](https://www.meshy.ai) make the model instead (~30 Meshy credits); the rig
@@ -106,6 +131,8 @@ add `"draw": false` to the spec and run `charpipe.py render rain_girl.json` then
 from the 3D model itself. Her spec also shows what `"notes"` is for: the 3D render had dark streaks down the raincoat's sides and
 inside the arms, and one line in `notes` ("no dark line, stripe or seam on it anywhere... leave them out") had them drawn out of
 every frame - a flaw in the model fixed in the drawing, not in 3D.
+
+</details>
 
 ### Four-legged animals
 
@@ -139,6 +166,9 @@ drawn once. The umbrella slash is harder (a thin thing that swings round the bod
 itself, and what is left fits a little looser where she bends deep - a pose drawn a touch more upright, which reads fine in motion.
 Those frames are listed for you to look at; keep them or redraw them.
 
+<details>
+<summary><b>Other sizes: 512, 64 and 32 px from the same drawings</b></summary>
+
 **Any size you need** (you asked): frames come out 256 px tall, and `charpipe.py pack CHAR.json --px 64` makes another set at
 any height from the same drawings - larger than 256 stays sharp too, the frames are kept at the drawings' own detail - strips, shadows and `character.json` at that size, in `out-64px/`, with
 nothing redrawn and `out/` left as it is (`"frame_px"` in the spec sets the default). Below, 512, 256 (the default), 64 and 32 px tall, each shown at the same size (enlarged pixel for pixel). At 64 the hair, raincoat,
@@ -146,6 +176,8 @@ boots and umbrella all read; at 32 the pose and colours hold, but the face is mo
 yet (see the [Roadmap](#roadmap)).
 
 ![the run, jump and slash at 512, 256 (default), 64 and 32 px tall, shown at the same size](docs/actions-small.gif)
+
+</details>
 
 ### Pixel art (arcade size)
 
@@ -319,6 +351,9 @@ An NPC that only stands needs no illustration and no rig: it works like a prop. 
 
 The anchor is between the feet. About $0.07 for the first facing and $0.08 for each of the others.
 
+<details>
+<summary><b>Poses, your own angles, and redrawing one facing</b></summary>
+
 **Poses.** The mannequin has joints. `"pose"` is one of `stand` (default), `wave`, `point`, `hold` (hands together in front: a cup,
 a tray, a book), `arms-crossed` or `walk` (mid-stride). Describe what goes with it ("waving hello", "holding a coffee cup"). Or give the angles yourself, and Claude can adjust them
 for you ("raise the arm higher") and check them in the free render:
@@ -335,10 +370,15 @@ Each limb is two parts, upper and lower (`[out, forward]` degrees each): turned 
 Look at every facing yourself (the outline check can't see a head turned the wrong way); redraw one with
 `draw <spec> --yes --again --only north-west`.
 
+</details>
+
 ## Shadows that match the drawing
 
 The 3D guide's shadow is right for solid things like furniture. But a drawing has things the blocks don't: hair, a coat's hood,
 leaves spilling out of a pot.
+
+<details>
+<summary><b>How the shadow is worked out</b></summary>
 
 So SpriteCast also renders a **height map** of the guide: how high above the floor every pixel is. A point h metres up casts its
 shadow a fixed step away on screen (h times the light's offset), whatever its depth. So each pixel of the drawing takes the height of
@@ -350,6 +390,8 @@ smooth one read off the screen, so hair, hats and leaves cast a natural shadow i
 (the blocks up to 12 cm: shoes, a pot's base) the guide's own 3D shadow is added, so the shadow meets the object as a real one
 would: on the side away from the light, never in front of it. Posed figures and `loose` things get it; solid props keep the 3D
 shadow, and walking characters cast their 3D body's own (above). Choose with `"shadow": "drawn" | "guide"`.
+
+</details>
 
 ![shadows from the blocks and from the drawing](docs/shadows.png)
 
@@ -415,6 +457,9 @@ or inside Claude Code: `/plugin marketplace add Sunghwan0112/spritecast`, then `
 check (`doctor.py --fix`): it makes its own venv in `~/.cache/spritecast/` with the few packages (about 10 s), leaves your Python
 alone, and tells you what each thing is for. Nothing to install by hand.
 
+<details>
+<summary><b>Running the scripts yourself</b></summary>
+
 **Running the scripts yourself.** Claude runs them for you. To run them by hand from a clone of this repo, use the Python that
 `doctor.py` prints on its last line (`PYTHON=...`); after `--fix` it is `~/.cache/spritecast/venv/bin/python` (Windows:
 `%USERPROFILE%\.cache\spritecast\venv\Scripts\python.exe`). A plain `python` may not have the packages (`No module named ...`). The commands below
@@ -432,6 +477,8 @@ $PYTHON = "$env:USERPROFILE\.cache\spritecast\venv\Scripts\python.exe"
 ```
 There, run the `$PYTHON ...` commands below as `& $PYTHON ...`.
 
+</details>
+
 | what | for | needed? |
 |---|---|---|
 | Python 3.9+ | runs the scripts | yes |
@@ -443,6 +490,9 @@ There, run the `$PYTHON ...` commands below as `& $PYTHON ...`.
 
 **Try it first, free, no key:** ask Claude to *"try SpriteCast"*. It renders one of the examples' guides on your computer and
 finishes it with the drawing that came with the example (`isoprop.py try`), so you see the whole way before paying for anything.
+
+<details>
+<summary><b>Keys: where they go, and OpenAI's verification</b></summary>
 
 Keys: **in the plugin's settings.** When you enable SpriteCast, Claude Code asks for them (`/plugin` → SpriteCast → configure,
 to change them later): the OpenAI key, and the Tripo key if you make walking characters. They are kept in your system's credential
@@ -462,6 +512,8 @@ OpenAI may ask you to verify your organisation before a key can use image models
 Organization): do it once before your first drawing. Set the key before you start Claude Code; a key set while it runs is seen
 only after a restart. Walking characters also need `TRIPO_API_KEY`, from Tripo's API platform, where API credits are bought
 (75 a character, 30 an animal).
+
+</details>
 
 ## How it works
 
@@ -494,6 +546,9 @@ until you add `--yes`. The spec format is in [reference/spec.md](skills/spriteca
 
 ## What it sends and fetches
 
+<details>
+<summary><b>What is sent where, and what is downloaded</b></summary>
+
 Everything runs on your computer except the steps below. Each paid step prints its cost and waits for your OK first.
 
 | when | sent to | what |
@@ -515,6 +570,8 @@ The keys are read from your environment only, sent only to their own service, an
 
 The renders run in a headless browser on your computer with nothing loaded from the internet: three.js is bundled
 (`skills/spritecast/scripts/vendor/three/`, MIT).
+
+</details>
 
 ## Roadmap
 
