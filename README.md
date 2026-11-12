@@ -1,4 +1,4 @@
-<h1 align="center">SpriteCast</h1>
+<h1 align="center"><img src="docs/banner.gif" alt="SpriteCast" width="100%"></h1>
 
 <p align="center"><b>One illustration in. A game character out.</b><br>
 An isometric sprite generator for Claude Code: 8-direction walks, actions and pixel art<br>

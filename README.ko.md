@@ -1,4 +1,4 @@
-<h1 align="center">SpriteCast</h1>
+<h1 align="center"><img src="docs/banner.gif" alt="SpriteCast" width="100%"></h1>
 
 <p align="center"><b>일러스트 한 장이 게임 캐릭터가 돼요.</b><br>
 Claude Code용 아이소메트릭 스프라이트 생성기: 8방향 걷기, 동작, 픽셀아트를<br>
