@@ -1,6 +1,6 @@
 ---
 name: spritecast
-description: Make game sprites at their real size and exact camera angle (2:1 or true isometric, 3/4 top-down, front view) in the user's art style - props, furniture and objects, standing figures, characters walking, running, jumping, slashing and throwing in 8 facings (painted, or as pixel art about 96 px tall for arcade games) and seated in 8 facings, seated on the user's own chairs and benches with the chair's front piece in front of them - from a 3D guide an image model redraws; then cut out, fitted to the guide, given a baked shadow and an anchor, and fixed by hand on a local touch-up page. Use when the user asks for an isometric or top-down prop, furniture, object or character sprite, a walk cycle or another animation (run, jump, attack, throw, a Mixamo FBX clip), pixel-art sprites or a sprite sheet of a character, fixing pixel sprites by hand, a seated or sitting character, putting a character on a chair or bench, or fixing a sprite's cut-out, halo or what covers what.
+description: Make game sprites at their real size and exact camera angle (2:1 or true isometric, 3/4 top-down, front view) in the user's art style - props, furniture and objects, standing figures, characters walking, running, jumping, slashing and throwing in 8 facings (painted, or as pixel art about 96 px tall for arcade games; props as pixel art too, from every side) and seated in 8 facings, seated on the user's own chairs and benches with the chair's front piece in front of them - from a 3D guide an image model redraws; then cut out, fitted to the guide, given a baked shadow and an anchor, and fixed by hand on a local touch-up page. Use when the user asks for an isometric or top-down prop, furniture, object or character sprite, a walk cycle or another animation (run, jump, attack, throw, a Mixamo FBX clip), pixel-art sprites or a sprite sheet of a character, fixing pixel sprites by hand, a seated or sitting character, putting a character on a chair or bench, or fixing a sprite's cut-out, halo or what covers what.
 license: MIT
 compatibility: Claude Code (runs Python, Playwright and a local Chrome/Chromium on the user's machine; calls the OpenAI Images API with the user's own key)
 ---
@@ -52,7 +52,7 @@ Scripts: `${CLAUDE_SKILL_DIR}/scripts/isoprop.py` (steps `render`, `draw`, `fini
 ## More detail with a 3D model (Tripo)
 When the user wants more detail than blocks give (curves, carving, tapered legs) and has `TRIPO_API_KEY`: after the block guide is
 right, `model <spec>` (prints the cost; ~20 Tripo credits, ~2 min; ask first, then `--yes`) makes a Tripo model from the description
-and puts it in the spec at the blocks' real size (blocks → `blocks_draft`). Then `yaws <spec>` (free): look at yaws.png and set
+and puts it in the spec at the blocks' HEIGHT, in its own proportions - the shape is the model's, never pressed into the blocks' box (blocks → `blocks_draft`). Then `yaws <spec>` (free): look at yaws.png and set
 `model.yaw` to the turn whose front faces where the blocks' did. Then render, show, draw as usual. Blocks alone are fine when the
 arrangement matters more than detail.
 
@@ -124,7 +124,13 @@ the pose right) is listed, not redrawn: show the user those frames beside their 
 them too. **The prompt** names the action only (`words`) and leaves the pose to the renders (`pose`: each cell one moment, the arm and the
 held thing where its render has them) - moves spelled out ("raise it overhead, swing it down") had it drawn overhead where the render
 has it at the side. Each cell gets the held thing's place in its render; where the body hides it (seen from behind) the cell says so and
-not to draw it, and the checks count only the part that shows. A thin thing drawn a few degrees off misses its render's pixels: one
+not to draw it, and the checks count only the part that shows. **A held thing is described part by part** (`"hold": {"kind": ..., "words": "..."}`
+overrides the built-in sentence): each part, its colour, and what it must not turn into - above all the end AT THE HAND (a handle, a hilt, a
+grip). That end is small, half under the fingers and against the body, and it is where the image model guesses: an umbrella's silver shaft
+came out brown on one sheet, the two fists moved together and the gap filled with handle. "As the render shows it" is not enough there;
+"a dark brown handle in the fist, then a bare silver shaft as long as the render has it, never brown, the hands as far apart as the render"
+was right on the first drawing. When a user points at a held thing whose colour or shape changes between frames, fix the words, then
+`draw --only <action>` for the sheets moved aside (reference/character.md). A thin thing drawn a few degrees off misses its render's pixels: one
 pointing the same way (within 25°) from the same side passes. The rain girl's run and jump fit at 0.78+ in every frame on the
 first drawing; the slash's lower frames are mostly deep bends drawn a touch upright - fine in motion: show them beside their renders and
 let the user keep them or redraw. When a frame is still wrong, show it beside its render before redrawing.
@@ -156,6 +162,11 @@ kept and laid on again by every later `pixelart.py` run. **Something thrown** (a
 the hand is fastest; the folder then has the thing's own sprites and `release` in `pixel.json` (frame, point, direction, speed), and
 `<clip>-<facing>-flying.gif` to show. **An animation the rig lacks** (a throw): `PYTHON addclip.py CHAR.json Throw.fbx throw` puts a
 Mixamo FBX into a copy of the rig, free - render it and look before drawing.
+
+**A prop as pixel art** (`PYTHON proppixel.py PROP.json`, reference/pixel.md "Props as pixel art"): the prop's guide pixelized and redrawn the same way, at the
+pixel character's pixels per metre (`--ppm` = its `figure_px` / its `height_m`) so they stand on one floor. One view of a simple thing works from blocks. **From
+several sides the guide must be a 3D model** (`isoprop.py model`, ~20 Tripo credits: say the cost and wait) - from blocks the image model cannot tell which face has
+what on it. Show `out-pixel/preview.png` beside the renders.
 
 ## Sitting (people) - details in [reference/sitting.md](reference/sitting.md)
 Offer it once a character walks. 1) `charpipe.py sit CHAR.json` (free): the rig seated in 8 facings, on nothing - show the renders.

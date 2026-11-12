@@ -13,7 +13,8 @@
       0.86,
       0.95
     ],
-    "yaw": 180
+    "yaw": 180,
+    "shape": "box"
   },
   "blocks_draft": [
     {

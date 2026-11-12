@@ -41,6 +41,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent)); import browser as BROWSER  # noqa: E402
 import numpy as np
+from scipy import ndimage as ndi
 from PIL import Image
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE)); import charlib as CL   # noqa: E402
@@ -495,6 +496,7 @@ def draw_walk(s, d, dr, again, only_groups=None, name='walk'):
             part = ' (partly hidden behind the body: draw only the part the render shows)' if V.sum() < 0.6 * H.sum() else ''
             sides.append(f'cell {n_ + 1}: {lr}, {ud}{part}')
         held = (' ' + ((hold or {}).get('words') if isinstance(hold, dict) and hold.get('words') else HOLD_WORDS.get(hk, f'In the right hand: the {hk} the render shows.'))) if hold else ''
+        if hold and not (isinstance(hold, dict) and hold.get('words')) and (hk not in HOLD_WORDS or (isinstance(hold, dict) and hold.get('parts'))): held += parts_words(hold, d, name, dr)      # (the umbrella's own sentence has its parts already)
         if sides: held += ' Where it is in each cell, as the renders have it: ' + '; '.join(sides) + '.'
         P = (f"Image 1 is a SHEET of {len(idx)} separate frames of one {a['words']} animation, side by side, read left to right - every cell a 3D render "
              f"of the same {who} in one moment of it, seen from a game camera from above. " + (a['pose'] + ' ' if a.get('pose') else '') + "Redraw EVERY cell as a finished illustration, "
@@ -730,6 +732,78 @@ def held_fit(sprites, rens):
     return frames, ious
 
 
+FAMILY_WORDS = {'dark': 'black', 'grey': 'dark grey', 'silver': 'silver-grey (bare metal)', 'brown': 'dark brown', 'yellow': 'yellow', 'orange': 'orange',
+                'red': 'red', 'green': 'green', 'blue': 'blue', 'purple': 'purple'}
+
+
+def family(rgb):
+    """a colour's kind, coarse enough that a painter's shading stays in it and a wrong material does not (brown wood / silver metal / yellow cloth)"""
+    r, g, b = (rgb[..., k].astype(int) for k in range(3)); mx, mn = np.maximum(np.maximum(r, g), b), np.minimum(np.minimum(r, g), b); lum = 0.299 * r + 0.587 * g + 0.114 * b
+    f = np.full(r.shape, 'grey', dtype='<U6'); sat = mx - mn
+    f[(sat < 34) & (lum > 140)] = 'silver'; warm = (sat >= 34) & (r >= g) & (g >= b)
+    f[warm & (g >= 0.74 * r)] = 'yellow'; f[warm & (g < 0.74 * r) & (g >= 0.45 * r)] = 'orange'; f[warm & (g < 0.45 * r)] = 'red'
+    f[warm & (g < 0.74 * r) & (lum < 140)] = 'brown'
+    f[(sat >= 34) & (g > r) & (g >= b)] = 'green'; f[(sat >= 34) & (b > r) & (b > g)] = 'blue'; f[(sat >= 34) & (r > g) & (b > g)] = 'purple'
+    f[lum < 42] = 'dark'; return f
+
+
+def held_parts(d, name, dr, k):
+    """the held thing's PARTS as its own render has them: [(kind of colour, mask)] from the end at the hand outward. A thing built by
+    render_char.html has each part in a colour of its own (an umbrella: brown handle, silver shaft, the canopy, a silver tip); so has
+    most of what a rigged model carries. Parts are what the image model gets wrong one by one - and it is the end at the hand it
+    guesses at - so they are told to it one by one (parts_words) and looked at one by one afterwards (held_colours)."""
+    hp, bp = d / f'render/{name}-{dr}-{k}-held.png', d / f'render/{name}-{dr}-{k}-body.png'
+    if not hp.exists() or not bp.exists(): return []
+    h = np.asarray(Image.open(hp).convert('RGBA')); on = h[..., 3] > 200; B = np.asarray(Image.open(bp))[..., 3] > 128
+    if on.sum() < 200 or not B.any(): return []
+    fam = family(h[..., :3]); ys, xs = np.nonzero(on); c = np.array([xs.mean(), ys.mean()]); _, v = np.linalg.eigh(np.cov(np.stack([xs - c[0], ys - c[1]]))); ax = v[:, -1]
+    by, bx = [q.mean() for q in np.nonzero(B)]; t = (xs - c[0]) * ax[0] + (ys - c[1]) * ax[1]
+    if abs((bx - c[0]) * ax[0] + (by - c[1]) * ax[1] - t.min()) > abs((bx - c[0]) * ax[0] + (by - c[1]) * ax[1] - t.max()): ax = -ax; t = -t      # the axis runs from the end nearer the body
+    T = np.full(on.shape, np.nan); T[ys, xs] = t; parts = []
+    for name_ in np.unique(fam[on]):
+        m = on & (fam == name_); l2, n = ndi.label(m)                       # one kind of colour in two places (a silver shaft and a silver tip) is two parts
+        for q in range(1, n + 1):
+            piece = l2 == q
+            if piece.sum() >= max(60, 0.004 * on.sum()): parts.append((float(np.nanmedian(T[piece])), str(name_), piece))
+    return [(f, m) for _, f, m in sorted(parts, key=lambda x: x[0])]
+
+
+def parts_words(hold, d, name, dr):
+    """the sentence that names a held thing's parts from the hand outward: the user's own ("hold": {"parts": ["a dark brown wooden grip",
+    "a steel blade", ...]}) or, without them, the kinds of colour its render has - with the three things that went wrong when it was
+    only told "as the render shows it": a part painted in its neighbour's colour, the part in the fist grown longer, two hands drawn together."""
+    given = hold.get('parts') if isinstance(hold, dict) else None
+    if not given:
+        found = next((p for k in range(8) for p in [held_parts(d, name, dr, k)] if len(p) >= 2), [])
+        given = [f'a part in {FAMILY_WORDS.get(f, f)}' for f, _ in found]
+    if len(given) < 2: return ''
+    return (f' It has {len(given)} PARTS, the same in every cell, from the hand outward: ' + '; then '.join(f'{n + 1}) {g}' for n, g in enumerate(given)) + '. '
+            'Each part is exactly as long as that cell\'s render shows it and keeps its own colour and material in every cell - no part takes the colour of the one '
+            'beside it, and the part in the fist is not made longer. Where the render shows a part between the two hands, draw that part there, the hands as far '
+            'apart as the render has them - do not move the hands together.')
+
+
+def held_colours(frame, d, name, dr, k):
+    """the parts of the held thing the DRAWING may have in another kind of colour than its render: ['silver → brown', ...] - A POINTER, NOT
+    A VERDICT. Run on the rain girl's slash it named 14 of 64 frames, and looked at one by one most were right: a shaft a few pixels
+    wide and a drawing a few pixels off its render are enough to trip it. So it is printed for someone to look, and `redraw` - which
+    costs money - does not act on it. A part counts
+    when the camera sees enough of it; it passes when its kind of colour is there in the drawing near where the render has it (near: the
+    drawing lies a few pixels off its render, and a shaft is a few pixels thick). Dark for brown passes: a handle painted near-black."""
+    parts = held_parts(d, name, dr, k)
+    if len(parts) < 2: return []
+    vis = held_visible(d, name, dr, k); a = np.asarray(frame); fam = family(a[..., :3]); on = a[..., 3] > 128; out = []
+    for f, m in parts:
+        v = m & vis
+        if v.sum() < 400 or v.sum() < 0.5 * m.sum(): continue          # (enough of it, and most of it, in sight: a tip, or a handle inside a fist, is no evidence)
+        lum = a[..., :3] @ np.array([0.299, 0.587, 0.114]); near = ndi.binary_dilation(v, iterations=10) & on
+        ok = (fam == f) | ((f == 'brown') & ((fam == 'dark') | ((fam == 'grey') & (lum < 110)))) | ((f == 'silver') & (fam == 'grey') & (lum > 120))
+        if (near & ok).sum() >= 0.2 * v.sum(): continue
+        got, cnt = np.unique(fam[ndi.binary_dilation(v, iterations=3) & on], return_counts=True)
+        out.append(f"{FAMILY_WORDS.get(f, f)} → {FAMILY_WORDS.get(str(got[cnt.argmax()]), '?') if len(got) else 'nothing'}")
+    return out
+
+
 def finish_action(s, d, name, report):
     """an action's drawn sheets cut, fitted onto its renders and steadied like the walk → frames/<name>-<facing>-<k>.png; a mirrored
     facing flipped from its pair (half a cycle on for a loop, as the walk; the same moment for a one-shot)"""
@@ -753,8 +827,11 @@ def finish_action(s, d, name, report):
         report[f'{name} {dr}'] = {'overlap': ious}
         if a.get('hold'):
             cov = [held_cover(f, d, name, dr, i) for i, f in enumerate(frames)]; ext = [held_extra(f, d, name, dr, i) for i, f in enumerate(frames)]
-            report[f'{name} {dr}'].update({'held': cov, 'extra': ext})
+            parts = [held_colours(f, d, name, dr, i) for i, f in enumerate(frames)]
+            report[f'{name} {dr}'].update({'held': cov, 'extra': ext, 'parts': parts})
             wrong = [i + 1 for i, (c, x) in enumerate(zip(cov, ext)) if c < HELD_MIN or x > EXTRA_MAX]
+            off = {i + 1: p_ for i, p_ in enumerate(parts) if p_}
+            if off: print(f'finish: {name} {dr} - a part of the held thing in another colour than its render: ' + '; '.join(f'frame {i}: {", ".join(p_)}' for i, p_ in off.items()) + ' - LOOK at those frames beside their renders: this check points, it does not judge (it is not acted on by `redraw`)')
             if wrong: print(f'finish: {name} {dr} - the held thing not where the render has it in frames {wrong} (`redraw` draws those again)')
         print(f'finish: {name} {dr} overlap {min(ious):.2f}-{max(ious):.2f}', '  LOW - look at it' if min(ious) < 0.7 else '', flush=True)
     for dr in s['mirrored']:
@@ -1016,8 +1093,17 @@ ACTION_DEFAULTS = {'run': {'loop': True, 'words': 'running (a quick run: both fe
                              'pose': 'Each cell is ONE moment of it: draw the arm and the held thing exactly where that cell\'s render has them - overhead '
                                      'only in the cells whose render has it overhead, out to the side or low where the render has it there.'},
                    'dive': {'loop': False}, 'climb': {'loop': True}, 'fall': {'loop': False}, 'hurt': {'loop': False}, 'turn': {'loop': False}}
+# A HELD THING IS SAID PART BY PART, with each part's colour and what it must not become - above all the parts AT THE HAND. Told "draw it
+# as the render shows it, in the colour the render has", the image model drew the umbrella's shaft silver on one sheet and brown on the
+# next, and where both fists were on it moved them together and filled the gap with handle: the end near the body is small, half
+# covered by fingers and next to the coat, and that is where it guesses. Named - "a dark brown handle in the fist; then a bare silver
+# shaft as long as the render has it, never brown; the hands as far apart as the render" - it came right on the first drawing.
 HOLD_WORDS = {'umbrella': 'In the RIGHT hand: a closed, furled umbrella held like a sword by its hooked handle - draw it exactly where and how the '
-                         'render shows it (its canopy wrapped tight, the shaft, the J-shaped handle in the fist), in the colour the render has. '
+                         'render shows it, in the colours the render has. It has THREE PARTS, the same in every cell: a dark brown wooden J-shaped handle, in '
+                         'the fist; then a straight bare SILVER METAL shaft, exactly as long as that cell\'s render shows it between the handle and the '
+                         'canopy (bare metal: never brown, never wood, never wrapped in cloth); then the canopy wrapped tight, with a small silver tip. '
+                         'Where the render shows the silver shaft between the two hands, draw the silver shaft there, the hands as far apart as the '
+                         'render has them - do not move the hands together and do not lengthen the handle to fill the gap. '
                          'It is on the SAME side of the body and points the SAME way as in that cell\'s render, also when she is seen from '
                          'behind (do not swap it to the other hand or the other side), raised only where the render raises it.'}
 TRIPO_PRESETS = {'run', 'jump', 'dive', 'climb', 'fall', 'hurt', 'turn', 'slash', 'shoot'}

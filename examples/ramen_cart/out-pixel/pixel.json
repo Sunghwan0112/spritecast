@@ -1,0 +1,101 @@
+{
+ "px_per_m": 54.0,
+ "views": {
+  "0": {
+   "file": "sprite-0.png",
+   "size": [
+    104,
+    130
+   ],
+   "anchor_px": [
+    73.4,
+    149.9
+   ],
+   "squares_px": [
+    8.0,
+    8.05
+   ],
+   "scaled": 1.02,
+   "ai_cut": true,
+   "in_frame": [
+    6,
+    9
+   ]
+  },
+  "90": {
+   "file": "sprite-90.png",
+   "size": [
+    108,
+    132
+   ],
+   "anchor_px": [
+    41.6,
+    145.9
+   ],
+   "squares_px": [
+    8.0,
+    8.0
+   ],
+   "scaled": 1.1,
+   "ai_cut": true,
+   "in_frame": [
+    4,
+    7
+   ]
+  },
+  "180": {
+   "file": "sprite-180.png",
+   "size": [
+    96,
+    132
+   ],
+   "anchor_px": [
+    59.1,
+    146.0
+   ],
+   "squares_px": [
+    8.35,
+    7.45
+   ],
+   "scaled": 0.96,
+   "ai_cut": true,
+   "in_frame": [
+    10,
+    7
+   ]
+  },
+  "270": {
+   "file": "sprite-270.png",
+   "size": [
+    99,
+    135
+   ],
+   "anchor_px": [
+    29.2,
+    153.4
+   ],
+   "squares_px": [
+    7.51,
+    7.06
+   ],
+   "scaled": 0.92,
+   "ai_cut": true,
+   "in_frame": [
+    8,
+    4
+   ]
+  }
+ },
+ "frame": [
+  116,
+  143
+ ],
+ "animations": {
+  "views": 4
+ },
+ "origin": [
+  0,
+  0
+ ],
+ "review": {}
+}

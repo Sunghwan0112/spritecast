@@ -14,7 +14,9 @@
   main { display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100vh; }
   #stage { flex: 1; min-height: 0; overflow: auto; display: grid; place-items: safe center; background: #30343f; }
   #stage.pan, #stage.pan #view { cursor: grab; }
-  #view { image-rendering: pixelated; cursor: crosshair; box-shadow: 0 0 0 1px var(--line); margin: 40px; }
+  #pair { display: flex; align-items: flex-start; margin: 40px; gap: 16px; }
+  #view { image-rendering: pixelated; cursor: crosshair; box-shadow: 0 0 0 1px var(--line); flex: none; }
+  #ref { box-shadow: 0 0 0 1px var(--line); flex: none; display: none; background: #30343f; }
   #strip { flex: none; height: 96px; display: flex; gap: 4px; padding: 6px; background: var(--panel); border-top: 1px solid var(--line); overflow-x: auto; }
   #strip canvas { image-rendering: pixelated; height: 76px; border: 2px solid transparent; border-radius: 4px; background: #3a3e4a; cursor: pointer; flex: none; }
   #strip canvas.on { border-color: var(--acc); } #strip canvas.mark { box-shadow: inset 0 -4px 0 #e5484d; } #strip canvas.edited { box-shadow: inset 0 4px 0 #4cc38a; }
@@ -28,11 +30,13 @@
 <aside><h1 id="title">pixel edit</h1><div id="anims"></div>
   <h2>frame</h2><div class="row"><button id="prev">◀</button><button id="play">▶ play</button><button id="next">▶</button></div>
   <div class="row"><label><input type="checkbox" id="onion"> the frame before, faint</label></div>
+  <div class="row"><label><input type="checkbox" id="ref3d"> 3D render beside <kbd style="float:none">3</kbd></label></div>
+  <div class="row"><label><input type="checkbox" id="refunder"> 3D render under, faint</label></div>
   <div class="row"><label><input type="checkbox" id="grid" checked> grid</label> <label>zoom <input type="range" id="zoom" min="2" max="28" value="7" style="width:80px"></label></div>
   <div class="row bgs"><label>behind</label> <i data-b="#30343f" style="background:#30343f"></i><i data-b="#111318" style="background:#111318"></i><i data-b="#8a909c" style="background:#8a909c"></i><i data-b="#e9e6df" style="background:#e9e6df"></i><i data-b="#ff3fd0" style="background:#ff3fd0"></i></div>
   <div id="msg"></div>
   <h2>how it was made</h2><div id="stats"></div></aside>
-<main><div id="stage"><canvas id="view"></canvas></div><div id="strip"></div></main>
+<main><div id="stage"><div id="pair"><canvas id="view"></canvas><canvas id="ref"></canvas></div></div><div id="strip"></div></main>
 <aside class="right"><h2>tools</h2><div class="tools">
     <button data-t="erase">erase <kbd>E</kbd></button><button data-t="pen">pencil <kbd>B</kbd></button>
     <button data-t="fill">magic erase <kbd>W</kbd></button><button data-t="pick">pick colour <kbd>I</kbd></button>
@@ -50,6 +54,7 @@
     <b>White left over:</b> <i>magic erase</i>, click it. <i>alike</i>: how near a colour counts as the same; <i>whole frame</i>: every pixel of it, not only the patch that touches (mind an eye's white, a snowball).<br>
     <b>A face:</b> <i>select</i> a good one, copy, go to another frame, paste, click to set it down - or <i>paste in every frame</i>. <i>move</i> drags what is selected; the arrow keys nudge it a pixel.<br>
     <b>Change colour:</b> click a colour in the frame - it becomes the chosen colour.<br>
+    <b>3D render</b> beside (3) or faint under: what the frame was drawn from, in the same place - to tell paper from a real gap.<br>
     Wheel zooms, Space + drag (or the middle button) moves the picture, Alt-click picks a colour, Enter plays, ← → step frames. Red bar: marked by the review. Green: edited.</div>
 </aside>
 <script>
@@ -59,8 +64,13 @@ const key = (x, y) => x + ',' + y, view = $('#view'), vx = view.getContext('2d')
 const ed = (f = cur, n = A.name) => ((E[n] ||= {})[f] ||= new Map());
 function basePx(f, x, y) { const b = base[A.name], i = (y * b.width + f * D.frame[0] + x) * 4, d = b.data; return d[i + 3] ? [d[i], d[i + 1], d[i + 2]] : null; }
 function px(f, x, y) { const e = ed(f).get(key(x, y)); return e === null ? null : e || basePx(f, x, y); }         // the pixel as it shows: the edit, else the base
+const REF = {};          // the 3D render of a frame, fetched when first wanted
+function refOf(n = A.name, f = cur) { const k = n + '/' + f; if (!REF[k]) { const im = new Image(); im.onload = () => { im.ok = true; draw(); }; im.src = '/ref/' + k + '.png'; REF[k] = im; } return REF[k].ok ? REF[k] : null; }
 function draw() {
   const [w, h] = D.frame; view.width = w * Z; view.height = h * Z; vx.imageSmoothingEnabled = false; vx.clearRect(0, 0, view.width, view.height);
+  const beside = $('#ref3d').checked, under = $('#refunder').checked, r3 = (beside || under) ? refOf() : null, rc = $('#ref'); rc.style.display = beside ? 'block' : 'none';
+  if (beside) { rc.width = w * Z; rc.height = h * Z; const x = rc.getContext('2d'); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; if (r3) x.drawImage(r3, 0, 0, w * Z, h * Z); }
+  if (under && r3) { vx.imageSmoothingEnabled = true; vx.globalAlpha = 0.4; vx.drawImage(r3, 0, 0, w * Z, h * Z); vx.globalAlpha = 1; vx.imageSmoothingEnabled = false; }
   if ($('#onion').checked) { vx.globalAlpha = 0.22; paint(vx, (cur + A.frames - 1) % A.frames, Z); vx.globalAlpha = 1; }
   paint(vx, cur, Z);
   if (lift) for (const [dx, dy, c] of lift.px) { vx.fillStyle = `rgb(${c})`; vx.fillRect((lift.x + dx) * Z, (lift.y + dy) * Z, Z, Z); }
@@ -156,7 +166,7 @@ function save(name = A.name, f = cur) {       // each frame saved by itself, a q
   const k = name + ' ' + f; clearTimeout(timers[k]); timers[k] = setTimeout(async () => { const set = [], clear = [], [ox, oy] = D.origin;
     for (const [q, v] of (E[name][f] || new Map())) { const [x, y] = q.split(',').map(Number); v === null ? clear.push([x + ox, y + oy]) : set.push([x + ox, y + oy, ...v]); }
     await fetch('/save', { method: 'POST', body: JSON.stringify({ name, frame: f, set, clear, seconds: Math.round(T[name]) }) }); }, 250); }
-$('#prev').onclick = () => go(cur - 1); $('#next').onclick = () => go(cur + 1); $('#onion').onchange = draw; $('#grid').onchange = draw; $('#zoom').oninput = (e) => setZoom(+e.target.value);
+$('#prev').onclick = () => go(cur - 1); $('#next').onclick = () => go(cur + 1); $('#onion').onchange = draw; $('#ref3d').onchange = draw; $('#refunder').onchange = draw; $('#grid').onchange = draw; $('#zoom').oninput = (e) => setZoom(+e.target.value);
 const setBs = (n) => { bs = Math.max(1, Math.min(6, n)); $('#bs').value = bs; $('#bsn').textContent = bs; }; $('#bs').oninput = (e) => setBs(+e.target.value);
 document.querySelectorAll('.bgs i').forEach((i) => i.onclick = () => { stage.style.background = i.dataset.b; });
 const playpause = () => { if (playing) { clearInterval(playing); playing = null; $('#play').textContent = '▶ play'; } else { drop(); sel = null; playing = setInterval(() => { cur = (cur + 1) % A.frames; draw(); thumbs(); }, 120); $('#play').textContent = '■ stop'; } };
@@ -171,7 +181,7 @@ addEventListener('keydown', (e) => { const k = e.key.toLowerCase(), mod = e.ctrl
   if (k === 'escape') { drop(); pasting = null; sel = null; draw(); } if (k === 'enter') { e.preventDefault(); playpause(); }
   const arrow = { arrowleft: [-1, 0], arrowright: [1, 0], arrowup: [0, -1], arrowdown: [0, 1] }[k];
   if (arrow) { e.preventDefault(); if (tool === 'move' && (sel || lift)) { grab(); lift.x += arrow[0]; lift.y += arrow[1]; draw(); } else if (arrow[0]) go(cur + arrow[0]); return; }
-  if (k === ',') go(cur - 1); if (k === '.') go(cur + 1); if (k === '[') setBs(bs - 1); if (k === ']') setBs(bs + 1); if (k === '+' || k === '=') setZoom(Z + 1); if (k === '-') setZoom(Z - 1);
+  if (k === ',') go(cur - 1); if (k === '.') go(cur + 1); if (k === '[') setBs(bs - 1); if (k === ']') setBs(bs + 1); if (k === '+' || k === '=') setZoom(Z + 1); if (k === '-') setZoom(Z - 1); if (k === '3') { $('#ref3d').checked = !$('#ref3d').checked; draw(); }
   const t = { e: 'erase', b: 'pen', w: 'fill', f: 'fill', i: 'pick', m: 'sel', s: 'sel', v: 'move', g: 'swap', r: 'back' }[k]; if (t) setTool(t); });
 addEventListener('keyup', (e) => { if (e.key === ' ') { space = false; stage.classList.remove('pan'); } });
 (async () => { D = await (await fetch('/data')).json(); $('#title').textContent = `${D.name} · ${D.px} px`; const box = $('#anims');
@@ -179,6 +189,6 @@ addEventListener('keyup', (e) => { if (e.key === ' ') { space = false; stage.cla
     let op = 0; for (let q = 3; q < base[a.name].data.length; q += 4) if (base[a.name].data[q]) op++; a.opaque = op; T[a.name] = a.seconds || 0;
     E[a.name] = {}; const [ox, oy] = D.origin; for (const [f, e] of Object.entries(a.edits)) { const m = new Map(); for (const [px_, py] of e.clear || []) m.set(key(px_ - ox, py - oy), null); for (const [px_, py, r, g, b] of e.set || []) m.set(key(px_ - ox, py - oy), [r, g, b]); E[a.name][f] = m; }
     const b = document.createElement('button'); b.className = 'anim'; const n = Object.keys(D.review[a.name] || {}).length; b.innerHTML = a.name + `<span class="n">${n ? n + ' to look at' : a.frames}</span>`; b.onclick = () => pickAnim(i); box.appendChild(b); }
-  Z = Math.max(3, Math.min(16, Math.floor(Math.min((stage.clientHeight - 96) / D.frame[1], (stage.clientWidth - 96) / D.frame[0])))); $('#zoom').value = Z;
+  Z = Math.max(3, Math.min(16, Math.floor(Math.min((stage.clientHeight - 96) / D.frame[1], (stage.clientWidth - 96) / D.frame[0]))));          // (with the 3D render beside, the wheel zooms out to fit both) $('#zoom').value = Z;
   pickAnim(0); setTool('erase'); window.ready = true; })();
 </script></body></html>

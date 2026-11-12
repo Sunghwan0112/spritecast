@@ -179,6 +179,7 @@ def render(spec, d):
             vd.mkdir(parents=True, exist_ok=True)
             page_spec['camera'] = {'pitch': cam['pitch'], 'yaw': cam['yaw'] + turn}
             info = page.evaluate('(s) => window.setup(s)', page_spec)
+            if info.get('foot'): W, D = (round(v, 3) for v in info['foot'])          # (a model of its own shape: its footprint is what it covers, this way round)
             save = lambda url, name: (vd / name).write_bytes(base64.b64decode(url.split(',', 1)[1]))
             save(page.evaluate('() => window.shot()'), 'render.png')
             save(page.evaluate('() => window.shadowShot()'), 'render-shadow.png')
@@ -189,7 +190,7 @@ def render(spec, d):
             lo = sorted(corners, key=lambda p: -p[1])                           # the anchor: the footprint's lowest corner on screen,
             near = lo[0] if lo[0][1] - lo[1][1] > 1 else [(lo[0][0] + lo[1][0]) / 2, (lo[0][1] + lo[1][1]) / 2]   # or its front edge's middle
             if spec.get('anchor') == 'center': near = page.evaluate('([x, y]) => window.toCanvas(x, y, 0)', [W / 2, D / 2])   # a person: the feet
-            meta = {'size': info['size'], 'near': near, 'height_top': top, 'footprint_px': corners, 'px_per_m': spec.get('px_per_m', 256),
+            meta = {'size': info['size'], 'footprint_m': [W, D], 'near': near, 'height_top': top, 'footprint_px': corners, 'px_per_m': spec.get('px_per_m', 256),
                     'camera': {'pitch': cam['pitch'], 'yaw': cam['yaw'] + turn}, 'turn': turn, 'light': spec.get('light', 'right')}
             low = clip_blocks(spec.get('blocks') or [], CONTACT_H)
             if low:
@@ -351,7 +352,7 @@ def make_model(spec, d, args):
     if spec.get('character') is not None or not blocks: sys.exit('model: needs a prop spec with blocks (they give its real size)')
     H = max(block_top(x) for x in blocks)
     W, D = spec['footprint']
-    print(f'model: Tripo text-to-model {TRIPO_MODEL}, about 20-40 Tripo credits; fitted to {W} x {D} x {H:.2f} m')
+    print(f'model: Tripo text-to-model {TRIPO_MODEL}, about 20-40 Tripo credits; made {H:.2f} m tall in its own proportions (the blocks: {W} x {D} m)')
     if not args.yes: return print('model: not spent - run again with --yes')
     key = os.environ.get('TRIPO_API_KEY')
     if not key: sys.exit('model: set TRIPO_API_KEY')
@@ -367,7 +368,7 @@ def make_model(spec, d, args):
     url = r['output'].get('model_url') or r['output'].get('pbr_model') or r['output'].get('model')
     out.write_bytes(urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'}), timeout=600).read())
     raw = json.loads(Path(args.spec).read_text(encoding='utf-8'))
-    raw['model'] = {'glb': f"{spec['name']}/tripo.glb", 'size': [W, D, round(H, 3)], 'yaw': 0}
+    raw['model'] = {'glb': f"{spec['name']}/tripo.glb", 'size': [W, D, round(H, 3)], 'yaw': 0}      # (rendered in its own proportions at the blocks' height; "shape": "box" would press it into the blocks' box)
     if 'blocks' in raw: raw['blocks_draft'] = raw.pop('blocks')
     Path(args.spec).write_text(json.dumps(raw, indent=2, ensure_ascii=False), encoding='utf-8')
     print(f"model: {out}  ({time.time() - t0:.0f} s, {r.get('credits_consumed', '?')} credits) - the spec now uses it; run `yaws` to turn it the right way")
@@ -482,7 +483,7 @@ def finish(spec, d):
         sh = Image.new('RGBA', sa.size, (0, 0, 0, 0)); sh.putalpha(sa.point(lambda v: 255 if v >= 128 else 0))
         sh.crop(sb).save(d / 'shadow.png', optimize=True); sb = (sb[0] + pad, sb[1], sb[2] + pad, sb[3])
     out = {
-        'name': spec['name'], 'footprint_m': spec['footprint'], 'px_per_m': meta['px_per_m'],
+        'name': spec['name'], 'footprint_m': meta.get('footprint_m', spec['footprint']), 'px_per_m': meta['px_per_m'],
         'camera': meta.get('camera'), 'turn': meta.get('turn', 0), 'light': meta.get('light', 'right'),
         'sprite': {'file': 'sprite.png', 'size': [x1 - x0, y1 - y0],
                    'anchor': [round((nx - x0) / (x1 - x0), 4), round((ny - y0) / (y1 - y0), 4)],

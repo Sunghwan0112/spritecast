@@ -114,6 +114,7 @@ machine), give the user the address, stop it when they say they are done. It sav
 | copy, paste (Ctrl+C / Ctrl+V) | a face that came out well in one frame, into another: paste, click to set it down - or "paste in every frame, same place" |
 | bring back (R) | takes the edits off where it is rubbed; "this frame as it was" takes them all off |
 | ◀ ▶ (← →), play (Enter), "the frame before, faint" | to see a fix in motion and against its neighbour |
+| "3D render beside" (3), "3D render under, faint" | the render the frame was drawn from, at the frame's size and place: beside the sprite, or under it. To tell paper from a real gap, and to see what a pose or a part should be |
 | wheel, Space + drag, "behind" | zoom at the pointer, move the picture, the colour behind the sprite (white specks show on a dark one, dark specks on a light one) |
 
 Undo (Ctrl+Z) takes back a change made to many frames in one step. The left panel's "how it was made" has, for the animation and for
@@ -182,3 +183,33 @@ substitute: a raised hand goes into the head. A clip from an FBX then takes `add
    colour; white on the render's head stays (an eye); white where the render has nothing is paper and goes; other white (a shirt the
    model invented at the neck) takes the colours next to it.
 6. A held thing goes to its `final` colour. The outline is closed: a rim pixel that is not dark takes the outline's colour.
+
+## Props as pixel art: `proppixel.py`
+
+The same way round as a character, for a thing: its 3D guide pixelized, redrawn as pixel art on the same grid, read back on the grid
+the image model drew, brought to the guide's size. It needs the prop's guide (`isoprop.py render`) and `OPENAI_API_KEY`.
+
+```
+PYTHON proppixel.py PROP.json                # the plan and its cost - spends nothing
+PYTHON proppixel.py PROP.json --yes          # one picture a view (~$0.07-0.10), then reads all → <prop>/out-pixel/
+PYTHON proppixel.py PROP.json --ppm 54       # pixels per metre
+```
+
+- **`--ppm` is what puts the prop and the character on one floor**: the pixel character's `figure_px` (in its `pixel.json`) over its
+  height in metres (`height_m` in its spec). The small example character is 70 px for 1.3 m: 54, the default. Say the number you used.
+- **From several sides, make the 3D model first** (`isoprop.py model` - Tripo, ~20 credits - then `yaws`, `"views": [0, 90, 180, 270]`,
+  `render`). Blocks say where a thing stands and how big it is, not which face has what on it: an arcade cabinet from blocks came out
+  with its screen on the wrong face in one view of four and its top another colour in two. From a model each side has its own things
+  on it, and the image model is shown the same view at full size beside the pixelized one: a ramen cart - tiled roof, spoked wheels,
+  bottles, bowls, a lantern - came out right from all four. The run says so when a spec has several views and no model.
+- **One view of a simple thing** (a chair, a crate) is fine from blocks; the finished illustration (`sprite.png`), if there is one, is
+  shown for its materials and colours.
+- Out: `sprite-<view>.png` (or `sprite.png`), `pixel.json` (`px_per_m`, each view's `size`, `anchor_px` - the footprint's near corner
+  in the sprite's pixels; it can lie outside the picture for a thing on wheels or legs - what the squares came out at, the correction
+  made), `preview.png`. **Show preview.png beside the guide's renders.** A view that is wrong: `--again <view>`.
+- White shut in by the object (the air under a roof, between spokes) is cleared by the AI cut-out, as for characters; a white thing
+  (a stack of bowls) stays. Never under 64 squares: a small prop is drawn 64 tall and made smaller. No pixel shadow yet: say so.
+- **By hand**: `PYTHON pixeledit.py PROP.json` opens the same page as for a character - the views are the frames of one strip,
+  "views" - for the user to finish a cut-out (magic erase) or fix a pixel. Kept in `<prop>/pixel-touch.json`, laid on again by every run of
+  `proppixel.py`; a view drawn anew has its edits set aside. Offer it; a user who wants the cut-out their own way asks for exactly this.
+

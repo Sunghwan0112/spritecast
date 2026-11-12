@@ -18,6 +18,10 @@ at your game's camera angle, with a 3D shadow under every frame - and the props 
 
 <p align="center"><i>The same image model, the same character sheet. Left: GPT asked for a walk, as it came out. Right: what the 3D adds.</i></p>
 
+![a ramen street cart as a 3D model from four sides, and the same four sides as pixel-art sprites beside the small pixel character](docs/pixel-props.png)
+
+<p align="center"><i>And things, not only people: any object as pixel art, from any side, at the character's scale. <a href="#pixel-art-props-any-object-any-side">How</a>.</i></p>
+
 ```
 claude plugin marketplace add Sunghwan0112/spritecast
 claude plugin install spritecast@spritecast
@@ -37,6 +41,7 @@ every frame is the same person, and she actually walks.
 | **An animal** | one illustration | a four-legged walk in 8 facings | 30 Tripo credits + the drawing |
 | **Sitting** | a character that walks | seated in 8 facings, placed on your props | about $0.22 |
 | **A prop, or a posed NPC** | a description | a sprite, its shadow, its anchor | about $0.07 (+ $0.08 a further facing) |
+| **A pixel-art prop** | a description | pixel sprites from every side, at the pixel character's scale | about 20 Tripo credits + $0.08 a side |
 
 Free and MIT. You pay OpenAI and Tripo directly; every paid step shows its cost and waits for your OK.
 
@@ -157,7 +162,9 @@ Beside the walk, a character can run, jump or swing something. List them in the 
 "hold": "umbrella"}]`: the rig gets those animations from Tripo (about 10 credits each; run, jump, slash, shoot, dive, climb, fall,
 hurt and turn are there), and each is rendered, drawn and finished in 8 facings like the walk, into its own strips with a shadow per
 frame. A slash needs something in the hand: `"hold"` builds it from simple shapes and puts it in the right hand, so it moves with
-every frame (a closed umbrella for now). With your own rigged model, any clip in it can be an action.
+every frame (a closed umbrella for now). With your own rigged model, any clip in it can be an action. A held thing is described to the
+image model part by part - most carefully the end at the hand (the handle, the first stretch of the shaft), which is small and against
+the body and is where it guesses otherwise.
 
 ![the rain girl running, jumping and slashing with her umbrella - the slash seen from the side](docs/actions.gif)
 
@@ -235,6 +242,31 @@ skill asks for 64 and makes 32 from that (the green row). The details: [referenc
 
 The sprites above are in [`examples/rain_girl/pixel`](examples/rain_girl/pixel): the throw in five facings, a walk in two and the
 umbrella slash as strips, their shadows, the snowball with its flight shape and burst, and `pixel.json` with the release data.
+
+### Pixel-art props: any object, any side
+
+![a ramen street cart as a 3D model from four sides, and the same four sides as pixel-art sprites](docs/pixel-props.png)
+
+The same way round as a character, for a thing: its 3D guide is pixelized, the image model redraws it as pixel art on the same grid,
+and the drawing is read back on that grid and brought to the guide's size. The angle is the camera's, so a thing turned four ways is
+four sprites of ONE thing - the same roof, the same wheels, each side with what belongs on it.
+
+```
+$PYTHON skills/spritecast/scripts/isoprop.py model cart.json --yes    # Tripo makes the 3D model from the description (~20 credits)
+$PYTHON skills/spritecast/scripts/isoprop.py render cart.json         # free: the guide from each side ("views": [0, 90, 180, 270])
+$PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # ~$0.08 a side → out-pixel/sprite-<side>.png
+```
+
+- **A real 3D model is what makes the sides come out right.** From blocks alone the image model cannot tell which face has what on it:
+  an arcade cabinet came out with its screen on the wrong face in one view of four. The cart above is a Tripo model; all four sides
+  matched it on the first drawing. One view of a simple thing (a chair, a crate) is fine from blocks.
+- **The same scale as the character.** `--ppm` is pixels per metre: the pixel character's height in pixels over its height in metres
+  (54 for the small example character), so the prop and the character stand on one floor in the same size of pixel.
+- **The cut-out is yours to finish.** The air under a roof and between spokes is cleared by the AI cut-out; what it leaves, open in the
+  same pixel editor as the characters (`pixeledit.py cart.json`): the four sides are four frames, the 3D render can be shown beside
+  or under the sprite, and what you erase is kept. The cart above had 122 pixels finished that way.
+- No pixel shadow for props yet. The cart is in [`examples/ramen_cart`](examples/ramen_cart): the spec, the Tripo model, the four guides
+  and the four sprites.
 
 ### Skipping the drawing: the 3D renders as the frames
 
@@ -340,8 +372,9 @@ The examples' 3D models (`reading_armchair_tripo`, and the walking characters' m
 ![blocks vs a Tripo model as the guide](docs/tripo.png)
 
 Blocks are enough when what matters is where things stand and how big they are. For more detail (curved arms, tapered legs, buttons,
-carving), let [Tripo](https://www.tripo3d.ai) make a real 3D model from the description first. It's fitted into the same real-size box
-the blocks gave, so the arrangement doesn't change, and it becomes the guide. The image model then draws over a real shape, and the 3D
+carving), let [Tripo](https://www.tripo3d.ai) make a real 3D model from the description first. It is made as tall as the blocks say and
+keeps its own proportions (the footprint it then covers is written to `sprite.json`; `"shape": "box"` presses it into the blocks' box
+instead), and it becomes the guide. The image model then draws over a real shape, and the 3D
 shadow is the model's own.
 
 ```

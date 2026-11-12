@@ -3,8 +3,20 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
-## Unreleased
+## 0.11.0 — 2026-11-12
 
+- The pixel editor shows **the 3D render beside the sprite, or faint under it**, and opens a prop's views like a character's frames.
+  *(feedback)*
+- **Props as pixel art** (`proppixel.py`): a prop's 3D guide pixelized, redrawn and read back like a character's frame, at the pixel
+  character's scale - from every side when the guide is a 3D model. New example: `examples/ramen_cart`, a street cart from four sides.
+  The grid reading is now a module of its own (`pixelgrid.py`), shared by characters and props. *(feedback)*
+- The rain girl's umbrella slash drawn again (seven facings' second halves) with the umbrella said part by part. *(feedback)*
+- **A prop's 3D model keeps its own proportions**: it is made as tall as the blocks say with one scale, and the footprint it covers is
+  reported. It was pressed into the blocks' box axis by axis, which squeezed a model whose shape the blocks only guessed (a cart's
+  wheels came out oval). `"shape": "box"` is the old way. *(feedback)*
+- **A held thing is described part by part**, most carefully at the hand: the umbrella's built-in sentence names its handle, its silver
+  shaft and its canopy, with what each must not become. Told only "as the render shows it", the shaft changed colour between sheets and
+  two fists were drawn together. `"hold": {"words": ...}` gives the sentence for anything else. *(feedback)*
 - The README's first picture: GPT alone in one direction against the same character walking in eight on the game's floor, each with
   its shadow, and as pixel art. *(feedback)*
 - **A held thing the figure hides** (a ball in the far hand, or in a hand raised behind a big head): the image model is told so, cell by

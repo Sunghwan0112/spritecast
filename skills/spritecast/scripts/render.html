@@ -74,7 +74,9 @@ function block(b, W, D) {
   m.add(edges(geo)); return m;
 }
 
+let modelFoot = null;          // the footprint a model of its own shape covers, metres [W, D]
 async function model(spec) {
+  modelFoot = null;
   const { glb, yaw = 0 } = spec.model; const [W, D, H] = spec.model.size;
   const g = await new GLTFLoader().loadAsync(glb); const m = g.scene;
   m.traverse((o) => { if (o.isMesh) { const s = Array.isArray(o.material) ? o.material[0] : o.material;
@@ -82,6 +84,13 @@ async function model(spec) {
   const turn = new THREE.Group(); turn.add(m); turn.rotation.y = yaw * Math.PI / 180; turn.updateMatrixWorld(true);
   const box = new THREE.Box3().setFromObject(turn); const e = box.getSize(new THREE.Vector3());
   const fit = new THREE.Group(); fit.add(turn);
+  // THE MODEL KEEPS ITS OWN PROPORTIONS (the user: "the shape is what matters"): one scale, by its height, and the footprint is what the model then covers.
+  // (Pressed into the blocks' box axis by axis - the other way, and how it was - a cart modelled longer than the blocks guessed came
+  // out squeezed: its wheels narrow, its roof short. The blocks say how TALL the thing is; the model knows its own shape.)
+  if (spec.model.shape !== 'box') {          // (the default. "shape": "box" presses the model into the blocks' box, for a spec whose tiles were planned by the blocks)
+    const k = H / e.y; fit.scale.set(k, k, k); fit.position.set(-(box.min.x + box.max.x) / 2 * k, -box.min.y * k, -(box.min.z + box.max.z) / 2 * k);
+    modelFoot = [e.z * k, e.x * k]; return fit;
+  }
   fit.scale.set(D / e.x, H / e.y, W / e.z);                                // model x ← game y (D), model z ← game x (W)
   fit.position.set(-(box.min.x + box.max.x) / 2 * D / e.x, -box.min.y * H / e.y, -(box.min.z + box.max.z) / 2 * W / e.z);
   return fit;
@@ -109,11 +118,11 @@ window.setup = async (spec) => {
   const side = spec.light === 'left' ? -1 : 1; SHADOW = [-0.42 * side, -0.78]; sun.position.set(2 * side, 4, 3);
   const [W, D] = spec.footprint; foot = [W, D];
   prop = new THREE.Group();
-  if (spec.model) prop.add(await model(spec));
+  if (spec.model) { prop.add(await model(spec)); if (modelFoot) foot = modelFoot.slice(); }
   for (const b of spec.blocks || []) prop.add(block(b, W, D));
   prop.rotation.y = YAW * Math.PI / 180; scene.add(prop);
   if (!spec.keepFrame) frame(spec.px_per_m || 256);           // keepFrame: the same canvas as the last setup (a part of the same prop)
-  return { size };
+  return { size, foot: spec.model && modelFoot ? foot : null };
 };
 const draw = async () => { if (renderer.compileAsync) await renderer.compileAsync(scene, cam); renderer.render(scene, cam); renderer.render(scene, cam); };
 window.shot = async () => { await draw(); return renderer.domElement.toDataURL('image/png'); };

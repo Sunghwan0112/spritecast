@@ -41,7 +41,9 @@ def outline_of(frame): return int((frame[..., 3] > 0).sum())
 def serve(spec, px, port, open_, host='127.0.0.1'):
     s = json.loads(Path(spec).read_text(encoding='utf-8')); d = Path(spec).resolve().parent / s['name']; out = d / f'out-pixel{px}'; base = d / 'pixel' / f'base-{px}'
     tp = d / 'pixel' / f'touch-{px}.json'; tt = d / 'pixel' / f'touch-{px}-time.json'      # (the time at it, per animation: the editor counts it)
-    if not (out / 'pixel.json').exists() or not base.is_dir(): sys.exit(f'pixeledit: no pixel sprites at {px} px yet - run pixelart.py first')
+    prop = not (out / 'pixel.json').exists() and (d / 'out-pixel/pixel.json').exists()          # a PROP made by proppixel.py: its views are the frames of one strip, "views"
+    if prop: out = d / 'out-pixel'; base = d / 'pixel-base'; tp = d / 'pixel-touch.json'; tt = d / 'pixel-touch-time.json'; px = 'prop'
+    if not (out / 'pixel.json').exists() or not base.is_dir(): sys.exit(f'pixeledit: no pixel sprites at {px} px yet - run pixelart.py (a character) or proppixel.py (a prop) first')
     meta = json.loads((out / 'pixel.json').read_text()); fw, fh = meta['frame']; origin = meta.get('origin', [0, 0]); names = [n for n in meta['animations'] if (base / f'{n}.png').exists()]
     lock = threading.Lock()
 
@@ -50,6 +52,26 @@ def serve(spec, px, port, open_, host='127.0.0.1'):
         for k, e in t.items():
             i = int(k); lay(a[:, i * fw:(i + 1) * fw], e, origin)
         Image.fromarray(a).save(out / f'{name}.png')
+        if prop: import proppixel; proppixel.split(out)          # (the strip cut back into sprite-<view>.png)
+
+    R = 4          # the 3D render is sent this many times the frame's size: it is there to be read, not to be a sprite
+    refs = {}
+
+    def ref(name, i):
+        """the 3D RENDER a frame was drawn from, on the frame's own place (PNG, R times the frame) - to look at beside the sprite or under it"""
+        if (name, i) in refs: return refs[(name, i)]
+        im = Image.new('RGBA', (fw * R, fh * R))
+        try:
+            if prop:
+                v, e = list(meta['views'].items())[i]; vd = d / f'turn-{v}' if (d / f'turn-{v}').exists() else d; r = Image.open(vd / 'render.png').convert('RGBA'); r = r.crop(r.getbbox())
+                im.alpha_composite(r.resize((e['size'][0] * R, e['size'][1] * R), Image.LANCZOS), (e['in_frame'][0] * R, e['in_frame'][1] * R))
+            else:
+                clip, dr = name.split('-', 1); r = Image.open(d / f'render/{clip}-{dr}-{i}.png').convert('RGBA'); st = json.loads((d / 'pixel' / f'state-{px}.json').read_text())
+                idle = Image.open(d / 'render/idle-south.png').convert('RGBA').getbbox(); k = round(px * st['scale']) / (idle[3] - idle[1])          # (the render at the sprite's size, as pixelart.py lays the sprite on it)
+                r = r.resize((max(1, round(r.width * k * R)), max(1, round(r.height * k * R))), Image.LANCZOS); x, y = (64 - origin[0]) * R, (64 - origin[1]) * R
+                big = Image.new('RGBA', (im.width + 2000, im.height + 2000)); big.alpha_composite(r, (x + 1000, y + 1000)); im = big.crop((1000, 1000, 1000 + im.width, 1000 + im.height))
+        except Exception: pass          # (no render for it: an empty picture)
+        b = io.BytesIO(); im.save(b, 'PNG'); refs[(name, i)] = b.getvalue(); return refs[(name, i)]
 
     class H(http.server.BaseHTTPRequestHandler):
         def log_message(self, *a): pass
@@ -67,6 +89,7 @@ def serve(spec, px, port, open_, host='127.0.0.1'):
                 return self.send(200, json.dumps({'name': d.name, 'px': px, 'frame': [fw, fh], 'origin': origin, 'review': meta.get('review', {}),
                                                   'animations': [{'name': n, 'frames': meta['animations'][n], 'edits': t.get(n, {}), 'made': m.get(n, {}), 'seconds': sec.get(n, 0)} for n in names]}).encode(), 'application/json')
             if u.startswith('/base/') and u[6:-4] in names: return self.send(200, (base / f'{u[6:-4]}.png').read_bytes(), 'image/png')
+            if u.startswith('/ref/') and u.endswith('.png') and u[5:-4].rsplit('/', 1)[0] in names: n_, i_ = u[5:-4].rsplit('/', 1); return self.send(200, ref(n_, int(i_)), 'image/png')
             self.send(404, b'not found', 'text/plain')
 
         def do_POST(self):

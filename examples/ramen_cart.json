@@ -1,0 +1,158 @@
+{
+  "name": "ramen_cart",
+  "footprint": [
+    1.9,
+    1.0
+  ],
+  "facing": "its serving side (the counter, the curtains) faces down-left, toward the viewer",
+  "description": "a Japanese ramen street cart (a yatai): a weathered wooden cart on two big spoked wooden wheels with a pair of pull handles at one end, a small tiled roof on four slim posts, short dark-blue cloth curtains with white stripes hanging along the front edge of the roof, a red paper lantern hanging at one front corner, a counter with two steaming steel pots, a stack of bowls and a row of bottles, a wooden shelf under the counter (no words, no logos, no people)",
+  "model": {
+    "glb": "ramen_cart/tripo.glb",
+    "size": [
+      1.9,
+      1.0,
+      2.15
+    ],
+    "yaw": 0
+  },
+  "blocks_draft": [
+    {
+      "box": [
+        0.0,
+        1.5,
+        0.1,
+        0.9,
+        0.45,
+        1.05
+      ],
+      "color": "#9a6a3a"
+    },
+    {
+      "box": [
+        0.0,
+        1.5,
+        0.05,
+        0.95,
+        1.05,
+        1.12
+      ],
+      "color": "#c08a4a"
+    },
+    {
+      "box": [
+        1.5,
+        1.9,
+        0.3,
+        0.7,
+        0.75,
+        0.85
+      ],
+      "color": "#7a5230"
+    },
+    {
+      "box": [
+        0.35,
+        0.95,
+        0.0,
+        0.08,
+        0.0,
+        0.9
+      ],
+      "color": "#6a4628"
+    },
+    {
+      "box": [
+        0.35,
+        0.95,
+        0.92,
+        1.0,
+        0.0,
+        0.9
+      ],
+      "color": "#6a4628"
+    },
+    {
+      "box": [
+        0.0,
+        1.5,
+        0.0,
+        1.0,
+        1.95,
+        2.15
+      ],
+      "color": "#5a6a7a"
+    },
+    {
+      "box": [
+        0.02,
+        0.08,
+        0.05,
+        0.11,
+        1.12,
+        1.95
+      ],
+      "color": "#7a5230"
+    },
+    {
+      "box": [
+        1.42,
+        1.48,
+        0.05,
+        0.11,
+        1.12,
+        1.95
+      ],
+      "color": "#7a5230"
+    },
+    {
+      "box": [
+        0.02,
+        0.08,
+        0.89,
+        0.95,
+        1.12,
+        1.95
+      ],
+      "color": "#7a5230"
+    },
+    {
+      "box": [
+        1.42,
+        1.48,
+        0.89,
+        0.95,
+        1.12,
+        1.95
+      ],
+      "color": "#7a5230"
+    },
+    {
+      "box": [
+        0.0,
+        1.5,
+        0.0,
+        0.03,
+        1.65,
+        1.95
+      ],
+      "color": "#26347a"
+    },
+    {
+      "box": [
+        0.0,
+        0.18,
+        0.0,
+        0.18,
+        1.35,
+        1.65
+      ],
+      "color": "#d03a2a"
+    }
+  ],
+  "views": [
+    0,
+    90,
+    180,
+    270
+  ]
+}

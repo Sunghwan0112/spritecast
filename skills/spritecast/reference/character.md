@@ -199,3 +199,24 @@ facing by facing, by face landmarks - hair fools any outline measure - and `--ap
 **The cut-out needs onnxruntime** (in requirements.txt): run every step with the `PYTHON=` doctor.py prints. A Python without it now
 stops `finish` with a message instead of quietly cutting by the paper's white (which takes white clothes away and leaves paper between
 the limbs); `SPRITECAST_KEY=white` cuts by white on purpose.
+
+## A held thing: say it part by part
+
+The built-in sentence for an umbrella names its three parts and their colours; for anything else held (`"hold": {"kind": ...}`), or when a
+drawing gets a part wrong, give the sentence yourself in the spec: `"hold": {"kind": "sword", "words": "In the RIGHT hand: ..."}`.
+
+What goes wrong, and where: the parts **nearest the hand and the body** - a handle, a hilt, a grip, the first stretch of a shaft. They
+are a few pixels of the render, half covered by fingers and lying against the coat, so the image model fills them in from habit: a shaft
+silver on one sheet and brown on the next, a handle grown longer, two fists drawn together with the gap between them painted as handle.
+The far end (a blade, a canopy, a tip) is big, clear of the body, and comes out right.
+
+So write, in order from the hand outward: each part, its material and colour, how long it is ("exactly as long as that cell's render shows
+it"), what it must NOT become ("bare metal: never brown, never wrapped"), and where the hands are ("as far apart as the render has them -
+do not move them together"). One sheet of the rain girl's slash drawn with such a sentence had the handle, the shaft and the hands as the
+render in all four frames; with "in the colour the render has" two of the four were wrong.
+
+To redraw only what was wrong: move the sheets aside (`<character>/draw/<action>-<facing>-drawn-<n>.png`) and run
+`charpipe.py draw CHAR.json --only <action>` - it draws what is missing (the cost is printed first) and finishes the strips.
+A colour that still differs between frames can be evened without drawing: tell the user it can be made ONE colour (the stick all brown)
+but not put where the drawing has no room for it (a silver shaft between two fists drawn touching).
+
