@@ -3,6 +3,12 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.12.0 — 2026-11-12
+
+- **How many colours a pixel set has is yours to say**: `--colours N` (8 at least) on `pixelart.py` and `proppixel.py`, and
+  `--palette FILE` for a palette you already have (a `.png` of it, or one hex colour a line). Free: nothing is drawn again.
+  *(feedback)*
+
 ## 0.11.0 — 2026-11-12
 
 - The pixel editor shows **the 3D render beside the sprite, or faint under it**, and opens a prop's views like a character's frames.

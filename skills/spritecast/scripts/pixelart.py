@@ -9,6 +9,10 @@
         --again NAME        draw one sheet anew (a name from the plan, e.g. walk-south-east-0)
         --cut ai|white      what decides whether white SHUT IN by the figure is paper (between the legs) or figure (a snowball, an eye): the AI
                             cut-out the pipeline uses for characters (the default where onnxruntime is; ~3 s a frame, once), or rules on the guide
+        --colours N         how many colours the whole set has, at most (8 or more; default: about 40 - 24 for the bodies, 13 for the faces).
+                            Free to change: nothing is drawn again, the sheets are read with another palette
+        --palette FILE      a palette you already have (your game's): a .png of it, or a text file with one hex colour a line (a .hex from
+                            Lospec). Every pixel takes its nearest colour in it. Free, like --colours
         --no-outline        leave the figure's rim as read (by default every rim pixel that is not dark takes the outline's colour: no gaps)
         --no-face-detail    in the face, a square takes its middle colour like everywhere else (by default a small thing - a glint, a brow, a mouth -
                             that fills a good third of a square wins it)
@@ -31,7 +35,8 @@ from PIL import Image
 from scipy import ndimage as ndi
 HERE = Path(__file__).resolve().parent; REPO = HERE
 ap = argparse.ArgumentParser(); ap.add_argument('spec'); ap.add_argument('--px', type=int, default=96); ap.add_argument('--clips', default='walk')
-ap.add_argument('--dirs', default=''); ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', default=''); ap.add_argument('--partial', action='store_true'); ap.add_argument('--no-face-detail', action='store_true'); ap.add_argument('--no-outline', action='store_true'); ap.add_argument('--redraw', action='store_true'); ap.add_argument('--cut', choices=['white', 'ai'], default=None); A = ap.parse_args()
+ap.add_argument('--dirs', default=''); ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', default=''); ap.add_argument('--partial', action='store_true'); ap.add_argument('--no-face-detail', action='store_true'); ap.add_argument('--no-outline', action='store_true'); ap.add_argument('--redraw', action='store_true'); ap.add_argument('--cut', choices=['white', 'ai'], default=None); ap.add_argument('--colours', type=int, default=0); ap.add_argument('--palette', default=''); A = ap.parse_args()
+if A.colours and A.colours < 8: sys.exit('--colours: 8 at least (an outline, two tones of hair, of skin, of each cloth: under that the face goes)')
 if A.cut is None:        # the AI cut-out (the pipeline's own, BiRefNet) wherever it can run; else the rules on white, said aloud
     import importlib.util
     A.cut = 'ai' if importlib.util.find_spec('onnxruntime') else 'white'
@@ -291,23 +296,31 @@ def main():
     STATE.write_text(json.dumps(state)); hh = round(H * state['scale'])       # the size the bodies came back at
     # one palette for the bodies, one for the heads (the face's few colours would be lost among the body's)
     def pal(pix, n):
-        pl = P.palette(pix, n)
-        if (pix.min(1) > 0.9).sum() >= 2: pl = np.vstack([pl, P.lab(np.ones((1, 3)))])         # white kept white (k-means greys an eye's few white pixels)
+        wh = (pix.min(1) > 0.9).sum() >= 2 and not (A.colours and n < 5)
+        if A.colours:          # (--colours: white is one of the n; and with few colours to give, a colour's SHARE of the pixels counts for less -
+            #  by the count alone a yellow coat took six of sixteen and the navy legs none: each colour weighs its count to the power 0.7: at 0.3 the outline's dark went into the hair's)
+            u_, c_ = np.unique((pix * 31).round().astype(np.uint8), axis=0, return_counts=True); pix = np.repeat(u_ / 31.0, np.maximum(1, (c_ ** 0.7).round().astype(int)), axis=0).astype(np.float32)
+        pl = P.palette(pix, n - (1 if wh and A.colours else 0))
+        if wh: pl = np.vstack([pl, P.lab(np.ones((1, 3)))])         # white kept white (k-means greys an eye's few white pixels)
         return pl, np.clip(P.lab2rgb(pl), 0, 1)
     def rgba(low, m, pl, pr, clean=True):
         idx = P.snap(low, pl, pr); idx = P.clean(idx, m) if clean else idx
         im = np.zeros(m.shape + (4,), np.uint8); im[..., :3] = (pr[idx] * 255).round(); im[..., 3] = m * 255; return im
     notb = lambda k, m: np.concatenate([m[:HROWS[k][0]], m[HROWS[k][1]:]]); hd_ = lambda k, m: m[HROWS[k][0]:HROWS[k][1]]
-    pl, pr = pal(np.concatenate([notb(k, l)[notb(k, m)] for k, (l, m) in bodies.items()]), NCOL); ncol = len(pl)
+    # --colours N: the faces keep a good third of it (their few pixels decide whether it is a face), a held thing its two, the bodies the rest
+    held_n = (1 if A.colours < 16 else 2) * sum(1 for c_ in CLIPS if isinstance(s['actions'].get(c_, {}).get('hold'), dict) and s['actions'][c_]['hold'].get('color')) if s.get('actions') else 0
+    hn = min(13, max(3, round(A.colours * 0.36))) if A.colours else 13; bn = max(3, A.colours - hn - held_n) if A.colours else NCOL
+    pl, pr = pal(np.concatenate([notb(k, l)[notb(k, m)] for k, (l, m) in bodies.items()]), bn); ncol = len(pl)
     # a held thing's colour kept in the palette (a snowball is 50 pixels among 30 000: with three animations sharing the palette its
     # pale blue was given away to a grey, and then nothing was left to turn white)
     for c_ in CLIPS:
         h_ = s['actions'].get(c_, {}).get('hold')
         if isinstance(h_, dict) and h_.get('color'):
             hc_ = np.array([[int(h_['color'][k_:k_ + 2], 16) / 255 for k_ in (1, 3, 5)]])
-            pl = np.vstack([pl, P.lab(hc_), P.lab(hc_ * 0.82)]); pr = np.clip(P.lab2rgb(pl), 0, 1); ncol = len(pl)
+            pl = np.vstack([pl, P.lab(hc_)] + ([P.lab(hc_ * 0.82)] if not A.colours or A.colours >= 16 else [])); pr = np.clip(P.lab2rgb(pl), 0, 1); ncol = len(pl)
     # (the heads' rows have a palette of their own: among the body's colours the eyes' brown and their glint were lost)
-    hpl, hpr = pal(np.concatenate([hd_(k, l)[hd_(k, m)] for k, (l, m) in bodies.items()]), 13); ncol += len(hpl)
+    hpl, hpr = pal(np.concatenate([hd_(k, l)[hd_(k, m)] for k, (l, m) in bodies.items()]), hn); ncol += len(hpl)
+    ALLRGB = (np.vstack([pr, hpr]) * 255).round().astype(np.uint8)
     def frame(k):
         low, m = bodies[k]; a_, b_ = HROWS[k]; im = rgba(low, m, pl, pr)
         if b_ > a_ and m[a_:b_].any(): HEADW.setdefault(f'{k[0]}-{k[1]}', {})[k[2]] = int(m[a_:b_].sum(1).max())      # the head's width, to tell: it should not change from frame to frame
@@ -419,11 +432,35 @@ def main():
             for x_, y_ in e_.get('clear', []):
                 if 0 <= y_ < a_.shape[0] and 0 <= x_ < a_.shape[1]: a_[y_, x_] = 0
             for x_, y_, r_, g_, b_ in e_.get('set', []):
+                if A.colours: r_, g_, b_ = ALLRGB[((ALLRGB.astype(int) - (r_, g_, b_)) ** 2).sum(1).argmin()]          # (a colour put in by hand is one of the set's too)
                 if 0 <= y_ < a_.shape[0] and 0 <= x_ < a_.shape[1]: a_[y_, x_] = (r_, g_, b_, 255)
             fr[n_] = Image.fromarray(a_); EDITED.append(f'{c}-{dr} {n_}')
         box = None
         for f in fr: b = f.getbbox(); box = b if box is None else (min(box[0], b[0]), min(box[1], b[1]), max(box[2], b[2]), max(box[3], b[3]))
         strips[(c, dr)] = (fr, box)
+    if A.palette:          # THE USER'S OWN PALETTE: every pixel its nearest colour in it (after the hand's edits: they are of the palette too)
+        gp_ = P.load_palette(A.palette)
+        for fr_, _ in strips.values(): fr_[:] = [Image.fromarray(P.to_palette(f, gp_)) for f in fr_]
+        for fr_ in BASES.values(): fr_[:] = [Image.fromarray(P.to_palette(f, gp_)) for f in fr_]          # (the editor's base too: it writes the strips from it)
+        ncol = len(np.unique(np.concatenate([np.asarray(f)[np.asarray(f)[..., 3] > 0][:, :3] for fr_, _ in strips.values() for f in fr_]), axis=0)); print(f'  --palette: {len(gp_)} colours in {A.palette}, {ncol} of them used')
+    elif A.colours:          # the count as it IS in the strips (the two palettes share a dark or two)
+        ncol = len(np.unique(np.concatenate([np.asarray(f)[np.asarray(f)[..., 3] > 0][:, :3] for fr_, _ in strips.values() for f in fr_]), axis=0))
+        if ncol > A.colours:          # a colour or two over (the outline's, a held thing's final one): the two nearest are made one, the rarer taking the commoner's
+            u_, n_ = np.unique(np.concatenate([np.asarray(f)[np.asarray(f)[..., 3] > 0][:, :3] for fr_, _ in strips.values() for f in fr_]), axis=0, return_counts=True); to_ = {}; L_ = P.lab(u_.astype(np.float32) / 255); live_ = list(range(len(u_))); n_ = n_.astype(float)
+            while len(live_) > A.colours:
+                D_ = ((L_[live_][:, None] - L_[live_][None]) ** 2).sum(2); D_[np.diag_indices(len(live_))] = 1e9; i_, j_ = np.unravel_index(D_.argmin(), D_.shape); i_, j_ = live_[i_], live_[j_]
+                if n_[i_] > n_[j_]: i_, j_ = j_, i_
+                to_[i_] = j_; n_[j_] += n_[i_]; live_.remove(i_)
+            def end_(i):
+                while i in to_: i = to_[i]
+                return i
+            lut_ = {tuple(u_[i]): u_[end_(i)] for i in to_}
+            for fr_ in [x_[0] for x_ in strips.values()] + list(BASES.values()):          # (the editor's base too)
+                for n2_, f in enumerate(fr_):
+                    a_ = np.asarray(f).copy()
+                    for c_, v_ in lut_.items(): a_[(a_[..., :3] == c_).all(2) & (a_[..., 3] > 0), :3] = v_
+                    fr_[n2_] = Image.fromarray(a_)
+            ncol = len(live_)
     for k, v in fit.items(): print(f'  {k}: the sprites on their renders, overlap', v)
     for k_, v_ in PITCHES.items(): print('  squares (head across, head down, body across, body down) px:', k_, v_)
     if FINAL: print('  held thing put in its final colour (pixels per frame):', FINAL)

@@ -43,3 +43,31 @@ def clean(idx, m):   # a pixel none of whose 4 neighbours shares its colour take
         if nb and idx[y, x] not in nb:
             v, c = np.unique(nb, return_counts=True); out[y, x] = v[c.argmax()]
     return out
+
+
+def load_palette(path):
+    """a palette the user HAS (their game's): a .png / .gif (every colour in it), or a text file with one hex colour a line
+    (#1d2b53 or 1d2b53; a .hex from Lospec, a .gpl's "r g b" lines too) -> its colours, uint8 (n, 3)"""
+    import re
+    from pathlib import Path
+    from PIL import Image
+    p = Path(path)
+    if p.suffix.lower() in ('.png', '.gif', '.bmp'):
+        a = np.asarray(Image.open(p).convert('RGBA')).reshape(-1, 4); c = np.unique(a[a[:, 3] > 0][:, :3], axis=0)
+    else:
+        c = []
+        for line in p.read_text().splitlines():
+            m = re.fullmatch(r'\s*#?([0-9a-fA-F]{6})\s*', line); g = re.match(r'\s*(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})\b', line)
+            if m: c.append([int(m.group(1)[k:k + 2], 16) for k in (0, 2, 4)])
+            elif g: c.append([int(v) for v in g.groups()])
+        c = np.array(c, np.uint8).reshape(-1, 3)
+    if not 2 <= len(c) <= 256: raise SystemExit(f'--palette {path}: {len(c)} colours read from it (2 to 256 wanted: a .png of the palette, or a text file with one hex colour a line)')
+    return c
+
+
+def to_palette(rgba, pal):
+    """a sprite (RGBA uint8 array) with every pixel given the palette's nearest colour (nearest to the eye: in Lab)"""
+    a = np.asarray(rgba).copy(); m = a[..., 3] > 0
+    if not m.any(): return a
+    u, inv = np.unique(a[m][:, :3], axis=0, return_inverse=True); L = lab(pal.astype(np.float32) / 255)
+    a[m, :3] = pal[((lab(u.astype(np.float32) / 255)[:, None, :] - L[None]) ** 2).sum(2).argmin(1)][inv.reshape(-1)]; return a

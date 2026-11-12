@@ -105,7 +105,8 @@ def split(out):
 
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument('spec'); ap.add_argument('--yes', action='store_true'); ap.add_argument('--ppm', type=float, default=54.0); ap.add_argument('--again', default='')
+    ap = argparse.ArgumentParser(); ap.add_argument('spec'); ap.add_argument('--yes', action='store_true'); ap.add_argument('--ppm', type=float, default=54.0); ap.add_argument('--again', default=''); ap.add_argument('--colours', type=int, default=0, help='how many colours the object has, all its sides together (default: about 28 a side). Free: nothing is drawn again')
+    ap.add_argument('--palette', default='', help="a palette you already have: a .png of it, or a text file with one hex colour a line. Every pixel takes its nearest colour in it. Free")
     A = ap.parse_args(); spec = json.loads(Path(A.spec).read_text(encoding='utf-8')); d = Path(A.spec).resolve().parent / spec['name']; views = spec.get('views') or []; vs = views or [0]
     if not all((vdir(d, views, v) / 'render.png').exists() for v in vs): sys.exit('proppixel: no guide yet - run `isoprop.py render` on this spec first')
     if len(vs) > 1 and not spec.get('model'): print('NOTE: several views from a BLOCK guide - the image model cannot tell from blocks which face has what on it (it put a screen on the wrong face '
@@ -136,6 +137,16 @@ def main():
         done[str(v)] = {'file': name, 'size': list(im.size), 'anchor_px': [round(mt['anchor'][0] * im.width / mt['squares'][0], 1), round(mt['anchor'][1] * im.height / mt['squares'][1], 1)], **info}; cells.append(im)
         print(f"  view {v}: {im.width} x {im.height} px (asked {mt['squares'][0]} x {mt['squares'][1]}; squares drawn {info['squares_px']} px, scaled {info['scaled']})")
     if not done: return
+    GP = None          # (the palette asked for, if one: what the hand put in takes its colours too)
+    if A.palette:
+        import pixelkit as P; gp = GP = P.load_palette(A.palette)
+        for n, (e, c) in enumerate(zip(done.values(), cells)): cells[n] = Image.fromarray(P.to_palette(c, gp)); cells[n].save(out / e['file'])
+        print(f'  --palette: {len(gp)} colours in {A.palette}')
+    elif A.colours:          # ONE palette for every side of it, of the size asked
+        import pixelkit as P; pix = np.concatenate([np.asarray(c)[np.asarray(c)[..., 3] > 0][:, :3] for c in cells]).astype(np.float32) / 255; pl = P.palette(pix, max(2, A.colours)); pr = GP = (np.clip(P.lab2rgb(pl), 0, 1) * 255).round().astype(np.uint8)
+        for n, (e, c) in enumerate(zip(done.values(), cells)):
+            a = np.asarray(c).copy(); mk = a[..., 3] > 0; a[mk, :3] = pr[((P.lab(a[mk, :3].astype(np.float32) / 255)[:, None, :] - pl[None]) ** 2).sum(2).argmin(1)]; cells[n] = Image.fromarray(a); cells[n].save(out / e['file'])
+        print(f'  {len(pl)} colours for all {len(cells)} side(s)')
     # the views on ONE STRIP, each in the same frame, for pixeledit.py (the page built for a character's frames: a view is a frame) - a
     # speck of paper erased or a gap opened by hand there is kept in <prop>/pixel-touch.json and laid on again every time this runs
     import pixeledit
@@ -148,6 +159,7 @@ def main():
         fr = a_[:, i * fw:(i + 1) * fw]
         if e.get('outline') and abs(pixeledit.outline_of(fr) - e['outline']) > 0.02 * e['outline']: aside += 1; continue          # (drawn anew since: its edits are not laid on another drawing)
         pixeledit.lay(fr, e, [0, 0]); laid += 1
+    if GP is not None and laid: a_ = P.to_palette(a_, GP)
     Image.fromarray(a_).save(out / 'views.png')
     (out / 'pixel.json').write_text(json.dumps({'px_per_m': A.ppm, 'views': done, 'frame': [fw, fh], 'animations': {'views': len(cells)}, 'origin': [0, 0], 'review': {}}, indent=1)); split(out)
     cells = [Image.open(out / e['file']).convert('RGBA') for e in done.values()]

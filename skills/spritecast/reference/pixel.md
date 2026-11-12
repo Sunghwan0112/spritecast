@@ -166,6 +166,23 @@ short thick arms held away from the body, big boots), its own turnaround, its ow
 character: the turnaround shown and OK'd first, then about 75 Tripo credits). Scaling the head bone of the ordinary rig is not a
 substitute: a raised hand goes into the head. A clip from an FBX then takes `addclip.py ... --clear-head 55`.
 
+## How many colours: `--colours N`, `--palette FILE`
+
+A set has about 40 colours by default (24 for the bodies, 13 for the faces, a held thing's). Both options are **free** - the kept
+drawings are read again with another palette - and both work on `pixelart.py` and `proppixel.py`:
+
+- `--colours N` - N colours at most in the whole set (8 at least; a prop: all its sides together). The faces keep a good third of
+  them, and a colour's share of the pixels counts for less than usual, so a small part (navy legs beside a big yellow coat) is not
+  the first to go. Down to 16 a character holds up; at 8 near colours merge. Say so, and show the result.
+- `--palette FILE` - the user's own palette (their game's): a `.png`/`.gif` of it, or a text file with one hex colour a line
+  (`#1d2b53`; a Lospec `.hex`; a `.gpl`'s `r g b` lines). Every pixel takes its nearest colour in it; the run prints how many of the
+  palette's colours were used. A palette with nothing near one of the character's colours changes that colour (a yellow coat in a
+  palette without a yellow): show the result, do not promise it.
+- Colours put in by hand in the editor follow the same palette. The options are not remembered: give them again on every build, or
+  the set goes back to its default colours.
+- A user who says "retro", "NES", "Game Boy", "PICO-8", "few colours", or names a palette: ask how many colours or which palette
+  file, then use these.
+
 ## What it does to the drawing, in order (all of it automatic)
 
 1. Finds the size of the squares on each sheet (the spacing at which grid lines lock onto the drawing best) and reads every figure on

@@ -227,6 +227,14 @@ How much is left to the hand: very little. For the 40 throw frames, about 6 minu
 hand work was the magic eraser - a click on each speck of left-over white, in 10 of the 40 frames (131 pixels, 0.15 % of the
 sprites). No face was touched: they are as the pipeline made them. The build prints those numbers every time.
 
+**How many colours.** A set comes out with about 40 colours. `--colours 16` gives it 16 at most (8 is the least), and
+`--palette mygame.hex` gives every pixel its nearest colour in a palette you already have - a `.png` of it, or a text file with one
+hex colour a line (a `.hex` from Lospec). Both are free: nothing is drawn again, the same drawings are read with another palette.
+Props take the same two options. Down to 16 the character holds up well; at 8 close colours merge (her navy legs go black), and a
+palette with nothing near one of her colours will change that colour - look at the result before you keep it.
+
+![the same three sprites with the default 43 colours, with --colours 32, 16 and 8, and in the 16-colour PICO-8 palette](docs/pixel-colours.png)
+
 **Sizes.** 96 px is the size for a character of ordinary proportions. **64 px works for a character designed small** - about three
 heads tall, with its own 3D model - and comes out about 70 px. Under that, the image model is never asked: it does not keep to so
 few squares (32 px was tried four ways). `--px 32` draws at 64 and makes the 32 set from it, free - the same motion and frames, with

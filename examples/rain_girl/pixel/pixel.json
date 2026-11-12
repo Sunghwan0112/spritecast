@@ -257,10 +257,10 @@
    "sheets": 4,
    "draw_s": 108.0,
    "cut_s": 23.7,
-   "hand_frames": 0,
-   "hand_px": 0,
+   "hand_frames": 1,
+   "hand_px": 11,
    "hand_s": null,
-   "px": 17613,
+   "px": 17602,
    "estimated": true
   },
   "throw-south": {
