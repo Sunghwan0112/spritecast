@@ -5,10 +5,6 @@ Changes made because of a report or a request are marked *(feedback)*.
 
 ## Unreleased
 
-- **A held thing the figure hides** (a ball in the far hand, or in a hand raised behind a big head): the image model is told so, cell by
-  cell, instead of "the ball is in the hand" - it had drawn the ball at the chest; the review counts only what the camera sees of it,
-  and marks one drawn where it is hidden. *(feedback)*
-- The banner: the title is under snow until the small character's snowball knocks it off. *(feedback)*
 - **Small sizes.** 64 px works for a character designed small (about three heads tall, its own 3D model). **The image model is never
   asked for less than 64**: `pixelart.py --px 32` draws at 64 and `pixelsmall.py` makes the smaller set from it (strips, shadows,
   release data), free. 32 px asked for directly was tried four ways and is not offered. *(feedback)*
