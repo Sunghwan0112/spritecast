@@ -218,6 +218,11 @@ About $0.075 a sheet: a walk in all eight facings is 18 sheets (about $1.35); th
 
 ![the pixel editor: a frame on a grid, the frame before shown faint, the tools, and how much was done by AI and by hand](docs/pixel-edit.png)
 
+And the 3D render the frame was drawn from can be shown beside it (key `3`) or faint under it - so you can see what a doubtful
+pixel is meant to be before you touch it:
+
+![the pixel editor with a 64 px character seen from behind on the left and the 3D render of the same frame on the right](docs/pixel-edit-character.png)
+
 How much is left to the hand: very little. For the 40 throw frames, about 6 minutes of AI drawing and 2 of AI cut-out; then the only
 hand work was the magic eraser - a click on each speck of left-over white, in 10 of the 40 frames (131 pixels, 0.15 % of the
 sprites). No face was touched: they are as the pipeline made them. The build prints those numbers every time.
