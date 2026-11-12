@@ -146,7 +146,8 @@ facing, 3 for a side view; an action with something held 4). Offer 96 px (`--px`
 reference/pixel.md "Sizes") - and **never less than 64 asked of the image model**: `--px 32` draws at 64 and makes the 32 set from it;
 say that 64 is the one that comes out well. One facing of one animation first, as the sample: show `out-pixel96/preview.gif`, then the rest.
 Every run ends with its review (`REVIEW: N of M frames to look at`: a pose unlike the render's - overlap under `redo_below` - or the
-held thing missing or left in the hand): show the user `review.png` (each marked frame beside its guide), not every frame;
+held thing missing, left in the hand after the release, or drawn in a frame where the figure hides it - a ball in the far hand or behind
+the head): show the user `review.png` (each marked frame beside its guide), not every frame;
 `--redraw` says what drawing those sheets again would cost, `--redraw --yes` does it and keeps the better; `--again <sheet>` redraws one sheet. Out: `<clip>-<facing>.png` strips, `shadows/`
 (each frame's 3D shadow), `pixel.json`. **By hand, for what is left** (white between an arm and the body, a face in one frame): `PYTHON pixeledit.py CHAR.json` - a local page
 (a server: run it in the background, give the address) to erase a patch, draw, or copy a good face into another frame; the edits are

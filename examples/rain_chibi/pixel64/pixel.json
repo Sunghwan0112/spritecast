@@ -387,18 +387,7 @@
   24
  ],
  "shadow_alpha": 0.3,
- "review": {
-  "throw-north-west": {
-   "0": [
-    "snowball missing"
-   ]
-  },
-  "throw-south-west": {
-   "2": [
-    "snowball missing"
-   ]
-  }
- },
+ "review": {},
  "made": {
   "walk-south": {
    "frames": 8,
@@ -415,9 +404,9 @@
    "sheets": 3,
    "draw_s": 101.8,
    "cut_s": 27.6,
-   "hand_frames": 0,
-   "hand_px": 0,
-   "hand_s": null,
+   "hand_frames": 1,
+   "hand_px": 1,
+   "hand_s": 2,
    "px": 11843
   },
   "walk-east": {
@@ -435,20 +424,20 @@
    "sheets": 3,
    "draw_s": 92.9,
    "cut_s": 23.8,
-   "hand_frames": 0,
-   "hand_px": 0,
-   "hand_s": null,
-   "px": 10848
+   "hand_frames": 1,
+   "hand_px": 9,
+   "hand_s": 13,
+   "px": 10839
   },
   "walk-north": {
    "frames": 8,
    "sheets": 2,
    "draw_s": 71.3,
    "cut_s": 24.0,
-   "hand_frames": 0,
-   "hand_px": 0,
-   "hand_s": null,
-   "px": 11339
+   "hand_frames": 1,
+   "hand_px": 27,
+   "hand_s": 7,
+   "px": 11312
   },
   "walk-north-west": {
    "frames": 8,
@@ -485,19 +474,19 @@
    "sheets": 3,
    "draw_s": 94.0,
    "cut_s": 24.0,
-   "hand_frames": 0,
-   "hand_px": 0,
-   "hand_s": null,
-   "px": 12101
+   "hand_frames": 3,
+   "hand_px": 12,
+   "hand_s": 36,
+   "px": 12095
   },
   "throw-south-east": {
    "frames": 8,
    "sheets": 3,
    "draw_s": 91.2,
    "cut_s": 23.8,
-   "hand_frames": 0,
-   "hand_px": 0,
-   "hand_s": null,
+   "hand_frames": 1,
+   "hand_px": 1,
+   "hand_s": 15,
    "px": 12063
   },
   "throw-east": {
@@ -515,9 +504,9 @@
    "sheets": 3,
    "draw_s": 88.6,
    "cut_s": 23.7,
-   "hand_frames": 0,
-   "hand_px": 0,
-   "hand_s": null,
+   "hand_frames": 1,
+   "hand_px": 3,
+   "hand_s": 26,
    "px": 11019
   },
   "throw-north": {
@@ -535,30 +524,30 @@
    "sheets": 3,
    "draw_s": 86.8,
    "cut_s": 23.9,
-   "hand_frames": 0,
-   "hand_px": 0,
-   "hand_s": null,
+   "hand_frames": 3,
+   "hand_px": 11,
+   "hand_s": 34,
    "px": 11850
   },
   "throw-west": {
    "frames": 8,
    "sheets": 3,
-   "draw_s": 86.1,
-   "cut_s": 23.6,
+   "draw_s": 101.7,
+   "cut_s": 30.9,
    "hand_frames": 0,
    "hand_px": 0,
    "hand_s": null,
-   "px": 10658
+   "px": 10850
   },
   "throw-south-west": {
    "frames": 8,
    "sheets": 3,
-   "draw_s": 87.4,
-   "cut_s": 23.7,
-   "hand_frames": 0,
-   "hand_px": 0,
-   "hand_s": null,
-   "px": 11580
+   "draw_s": 88.7,
+   "cut_s": 27.4,
+   "hand_frames": 2,
+   "hand_px": 15,
+   "hand_s": 24,
+   "px": 11363
   }
  }
 }

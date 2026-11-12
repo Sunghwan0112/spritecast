@@ -46,6 +46,12 @@ A held thing is part of the action in the spec (`"hold"`), built from shapes in 
   `"final": "#ffffff"`. The guide also gets a dark line round whatever is held.
 - `"until"` lets it go: the seconds into the clip after which the hand is empty; `"auto"` is the moment the right hand moves fastest
   (a throw's release). The prompt then says, cell by cell, which hands hold it and which are empty.
+- **A held thing the figure hides.** In some facings the thing is in the hand on the far side of the body, or in a hand raised behind
+  the head (a big-headed character's wind-up): there to the rig, not to the camera. The run works out for every frame how much of it
+  the camera sees. Where more than half is hidden the prompt says so for that cell ("hidden by the figure ... do NOT draw it in front
+  of the body") and the guide's dark line goes round the seen part only. Told just "the ball is in the hand", the image model drew it
+  at the chest. It is the same measure the illustrated frames go by for a weapon behind the body (`charpipe.held_visible`). Nothing to
+  set: it is automatic. If a user points at such a frame, `--again <that sheet>` draws it with this wording.
 - An action with `until` is rendered by `PYTHON chardepth.py CHAR.json render <action>` (it knows `snowball`; `charpipe.py render`
   knows `umbrella`). Look at the renders before drawing.
 - For a thing let go the folder also gets `<thing>.png` (the thing alone), `<thing>-fly.png` (stretched along its way),
@@ -81,7 +87,9 @@ look at`:
 - `pose 0.52` - the frame's outline covers its render's by less than `"redo_below"` (0.75 in the spec): the image model drew
   another pose (a throw's follow-through with the arm still out where the render has it down).
 - `<thing> missing` / `<thing> drawn after it was let go` - the held thing is not where the render has it, or is there after the
-  release.
+  release. Only what the camera SEES of it counts: a ball behind the head is not "missing".
+- `<thing> drawn where the figure hides it` - the drawing shows the thing in a frame whose render has it behind the body or the head.
+  Whether that is wrong is the user's call (a ball that shows before the throw reads well): show the frames and ask, then `--again`.
 
 `out-pixel<px>/review.png` has each marked frame beside its guide, and `pixel.json` lists them under `review`. **Show the user
 review.png, not all the frames.** `PYTHON pixelart.py CHAR.json ... --redraw` says which sheets it would draw again and what that

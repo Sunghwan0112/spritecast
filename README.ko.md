@@ -14,9 +14,9 @@ Claude Code용 아이소메트릭 스프라이트 생성기: 8방향 걷기, 동
 <a href="README.md">English</a>
 </p>
 
-![GPT만으로 두 번 시도한 것과 SpriteCast: 같은 캐릭터가 남동쪽으로 걷기](docs/gpt-alone-vs-guide.ko.gif)
+![GPT만으로: 한 방향, 늘 같은 다리가 앞에, 그림자 없음. SpriteCast: 같은 캐릭터가 게임 바닥 위에서 8방향으로 걷고 프레임마다 그림자가 있으며 픽셀아트로도 나옴](docs/hero.ko.gif)
 
-<p align="center"><i>같은 모델, 같은 캐릭터 시트. GPT만으로(두 번 시도) 그린 것과 SpriteCast.</i></p>
+<p align="center"><i>같은 이미지 모델, 같은 캐릭터 시트. 왼쪽: GPT에 걸음을 부탁해서 나온 그대로. 오른쪽: 3D가 더해 주는 것.</i></p>
 
 ```
 claude plugin marketplace add Sunghwan0112/spritecast
@@ -64,7 +64,7 @@ claude plugin install spritecast@spritecast
 ## 왜 되나요
 
 이미지 모델은 프레임이 바뀌면 같은 몸과 자세를 유지하지 못해요. 걸음을 글로 부탁하면 예쁜 그림 여덟 장이 나오지만 걷지는
-않아요. 맨 위의 비교가 그거예요. 두 번 시도한 걸 나온 그대로 보여 줘요.
+않아요. 맨 위 그림의 왼쪽이 그거예요. 나온 그대로 보여 줘요.
 
 | GPT만으로 | SpriteCast |
 |---|---|
@@ -214,7 +214,7 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 ![작은 캐릭터가 8방향으로 걷고 던지는 64px 세트와, 그걸 줄여 만든 32px 세트](docs/pixel-small.gif)
 
 두 세트 모두 [`examples/rain_chibi`](examples/rain_chibi)에 있어요: 비옷 소녀에서 그린 3등신 디자인, 턴어라운드, 사양 파일,
-`pixel64/`(8방향 걷기와 던지기, 128프레임, 프레임마다 그림자. 검토에서 2개만 남았고 손으로 고친 픽셀은 없어요), 그리고 거기서 만든
+`pixel64/`(8방향 걷기와 던지기, 128프레임, 프레임마다 그림자. 손으로 고친 픽셀은 없어요), 그리고 거기서 만든
 `pixel32/`. 던지기는 Mixamo 클립을 `addclip.py --clear-head 55`로 얹은 거예요. 클립과 리그는 저장소에 넣지 않았어요.
 
 ![같은 작은 캐릭터의 다섯 가지: 64px로 그린 것, 그걸 줄여 만든 32px 세트, 이미지 모델에 32px를 직접 요청한 세 가지](docs/pixel-sizes.ko.png)

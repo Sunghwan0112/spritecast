@@ -14,9 +14,9 @@ at your game's camera angle, with a 3D shadow under every frame - and the props 
 <a href="README.ko.md">한국어</a>
 </p>
 
-![GPT alone, two tries, against SpriteCast: the same character walking south-east](docs/gpt-alone-vs-guide.gif)
+![GPT alone: one direction, the same leg always in front, no shadow. SpriteCast: the same character walking in eight directions on the game's floor, each with its shadow, and as pixel art](docs/hero.gif)
 
-<p align="center"><i>The same model, the same character sheet. GPT alone (two tries) against SpriteCast.</i></p>
+<p align="center"><i>The same image model, the same character sheet. Left: GPT asked for a walk, as it came out. Right: what the 3D adds.</i></p>
 
 ```
 claude plugin marketplace add Sunghwan0112/spritecast
@@ -64,7 +64,7 @@ Free and MIT. You pay OpenAI and Tripo directly; every paid step shows its cost 
 ## Why it works
 
 An image model can't keep a body and a pose from one frame to the next. Asked for a walk in words, it gives eight nice drawings
-that don't walk - the comparison at the top, both tries as they came out:
+that don't walk - the left of the picture at the top, as it came out:
 
 | GPT alone | SpriteCast |
 |---|---|
@@ -223,8 +223,7 @@ rougher faces. 64 is the one that comes out well.
 ![the small character walking and throwing in eight facings at 64 px, and the 32-px set made from it](docs/pixel-small.gif)
 
 Both sets are in [`examples/rain_chibi`](examples/rain_chibi): the three-heads design drawn from the rain girl, its turnaround, the
-spec, `pixel64/` (walk and throw in eight facings, 128 frames, each with its shadow; the review left 2 to look at, and no pixel was
-touched by hand) and `pixel32/` made from it. Her throw is a Mixamo clip put on with `addclip.py --clear-head 55`; the clip and the
+spec, `pixel64/` (walk and throw in eight facings, 128 frames, each with its shadow; no pixel was touched by hand) and `pixel32/` made from it. Her throw is a Mixamo clip put on with `addclip.py --clear-head 55`; the clip and the
 rig are not in the repo.
 
 ![the same small character five ways: drawn at 64 px, a 32-px set made from it, and three ways of asking the image model for 32 px](docs/pixel-sizes.png)
