@@ -3,6 +3,13 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## Unreleased
+
+- `addclip.py --clear-head DEG`: for a big-headed character, a hand raised past the ear swings its arm outward instead of going into
+  the head. *(feedback)*
+- The rig step keeps the rig it has paid for: if the animations then fail (no credits left), the next run does not buy the rig again.
+- The README's banner throws a snowball at the title. *(feedback)*
+
 ## 0.10.0 — 2026-11-11
 
 - The skill now says in its description that it makes **pixel art, actions and thrown things**, so a request for pixel sprites

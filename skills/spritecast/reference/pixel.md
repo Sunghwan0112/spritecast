@@ -69,7 +69,9 @@ A held thing is part of the action in the spec (`"hold"`), built from shapes in 
 bone names as the rig - Tripo's rigs are Mixamo-named) into a copy of the rig as one more clip → `rig/rig-throw.glb`; it prints
 the two lines for the spec (`"rig_glb"`, and the action). No credits. Render it and LOOK before drawing: the motion is carried bone
 by bone from each skeleton's own rest pose, limbs first turned from the rig's A-pose to the FBX's T-pose; a rig with other bone
-names, or a rest pose unlike either, comes out twisted - say so rather than draw it.
+names, or a rest pose unlike either, comes out twisted - say so rather than draw it. For a big-headed character (three heads
+tall) add `--clear-head 55`: a clip made for a small head puts a hand raised past the ear inside the skull; while a hand is above the
+head's joint its arm is swung outward by up to that many degrees, and nothing else is changed. Render and look, then raise or lower it.
 
 ## The review, and drawing again
 

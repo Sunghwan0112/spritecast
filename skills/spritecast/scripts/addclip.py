@@ -6,7 +6,9 @@ How: the FBX is read in the browser (three's FBXLoader, in vendor/), its motion 
   a bone's turn away from ITS rest pose, in world space, is applied to the rig's bone from the rig's rest pose - after the rig's
   rest pose has been turned to the FBX's (Mixamo rests in a T-pose, a rig made from a drawing in an A-pose: without that the arms
   hang 40 degrees low all through). The hips' travel is scaled by the two skeletons' hip heights.
-Sampled at 30 a second and written into a copy of the rig's GLB as a new animation."""
+Sampled at 30 a second and written into a copy of the rig's GLB as a new animation.
+    python addclip.py SPEC.json Throw.fbx throw --clear-head 40   for a big-headed character: a hand raised past the ear swings its arm
+                                                                  out by up to 40 degrees, so it does not go into the head"""
 import base64, json, struct, sys
 from pathlib import Path
 import numpy as np
@@ -21,7 +23,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 const key = (n) => n.replace(/^mixamorig\d*:?/i, '');
-window.retarget = async (rigUrl, fbxUrl, fps, headDown) => {
+window.retarget = async (rigUrl, fbxUrl, fps, headDown, clearHead) => {
   const g = await new GLTFLoader().loadAsync(rigUrl), fbx = await new FBXLoader().loadAsync(fbxUrl);
   const clip = fbx.animations.sort((a, b) => b.duration - a.duration)[0];
   const T = {}, S = {}; let skel = null;
@@ -69,6 +71,23 @@ window.retarget = async (rigUrl, fbxUrl, fps, headDown) => {
       out.bones[b].push(l.x, l.y, l.z, l.w);
     }
     const P = hipT0.clone().add(wp(S.Hips).sub(hipS0).multiplyScalar(ratio)); T.Hips.parent.worldToLocal(P); out.hips.push(P.x, P.y, P.z);
+    // A BIG HEAD IN THE HAND'S WAY (a character three heads tall: the clip was made for a small head, and a hand raised past the ear
+    // goes into the skull): while a hand is above the head's joint its upper arm is swung outward, away from the head, by up to
+    // `clearHead` degrees - nothing below that height is changed, and the swing eases in and out with the hand's height. It is the line
+    // from the shoulder to the HAND that is swung (the elbow is bent then: the upper arm alone swung out left the hand at the ear).
+    if (clearHead && T.Head && T.HeadTop_End) {
+      for (const b of order) { const q = out.bones[b]; T[b].quaternion.set(q[q.length - 4], q[q.length - 3], q[q.length - 2], q[q.length - 1]); }
+      T.Hips.position.copy(P); g.scene.updateMatrixWorld(true);
+      const head = wp(T.Head);
+      for (const side of ['Right', 'Left']) {
+        const A = T[side + 'Arm'], F = T[side + 'ForeArm'], Hd = T[side + 'Hand']; if (!A || !F || !Hd) continue;
+        const sh = wp(A); let t = Math.max(0, Math.min(1, (wp(Hd).y - head.y) / Math.max(1e-6, head.y - sh.y))); t = t * t * (3 - 2 * t); if (t <= 0) continue;          // (eased in over a neck's length: the rig's marker on top of the head is no measure of a big head)
+        const arm = wp(Hd).sub(sh).normalize(), outd = sh.clone().sub(head); outd.y = 0; outd.normalize();
+        const axis = new THREE.Vector3().crossVectors(arm, outd); if (axis.lengthSq() < 1e-6) continue; axis.normalize();
+        const l = wq(A.parent).invert().multiply(new THREE.Quaternion().setFromAxisAngle(axis, t * clearHead * Math.PI / 180).multiply(wq(A)));
+        out.bones[side + 'Arm'].splice(-4, 4, l.x, l.y, l.z, l.w); out.spread = Math.max(out.spread || 0, t);
+      }
+    }
   }
   return out;
 };
@@ -76,7 +95,7 @@ window.ready = true;
 </script></body></html>"""
 
 
-def retarget(glb, fbx, fps=30, head_down=0):
+def retarget(glb, fbx, fps=30, head_down=0, clear_head=0):
     from playwright.sync_api import sync_playwright
     def serve(route):
         p = route.request.url.split('spritecast.local/', 1)[1]
@@ -91,7 +110,7 @@ def retarget(glb, fbx, fps=30, head_down=0):
         pg.route('http://spritecast.local/**', serve); pg.goto('http://spritecast.local/page.html')
         try:
             pg.wait_for_function('window.ready === true', timeout=30000)
-            out = pg.evaluate('([a, b, f, h]) => window.retarget(a, b, f, h)', ['http://spritecast.local/asset/rig.glb', 'http://spritecast.local/asset/clip.fbx', fps, head_down])
+            out = pg.evaluate('([a, b, f, h, c]) => window.retarget(a, b, f, h, c)', ['http://spritecast.local/asset/rig.glb', 'http://spritecast.local/asset/clip.fbx', fps, head_down, clear_head])
         except Exception as e: sys.exit(f'addclip: {e}\n' + '\n'.join(logs[-8:]))
         br.close()
     return out
@@ -123,8 +142,9 @@ def write(glb, out, name, r, fps=30):
 
 
 if __name__ == '__main__':
-    spec, fbx, name = sys.argv[1:4]; s, d = CP.load(spec); glb = Path(s.get('rig_glb') or d / 'rig/rig.glb'); out = d / f'rig/rig-{name}.glb'
-    r = retarget(glb, Path(fbx).resolve(), head_down=s['head_up']); write(glb, out, name, r)
+    spec, fbx, name = sys.argv[1:4]; clear = float(sys.argv[sys.argv.index('--clear-head') + 1]) if '--clear-head' in sys.argv else 0.0; s, d = CP.load(spec); glb = Path(s.get('rig_glb') or d / 'rig/rig.glb'); out = d / f'rig/rig-{name}.glb'
+    r = retarget(glb, Path(fbx).resolve(), head_down=s['head_up'], clear_head=clear); write(glb, out, name, r)
+    if clear: print(f'  --clear-head {clear:g}: the upper arms swung out while a hand is above the head\'s joint' + ('' if r.get('spread') else ' - no hand got that high in this clip'))
     print(f"addclip: {out}  \"{name}\" {r['duration']:.2f} s, {r['n']} samples, {len(r['bones'])} bones carried over, hips x{r['ratio']:.3f}")
     print('  facing (left hip - right hip): rig', [round(x, 2) for x in r['facing']['rig']], ' fbx', [round(x, 2) for x in r['facing']['fbx']])
     print(f'  in the spec: "rig_glb": "{out.relative_to(Path(spec).resolve().parent)}"   and in "actions": {{"name": "{name}", "loop": false}}')

@@ -303,8 +303,13 @@ def rig(s, d, args):
                 f', about {45 + 10 * len(presets)} Tripo credits'): return
     task = d / 'model/tripo-task.txt'; own = task.exists() and s['modeler'] != 'meshy'
     tok = task.read_text().strip() if own else upload(d / 'model/model.glb', 'model.glb', 'model/gltf-binary')
-    tripo_run('/animations/rig-check', {'input': tok})
-    rid, _ = tripo_run('/animations/rig', {'input': tok, 'model': 'v3.0-20260909', 'rig_type': 'biped', 'spec': 'mixamo', 'out_format': 'glb'})
+    # the rig's task is kept beside the model's: if the animations then fail (no credits left, a time-out) the next run takes the rig
+    # that is paid for already instead of buying it again
+    kept = d / 'rig/tripo-rig-task.txt'; kept.parent.mkdir(exist_ok=True); was = kept.read_text().split() if kept.exists() and not args.again else []
+    if len(was) == 2 and was[0] == tok: rid = was[1]; print('rig: the rig made before is used (its animations are what is still to make)')
+    else:
+        tripo_run('/animations/rig-check', {'input': tok})
+        rid, _ = tripo_run('/animations/rig', {'input': tok, 'model': 'v3.0-20260909', 'rig_type': 'biped', 'spec': 'mixamo', 'out_format': 'glb'}); kept.write_text(f'{tok} {rid}')
     _, a = tripo_run('/animations/retarget', {'input': rid, 'animations': ['preset:walk', 'preset:idle'] + [f"preset:{s['actions'][n]['clip']}" for n in presets],
                                                     'out_format': 'glb', 'animate_in_place': True})
     url = next(v for k, v in (a.get('output') or {}).items() if isinstance(v, str) and v.startswith('http') and 'model' in k)
