@@ -221,7 +221,7 @@ About $0.075 a sheet: a walk in all eight facings is 18 sheets (about $1.35); th
 And the 3D render the frame was drawn from can be shown beside it (key `3`) or faint under it - so you can see what a doubtful
 pixel is meant to be before you touch it:
 
-![the pixel editor with a 64 px character seen from behind on the left and the 3D render of the same frame on the right](docs/pixel-edit-character.png)
+![the pixel editor with a 64 px character about to throw a snowball, seen from the side, on the left and the 3D render of the same frame on the right](docs/pixel-edit-character.png)
 
 How much is left to the hand: very little. For the 40 throw frames, about 6 minutes of AI drawing and 2 of AI cut-out; then the only
 hand work was the magic eraser - a click on each speck of left-over white, in 10 of the 40 frames (131 pixels, 0.15 % of the
