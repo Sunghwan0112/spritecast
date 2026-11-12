@@ -5,19 +5,12 @@
         --px 96             the figure's height asked for (96 or 128; the sprites come out ~1.1x that - see "scale" in pixel.json)
         --clips walk,run    which animations (default: walk)
         --dirs south-east   which facings (default: all eight)
-        --again NAME        draw one sheet anew (a name from the plan, e.g. walk-south-east-0 or heads-0)
+        --again NAME        draw one sheet anew (a name from the plan, e.g. walk-south-east-0)
         --cut ai|white      what decides whether white SHUT IN by the figure is paper (between the legs) or figure (a snowball, an eye): the AI
                             cut-out the pipeline uses for characters (the default where onnxruntime is; ~3 s a frame, once), or rules on the guide
         --no-outline        leave the figure's rim as read (by default every rim pixel that is not dark takes the outline's colour: no gaps)
         --no-face-detail    in the face, a square takes its middle colour like everywhere else (by default a small thing - a glint, a brow, a mouth -
                             that fills a good third of a square wins it)
-        --face-patch        ONE face per facing: a head drawn on its own (a paid sheet), its face cut out and laid on each frame's own face
-        --heads             the same head sheet's whole head on every frame (one hair for all frames; seams at the neck to mind)
-        --own-heads         no head put on: each frame as GPT drew it (to compare with)
-        --hand-faces        the other way to a face: no head sheet; each frame keeps its own head and the features are drawn in by hand from
-                            <character>/pixel/face-edits-<clip>-<dir>.json (facefix.py). Tried as the default: the eyes did not sit the same from frame to frame
-        --facemap           print each frame's head as text, to place the features by
-        --follow            the head follows each frame's own face (sits best on every neck, but nods by the 1-2 px GPT drew each frame off)
         (then, by hand: pixeledit.py CHAR.json - a page to erase a speck or redraw a face frame by frame; its edits are kept and laid on again here)
         --redraw            PAID with --yes: the sheets with a frame the review marks, drawn again (twice at most), the better kept
         --partial           with --yes left off: put together what is drawn already (an animation's first frames), to look at
@@ -36,14 +29,13 @@ from PIL import Image
 from scipy import ndimage as ndi
 HERE = Path(__file__).resolve().parent; REPO = HERE
 ap = argparse.ArgumentParser(); ap.add_argument('spec'); ap.add_argument('--px', type=int, default=96); ap.add_argument('--clips', default='walk')
-ap.add_argument('--dirs', default=''); ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', default=''); ap.add_argument('--partial', action='store_true'); ap.add_argument('--follow', action='store_true'); ap.add_argument('--debug', action='store_true'); ap.add_argument('--own-heads', action='store_true'); ap.add_argument('--heads', action='store_true'); ap.add_argument('--hand-faces', action='store_true'); ap.add_argument('--face-patch', action='store_true'); ap.add_argument('--no-face-detail', action='store_true'); ap.add_argument('--no-outline', action='store_true'); ap.add_argument('--redraw', action='store_true'); ap.add_argument('--cut', choices=['white', 'ai'], default=None); ap.add_argument('--facemap', action='store_true'); ap.add_argument('--features', action='store_true'); ap.add_argument('--no-front', action='store_true'); A = ap.parse_args()
+ap.add_argument('--dirs', default=''); ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', default=''); ap.add_argument('--partial', action='store_true'); ap.add_argument('--no-face-detail', action='store_true'); ap.add_argument('--no-outline', action='store_true'); ap.add_argument('--redraw', action='store_true'); ap.add_argument('--cut', choices=['white', 'ai'], default=None); A = ap.parse_args()
 if A.cut is None:        # the AI cut-out (the pipeline's own, BiRefNet) wherever it can run; else the rules on white, said aloud
     import importlib.util
     A.cut = 'ai' if importlib.util.find_spec('onnxruntime') else 'white'
     if A.cut == 'white': print('no onnxruntime in this Python: white shut in by the figure is sorted by rule, not by the AI cut-out (doctor.py --fix --characters)')
-A.features = A.face_patch      # (the default is neither: each frame keeps the face GPT drew - asked for in whole squares in the prompt, read on the head's own grid)
 sys.path.insert(0, str(HERE))
-import pixelkit as P, charpipe as CP, chardepth as DEPTH, facefix as FACE   # noqa: E402
+import pixelkit as P, charpipe as CP, chardepth as DEPTH   # noqa: E402
 s, d = CP.load(A.spec); W = d / 'pixel'; W.mkdir(exist_ok=True); H = A.px; PRICE = 0.075
 # "px" is the STANDING figure's height: how tall it is in the character's own renders (it differs with the model: a coat's hem, big boots)
 _idle = d / 'render/idle-south.png'
@@ -52,13 +44,11 @@ if _idle.exists():
     if _b: P.FIG = float(_b[3] - _b[1])
 ALL = ['south', 'south-east', 'east', 'north-east', 'north', 'north-west', 'west', 'south-west']
 DIRS = [x for x in (A.dirs.split(',') if A.dirs else ALL) if x in ALL]; CLIPS = A.clips.split(',')
-FACED = ['south', 'south-east', 'east', 'south-west', 'west']        # facings whose face shows: a head of their own, four to a sheet, always in this order
-HGROUPS = [g for g in range(2) if any(x in DIRS for x in FACED[g * 4:g * 4 + 4]) and (A.face_patch or A.heads or A.follow)]     # (only the sheets a wanted facing is on)
 Z = 1024 // (H * 4 // 3); CWp, CHp = 384 // Z, 1024 // Z; FOOT = CHp - CHp // 12            # a body sheet's cell in sprite pixels
-ZH = 16; CH_ = 512 // ZH                                                                   # a head sheet: 32 x 32 sprite pixels a head
+CH_ = 32          # the margin a sprite is given on its canvas, px
 NCOL = 24
 FACE_DETAIL = not A.no_face_detail
-LOST = []; DEBUG_DIR = None; FEAT = []; SIZES = []; HROWS = {}; SIZED = {}; HEADW = {}; PITCH = []; PITCHES = {}; GAPS = {}; EDGE = {}; FINAL = {}; REVIEW = {}; SPENT = [0.0]; BASES = {}; EDITED = []; ASIDE = []
+HROWS = {}; SIZED = {}; HEADW = {}; PITCH = []; PITCHES = {}; GAPS = {}; EDGE = {}; FINAL = {}; REVIEW = {}; SPENT = [0.0]; BASES = {}; EDITED = []; ASIDE = []
 TOUCH = json.loads((W / f'touch-{H}.json').read_text()) if (W / f'touch-{H}.json').exists() else {}
 # how long the machine took: every sheet's drawing and every frame's cut-out, timed when it is made (kept: a later run pays for neither)
 TIMES = json.loads((W / f'times-{H}.json').read_text()) if (W / f'times-{H}.json').exists() else {}; TIMES.setdefault('draw', {}); TIMES.setdefault('cut', {})
@@ -154,42 +144,6 @@ def body_sheet(clip, dr, g):
         f"The character: {s['description']} " + (s.get('notes') or '') + " Plain pure white background, no shadow on the ground, no text.")
     return idx
 
-TURN = {'south': 'the head facing the viewer', 'south-east': "turned three-quarters to the viewer's right", 'east': 'in profile, facing right',
-        'south-west': "turned three-quarters to the viewer's left", 'west': 'in profile, facing left'}
-SPOT = ['Top left', 'Top right', 'Bottom left', 'Bottom right']
-def head_cell(dr, hh):
-    """the render's head for a facing, as it sits in its 32 x 32 cell: colours, mask, the head's own mask - and the head's top row and
-    middle column in the cell (what a frame's head is lined up with)"""
-    rgb, m, hm = ren('walk', dr, 0, hh); y0, y1, x0, x1 = bbox(hm); xc = (x0 + x1) // 2; t = (CH_ - (y1 - y0 + 4)) // 2
-    ys = slice(y0 - t, y0 - t + CH_); xs = slice(xc - CH_ // 2, xc + CH_ // 2)
-    return rgb[ys, xs], m[ys, xs], hm[ys, xs], t, CH_ // 2
-
-def head_sheet(g, hh):
-    drs = FACED[g * 4:g * 4 + 4]; sh = np.full((2 * CH_, 2 * CH_, 3), 1.0, np.float32)
-    for n, dr in enumerate(drs):
-        rgb, m, hm, _, _ = head_cell(dr, hh); m = m.copy(); m[np.nonzero(hm.any(1))[0].max() + 5:] = False          # the head and 4 rows of the collar
-        sh[(n // 2) * CH_:(n // 2 + 1) * CH_, (n % 2) * CH_:(n % 2 + 1) * CH_][m] = rgb[m]
-    Image.fromarray((sh * 255).round().astype(np.uint8)).resize((1024, 1024), Image.NEAREST).save(W / f'heads-{g}-{H}-in.png')
-    (W / f'heads-{g}-{H}-prompt.txt').write_text(
-        f"Image 1 holds {len(drs)} close-ups of the head of one game character, in a 2x2 arrangement, each a 3D render seen from a game camera a "
-        "little above, already reduced to LOW-RESOLUTION PIXELS: every 16x16 px square of the picture is ONE sprite pixel, on a grid that "
-        "starts at the picture's top-left corner (the picture is 64 x 64 sprite pixels). " + ' '.join(f'{SPOT[n]}: {TURN[dr]}.' for n, dr in enumerate(drs)) +
-        " Under each head is the top of the clothes' collar. The renders are only a rough guide: the faces are blank.\n"
-        "Redraw them all as FINISHED PIXEL ART for a 1990s arcade game sprite, ON THE SAME GRID: every sprite pixel one flat 16x16 square of a "
-        "single colour with its edges exactly on the grid - no anti-aliasing, no blur, no gradients, no dithering, and NOTHING smaller than one "
-        "square: an eye, a highlight, a mouth are made of WHOLE squares. Each head exactly where it is and exactly as big: the same squares "
-        "covered by the hair and the face, the same turn of the head.\n"
-        "The face must read clearly at this tiny size, drawn as a pixel artist would: large eyes two squares wide and three tall (the eye's own "
-        "dark colour with one white square of highlight, a darker lash line on top), no nose or one square of shadow, a tiny mouth of one or two "
-        "squares, a slightly pinker cheek; where two eyes show, both the same height and size. The hair exactly as the illustration has it - its "
-        "cut, its length, straight or curled - in three flat tones (a few lighter strands, the base, a dark edge); a one-square dark outline "
-        "around the whole head. The SAME person, the same colours and the same eyes in every head.\n"
-        "Image 2 is the character as a finished illustration (a turnaround: front, right side, back): the face and the hair to match - NOT its "
-        "drawing style.\n"
-        f"The character: {s['description']} Plain pure white background, no text, no borders, no numbers.")
-    return drs
-
-
 # --- reading GPT's answer -----------------------------------------------------------------------------------------------------------
 PITCH_ = [8.0]       # the size of the squares GPT drew on the sheet being read (px), found by pitch_of; lines() keeps to it
 
@@ -211,22 +165,26 @@ def lines(g, p=None, score=False):
     (It was: "a chain of lines Z-2..Z+1 px apart with the most change on it" - and the most change is always on the MOST lines.
     At 96 px that read 7.6 px squares as 7.3; at 128 px it read 6.6 px squares as 5.2 across and up to 7 down: a quarter too
     many pixels, and heads stretched.)"""
-    p = p or PITCH_[0]; n = len(g); D = 3; best = None
-    for o in np.arange(0, p, 0.5):
-        base = o + p * np.arange(int((n - 1 - o) / p) + 1)
-        if len(base) < 2: continue
-        pos = np.clip(np.round(base[:, None] + np.arange(-D, D + 1)[None]).astype(int), 0, n - 1); val = g[pos]
-        dp = val.copy(); arg = np.zeros(pos.shape, int)
-        for k in range(1, len(base)):
-            prev = np.stack([np.concatenate([[-1e18], dp[k - 1][:-1]]), dp[k - 1], np.concatenate([dp[k - 1][1:], [-1e18]])])     # from one less, the same, one more drift
-            arg[k] = prev.argmax(0) - 1; dp[k] = val[k] + prev.max(0)
-        sc = dp[-1].max() / len(base)
-        if best is None or sc > best[0]:
-            d = int(dp[-1].argmax()); out = []
-            for k in range(len(base) - 1, -1, -1): out.append(int(pos[k, d]) + 1); d = d + arg[k, d]
-            best = (sc, sorted(set(out)))
-    if score: return best[0] if best else 0.0
-    return best[1] if best else [1, n]
+    p = p or PITCH_[0]; n = len(g); D = 3; best = None; offs = np.arange(0, p, 0.5); cnt = ((n - 1 - offs) / p).astype(int) + 1; got = {}
+    # (every starting place of the first line is tried; those with the same number of lines are worked out together - the same sums,
+    # one pass of the chain for all of them instead of one each: a build spent most of its time here)
+    for L in np.unique(cnt):
+        if L < 2: continue
+        ix = np.nonzero(cnt == L)[0]; base = offs[ix][:, None] + p * np.arange(L)[None]
+        pos = np.clip(np.round(base[:, :, None] + np.arange(-D, D + 1)[None, None]).astype(int), 0, n - 1); val = g[pos]
+        dp = val.copy(); arg = np.zeros(pos.shape, int); pad = np.full((len(ix), 2 * D + 3), -1e18)
+        for k in range(1, L):
+            pad[:, 1:-1] = dp[:, k - 1]; prev = np.stack([pad[:, :-2], pad[:, 1:-1], pad[:, 2:]])     # from one less, the same, one more drift
+            arg[:, k] = prev.argmax(0) - 1; dp[:, k] = val[:, k] + prev.max(0)
+        for j, i in enumerate(ix): got[int(i)] = (dp[j, -1].max() / L, pos[j], arg[j], dp[j, -1])
+    for i in sorted(got):
+        sc, pos, arg, last = got[i]
+        if best is None or sc > best[0]: best = (sc, pos, arg, last)
+    if best is None: return 0.0 if score else [1, n]
+    if score: return best[0]
+    sc, pos, arg, last = best; d = int(last.argmax()); out = []
+    for k in range(len(pos) - 1, -1, -1): out.append(int(pos[k, d]) + 1); d = d + arg[k, d]
+    return sorted(set(out))
 
 def paper(low):
     """the figure: not the paper's white (joined to the border, or a gap of 3 px and more inside - 1-2 px of white stay: an eye's)"""
@@ -276,7 +234,9 @@ def read(c, top=0.0, bot=0.27, fg=None):
         if len(yh) > 1: ys = np.array(list(ys[:ka + 1]) + yh + list(ys[kb:])); kb = ka + 1 + len(yh)
         fb = (y0_ + ya, y1_ + ya, x0_, x1_)
     PITCH.append((round(float(np.mean(np.diff(xh))), 2), round(float(np.mean(np.diff(ys[ka:kb + 1]))), 2), round(float(np.mean(np.diff(xb))), 2), round(float(np.mean(np.diff(np.concatenate([ys[:ka + 1], ys[kb:]])[1:] if ka else ys[kb:]))), 2)))
-    cell = lambda a, b, e, f: np.median(c[a + 1:max(a + 2, b - 1), e + 1:max(e + 2, f - 1)].reshape(-1, 3), 0)
+    def med3(px):          # the middle colour, channel by channel (np.median's own answer, without its overhead: it is asked half a million times a build)
+        q = np.sort(px, 0); n = len(q); return q[n // 2] if n % 2 else (q[n // 2 - 1] + q[n // 2]) / 2
+    cell = lambda a, b, e, f: med3(c[a + 1:max(a + 2, b - 1), e + 1:max(e + 2, f - 1)].reshape(-1, 3))
     # In the face a small thing counts: GPT draws a glint, a brow, a mouth half a square big, and the middle colour of a square is the
     # skin around them - they vanish. There a square takes its SMALLER part's colour when that part is a good third of it and
     # stands well off the rest (a square that is skin with a third of mouth becomes mouth). Only inside the face's box: anywhere
@@ -393,194 +353,15 @@ def read_body(clip, dr, g, idx):
     PITCHES[f'{clip}-{dr}-{g}'] = PITCH[-len(idx):]
     return [x[:2] for x in out]
 
-def read_heads(g, drs, hh):
-    a = np.asarray(Image.open(W / f'heads-{g}-{H}-out.png').convert('RGB'), np.float32) / 255; n_ = 1024 // ZH
-    un, oy, ox = min(((np.roll(a, (-y, -x), (0, 1))[:1024 - ZH, :1024 - ZH].reshape(n_ - 1, ZH, n_ - 1, ZH, 3).std((1, 3)).mean(), y, x) for y in range(ZH) for x in range(ZH)))
-    low = np.median(np.roll(a, (-oy, -ox), (0, 1)).reshape(n_, ZH, n_, ZH, 3)[:, 3:-3, :, 3:-3].transpose(0, 2, 1, 3, 4).reshape(n_, n_, -1, 3), 2)
-    white = (low.min(2) > 0.90) & (low.max(2) - low.min(2) < 0.08); l2, _ = ndi.label(white)
-    ink = ~np.isin(l2, np.setdiff1d(np.unique(np.concatenate([l2[0], l2[-1], l2[:, 0], l2[:, -1]])), [0]))
-    pale = (low.min(2) > 0.78) & (low.max(2) - low.min(2) < 0.1); out = {}
-    for n, dr in enumerate(drs):
-        sl = (slice((n // 2) * CH_, (n // 2 + 1) * CH_), slice((n % 2) * CH_, (n % 2 + 1) * CH_)); _, _, hm, t, xc = head_cell(dr, hh)
-        # the head: GPT's ink within 3 px of where the render's head is, down to the render's chin (the collar and the neck are the body's)
-        m = ink[sl] & ndi.binary_dilation(hm, iterations=3); m[np.nonzero(hm.any(1))[0].max() + 2:] = False
-        l3, k = ndi.label(m); m = ndi.binary_fill_holes(l3 == (1 + np.argmax(ndi.sum(m, l3, np.arange(1, k + 1))))) & ink[sl]
-        for _ in range(2): m &= ~(pale[sl] & ndi.binary_dilation(~m, np.ones((3, 3))))               # paper left at the rim (an eye's white is inside)
-        # (the neck is NOT taken: the user - the frame's own neck is used, only the head changes place)
-        # ... nor the clothes: the collar came along with the head (the render's "head" reaches down the neck, and 3 px around it is
-        # hood). Clothes: a colour nearer to what GPT drew UNDER the head (the cell's rows below it) than to what it drew in the
-        # head's middle. The head ends above the first row with 3 px of clothes in it; clothes beside the face above that go too.
-        L = P.lab(low[sl]).reshape(CH_, CH_, 3); bot = np.nonzero(hm.any(1))[0].max()
-        core = L[ndi.binary_erosion(hm, iterations=2) & ink[sl] & (np.arange(CH_)[:, None] < bot - 3)]; under = L[ink[sl] & ~ndi.binary_dilation(hm, iterations=3) & (np.arange(CH_)[:, None] > bot - 6)]     # (beside and below the head's lower end)
-        if len(core) and len(under):
-            dc = np.sqrt(((L[:, :, None] - core[None, None]) ** 2).sum(3)).min(2); du = np.sqrt(((L[:, :, None] - under[None, None]) ** 2).sum(3)).min(2)
-            cloth = m & (du + 8 < dc); rows = np.nonzero(cloth.sum(1) >= 3)[0]
-            if len(rows): m[rows.min():] = False
-            m &= ~cloth; l3, k = ndi.label(m); m = l3 == (1 + np.argmax(ndi.sum(m, l3, np.arange(1, k + 1))))
-        out[dr] = (low[sl], m, t, xc)
-    return out
-
-
 # --- putting it together ------------------------------------------------------------------------------------------------------------
-def hull(m):
-    """a patch with what lies between its ends, row by row and column by column (an eye touches the fringe: no hole to fill)"""
-    r = np.maximum.accumulate(m, 1) & np.maximum.accumulate(m[:, ::-1], 1)[:, ::-1]; c = np.maximum.accumulate(m, 0) & np.maximum.accumulate(m[::-1], 0)[::-1]
-    return r & c
-
-def face_of(hd, hmk):
-    """the face in a head piece, whatever colour the skin is: the piece's colours fall into two kinds (hair, skin); the face is the
-    kind that keeps out of the head's top third; its biggest patch, with what lies inside it (the eyes, the mouth, the cheeks).
-    (It was "the colour of the bottom row's middle, spread" - and once the piece was cut at the chin that pixel was the dark
-    outline: the "face" was the hair, and the features-only mode stamped hair onto hair.)"""
-    from scipy.cluster.vq import kmeans2
-    ys, xs = np.nonzero(hmk); L = P.lab(hd[ys, xs][:, :3] / 255.0); _, lab_ = kmeans2(L, 2, minit='++', seed=0, iter=30)
-    top = ys.min() + (ys.max() - ys.min()) / 3; best = None
-    for k in (0, 1):
-        m = np.zeros(hmk.shape, bool); m[ys[lab_ == k], xs[lab_ == k]] = True; l2, n = ndi.label(m)
-        if not n: continue
-        m = l2 == (1 + np.argmax(ndi.sum(m, l2, np.arange(1, n + 1)))); yy = np.nonzero(m)[0]; sc = (yy >= top).mean() - (yy < top).mean() + 1e-3 * m.sum()
-        if best is None or sc > best[0]: best = (sc, m)
-    # what lies inside it: in each row, from the leftmost to the rightmost skin of that row AND of the row above and the row below.
-    # (Row by row and column by column alone, an eye whose lash runs into the hair at the side had no skin left of it in its own
-    # row: the front view's eye row was left out of the face and came out as bare skin - slit eyes.)
-    sk = best[1]; f = np.zeros(sk.shape, bool); rows = np.nonzero(sk.any(1))[0]
-    for r in rows:
-        near = [q for q in (r - 1, r, r + 1) if q in rows]; xs_ = np.nonzero(sk[near].any(0))[0]; f[r, xs_.min():xs_.max() + 1] = True
-    f &= hmk
-    # (the hair's edge beside the jaw comes in with that; in the face's lower third anything not skin that touches the patch's rim goes -
-    # there are no eyes there to lose - or it is dark specks on the frame's cheek)
-    ns = f & ~sk; l2, n = ndi.label(ns, np.ones((3, 3))); rim = f & ndi.binary_dilation(~f, np.ones((3, 3))); low_ = rows.min() + 2 * (rows.max() - rows.min()) // 3
-    for k in range(1, n + 1):
-        c = l2 == k
-        if (c & rim).any() and np.nonzero(c)[0].min() >= low_: f &= ~c
-    return (f, best[1]) if f.sum() >= 12 else (hmk, hmk)
-
-def with_head(rgba, hs, head, fixed=None, rs=None):
-    """a frame with the facing's one head in place of its own, FOLLOWING THE FRAME'S OWN FACE (the user: "the head only has to follow
-    the neck - detect the face's centre and follow it"). `hs`: where the render's head is on this sprite - the place to start from.
-    The new head's face (skin, eyes, mouth) is slid up to 5 px around it to where it best matches what the frame has drawn there:
-    its eyes on the frame's eyes, its chin on the frame's chin - so it sits on that frame's neck and collar, which were drawn for
-    a head just there. Returned with it: how far that was from the render's place (dy, dx)."""
-    if not hs.any(): return rgba
-    hy0, hy1, hx0, hx1 = bbox(hs); hd, hmk, t, xc = head; pad = CH_; body = np.pad(rgba, ((pad, pad), (pad, pad), (0, 0))); was = body[..., 3] > 0; orig = body.copy()
-    ys, xs = np.nonzero(hmk); by, bx = ys - t + hy0 + pad, xs - xc + (hx0 + hx1) // 2 + pad
-    face, fskin = face_of(hd, hmk); fy, fx = np.nonzero(face); gy, gx = fy - t + hy0 + pad, fx - xc + (hx0 + hx1) // 2 + pad
-    labh = P.lab(hd[fy, fx][:, :3] / 255.0); labb = P.lab(body[..., :3].reshape(-1, 3) / 255.0).reshape(body.shape[:2] + (3,))
-    # Where the frame's own face is: THE MIDDLE OF ITS SKIN (the user: "before it went by the eyes - now take the median of the face's
-    # skin-coloured part"). The frame's skin = what is the piece's skin colour around where the piece's face would land; the piece
-    # is moved so that the median of its own skin lies on the median of that. (By matching colours pixel on pixel - in effect the
-    # eyes - it was pulled about by an eye GPT drew a pixel off or half shut.)
-    sy, sx = np.nonzero(fskin); ky, kx = sy - t + hy0 + pad, sx - xc + (hx0 + hx1) // 2 + pad; seed_ = np.median(P.lab(hd[sy, sx][:, :3] / 255.0), 0)
-    spot = np.zeros(was.shape, bool); spot[gy, gx] = True; area = ndi.binary_dilation(spot, np.ones((3, 3)), iterations=4)
-    own_ = was & area & (np.sqrt(((labb - seed_) ** 2).sum(2)) < 24); l2, k = ndi.label(own_); best = (0, 0, 0)
-    if k:
-        own_ = l2 == (1 + np.argmax(ndi.sum(own_, l2, np.arange(1, k + 1))))       # (its biggest patch: not an ear, not a hand)
-        top_ = np.nonzero(own_.any(1))[0].min(); own_[top_ + int(np.ptp(sy)) + 1:] = False; oy_, ox_ = np.nonzero(own_)      # (the face alone, not the neck under it: as many rows as the piece's face)
-        best = (0, int(np.clip(round(float(np.median(oy_) - np.median(ky))), -6, 6)), int(np.clip(round(float(np.median(ox_) - np.median(kx))), -6, 6)))
-    off = best[1:]; dy, dx = off if fixed is None else fixed
-    # the frame's own head goes: around where it IS (its own face's place) and around where the new one goes - cleared around the new
-    # place only, the old head's far edge stayed as a dark line behind the new one. No lower than the new head reaches: under it the
-    # frame's own neck and collar stay (the render's "head" runs down the neck) ...
-    wide = np.pad(ndi.binary_dilation(hs, iterations=7), pad); own = np.roll(wide, off, (0, 1)); old = own | np.roll(wide, (dy, dx), (0, 1))     # (7 px: GPT's hair stands out further than the render's)
-    for o in (off, (dy, dx)):       # (and 3 px around the head piece itself at both places: its hair is wider than the render's head, the corners of a 7 px diamond miss it)
-        t_ = np.zeros(was.shape, bool); t_[by + o[0], bx + o[1]] = True; old |= ndi.binary_dilation(t_, np.ones((3, 3)), iterations=3)
-    low_ = ndi.binary_dilation(own, np.ones((3, 3)), iterations=2); low_[:by.max() + dy + 1] = False; old[by.max() + dy + 1:] = False
-    # ... but for the old HAIR hanging lower than the new (behind the neck): what is there the hair's colour and not the face's
-    hair = np.zeros(hmk.shape, bool); hair[ys, xs] = True; hair[fy, fx] = False; strands = None
-    if hair.any() and low_.any():
-        lh = P.lab(hd[hair][:, :3] / 255.0); lh = lh[::max(1, len(lh) // 60)]; py, px_ = np.nonzero(low_ & was); lp = labb[py, px_]
-        isd = (np.sqrt(((lp[:, None] - lh[None]) ** 2).sum(2)).min(1) < 16) & (np.sqrt(((lp - np.median(labh, 0)) ** 2).sum(1)) > 25)       # (16: the body's palette is not the head's)
-        tail = np.zeros(was.shape, bool); tail[py[isd], px_[isd]] = True
-        tail[by.max() + dy + 8:] = False
-        l2, k = ndi.label(tail | old, np.ones((3, 3))); tail &= np.isin(l2, np.unique(l2[old]))      # (only what hangs from the old head)
-        # In the air it goes. Over the body as the render has it (the hood behind the neck) it stays as hair - but as THIS head's hair
-        # (below): left as it was it is a flat dark band under a head with strands (the user: "it comes down as plain black - the
-        # hair's pattern should carry on down, vertically").
-        onbody = np.roll(np.pad(rs & ~ndi.binary_dilation(hs, iterations=2), pad), (1, 0), (0, 1)) if rs is not None else np.zeros(was.shape, bool)
-        old |= tail & ~onbody; strands = tail & onbody
-    new = np.zeros(was.shape, bool); new[by + dy, bx + dx] = True
-    keep = ndi.binary_dilation(new, iterations=1); keep[:by.max() + dy - 1] = False; keep &= ~(old & low_); keep &= ~(strands if strands is not None else False)       # the frame's own pixels right against the new head's last two rows stay (no gap opens between chin and collar)
-    old[:by.min() + dy, max(0, bx.min() + dx - 6):bx.max() + dx + 7] = True                            # (and whatever of the old hair stands above the new head)
-    body[old & ~keep] = 0; body[by + dy, bx + dx] = hd[ys, xs]
-    if strands is not None and strands.any():
-        # each column of the old hair under the head carries the new head's strands on down: it takes that column's hair pixels from
-        # just above the head's bottom edge (the nearest column that has hair, where it has none), the edge itself becomes hair
-        # there, and the column's last row is the head's darkest colour - the edge again, lower down. (From the head's lowest
-        # pixel it was the dark edge repeated: a flat black band.)
-        hy_, hx_ = np.nonzero(hair); cx_ = hx_ - xc + (hx0 + hx1) // 2 + pad + dx; cy_ = hy_ - t + hy0 + pad + dy
-        dark = hd[hy_, hx_][np.argmin(hd[hy_, hx_][:, :3].sum(1).astype(int))]; ck = np.unique(cx_)
-        sy, sx = np.nonzero(strands)
-        for x_ in np.unique(sx):
-            col = ck[np.argmin(np.abs(ck - x_))]; rows = np.sort(hy_[cx_ == col]); src = [hd[r, col - (cx_[0] - hx_[0])] for r in rows[:-1]] or [hd[rows[-1], col - (cx_[0] - hx_[0])]]
-            run = np.sort(sy[sx == x_])
-            if col == x_ and len(rows) > 1 and run[0] == cy_[cx_ == col].max() + 1: body[run[0] - 1, x_] = src[-1]      # the head's edge pixel, now inside the hair
-            for k_, y_ in enumerate(run): body[y_, x_] = dark if k_ == len(run) - 1 else src[max(0, len(src) - len(run) + k_)]
-    # the neck, one shade in every frame: under the new chin the frame's own skin is left (its old chin, a shadow, a lighter throat -
-    # different in each frame, and it flickers). What is skin there (like the face) within 5 rows becomes the face's colour a little darker.
-    seed = np.median(labh, 0); r0 = gy.max() + dy + 1; sl = (slice(r0, r0 + 5), slice(gx.min() + dx - 2, gx.max() + dx + 3))
-    neck = (body[sl][..., 3] > 0) & (np.sqrt(((P.lab(body[sl][..., :3].reshape(-1, 3) / 255.0).reshape(body[sl].shape[:2] + (3,)) - seed) ** 2).sum(2)) < 30) & ~new[sl]
-    if neck.any(): body[sl][neck] = np.append((np.clip(P.lab2rgb((seed - [5, -1, -2])[None]), 0, 1)[0] * 255).round(), 255)
-    # what the old head covered and the new one does not: a hole shut in on all sides takes the colour beside it; anything open to the outside is let go
-    # (filled with skin it was a line of skin beside the neck)
-    al = body[..., 3] > 0; hole = ndi.binary_fill_holes(al) & ~al & was
-    if hole.any(): near = ndi.distance_transform_edt(~al, return_distances=False, return_indices=True); body[hole] = body[near[0][hole], near[1][hole]]
-    l2, k = ndi.label(body[..., 3] > 0, np.ones((3, 3)))                                             # bits left hanging by themselves go
-    if k > 1: body[np.isin(l2, 1 + np.nonzero(ndi.sum(body[..., 3] > 0, l2, np.arange(1, k + 1)) < 8)[0])] = 0
-    # what of the CLOTHES went with the old head (neither the hair's colour nor the face's, and now gone or under the new head)
-    lo = labb[was]; cloth = np.zeros(was.shape, bool)
-    cloth[was] = (np.sqrt(((lo[:, None] - lh[None]) ** 2).sum(2)).min(1) > 16) & (np.sqrt(((lo - np.median(labh, 0)) ** 2).sum(1)) > 30) if hair.any() else False
-    # the clothes stay whole: where the new head would lie over them (it is put on the render's path, and in a frame GPT drew the
-    # collar higher its chin and hair ends came down over the collar - "isn't part of the raincoat cut off?") the clothes are in
-    # front, the head tucked in behind them. Only at the head's lower end: higher up it is hair over the hood, as it should be.
-    front = cloth & new; front[:by.max() + dy - 5] = False
-    if A.no_front: front[:] = False                  # (--no-front: as it was before, to compare with)
-    body[front] = orig[front]
-    LOST.append((int((cloth & (body[..., 3] == 0)).sum()), int((cloth & new & ~front).sum()), int(front.sum())))
-    if DEBUG_DIR:
-        im = body.copy(); im[cloth & (body[..., 3] == 0)] = (255, 0, 255, 255); im[cloth & new & ~front] = (0, 255, 255, 255); Image.fromarray(im).save(DEBUG_DIR / f'lost-{len(LOST) - 1}.png')
-    return body, off
-
-def with_features(rgba, hs, head):
-    """only the FACE cut out of the facing's head piece - its skin with the eyes, nose, mouth and cheeks in it - laid on the frame's own
-    face (the user: "cut just the face and put it on the original picture's face"). The frame keeps its own hair, neck and collar:
-    no seam at the neck, nothing of the clothes covered, no old head to clear away. Placed by the middle of the skin (as with_head).
-    The frame's own features are first painted over with its own skin (one left beside the patch would be a third eye); the patch
-    goes on wherever there is figure under it - over the frame's fringe too, where the piece's face is the wider."""
-    if not hs.any(): return rgba
-    hy0, hy1, hx0, hx1 = bbox(hs); hd, hmk, t, xc = head; pad = CH_; body = np.pad(rgba, ((pad, pad), (pad, pad), (0, 0))); was = body[..., 3] > 0
-    face, fskin = face_of(hd, hmk); fy, fx = np.nonzero(face); gy, gx = fy - t + hy0 + pad, fx - xc + (hx0 + hx1) // 2 + pad
-    labb = P.lab(body[..., :3].reshape(-1, 3) / 255.0).reshape(body.shape[:2] + (3,))
-    sy, sx = np.nonzero(fskin); ky, kx = sy - t + hy0 + pad, sx - xc + (hx0 + hx1) // 2 + pad; seed = np.median(P.lab(hd[sy, sx][:, :3] / 255.0), 0)
-    spot = np.zeros(was.shape, bool); spot[gy, gx] = True; area = ndi.binary_dilation(spot, np.ones((3, 3)), iterations=4)
-    skin = was & area & (np.sqrt(((labb - seed) ** 2).sum(2)) < 24); l2, k = ndi.label(skin)
-    if not k: return rgba
-    skin = l2 == (1 + np.argmax(ndi.sum(skin, l2, np.arange(1, k + 1))))
-    # THE FACE ALONE on both sides (the user: "go by the face part only, without the hair"): the frame's skin runs on down the neck
-    # (15-17 rows against the piece's 12), which pulled its middle 2 px low. Only as many rows from its top as the piece's face has.
-    top_ = np.nonzero(skin.any(1))[0].min(); skin[top_ + int(np.ptp(sy)) + 1:] = False; oy_, ox_ = np.nonzero(skin)
-    dy = int(np.clip(round(float(np.median(oy_) - np.median(ky))), -6, 6)); dx = int(np.clip(round(float(np.median(ox_) - np.median(kx))), -6, 6))
-    SIZES.append(((int(np.ptp(ox_)) + 1, int(np.ptp(oy_)) + 1, int(skin.sum())), (int(np.ptp(sx)) + 1, int(np.ptp(sy)) + 1, int(fskin.sum()))))
-    # (tried: from there up to 2 px to where the patch's colours best match the frame's - it slid the front view's patch 3 rows down
-    # onto the fringe's pixels and the eyes came out as slits. The skin's middle alone it is.)
-    ty, tx = gy + dy, gx + dx
-    # the frame's own features go under its own skin: whatever lies between skin in its row OR in its column (an eye right under
-    # the fringe has no skin above it), within a pixel of where the patch lands
-    foot = np.zeros(was.shape, bool); foot[ty, tx] = True
-    rows_ = np.maximum.accumulate(skin, 1) & np.maximum.accumulate(skin[:, ::-1], 1)[:, ::-1]; cols_ = np.maximum.accumulate(skin, 0) & np.maximum.accumulate(skin[::-1], 0)[::-1]
-    own = (rows_ | cols_) & was & ndi.binary_dilation(foot, np.ones((3, 3))); v, cnt = np.unique(body[skin][:, :3], axis=0, return_counts=True); body[own & ~skin, :3] = v[cnt.argmax()]
-    ok = was[ty, tx]; body[ty[ok], tx[ok]] = hd[fy[ok], fx[ok]]
-    FEAT.append((int(len(fy)), int(ok.sum())))
-    return body[pad:-pad, pad:-pad], (dy, dx)
-
 def main():
     for x_ in (GAPS, EDGE, FINAL, HEADW, SIZED, PITCHES, BASES): x_.clear()
     EDITED.clear(); ASIDE.clear(); T0 = time.time()
-    FEAT.clear(); LOST.clear()
     todo = [(c, dr) for c in CLIPS for dr in DIRS]
     miss = [(c, dr) for c, dr in todo if not all((d / f'render/{c}-{dr}-{i}.png').exists() for i in range(nframes(c)))]
     if miss: sys.exit(f'no renders for {miss} - run `charpipe.py render` first')
     want = {}
-    for c, dr in todo + [('walk', dr) for g in HGROUPS for dr in FACED[g * 4:g * 4 + 4]]:
+    for c, dr in todo:
         if not all((d / f'depth/{c}-{dr}-{i}.png').exists() for i in range(nframes(c))): want.setdefault(c, []).append(dr)
     if want: print('depth pass (free):', want); DEPTH.main(A.spec, {c: sorted(set(v)) for c, v in want.items()}, (s, d))
     # the body sheets
@@ -593,17 +374,13 @@ def main():
             sheets.append((c, dr, g, idx))
             if A.again == name: (W / f'{name}-{H}-out.png').unlink(missing_ok=True)
             if not (W / f'{name}-{H}-out.png').exists(): paid.append((name, '1536x1024'))
-    hgroups = HGROUPS
-    for g in hgroups:
-        if A.again == f'heads-{g}': (W / f'heads-{g}-{H}-out.png').unlink(missing_ok=True)
-        if not (W / f'heads-{g}-{H}-out.png').exists(): paid.append((f'heads-{g}', '1024x1024'))
-    print(f'{len(sheets)} body sheets, {len(hgroups)} head sheets; to draw: {len(paid)}' + (f' (about ${len(paid) * PRICE:.2f}): ' + ', '.join(n for n, _ in paid) if paid else ''))
+    print(f'{len(sheets)} sheets; to draw: {len(paid)}' + (f' (about ${len(paid) * PRICE:.2f}): ' + ', '.join(n for n, _ in paid) if paid else ''))
     if paid and not A.yes:
         print('nothing spent - run again with --yes')
         if not A.partial: return
-        sheets = [x for x in sheets if (W / f'{x[0]}-{x[1]}-{x[2]}-{H}-out.png').exists()]; hgroups = [g for g in hgroups if (W / f'heads-{g}-{H}-out.png').exists()]; paid = []
+        sheets = [x for x in sheets if (W / f'{x[0]}-{x[1]}-{x[2]}-{H}-out.png').exists()]; paid = []
     turn = d / 'turnaround/turn.png'; turn = turn if turn.exists() else Path(s['design']); spent = 0
-    for name, size in [p for p in paid if not p[0].startswith('heads-')]:
+    for name, size in paid:
         first = W / f'{name.rsplit("-", 1)[0]}-0-{H}-out.png'      # a later sheet is shown the animation's first one (two sheets drawn apart came out with different coats)
         t0_ = time.time(); spent += CP.gpt((W / f'{name}-{H}-prompt.txt').read_text(), [W / f'{name}-{H}-in.png', turn] + ([first] if not name.endswith('-0') and first.exists() else []), W / f'{name}-{H}-out.png', size); TIMES['draw'][name] = round(time.time() - t0_, 1); print(f'  drawn: {name} ({TIMES["draw"][name]:.0f} s)', flush=True)
     bodies = {}
@@ -612,13 +389,7 @@ def main():
         if r:
             for i, x in zip(idx, r): bodies[(c, dr, i)] = x
     if not bodies: sys.exit('no sheet could be read')
-    STATE.write_text(json.dumps(state)); hh = round(H * state['scale'])       # the heads at the size the bodies came back at
-    heads = {}
-    for g in hgroups:
-        drs = head_sheet(g, hh)
-        if not (W / f'heads-{g}-{H}-out.png').exists():
-            spent += CP.gpt((W / f'heads-{g}-{H}-prompt.txt').read_text(), [W / f'heads-{g}-{H}-in.png', turn], W / f'heads-{g}-{H}-out.png', '1024x1024'); print(f'  drawn: heads-{g}', flush=True)
-        heads.update(read_heads(g, drs, hh))
+    STATE.write_text(json.dumps(state)); hh = round(H * state['scale'])       # the size the bodies came back at
     # one palette for the bodies, one for the heads (the face's few colours would be lost among the body's)
     def pal(pix, n):
         pl = P.palette(pix, n)
@@ -643,37 +414,14 @@ def main():
         if b_ > a_ and m[a_:b_].any(): HEADW.setdefault(f'{k[0]}-{k[1]}', {})[k[2]] = int(m[a_:b_].sum(1).max())      # the head's width, to tell: it should not change from frame to frame
         if b_ > a_ and m[a_:b_].any(): im[a_:b_] = rgba(low[a_:b_], m[a_:b_], hpl, hpr, False)
         return im
-    if heads:
-        hp, hq = pal(np.concatenate([l[m] for l, m, _, _ in heads.values()]), 13); ncol += len(hp)
-        heads = {dr: (rgba(l, m, hp, hq, False), m, t, xc) for dr, (l, m, t, xc) in heads.items()}
-        # a head piece put right by hand: <character>/pixel/head-edits-<facing>.json (facefix.py's format, one frame, x y in the 32 x 32 piece).
-        # ONE piece per facing, so one correction serves every frame of it (GPT drew the front view's glints mirrored: cross-eyed).
-        for dr, (im, _, _, _) in heads.items():
-            if (W / f'head-edits-{dr}.json').exists(): FACE.apply(im, json.loads((W / f'head-edits-{dr}.json').read_text()), 0); print(f'  head piece {dr}: corrected from head-edits-{dr}.json')
-        for dr, (im, _, _, _) in heads.items(): Image.fromarray(im).save(W / f'head-{dr}-{H}.png')          # (to look at: what goes on every frame of the facing)
     # every frame on one canvas, where the render has it: the sprite laid on the render (at the sprite's scale) where the two shapes
     # overlap most. (By the bottom middle of its box it shifted with every hand or foot GPT drew a pixel longer.)
-    out = d / f'out-pixel{H}'; out.mkdir(exist_ok=True); K = state['scale']; strips = {}; moved = {}; fit = {}; faces = []; nofaces = []
-    # The head's path: the RENDER's (a real head's, a pixel at a time), moved as a whole by what the frames' own faces say (the
-    # middle of their offsets) - so it sits on the necks as GPT drew them, on the whole, and does not jump with each frame's
-    # 1-2 px of drawing error. (Following each frame's own face it sat well on every neck and nodded at random.)
-    steady = {}
-    for c, dr in todo:
-        offs = []
-        for i in range(nframes(c)):
-            if (c, dr, i) not in bodies or dr not in heads or A.features: break
-            low, m = bodies[(c, dr, i)]; _, rm, hm = ren(c, dr, i, hh); _, oy, ox = lay(m, rm)
-            r = with_head(frame((c, dr, i)), np.pad(hm, 12)[oy + 12:oy + 12 + m.shape[0], ox + 12:ox + 12 + m.shape[1]], heads[dr], None, np.pad(rm, 12)[oy + 12:oy + 12 + m.shape[0], ox + 12:ox + 12 + m.shape[1]])
-            if isinstance(r, tuple): offs.append(r[1])
-        if offs and not A.follow: steady[(c, dr)] = tuple(int(np.round(np.median([o[k] for o in offs]) + 1e-6)) for k in (0, 1))
-    global DEBUG_DIR
-    FEAT.clear(); LOST.clear(); DEBUG_DIR = (W / 'debug') if A.debug else None
-    if DEBUG_DIR: DEBUG_DIR.mkdir(exist_ok=True)
+    out = d / f'out-pixel{H}'; out.mkdir(exist_ok=True); K = state['scale']; strips = {}; fit = {}
     for c, dr in todo:
         fr = []
         for i in range(nframes(c)):
             if (c, dr, i) not in bodies: break
-            low, m = bodies[(c, dr, i)]; im = frame((c, dr, i)); pad = 0
+            low, m = bodies[(c, dr, i)]; im = frame((c, dr, i))
             _, rm, hm = ren(c, dr, i, hh); iou, oy, ox = lay(m, rm); fit.setdefault(f'{c}-{dr}', []).append(round(float(iou), 2)); prot_ = np.zeros(m.shape, bool)
             # THE REVIEW, as the illustrated pipeline has it (`redo_below`, the held thing's checks): a frame whose outline covers
             # its render's by less than "redo_below" (0.75) has another pose than the guide; a held thing the render has and
@@ -756,33 +504,10 @@ def main():
                 if dark_.sum() >= 8:
                     inner_ = ndi.binary_dilation(op_ & ~rim_, np.ones((3, 3))); fix_ = rim_ & ~dark_ & inner_
                     im[fix_, :3] = np.median(im[dark_][:, :3], 0).round(); EDGE.setdefault(f'{c}-{dr}', []).append((int(rim_.sum()), int(fix_.sum())))
-            if dr in heads:
-                hs = np.pad(hm, 12)[oy + 12:oy + 12 + m.shape[0], ox + 12:ox + 12 + m.shape[1]]
-                r = with_features(im, hs, heads[dr]) if A.features else with_head(im, hs, heads[dr], steady.get((c, dr)), np.pad(rm, 12)[oy + 12:oy + 12 + m.shape[0], ox + 12:ox + 12 + m.shape[1]])
-                if isinstance(r, tuple): pad = 0 if r[0].shape == im.shape else CH_; im, off = r; moved.setdefault(f'{c}-{dr}', []).append(off)
-            S_ = max(rm.shape) + 4 * CH_; cv = Image.new('RGBA', (S_, S_)); cv.alpha_composite(Image.fromarray(im), (2 * CH_ + ox - pad, 2 * CH_ + oy - pad)); fr.append(cv)
+            S_ = max(rm.shape) + 4 * CH_; cv = Image.new('RGBA', (S_, S_)); cv.alpha_composite(Image.fromarray(im), (2 * CH_ + ox, 2 * CH_ + oy)); fr.append(cv)
         if not fr or (len(fr) != nframes(c) and not A.partial): continue
         box = None
         for f in fr: b = f.getbbox(); box = b if box is None else (min(box[0], b[0]), min(box[1], b[1]), max(box[2], b[2]), max(box[3], b[3]))
-        # THE FACE (the default): each frame keeps the head GPT drew - hair, neck and collar all of one drawing, no seam - and the eyes,
-        # nose and mouth are drawn in by hand from the character's design: <character>/pixel/face-edits-<clip>-<dir>.json (facefix.py),
-        # written by whoever runs this (Claude) looking at faces/<clip>-<dir>.png and the map --facemap prints. x, y: in that strip's frame.
-        ob = (box[0] - 1, box[1] - 1, box[2] + 1, box[3] + 1); (W / 'faces').mkdir(exist_ok=True); ef = W / f'face-edits-{c}-{dr}.json'
-        st = Image.new('RGBA', ((ob[2] - ob[0]) * len(fr), ob[3] - ob[1]))
-        for n_, f in enumerate(fr): st.paste(f.crop(ob), (n_ * (ob[2] - ob[0]), 0))
-        st.save(W / 'faces' / f'{c}-{dr}.png')
-        if A.hand_faces and dr not in heads and ef.exists():
-            e = json.loads(ef.read_text())
-            for n_, f in enumerate(fr):
-                a_ = np.asarray(f.crop(ob)).copy(); FACE.apply(a_, e, n_); f.paste(Image.fromarray(a_), ob[:2])
-            faces.append(f'{c}-{dr}')
-        elif A.hand_faces and dr in FACED: nofaces.append(f'{c}-{dr}')
-        if A.facemap and dr in FACED:
-            print(f'--- {c}-{dr}: frames {ob[2] - ob[0]} x {ob[3] - ob[1]} (# dark, + middle, - light, . outside)')
-            for n_, f in enumerate(fr):
-                a_ = np.asarray(f.crop(ob)).astype(int); L = a_[..., :3].mean(2); ys_ = np.nonzero(a_[..., 3].any(1))[0]; t_ = ys_.min(); xs_ = np.nonzero(a_[t_:t_ + 30, :, 3].any(0))[0]
-                print(f'frame {n_}: columns {xs_.min()}..{xs_.max()}\n    ' + ''.join(str(x % 10) for x in range(xs_.min(), xs_.max() + 1)))
-                for y in range(t_, t_ + 30): print(f'{y:3d} ' + ''.join('.' if a_[y, x, 3] == 0 else '#' if L[y, x] < 75 else '+' if L[y, x] < 150 else '-' for x in range(xs_.min(), xs_.max() + 1)))
         # WHAT WAS FIXED BY HAND (pixeledit.py: a speck erased, a face redrawn) is laid on again, frame by frame - kept in
         # <character>/pixel/touch-<px>.json in the frame's render coordinates, so it lands on the same pixels whatever else this run
         # makes. A frame whose outline is no longer the one that was edited (its sheet was drawn anew) has its edits set aside.
@@ -800,10 +525,7 @@ def main():
         box = None
         for f in fr: b = f.getbbox(); box = b if box is None else (min(box[0], b[0]), min(box[1], b[1]), max(box[2], b[2]), max(box[3], b[3]))
         strips[(c, dr)] = (fr, box)
-    for k, v in fit.items(): print(f'  {k}: the sprites on their renders, overlap', v, '- the frames\' own faces are off the render\'s head by (dy, dx)', moved.get(k, '-'), '- head moved by', steady.get(tuple(k.split('-', 1)), 'each frame\'s own'))
-    if SIZES: print('  face skin (w, h, px): each frame\'s own', [x[0] for x in SIZES], '- the piece\'s', SIZES[0][1])
-    if FEAT: print('  the face patch (its pixels, those that found figure to go on) per frame:', FEAT)
-    if LOST: print('  clothes pixels per frame (gone, under the new head, kept in front of it):', LOST)
+    for k, v in fit.items(): print(f'  {k}: the sprites on their renders, overlap', v)
     for k_, v_ in PITCHES.items(): print('  squares (head across, head down, body across, body down) px:', k_, v_)
     if FINAL: print('  held thing put in its final colour (pixels per frame):', FINAL)
     print('  outline per frame (pixels on the rim, of them not dark -> given the outline\'s colour):', EDGE)
@@ -812,8 +534,6 @@ def main():
     print('  drawn at (x the render\'s size per frame, the correction made to the sheet, its squares in px):', SIZED, '- the character\'s scale', state['scale'])
     if EDITED: print(f'  fixed by hand (pixeledit.py), laid on again: {len(EDITED)} frames')
     if ASIDE: print('  hand edits SET ASIDE - the frame was drawn anew since:', ', '.join(ASIDE), f'(still in {W}/touch-{H}.json)')
-    if faces: print('  faces drawn in from', [f'face-edits-{x}.json' for x in faces])
-    if nofaces: print('  NO FACE YET for', nofaces, f'- look at {W}/faces/<name>.png (and --facemap), write {W}/face-edits-<name>.json (see facefix.py), run again')
     if not strips: sys.exit('no animation is whole yet (a sheet left out above?)')
     box = (min(b[0] for _, b in strips.values()) - 1, min(b[1] for _, b in strips.values()) - 1, max(b[2] for _, b in strips.values()) + 1, max(b[3] for _, b in strips.values()) + 1)
     fw, fh = box[2] - box[0], box[3] - box[1]

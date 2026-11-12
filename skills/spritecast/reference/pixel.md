@@ -154,9 +154,3 @@ made for that size (a bigger head); below that it is hand work - say so.
    colour; white on the render's head stays (an eye); white where the render has nothing is paper and goes; other white (a shirt the
    model invented at the neck) takes the colours next to it.
 6. A held thing goes to its `final` colour. The outline is closed: a rim pixel that is not dark takes the outline's colour.
-
-## Other ways to a face (options; the default is the model's own face, read carefully)
-
-`--face-patch`: one head per facing drawn on its own sheet at 16 px a pixel, its face cut out and laid on every frame's own face -
-the same eyes in every frame, at the price of a paid sheet. `--heads`: that whole head on every frame (seams at the neck to mind).
-`<character>/pixel/head-edits-<facing>.json` (the format in `facefix.py`) corrects such a head once for all its frames.

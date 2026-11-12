@@ -3,8 +3,12 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
-## Unreleased
+## 0.10.0 — 2026-11-11
 
+- The skill now says in its description that it makes **pixel art, actions and thrown things**, so a request for pixel sprites
+  reaches it.
+- A pixel build from kept drawings is **about 1.8 times as fast** (64 frames: 88 s → 50 s; the sprites are the same to the byte), and
+  `pixelart.py` lost the face options that were tried and not kept (`--face-patch`, `--heads`, `--hand-faces`, `--follow`).
 - The README is put **character-first**: what you can make (a walk, actions, pixel art, animals, sitting) at the top, props below;
   the pixel sprites are in `examples/rain_girl/pixel`. *(feedback)*
 - **Pixel-art sprites** (`pixelart.py`, [reference/pixel.md](skills/spritecast/reference/pixel.md)): a character as real pixel art
