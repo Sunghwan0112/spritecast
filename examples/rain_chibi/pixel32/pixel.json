@@ -1,0 +1,349 @@
+{
+ "made_from": "out-pixel64",
+ "asked_px": 32,
+ "figure_px": 36,
+ "frame": [
+  27,
+  40
+ ],
+ "animations": {
+  "walk-south": 8,
+  "walk-south-east": 8,
+  "walk-east": 8,
+  "walk-north-east": 8,
+  "walk-north": 8,
+  "walk-north-west": 8,
+  "walk-west": 8,
+  "walk-south-west": 8,
+  "throw-south": 8,
+  "throw-south-east": 8,
+  "throw-east": 8,
+  "throw-north-east": 8,
+  "throw-north": 8,
+  "throw-north-west": 8,
+  "throw-west": 8,
+  "throw-south-west": 8
+ },
+ "shadows": {
+  "walk-south": {
+   "file": "shadows/walk-south.png",
+   "frame": [
+    25,
+    22
+   ],
+   "offset": [
+    -6,
+    18
+   ]
+  },
+  "walk-south-east": {
+   "file": "shadows/walk-south-east.png",
+   "frame": [
+    31,
+    22
+   ],
+   "offset": [
+    -8,
+    18
+   ]
+  },
+  "walk-east": {
+   "file": "shadows/walk-east.png",
+   "frame": [
+    32,
+    19
+   ],
+   "offset": [
+    -8,
+    19
+   ]
+  },
+  "walk-north-east": {
+   "file": "shadows/walk-north-east.png",
+   "frame": [
+    31,
+    18
+   ],
+   "offset": [
+    -8,
+    20
+   ]
+  },
+  "walk-north": {
+   "file": "shadows/walk-north.png",
+   "frame": [
+    25,
+    18
+   ],
+   "offset": [
+    -7,
+    20
+   ]
+  },
+  "walk-north-west": {
+   "file": "shadows/walk-north-west.png",
+   "frame": [
+    24,
+    18
+   ],
+   "offset": [
+    -5,
+    20
+   ]
+  },
+  "walk-west": {
+   "file": "shadows/walk-west.png",
+   "frame": [
+    24,
+    19
+   ],
+   "offset": [
+    -4,
+    19
+   ]
+  },
+  "walk-south-west": {
+   "file": "shadows/walk-south-west.png",
+   "frame": [
+    26,
+    22
+   ],
+   "offset": [
+    -4,
+    18
+   ]
+  },
+  "throw-south": {
+   "file": "shadows/throw-south.png",
+   "frame": [
+    30,
+    21
+   ],
+   "offset": [
+    -8,
+    18
+   ]
+  },
+  "throw-south-east": {
+   "file": "shadows/throw-south-east.png",
+   "frame": [
+    32,
+    21
+   ],
+   "offset": [
+    -10,
+    17
+   ]
+  },
+  "throw-east": {
+   "file": "shadows/throw-east.png",
+   "frame": [
+    29,
+    22
+   ],
+   "offset": [
+    -8,
+    17
+   ]
+  },
+  "throw-north-east": {
+   "file": "shadows/throw-north-east.png",
+   "frame": [
+    30,
+    20
+   ],
+   "offset": [
+    -9,
+    18
+   ]
+  },
+  "throw-north": {
+   "file": "shadows/throw-north.png",
+   "frame": [
+    31,
+    18
+   ],
+   "offset": [
+    -10,
+    19
+   ]
+  },
+  "throw-north-west": {
+   "file": "shadows/throw-north-west.png",
+   "frame": [
+    28,
+    18
+   ],
+   "offset": [
+    -8,
+    20
+   ]
+  },
+  "throw-west": {
+   "file": "shadows/throw-west.png",
+   "frame": [
+    25,
+    21
+   ],
+   "offset": [
+    -7,
+    18
+   ]
+  },
+  "throw-south-west": {
+   "file": "shadows/throw-south-west.png",
+   "frame": [
+    25,
+    22
+   ],
+   "offset": [
+    -6,
+    18
+   ]
+  }
+ },
+ "release": {
+  "throw-south": {
+   "thing": "snowball",
+   "frame": 4,
+   "toward": [
+    0.0,
+    0.5
+   ],
+   "ground_slope": 1.0,
+   "at": [
+    8,
+    8
+   ],
+   "speed": 10.0,
+   "up": 3.6,
+   "gravity": 1.2,
+   "hand_above_feet": 30
+  },
+  "throw-south-east": {
+   "thing": "snowball",
+   "frame": 4,
+   "toward": [
+    0.71,
+    0.35
+   ],
+   "ground_slope": 1.0,
+   "at": [
+    5,
+    12
+   ],
+   "speed": 10.0,
+   "up": 3.6,
+   "gravity": 1.2,
+   "hand_above_feet": 26
+  },
+  "throw-east": {
+   "thing": "snowball",
+   "frame": 4,
+   "toward": [
+    1.0,
+    0.0
+   ],
+   "ground_slope": 1.0,
+   "at": [
+    6,
+    14
+   ],
+   "speed": 10.0,
+   "up": 3.6,
+   "gravity": 1.2,
+   "hand_above_feet": 23
+  },
+  "throw-north-east": {
+   "thing": "snowball",
+   "frame": 4,
+   "toward": [
+    0.71,
+    -0.35
+   ],
+   "ground_slope": 1.0,
+   "at": [
+    12,
+    16
+   ],
+   "speed": 10.0,
+   "up": 3.6,
+   "gravity": 1.2,
+   "hand_above_feet": 20
+  },
+  "throw-north": {
+   "thing": "snowball",
+   "frame": 4,
+   "toward": [
+    0.0,
+    -0.5
+   ],
+   "ground_slope": 1.0,
+   "at": [
+    18,
+    16
+   ],
+   "speed": 10.0,
+   "up": 3.6,
+   "gravity": 1.2,
+   "hand_above_feet": 20
+  },
+  "throw-north-west": {
+   "thing": "snowball",
+   "frame": 4,
+   "toward": [
+    -0.71,
+    -0.35
+   ],
+   "ground_slope": 1.0,
+   "at": [
+    22,
+    12
+   ],
+   "speed": 10.0,
+   "up": 3.6,
+   "gravity": 1.2,
+   "hand_above_feet": 24
+  },
+  "throw-west": {
+   "thing": "snowball",
+   "frame": 4,
+   "toward": [
+    -1.0,
+    0.0
+   ],
+   "ground_slope": 1.0,
+   "at": [
+    20,
+    10
+   ],
+   "speed": 10.0,
+   "up": 3.6,
+   "gravity": 1.2,
+   "hand_above_feet": 29
+  },
+  "throw-south-west": {
+   "thing": "snowball",
+   "frame": 4,
+   "toward": [
+    -0.71,
+    0.35
+   ],
+   "ground_slope": 1.0,
+   "at": [
+    15,
+    8
+   ],
+   "speed": 10.0,
+   "up": 3.6,
+   "gravity": 1.2,
+   "hand_above_feet": 31
+  }
+ },
+ "shadow_colour": [
+  40,
+  30,
+  24
+ ],
+ "shadow_alpha": 0.3
+}

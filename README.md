@@ -215,8 +215,24 @@ How much is left to the hand: very little. For the 40 throw frames, about 6 minu
 hand work was the magic eraser - a click on each speck of left-over white, in 10 of the 40 frames (131 pixels, 0.15 % of the
 sprites). No face was touched: they are as the pipeline made them. The build prints those numbers every time.
 
-What it doesn't do yet: about 96 px is the size that works (the image model draws its "pixels" about 7.5 px big whatever it is
-asked); 64 px and under needs a design made for that size. The details: [reference/pixel.md](skills/spritecast/reference/pixel.md).
+**Sizes.** 96 px is the size for a character of ordinary proportions. **64 px works for a character designed small** - about three
+heads tall, with its own 3D model - and comes out about 70 px. Under that, the image model is never asked: it does not keep to so
+few squares (32 px was tried four ways). `--px 32` draws at 64 and makes the 32 set from it, free - the same motion and frames, with
+rougher faces. 64 is the one that comes out well.
+
+![the small character walking and throwing in eight facings at 64 px, and the 32-px set made from it](docs/pixel-small.gif)
+
+Both sets are in [`examples/rain_chibi`](examples/rain_chibi): the three-heads design drawn from the rain girl, its turnaround, the
+spec, `pixel64/` (walk and throw in eight facings, 128 frames, each with its shadow; the review left 2 to look at, and no pixel was
+touched by hand) and `pixel32/` made from it. Her throw is a Mixamo clip put on with `addclip.py --clear-head 55`; the clip and the
+rig are not in the repo.
+
+![the same small character five ways: drawn at 64 px, a 32-px set made from it, and three ways of asking the image model for 32 px](docs/pixel-sizes.png)
+
+**Why not ask for 32 px?** The image model (GPT) does not do small pixel art well under 64. It draws its "pixels" at a size of its
+own - asked for 8-px squares it drew anything from 7.4 to 10.8 - and at 32 squares one square off is an eye gone. Above: the top row
+is what it draws at 64; the three red rows are 32 px asked for directly, each a different sheet layout, all of the same walk. So the
+skill asks for 64 and makes 32 from that (the green row). The details: [reference/pixel.md](skills/spritecast/reference/pixel.md).
 
 The sprites above are in [`examples/rain_girl/pixel`](examples/rain_girl/pixel): the throw in five facings, a walk in two and the
 umbrella slash as strips, their shadows, the snowball with its flight shape and burst, and `pixel.json` with the release data.
@@ -582,8 +598,8 @@ What is planned next, roughly in this order (no dates - it moves with feedback):
 - **Night versions**: a mask of what gives light (windows, bulbs, neon), so your engine can light just those parts after dark.
 - **Walk-through props, automatic**: the front piece worked out from the 3D guide (today it is painted by hand on the touch-up page).
 - **More actions and things to hold**: run, jump and slash are in, and any Mixamo clip can be added (a throw, with a snowball that is let go); next, more held things (a sword, a staff) and an idle breath.
-- **Small sprites**: pixel art at about 96 px is in (see Pixel art); next, 64 px and under - a bigger-headed build of the same rig, so
-  the face survives - and the pixel sprites in all eight facings in one go.
+- **Small sprites**: pixel art at 96 px, and at 64 px for a character designed small, is in (see Pixel art); a 32-px set is made from
+  the 64 one. Next: making the small design from the ordinary one in one step, and a face at 32 px that needs no hand.
 - **Engine exports**: sprite sheets with Godot, Unity and Aseprite files ready to import.
 
 See [CHANGELOG.md](CHANGELOG.md) for what each version changed.
@@ -615,8 +631,9 @@ Feedback decides what comes next, and what changed because of it is marked in th
   walk and the shadows come from 3D. You can give your own art as the style, or set `"draw": false` so no image model draws a walking
   character's frames: the 3D renders are the frames. The turnaround is still drawn, unless you bring your own rigged model
   ([Skipping the drawing](#skipping-the-drawing-the-3d-renders-as-the-frames)).
-- **What doesn't it do?** Walking characters start from an illustration facing front, standing straight. Pixel art works at about 96 px, not
-  yet at 32 ([Roadmap](#roadmap)). Posed single pictures (wave, point, hold...) need only a description. Big flat things like rugs are better drawn top-down and skewed onto the floor
+- **What doesn't it do?** Walking characters start from an illustration facing front, standing straight. Pixel art works at 96 px, and at 64 px for a character
+  designed small; a 32-px set is made from the 64 one, with rougher faces
+  ([Roadmap](#roadmap)). Posed single pictures (wave, point, hold...) need only a description. Big flat things like rugs are better drawn top-down and skewed onto the floor
   ([tips](skills/spritecast/reference/tips.md)). Look at the results yourself: the outline check can't see a head turned the wrong way.
 - **Which engine?** Any that takes PNGs: you get the sprite, its shadow and the anchor in JSON. See
   [Putting it in your engine](#putting-it-in-your-engine) for Phaser, Godot and Unity.

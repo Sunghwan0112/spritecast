@@ -1,0 +1,564 @@
+{
+ "asked_px": 64,
+ "scale": 1.16,
+ "figure_px": 70,
+ "frame": [
+  54,
+  80
+ ],
+ "colours": 41,
+ "animations": {
+  "walk-south": 8,
+  "walk-south-east": 8,
+  "walk-east": 8,
+  "walk-north-east": 8,
+  "walk-north": 8,
+  "walk-north-west": 8,
+  "walk-west": 8,
+  "walk-south-west": 8,
+  "throw-south": 8,
+  "throw-south-east": 8,
+  "throw-east": 8,
+  "throw-north-east": 8,
+  "throw-north": 8,
+  "throw-north-west": 8,
+  "throw-west": 8,
+  "throw-south-west": 8
+ },
+ "origin": [
+  84,
+  74
+ ],
+ "release": {
+  "throw-south": {
+   "thing": "snowball",
+   "frame": 4,
+   "at": [
+    17,
+    17
+   ],
+   "toward": [
+    0.0,
+    0.5
+   ],
+   "speed": 20.0,
+   "up": 7.2,
+   "gravity": 2.4,
+   "ground_slope": 1.0,
+   "hand_above_feet": 59,
+   "fly": [
+    0,
+    0,
+    11,
+    18
+   ]
+  },
+  "throw-south-east": {
+   "thing": "snowball",
+   "frame": 4,
+   "at": [
+    10,
+    23
+   ],
+   "toward": [
+    0.71,
+    0.35
+   ],
+   "speed": 20.0,
+   "up": 7.2,
+   "gravity": 2.4,
+   "ground_slope": 1.0,
+   "hand_above_feet": 52,
+   "fly": [
+    33,
+    0,
+    18,
+    12
+   ]
+  },
+  "throw-east": {
+   "thing": "snowball",
+   "frame": 4,
+   "at": [
+    13,
+    29
+   ],
+   "toward": [
+    1.0,
+    0.0
+   ],
+   "speed": 20.0,
+   "up": 7.2,
+   "gravity": 2.4,
+   "ground_slope": 1.0,
+   "hand_above_feet": 46
+  },
+  "throw-north-east": {
+   "thing": "snowball",
+   "frame": 4,
+   "at": [
+    24,
+    32
+   ],
+   "toward": [
+    0.71,
+    -0.35
+   ],
+   "speed": 20.0,
+   "up": 7.2,
+   "gravity": 2.4,
+   "ground_slope": 1.0,
+   "hand_above_feet": 41,
+   "fly": [
+    53,
+    0,
+    17,
+    12
+   ]
+  },
+  "throw-north": {
+   "thing": "snowball",
+   "frame": 4,
+   "at": [
+    37,
+    31
+   ],
+   "toward": [
+    0.0,
+    -0.5
+   ],
+   "speed": 20.0,
+   "up": 7.2,
+   "gravity": 2.4,
+   "ground_slope": 1.0,
+   "hand_above_feet": 41,
+   "fly": [
+    72,
+    0,
+    11,
+    18
+   ]
+  },
+  "throw-north-west": {
+   "thing": "snowball",
+   "frame": 4,
+   "at": [
+    44,
+    25
+   ],
+   "toward": [
+    -0.71,
+    -0.35
+   ],
+   "speed": 20.0,
+   "up": 7.2,
+   "gravity": 2.4,
+   "ground_slope": 1.0,
+   "hand_above_feet": 49,
+   "fly": [
+    103,
+    0,
+    18,
+    12
+   ]
+  },
+  "throw-west": {
+   "thing": "snowball",
+   "frame": 4,
+   "at": [
+    41,
+    19
+   ],
+   "toward": [
+    -1.0,
+    0.0
+   ],
+   "speed": 20.0,
+   "up": 7.2,
+   "gravity": 2.4,
+   "ground_slope": 1.0,
+   "hand_above_feet": 58
+  },
+  "throw-south-west": {
+   "thing": "snowball",
+   "frame": 4,
+   "at": [
+    30,
+    16
+   ],
+   "toward": [
+    -0.71,
+    0.35
+   ],
+   "speed": 20.0,
+   "up": 7.2,
+   "gravity": 2.4,
+   "ground_slope": 1.0,
+   "hand_above_feet": 62,
+   "fly": [
+    123,
+    0,
+    18,
+    12
+   ]
+  }
+ },
+ "shadows": {
+  "walk-south": {
+   "file": "shadows/walk-south.png",
+   "frame": [
+    50,
+    43
+   ],
+   "offset": [
+    -12,
+    36
+   ]
+  },
+  "walk-south-east": {
+   "file": "shadows/walk-south-east.png",
+   "frame": [
+    62,
+    43
+   ],
+   "offset": [
+    -16,
+    36
+   ]
+  },
+  "walk-east": {
+   "file": "shadows/walk-east.png",
+   "frame": [
+    64,
+    38
+   ],
+   "offset": [
+    -17,
+    37
+   ]
+  },
+  "walk-north-east": {
+   "file": "shadows/walk-north-east.png",
+   "frame": [
+    62,
+    37
+   ],
+   "offset": [
+    -17,
+    39
+   ]
+  },
+  "walk-north": {
+   "file": "shadows/walk-north.png",
+   "frame": [
+    50,
+    36
+   ],
+   "offset": [
+    -14,
+    40
+   ]
+  },
+  "walk-north-west": {
+   "file": "shadows/walk-north-west.png",
+   "frame": [
+    49,
+    37
+   ],
+   "offset": [
+    -10,
+    40
+   ]
+  },
+  "walk-west": {
+   "file": "shadows/walk-west.png",
+   "frame": [
+    48,
+    38
+   ],
+   "offset": [
+    -8,
+    38
+   ]
+  },
+  "walk-south-west": {
+   "file": "shadows/walk-south-west.png",
+   "frame": [
+    51,
+    43
+   ],
+   "offset": [
+    -9,
+    36
+   ]
+  },
+  "throw-south": {
+   "file": "shadows/throw-south.png",
+   "frame": [
+    60,
+    42
+   ],
+   "offset": [
+    -17,
+    36
+   ]
+  },
+  "throw-south-east": {
+   "file": "shadows/throw-south-east.png",
+   "frame": [
+    65,
+    42
+   ],
+   "offset": [
+    -19,
+    35
+   ]
+  },
+  "throw-east": {
+   "file": "shadows/throw-east.png",
+   "frame": [
+    58,
+    43
+   ],
+   "offset": [
+    -16,
+    35
+   ]
+  },
+  "throw-north-east": {
+   "file": "shadows/throw-north-east.png",
+   "frame": [
+    60,
+    40
+   ],
+   "offset": [
+    -18,
+    36
+   ]
+  },
+  "throw-north": {
+   "file": "shadows/throw-north.png",
+   "frame": [
+    62,
+    36
+   ],
+   "offset": [
+    -19,
+    38
+   ]
+  },
+  "throw-north-west": {
+   "file": "shadows/throw-north-west.png",
+   "frame": [
+    57,
+    37
+   ],
+   "offset": [
+    -17,
+    38
+   ]
+  },
+  "throw-west": {
+   "file": "shadows/throw-west.png",
+   "frame": [
+    50,
+    42
+   ],
+   "offset": [
+    -14,
+    36
+   ]
+  },
+  "throw-south-west": {
+   "file": "shadows/throw-south-west.png",
+   "frame": [
+    50,
+    45
+   ],
+   "offset": [
+    -13,
+    35
+   ]
+  }
+ },
+ "shadow_colour": [
+  40,
+  30,
+  24
+ ],
+ "shadow_alpha": 0.3,
+ "review": {
+  "throw-north-west": {
+   "0": [
+    "snowball missing"
+   ]
+  },
+  "throw-south-west": {
+   "2": [
+    "snowball missing"
+   ]
+  }
+ },
+ "made": {
+  "walk-south": {
+   "frames": 8,
+   "sheets": 2,
+   "draw_s": 69.4,
+   "cut_s": 27.5,
+   "hand_frames": 0,
+   "hand_px": 0,
+   "hand_s": null,
+   "px": 12421
+  },
+  "walk-south-east": {
+   "frames": 8,
+   "sheets": 3,
+   "draw_s": 101.8,
+   "cut_s": 27.6,
+   "hand_frames": 0,
+   "hand_px": 0,
+   "hand_s": null,
+   "px": 11843
+  },
+  "walk-east": {
+   "frames": 8,
+   "sheets": 3,
+   "draw_s": 99.0,
+   "cut_s": 24.0,
+   "hand_frames": 0,
+   "hand_px": 0,
+   "hand_s": null,
+   "px": 10777
+  },
+  "walk-north-east": {
+   "frames": 8,
+   "sheets": 3,
+   "draw_s": 92.9,
+   "cut_s": 23.8,
+   "hand_frames": 0,
+   "hand_px": 0,
+   "hand_s": null,
+   "px": 10848
+  },
+  "walk-north": {
+   "frames": 8,
+   "sheets": 2,
+   "draw_s": 71.3,
+   "cut_s": 24.0,
+   "hand_frames": 0,
+   "hand_px": 0,
+   "hand_s": null,
+   "px": 11339
+  },
+  "walk-north-west": {
+   "frames": 8,
+   "sheets": 3,
+   "draw_s": 97.4,
+   "cut_s": 24.0,
+   "hand_frames": 0,
+   "hand_px": 0,
+   "hand_s": null,
+   "px": 10859
+  },
+  "walk-west": {
+   "frames": 8,
+   "sheets": 3,
+   "draw_s": 97.8,
+   "cut_s": 23.6,
+   "hand_frames": 0,
+   "hand_px": 0,
+   "hand_s": null,
+   "px": 10959
+  },
+  "walk-south-west": {
+   "frames": 8,
+   "sheets": 3,
+   "draw_s": 89.5,
+   "cut_s": 23.9,
+   "hand_frames": 0,
+   "hand_px": 0,
+   "hand_s": null,
+   "px": 11863
+  },
+  "throw-south": {
+   "frames": 8,
+   "sheets": 3,
+   "draw_s": 94.0,
+   "cut_s": 24.0,
+   "hand_frames": 0,
+   "hand_px": 0,
+   "hand_s": null,
+   "px": 12101
+  },
+  "throw-south-east": {
+   "frames": 8,
+   "sheets": 3,
+   "draw_s": 91.2,
+   "cut_s": 23.8,
+   "hand_frames": 0,
+   "hand_px": 0,
+   "hand_s": null,
+   "px": 12063
+  },
+  "throw-east": {
+   "frames": 8,
+   "sheets": 3,
+   "draw_s": 89.0,
+   "cut_s": 24.0,
+   "hand_frames": 0,
+   "hand_px": 0,
+   "hand_s": null,
+   "px": 11709
+  },
+  "throw-north-east": {
+   "frames": 8,
+   "sheets": 3,
+   "draw_s": 88.6,
+   "cut_s": 23.7,
+   "hand_frames": 0,
+   "hand_px": 0,
+   "hand_s": null,
+   "px": 11019
+  },
+  "throw-north": {
+   "frames": 8,
+   "sheets": 3,
+   "draw_s": 90.8,
+   "cut_s": 27.3,
+   "hand_frames": 0,
+   "hand_px": 0,
+   "hand_s": null,
+   "px": 11492
+  },
+  "throw-north-west": {
+   "frames": 8,
+   "sheets": 3,
+   "draw_s": 86.8,
+   "cut_s": 23.9,
+   "hand_frames": 0,
+   "hand_px": 0,
+   "hand_s": null,
+   "px": 11850
+  },
+  "throw-west": {
+   "frames": 8,
+   "sheets": 3,
+   "draw_s": 86.1,
+   "cut_s": 23.6,
+   "hand_frames": 0,
+   "hand_px": 0,
+   "hand_s": null,
+   "px": 10658
+  },
+  "throw-south-west": {
+   "frames": 8,
+   "sheets": 3,
+   "draw_s": 87.4,
+   "cut_s": 23.7,
+   "hand_frames": 0,
+   "hand_px": 0,
+   "hand_s": null,
+   "px": 11580
+  }
+ }
+}

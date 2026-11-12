@@ -135,9 +135,27 @@ Offer it after the review and a redraw have done what they can; never draw for t
 
 ## Sizes
 
-The image model draws its "pixels" about 7.5 px big whatever the guide asks, so what `--px` buys is limited: asked for 96 the
-figure comes out about 94-100 px, asked for 128 only about 104. 96 is the size to offer. For 48-64 px a character needs a design
-made for that size (a bigger head); below that it is hand work - say so.
+| asked (`--px`) | what to do | what comes out |
+|---|---|---|
+| 96 | the size to offer for a character of ordinary proportions | 94-100 px |
+| 128 | say it buys little | about 104 px |
+| 64 | only for a character DESIGNED small: about three heads tall, with its own 3D model (below) | about 70 px |
+| under 64 (32, 48) | drawn at 64, then made smaller from that set by `pixelsmall.py` - `pixelart.py` does both by itself | 32 → about 36 px |
+
+**The image model is never asked for less than 64.** It draws its "pixels" at a size of its own (asked for 8-px squares it drew
+7.4 to 10.8), and with few squares one square off is an eye gone. 32 px was tried four ways - eight frames a sheet (squashed by a
+fifth and more), three frames in big squares (spiky hair, faces lost), four frames in 16-px squares (clean drawings, but 45 px tall,
+a face on the back of a head, some sheets with squares twice the size), and reduced from 64 - and only the last keeps the same
+person, motion and frames in every facing. So `--px 32` prints that it draws at 64, builds `out-pixel64/` and then writes
+`out-pixel32/` from it (strips, shadows, the thrown thing, `pixel.json` with the release data made smaller; free, and
+`PYTHON pixelsmall.py CHAR.json --to 32` does it again). Tell the user plainly: 64 is what comes out well; the smaller set has
+rougher faces, to be fixed in the 64 set with `pixeledit.py` and reduced again.
+
+**A character for 64 px.** The ordinary design at 64 comes out about 81 px and loses its face: the head is too small a part of it.
+Make the small character its own: one more drawing of the design as a super-deformed figure about three heads tall (a big head,
+short thick arms held away from the body, big boots), its own turnaround, its own 3D model and rig (`charpipe.py` as for any
+character: the turnaround shown and OK'd first, then about 75 Tripo credits). Scaling the head bone of the ordinary rig is not a
+substitute: a raised hand goes into the head. A clip from an FBX then takes `addclip.py ... --clear-head 55`.
 
 ## What it does to the drawing, in order (all of it automatic)
 

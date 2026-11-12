@@ -142,7 +142,9 @@ illustrated frames: the 3D renders are pixelized into a guide, the image model r
 back onto the grid it was drawn on - so it needs the renders only (`render`; the illustrated `draw` is not needed for this).
 `PYTHON pixelart.py CHAR.json` prints the plan and the cost and spends nothing; `--yes` draws (~$0.075 a sheet; a walk is 2 sheets a
 facing, 3 for a side view; an action with something held 4). Offer 96 px (`--px`; the image model's "pixels" do not get smaller, so
-128 comes out about 104 - say so). One facing of one animation first, as the sample: show `out-pixel96/preview.gif`, then the rest.
+128 comes out about 104 - say so). **64 px only for a character designed small** (about three heads tall, its own 3D model:
+reference/pixel.md "Sizes") - and **never less than 64 asked of the image model**: `--px 32` draws at 64 and makes the 32 set from it;
+say that 64 is the one that comes out well. One facing of one animation first, as the sample: show `out-pixel96/preview.gif`, then the rest.
 Every run ends with its review (`REVIEW: N of M frames to look at`: a pose unlike the render's - overlap under `redo_below` - or the
 held thing missing or left in the hand): show the user `review.png` (each marked frame beside its guide), not every frame;
 `--redraw` says what drawing those sheets again would cost, `--redraw --yes` does it and keeps the better; `--again <sheet>` redraws one sheet. Out: `<clip>-<facing>.png` strips, `shadows/`

@@ -2,7 +2,8 @@
 
     python pixelart.py SPEC.json                               what it would make and what that costs - spends nothing
     python pixelart.py SPEC.json --yes                         makes it
-        --px 96             the figure's height asked for (96 or 128; the sprites come out ~1.1x that - see "scale" in pixel.json)
+        --px 96             the figure's height asked for (96; 64 for a character designed small - about three heads tall. The sprites come out
+                            ~1.1x that. Under 64 - 32, 48 - it is drawn at 64 and made smaller from that set: out-pixel<px>/)
         --clips walk,run    which animations (default: walk)
         --dirs south-east   which facings (default: all eight)
         --again NAME        draw one sheet anew (a name from the plan, e.g. walk-south-east-0)
@@ -36,6 +37,10 @@ if A.cut is None:        # the AI cut-out (the pipeline's own, BiRefNet) whereve
     if A.cut == 'white': print('no onnxruntime in this Python: white shut in by the figure is sorted by rule, not by the AI cut-out (doctor.py --fix --characters)')
 sys.path.insert(0, str(HERE))
 import pixelkit as P, charpipe as CP, chardepth as DEPTH   # noqa: E402
+# NEVER LESS THAN 64 ASKED OF THE IMAGE MODEL (the user, after 32 px had been tried four ways: "everything under 64 is prompted at 64 -
+# it does not go lower"): a smaller size is drawn at 64 and made smaller from that set by pixelsmall.py, when the build is done.
+SMALL = A.px if A.px < 64 else None
+if SMALL: print(f'--px {SMALL}: drawn at 64 (the image model is never asked for less - under 64 it does not keep to the squares), then made {SMALL} px from that set'); A.px = 64
 s, d = CP.load(A.spec); W = d / 'pixel'; W.mkdir(exist_ok=True); H = A.px; PRICE = 0.075
 # "px" is the STANDING figure's height: how tall it is in the character's own renders (it differs with the model: a coat's hem, big boots)
 _idle = d / 'render/idle-south.png'
@@ -719,6 +724,7 @@ def main():
     j_ = json.loads((out / 'pixel.json').read_text()); j_['review'] = rv; j_['made'] = made; (out / 'pixel.json').write_text(json.dumps(j_, indent=1))
     SPENT[0] += spent
     print(f'{out}: {len(strips)} animations, frame {fw}x{fh}, the figure ~{int(np.median([h.max() - h.min() + 1 for h in hs]))} px, {ncol} colours' + (f', ${spent:.2f} spent' if spent else ', nothing spent') + ' - look at preview.gif')
+    if SMALL: import pixelsmall; pixelsmall.main(A.spec, 64, SMALL)
 
 
 def sheets_of(review):

@@ -5,6 +5,11 @@ Changes made because of a report or a request are marked *(feedback)*.
 
 ## Unreleased
 
+- **Small sizes.** 64 px works for a character designed small (about three heads tall, its own 3D model). **The image model is never
+  asked for less than 64**: `pixelart.py --px 32` draws at 64 and `pixelsmall.py` makes the smaller set from it (strips, shadows,
+  release data), free. 32 px asked for directly was tried four ways and is not offered. *(feedback)*
+- A new example, `examples/rain_chibi`: the rain girl designed three heads tall, walking and throwing in eight facings at 64 px, and the
+  32-px set made from it. *(feedback)*
 - `addclip.py --clear-head DEG`: for a big-headed character, a hand raised past the ear swings its arm outward instead of going into
   the head. *(feedback)*
 - The rig step keeps the rig it has paid for: if the animations then fail (no credits left), the next run does not buy the rig again.
