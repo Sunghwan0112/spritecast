@@ -23,3 +23,17 @@ Learned making a few hundred props for an isometric life-sim.
 - **A 3D model** (`"model"`) beats blocks for complex shapes (a car, a statue); blocks are enough for furniture.
 - **Cost**: one drawing at `high` ≈ $0.07 (gpt-image-2.5, 2026). `SPRITECAST_QUALITY=medium` ≈ $0.06 (most of the cost is the two
   input images), `low` looks rough. Try a new idea on one prop before many.
+
+- **Which image model**: `gpt-image-2.5-sunburst` is the default, and what every prompt and check here was tuned on.
+  `SPRITECAST_MODEL=gpt-image-2.6-sunburst` (out 2026-11-04, the same price per token) draws with the newer one - nothing else
+  changes, and a sheet costs about the same ($0.07-0.10). Tried on seven sheets of the rain girl (2026-11-13), not more:
+  - **better**: a held thing's parts in their own colours (the umbrella's handle brown, where 2.5 drew it near-black; the shaft
+    and the tip silver); the two sheets of one walk at the same size (2.5 drew them 6 % apart, which shows as the head stepping
+    between the halves of the stride - 26 px of 1024 down to 8);
+  - **worse**: the second sheet of that walk repeated the first half's arm - twice running, the first drawing and its `redraw` -
+    so the thing in the hand was drawn in front where the render has it at the hip (the checks named it both times, and `redraw`
+    kept the 2.5 drawing: overlap 0.77 against 0.71). It seems to follow the "first half, already drawn" picture more closely
+    than 2.5 does. A slash was drawn larger still than 2.5 draws it;
+  - **no gain**: pixel art keeps to its squares about as well, with a heavier outline and the black hair gone a little brown.
+  So: **2.5 stays the default** (the user's decision, 2026-11-13). Offer 2.6 when a held thing's colours come out wrong or a walk's two halves differ in size - one sheet
+  first, beside the 2.5 one - and do not mix it into a set without looking: `SPRITECAST_MODEL` applies to every drawing in the run.

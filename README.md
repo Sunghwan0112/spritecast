@@ -695,7 +695,7 @@ Feedback decides what comes next, and what changed because of it is marked in th
 - A `photo` for a character's likeness: only of someone who agreed to it.
 - Solid props get the 3D shadow of their blocks; posed figures and `loose` things a shadow in the drawing's own shape (see Shadows);
   walking characters their 3D body's.
-- Settings: `SPRITECAST_MODEL` and `SPRITECAST_QUALITY` (`low` | `medium` | `high`).
+- Settings: `SPRITECAST_MODEL` (e.g. `gpt-image-2.6-sunburst` to try the newer model; the default is what the checks were tuned on) and `SPRITECAST_QUALITY` (`low` | `medium` | `high`).
 
 ## FAQ
 - **What does it cost?** The guides, finishing and the `try` are free. About $0.07 a prop, $0.08 for each further facing; a walking

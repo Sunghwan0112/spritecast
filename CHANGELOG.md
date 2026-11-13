@@ -3,6 +3,14 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.14.1 — 2026-11-13
+
+- `SPRITECAST_MODEL=gpt-image-2.6-sunburst` draws with OpenAI's newer image model. **2.5 stays the default**: tried on seven
+  sheets, 2.6 drew a held thing's colours and a walk's two halves better, a second half's arm worse (twice running), and pixel art
+  no better ([reference/tips.md](skills/spritecast/reference/tips.md)).
+- The left-hand example's west walk: its two halves had come out 6 % apart in size and the head stepped between them (26 px of
+  1024). Its first half is drawn again; the step is 14 px, not gone.
+
 ## 0.14.0 — 2026-11-12
 
 - **A character that is not the same on both sides.** `"mirror": "never"` in the spec: nothing is ever flipped from its pair - not by

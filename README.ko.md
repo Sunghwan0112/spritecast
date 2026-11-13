@@ -677,7 +677,7 @@ OpenAI는 키로 이미지 모델을 쓰기 전에 조직 인증(platform.openai
 - 캐릭터 얼굴을 닮게 하는 `photo`는 동의한 사람의 사진만 쓰세요.
 - 단단한 소품은 블록의 3D 그림자, 포즈 잡은 인물과 `loose` 물건은 그림 모양 그대로의 그림자(그림자 항목 참고), 걷는 캐릭터는
   3D 몸의 그림자를 받아요.
-- 설정: `SPRITECAST_MODEL`, `SPRITECAST_QUALITY` (`low` | `medium` | `high`).
+- 설정: `SPRITECAST_MODEL`(예: 새 모델을 써 보려면 `gpt-image-2.6-sunburst`. 기본값은 검사 기준을 맞춰 둔 모델이에요), `SPRITECAST_QUALITY` (`low` | `medium` | `high`).
 
 ## 자주 묻는 질문
 - **얼마 드나요?** 가이드, 마무리, `try`는 무료예요. 소품 약 $0.07, 방향을 하나 더할 때마다 $0.08, 걷는 캐릭터는 그리기 약
