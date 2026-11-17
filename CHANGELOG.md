@@ -3,6 +3,21 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.18.0 — 2026-11-17
+
+- **A held thing in the same colours in every pixel frame.** `pixelart.py` gives each part of what is held - an umbrella's handle,
+  shaft, canopy, tip, read off its render - the same tones in every frame, shaded as drawn. The rain girl's umbrella had come back
+  in four yellows across her facings and its shaft silver in some. Only the thing is touched: not the hand round it, the hair, the
+  coat beside it or the outline. Free, by default; `--held-as-drawn` leaves it as drawn. *(feedback)*
+- **Its colours from the frame you like:** `"colours_from": "carry-south-east-1"` in the `hold` takes each part's colour as drawn
+  (and edited by hand) in that frame; `"handle"`, `"shaft"`, `"tip"` still name one outright. `"as_drawn": [frames]` leaves frames
+  as drawn, for painting by hand. *(feedback)*
+- **pixeledit: the drawing as it was, beside it and under a brush.** "as drawn beside" (5) shows the frame before the held thing's
+  colours, with the 3D render and the edited frame side by side as wanted; the *as drawn brush* (O) paints it back where it is
+  rubbed. Every build keeps it in `pixel/drawn-<px>/`. *(feedback)*
+- An action's `"frame_words"` now reach the pixel sheets too (`pixelart.py --again <sheet>` to draw one anew with them): the rain
+  girl's south-west swing lost a hand across her chin with "BOTH hands hold the umbrella". *(feedback)*
+
 ## 0.17.0 — 2026-11-17
 
 - **Four facings: about half the drawing.** `"facings": 4` in a character's spec renders, draws, finishes and packs only the four

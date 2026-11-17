@@ -267,7 +267,7 @@ that frame alone:
     charpipe.py frame SPEC --only slash --facing south-east --frame 5 --yes        (~$0.08; the frame from 1)
 
 `frame_words` keys are the frame (from 1), or `<frame>@<facing>`; the sentence goes into that cell of the sheet's prompt (and of a frame
-drawn alone). `frame` draws the one frame with its render in the second cell of an empty sheet, at the action's scale and beside its
+drawn alone, and of the pixel sheets - `pixelart.py --again <sheet>` draws that sheet anew). `frame` draws the one frame with its render in the second cell of an empty sheet, at the action's scale and beside its
 drawn sheet for the style; `finish` then uses it in place of the sheet's cell (draw/<action>-<facing>-single-<k>.png; the one before is
 kept as .before.png).
 
@@ -321,6 +321,10 @@ The umbrella's shaft and tip are silver; `"shaft": "#6b4423"` and `"tip": "#ffff
 only - the built-in sentence still says silver: give your own `"words"` with them). Tried on the pixel walk to see whether a dark shaft
 helps the image model find a yellow umbrella against a yellow coat: one sheet came out better, which a second drawing of the same might
 have done too - not shown to help.
+
+In pixel art (`pixelart.py`) these colours are kept frame to frame: each part of the held thing takes the same tones in every
+frame, from `"handle"`/`"shaft"`/`"tip"`, or from one frame the user picks, `"colours_from": "carry-south-east-1"`; `"as_drawn"`
+leaves frames as drawn - reference/pixel.md, "A held thing in the same colours in every frame".
 
 The built-in sentence for an umbrella names its three parts and their colours; for anything else held (`"hold": {"kind": ...}`), or when a
 drawing gets a part wrong, give the sentence yourself in the spec: `"hold": {"kind": "sword", "words": "In the RIGHT hand: ..."}`.

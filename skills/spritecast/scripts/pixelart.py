@@ -14,6 +14,8 @@
         --palette NAME|FILE one that comes with the skill by name (pico8, gameboy, nes, db32 ... - `--palette list` shows them), or a file of
                             yours in what Aseprite reads (.png .gif .bmp .pcx, .hex, .gpl, .pal, .act, .col, .aseprite). Every pixel takes
                             its nearest colour in it. Free, like --colours
+        --held-as-drawn     leave a held thing's colours as GPT drew them (by default each part - an umbrella's handle, shaft, canopy, tip - takes
+                            the same tones in every frame, from the hold's "color"/"handle"/"shaft"/"tip"; "shaft": "#5a3b22" makes it the handle's brown)
         --no-outline        leave the figure's rim as read (by default every rim pixel that is not dark takes the outline's colour: no gaps)
         --no-face-detail    in the face, a square takes its middle colour like everywhere else (by default a small thing - a glint, a brow, a mouth -
                             that fills a good third of a square wins it)
@@ -36,7 +38,7 @@ from PIL import Image
 from scipy import ndimage as ndi
 HERE = Path(__file__).resolve().parent; REPO = HERE
 ap = argparse.ArgumentParser(); ap.add_argument('spec', nargs='?'); ap.add_argument('--px', type=int, default=96); ap.add_argument('--clips', default='walk')
-ap.add_argument('--dirs', default=''); ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', default=''); ap.add_argument('--partial', action='store_true'); ap.add_argument('--no-face-detail', action='store_true'); ap.add_argument('--no-outline', action='store_true'); ap.add_argument('--redraw', action='store_true'); ap.add_argument('--cut', choices=['white', 'ai'], default=None); ap.add_argument('--colours', type=int, default=0); ap.add_argument('--palette', default=''); A = ap.parse_args()
+ap.add_argument('--dirs', default=''); ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', default=''); ap.add_argument('--partial', action='store_true'); ap.add_argument('--no-face-detail', action='store_true'); ap.add_argument('--no-outline', action='store_true'); ap.add_argument('--redraw', action='store_true'); ap.add_argument('--cut', choices=['white', 'ai'], default=None); ap.add_argument('--colours', type=int, default=0); ap.add_argument('--palette', default=''); ap.add_argument('--held-as-drawn', action='store_true'); A = ap.parse_args()
 if A.palette == 'list': sys.path.insert(0, str(Path(__file__).resolve().parent)); import pixelkit as P_; P_.show_palettes(); sys.exit()
 if not A.spec: ap.error('the character\'s spec (CHAR.json) is wanted')
 if A.colours and A.colours < 8: sys.exit('--colours: 8 at least (an outline, two tones of hair, of skin, of each cloth: under that the face goes)')
@@ -63,7 +65,7 @@ Z = 1024 // (H * 4 // 3); CWp, CHp = 384 // Z, 1024 // Z; FOOT = CHp - CHp // 12
 CH_ = 32          # the margin a sprite is given on its canvas, px
 NCOL = 24
 FACE_DETAIL = not A.no_face_detail
-HROWS = {}; SIZED = {}; HEADW = {}; PITCH = []; PITCHES = {}; GAPS = {}; EDGE = {}; FINAL = {}; REVIEW = {}; SPENT = [0.0]; BASES = {}; EDITED = []; ASIDE = []
+HROWS = {}; SIZED = {}; HEADW = {}; PITCH = []; PITCHES = {}; GAPS = {}; EDGE = {}; FINAL = {}; HELDC = {}; REVIEW = {}; SPENT = [0.0]; BASES = {}; DRAWN = {}; EDITED = []; ASIDE = []
 TOUCH = json.loads((W / f'touch-{H}.json').read_text()) if (W / f'touch-{H}.json').exists() else {}
 # how long the machine took: every sheet's drawing and every frame's cut-out, timed when it is made (kept: a later run pays for neither)
 TIMES = json.loads((W / f'times-{H}.json').read_text()) if (W / f'times-{H}.json').exists() else {}; TIMES.setdefault('draw', {}); TIMES.setdefault('cut', {})
@@ -100,6 +102,115 @@ def held_seen(clip, dr, i):
     if (d / f'render/{clip}-{dr}-{i}-body.png').exists(): seen = CP.held_visible(d, clip, dr, i)
     else: c = np.asarray(Image.open(d / f'render/{clip}-{dr}-{i}.png').convert('RGBA')).astype(int); seen = on & (c[..., 3] > 128) & (np.abs(c[..., :3] - h[..., :3].astype(int)).sum(2) < 60)
     v = h.copy(); v[~seen] = 0; return int(on.sum()), int(seen.sum()), Image.fromarray(v)
+
+# THE HELD THING IN THE SAME COLOURS IN EVERY FRAME (the user: "the umbrella's colour differs a little from facing to facing"). One palette
+# for the set is not enough: the coat's yellow and the umbrella's lie close, and which of the set's four yellows a sheet's umbrella came
+# back in went by the sheet. Each part of the thing (from its render: an umbrella's handle, shaft, canopy, tip) is given fixed tones -
+# its colour from the spec ("color", "handle", "shaft", "tip": a shaft may be given the handle's brown), lit and shaded as the drawing
+# had it, each pixel by how light it is beside the part's lightest in that frame. Only pixels near where the render shows the part, and
+# of its kind of colour, are touched: the coat beside it, the hand round it and the outline stay.
+# "colours_from": "carry-south-east-1" (frames from 1) in the hold: each part takes the colour it was DRAWN in, in that one frame (the user picked a frame
+# whose umbrella looked right, and its shaft's dark brown was wanted everywhere) - for any held thing, not the umbrella alone. A colour
+# the hold names outright ("shaft": "#3f2917") still wins over it.
+HELD_REF = {}           # clip -> {part: colour}, measured on the "colours_from" frame before any frame is recoloured
+UMBRELLA_ROLES = {'brown': 'handle', 'silver': 'shaft', 'yellow': 'color'}       # (the second silver, past the canopy, is the tip)
+UMBRELLA_DEFAULTS = {'handle': '#5a3b22', 'shaft': '#d9d9d9', 'tip': '#bdbdbd'}
+
+def _hex(h_): return np.array([int(h_[k_:k_ + 2], 16) for k_ in (1, 3, 5)], float)
+
+def held_targets(hold, parts, rgb_full, ref=None):
+    """per part: (its name, the render's colour for it, the colour it is to have). Named by role for an umbrella (handle, shaft, color,
+    tip), else by kind of colour and which of that kind it is from the hand (silver0, silver1). The colour to have: the hold's own for that
+    role, else the "colours_from" frame's, else the umbrella's defaults / the render's own"""
+    out = []; seen_canopy = False; ref = ref or {}; nth_ = {}
+    # (the shaft is the silver part nearer the handle, the tip the one farther: held_parts' order from the hand flipped in the frames where
+    # the umbrella crosses the body - the tip went the shaft's brown)
+    cen_ = lambda m_: np.array([q_.mean() for q_ in np.nonzero(m_)])
+    hand_ = next((cen_(m_) for f_, m_ in parts if f_ == 'brown'), None)
+    sil_ = [n_ for n_, (f_, _) in enumerate(parts) if f_ == 'silver']
+    shaft_n = min(sil_, key=lambda n_: np.hypot(*(cen_(parts[n_][1]) - hand_))) if hand_ is not None and sil_ else None
+    for n_, (f_, mk_) in enumerate(parts):
+        own_ = np.median(rgb_full[mk_][:, :3], 0)
+        if hold.get('kind') == 'umbrella' and f_ in UMBRELLA_ROLES:
+            role_ = UMBRELLA_ROLES[f_]
+            if role_ == 'color': seen_canopy = True
+            if role_ == 'shaft' and (n_ != shaft_n if shaft_n is not None else seen_canopy): role_ = 'tip'
+            if hold.get(role_) and not (role_ == 'color' and role_ in ref): want_ = _hex(hold[role_])          # ("color" is the render's - every umbrella has one: not a choice over the frame's)
+            elif role_ in ref: want_ = ref[role_]
+            elif role_ == 'shaft' and 'handle' in ref: want_ = ref['handle']          # (a shaft the picked animation never shows - hidden in the fist and the canopy - is one with the handle there: the user's pick showed one brown bar from the hand)
+            else: want_ = _hex((hold.get('shaft') if role_ == 'tip' else None) or hold.get('color' if role_ == 'color' else '') or UMBRELLA_DEFAULTS.get(role_, '#f2c21b'))
+            out.append((role_, own_, want_))
+        else:
+            k_ = f'{f_}{nth_.get(f_, 0)}'; nth_[f_] = nth_.get(f_, 0) + 1
+            out.append((k_, own_, ref.get(k_, own_)))
+    return out
+
+def held_one_colour(im, clip, dr, i, hh, sl_, measure=False):
+    """im (the frame, RGBA uint8, changed in place): each visible part of the held thing in its fixed tones. -> pixels changed.
+    measure=True: nothing changed - {part: the colour it is drawn in here} (its lighter pixels' middle colour), for "colours_from\""""
+    hold = s['actions'].get(clip, {}).get('hold'); got_ = {}
+    if not isinstance(hold, dict) or hold.get('final') or not (d / f'render/{clip}-{dr}-{i}-body.png').exists(): return got_ if measure else 0
+    # "as_drawn": ["slash-south-west-5", ...] (frames from 1, as "frame_words"): those frames left as GPT drew them - the user paints them
+    # by hand in pixeledit. Nothing is lost by the recolouring: take a frame out of the list and it is recoloured again, put it in and it is back as drawn
+    if not measure and f'{clip}-{dr}-{i + 1}' in (hold.get('as_drawn') or []): return 0
+    parts = CP.held_parts(d, clip, dr, i)
+    if not parts: return got_ if measure else 0
+    rgb_full = np.asarray(Image.open(d / f'render/{clip}-{dr}-{i}-held.png').convert('RGBA')); vis_ = CP.held_visible(d, clip, dr, i)
+    tg_ = held_targets(hold, parts, rgb_full, None if measure else HELD_REF.get(clip)); shp_ = im.shape[:2]
+    lab_ = P.lab(im[..., :3].reshape(-1, 3) / 255.0).reshape(shp_ + (3,)); lum_ = im[..., :3].astype(float) @ np.array([0.299, 0.587, 0.114])
+    # each part where the camera sees it, at the sprite's size and laid where the sprite is; a pixel goes to the part it is nearest
+    lbl_ = np.zeros(shp_, int); whole_ = {}
+    for n_, (f_, mk_) in enumerate(parts):
+        a_ = np.zeros(mk_.shape + (4,), np.uint8); a_[mk_ & vis_] = 255
+        pm_ = np.pad(P.down(Image.fromarray(a_), hh)[1] >= 0.4, 12)[sl_]
+        if pm_.shape == shp_: lbl_[pm_ & (lbl_ == 0)] = n_ + 1
+        a_[mk_] = 255; pw_ = np.pad(P.down(Image.fromarray(a_), hh)[1] >= 0.4, 12)[sl_]          # (and the whole of it, hidden or not)
+        if pw_.shape == shp_ and pw_.any(): whole_[n_] = ndi.distance_transform_edt(~pw_)
+    if not lbl_.any(): return got_ if measure else 0
+    dist_, (iy_, ix_) = ndi.distance_transform_edt(lbl_ == 0, return_indices=True); near_ = lbl_[iy_, ix_]
+    head_ = np.pad(ren(clip, dr, i, hh)[2], 12)[sl_]; head_ = head_ if head_.shape == shp_ else np.zeros(shp_, bool)
+    # (the head whole, and a little round: where the handle crosses the face the render's head has a hole - and the hair there went brown)
+    head0_ = head_; head_ = ndi.binary_dilation(ndi.binary_fill_holes(ndi.binary_closing(head_, np.ones((3, 3)), iterations=4)), np.ones((3, 3)), iterations=2)
+    # a colourless pixel near the thing goes to the colourless part it is nearest - hidden or not (GPT drew the shaft on above the fist,
+    # where the render has the hand and the handle: it stayed silver)
+    grey_ = [n_ for n_, (_, o_, _) in enumerate(tg_) if n_ in whole_ and np.hypot(*P.lab(o_[None] / 255.0)[0][1:]) <= 12]
+    gnear_ = np.argmin(np.stack([whole_[n_] for n_ in grey_]), 0) if grey_ else None; gdist_ = np.min(np.stack([whole_[n_] for n_ in grey_]), 0) if grey_ else None
+    done_ = 0
+    for n_, (role_, own_, want_) in enumerate(tg_):
+        ol_ = P.lab(own_[None] / 255.0)[0]; chroma_ = np.hypot(ol_[1], ol_[2])
+        # how far off its render the part may lie: a pixel for a coloured part (the coat beside the canopy is near its colour), three for
+        # a colourless one - a shaft is a pixel or two wide and GPT drew it two or three off; nothing else silver is near but a glint in
+        # an eye (not on the head) - left silver in half the frames at one pixel
+        if chroma_ > 12 or n_ not in grey_: reach_ = (dist_ <= 1.5) & (near_ == n_ + 1)
+        else: reach_ = (gdist_ <= 3.2) & (np.array(grey_)[gnear_] == n_)
+        # (nothing on the head: an eye's glint is silver, the hair has a dark handle's hue and lightness - a handle swung across the face
+        # put a brown patch on her hair. A thing over the head stays as drawn)
+        reach_ &= (im[..., 3] > 0) & (lum_ >= 42) & ~(head_ if chroma_ > 12 else head0_)          # (a shaft across the face: only the head itself)
+        # of its kind of colour: the hue of the render's part (a* b*), loosely - GPT's shading moves the lightness, not the hue
+        # ... and not too far from its lightness: skin has the hue of a brown handle, a good deal lighter - the hand round the handle went
+        # brown ("as if dirt were on her hand"). The canopy's darkest shade is ~20 under the render's yellow, a drawn handle ~10 under its brown
+        if chroma_ > 12: kind_ = (np.hypot(lab_[..., 1] - ol_[1], lab_[..., 2] - ol_[2]) < 0.45 * chroma_) & (np.abs(lab_[..., 0] - ol_[0]) < 26)
+        else: kind_ = np.hypot(lab_[..., 1], lab_[..., 2]) < 18          # silver: no hue at all (white drawn for it too)
+        px_ = reach_ & kind_
+        if measure and chroma_ <= 12:
+            # MEASURING a colourless part: what the frame has there may be any colour (the user's pick had its shaft drawn dark brown -
+            # that is why it was picked). Its pixels are those on the part that are not the body's (a colour the figure has well away
+            # from the held thing: the coat, the skin of the hand round it) and not another part's kind (the canopy's yellow beside it)
+            far_ = (dist_ > 5) & (im[..., 3] > 0); bodyc_ = {tuple(q_) for q_ in im[far_][:, :3]}
+            oth_ = np.zeros(shp_, bool)
+            for m2_, (_, o2_, _) in enumerate(tg_):
+                l2_ = P.lab(o2_[None] / 255.0)[0]; c2_ = np.hypot(l2_[1], l2_[2])
+                if m2_ != n_ and c2_ > 12: oth_ |= np.hypot(lab_[..., 1] - l2_[1], lab_[..., 2] - l2_[2]) < 0.45 * c2_
+            px_ = (dist_ <= 1.5) & (near_ == n_ + 1) & (im[..., 3] > 0) & (lum_ >= 42) & ~oth_ & ~head_
+            px_ &= ~np.array([tuple(q_) in bodyc_ for q_ in im[..., :3].reshape(-1, 3)]).reshape(shp_)
+        if px_.sum() < 2: continue
+        if measure:          # the colour it is drawn in most - its middle tone in the drawing - taken as the part's own
+            u_, cn_ = np.unique(im[px_][:, :3], axis=0, return_counts=True); got_[role_] = u_[cn_.argmax()].astype(float); continue
+        top_ = np.percentile(lum_[px_], 90); r_ = lum_[px_] / max(top_, 1.0)
+        thin_ = (lbl_ == n_ + 1).sum() < 40           # (a shaft, a handle: two tones; the canopy three)
+        tone_ = np.where(r_ >= 0.86, 1.0, 0.8) if thin_ else np.where(r_ >= 0.9, 1.0, np.where(r_ >= 0.74, 0.84, 0.68))
+        im[px_, :3] = np.clip(want_[None] * tone_[:, None], 0, 255).round(); done_ += int(px_.sum())
+    return got_ if measure else done_
 
 def held_words(clip, dr, idx):
     """what is in the hand, cell by cell (told only "where a cell does not show it, do not draw it", GPT drew a snowball in the
@@ -167,7 +278,10 @@ def body_sheet(clip, dr, g):
         "Keep the sheet exactly as it is: the same cells, each figure at exactly the same position, size and pose - the same pixels "
         "covered, the legs, the stride and the arms exactly as each cell shows; nothing added between the cells, no borders, no numbers. "
         f"The same person in every cell. THE HEAD in every cell: {CP.head_words(dr) if clip == 'walk' else 'turned and tilted exactly as each cell shows it (bowed where it is bowed) - ' + CP.head_words(dr)}.\n"
-        + held_words(clip, dr, idx) +
+        + held_words(clip, dr, idx)
+        # (the action's "frame_words" - what the render cannot say, frame by frame - as the illustrated sheets have them: a hand on the
+        # shaft swung over the head came out across the chin until it was told "both hands on the shaft")
+        + ((CP.cell_words({**s['actions'][clip], '_facing': dr}, idx).strip() + '\n') if clip in s.get('actions', {}) and CP.cell_words({**s['actions'][clip], '_facing': dr}, idx) else '') +
         "Image 2 is the character as a finished illustration (a turnaround: front, right side, back): the face, the hair, the outfit and "
         "the colours to match - NOT its drawing style and NOT its pose.\n"
         + ("Image 3 is the FIRST frames of this same animation, already drawn as pixel art: continue it exactly - the same person, the same "
@@ -263,7 +377,7 @@ def read_body(clip, dr, g, idx):
 
 # --- putting it together ------------------------------------------------------------------------------------------------------------
 def main():
-    for x_ in (GAPS, EDGE, FINAL, HEADW, SIZED, PITCHES, BASES): x_.clear()
+    for x_ in (GAPS, EDGE, FINAL, HELDC, HEADW, SIZED, PITCHES, BASES, DRAWN): x_.clear()
     EDITED.clear(); ASIDE.clear(); T0 = time.time()
     todo = [(c, dr) for c in CLIPS for dr in DIRS]
     miss = [(c, dr) for c, dr in todo if not all((d / f'render/{c}-{dr}-{i}.png').exists() for i in range(nframes(c)))]
@@ -333,8 +447,32 @@ def main():
     # every frame on one canvas, where the render has it: the sprite laid on the render (at the sprite's scale) where the two shapes
     # overlap most. (By the bottom middle of its box it shifted with every hand or foot GPT drew a pixel longer.)
     out = d / f'out-pixel{H}'; out.mkdir(exist_ok=True); K = state['scale']; strips = {}; fit = {}
+    HELD_REF.clear()
+    for c_ in CLIPS:
+        h_ = s['actions'].get(c_, {}).get('hold'); rf_ = h_.get('colours_from') if isinstance(h_, dict) else None
+        if not rf_ or A.held_as_drawn: continue
+        rc_ = next((x_ for x_ in sorted(CLIPS, key=len, reverse=True) if rf_.startswith(x_ + '-')), None); rest_ = rf_[len(rc_) + 1:] if rc_ else ''
+        rd_, _, ri_ = rest_.rpartition('-'); ri_ = str(int(ri_) - 1) if ri_.isdigit() and int(ri_) >= 1 else 'x'          # (frames from 1, as "frame_words" and "as_drawn")
+        if not rc_ or rd_ not in DIRS or not ri_.isdigit() or (rc_, rd_, int(ri_)) not in bodies:
+            print(f'  "colours_from": "{rf_}" - no such frame in this build (CLIP-FACING-FRAME, frames from 1, e.g. {c_}-{DIRS[0]}-1, of --clips {",".join(CLIPS)}): the hold\'s own colours used'); continue
+        # the frame named first; a part it does not show (a shaft hidden in the hand) from the next frames of that animation that do
+        HELD_REF[c_] = {}
+        for j_ in [int(ri_)] + [q_ for q_ in range(nframes(rc_)) if q_ != int(ri_)]:
+            k_ = (rc_, rd_, j_)
+            if k_ not in bodies: continue
+            im_ = frame(k_); _, rm_, _ = ren(*k_, hh); _, oy_, ox_ = lay(bodies[k_][1], rm_)
+            # (the frame as the user SEES it: with its hand edits - the frame picked had its shaft painted dark brown by hand)
+            te_ = TOUCH.get(f'{rc_}-{rd_}', {}).get(str(j_), {}); x0_, y0_ = 2 * CH_ + ox_, 2 * CH_ + oy_
+            for x_, y_ in te_.get('clear', []):
+                if 0 <= y_ - y0_ < im_.shape[0] and 0 <= x_ - x0_ < im_.shape[1]: im_[y_ - y0_, x_ - x0_] = 0
+            for x_, y_, r_, g_, b_ in te_.get('set', []):
+                if 0 <= y_ - y0_ < im_.shape[0] and 0 <= x_ - x0_ < im_.shape[1]: im_[y_ - y0_, x_ - x0_] = (r_, g_, b_, 255)
+            for q_, v_ in held_one_colour(im_, *k_, hh, (slice(oy_ + 12, oy_ + 12 + im_.shape[0]), slice(ox_ + 12, ox_ + 12 + im_.shape[1])), measure=True).items():
+                if q_ not in HELD_REF[c_]: HELD_REF[c_][q_] = v_; HELD_REF[c_].setdefault('_from', {})[q_] = j_
+        fr_ = HELD_REF[c_].pop('_from', {})
+        print(f'  held thing\'s colours from {rf_}:', {q_: '#%02x%02x%02x' % tuple(int(round(x)) for x in v_) + (f' (frame {fr_[q_] + 1})' if fr_.get(q_) != int(ri_) else '') for q_, v_ in HELD_REF[c_].items()})
     for c, dr in todo:
-        fr = []
+        fr = []; frd = []
         for i in range(nframes(c)):
             if (c, dr, i) not in bodies: break
             low, m = bodies[(c, dr, i)]; im = frame((c, dr, i))
@@ -409,6 +547,9 @@ def main():
                     dE_ = np.sqrt(((P.lab(im[..., :3].reshape(-1, 3) / 255.0) - P.lab(gcol_[None])) ** 2).sum(1)).reshape(m.shape)
                     ball_ = ((im[..., 3] > 0) & near_ & (dE_ < 30)) | prot_; fin_ = np.array([int(hold_['final'][k_:k_ + 2], 16) for k_ in (1, 3, 5)], float)
                     im[ball_, :3] = np.clip(fin_ + np.minimum(0, im[ball_, :3].astype(float) - gcol_ * 255) * 0.35, 0, 255).round(); FINAL.setdefault(f'{c}-{dr}', []).append(int(ball_.sum()))
+            pre_ = im.copy()          # (the frame before the held thing's colours: kept as the editor's "as drawn", for its brush that brings the drawing back)
+            if not A.held_as_drawn and R_.shape == m.shape: HELDC.setdefault(f'{c}-{dr}', []).append(held_one_colour(im, c, dr, i, hh, sl_))
+            post_ = im.copy(); chg_ = (pre_ != post_).any(2)
             # THE OUTLINE WHOLE (the user: "it looks as if the yellow broke through the outline"). GPT's outline is thinner than a
             # square in places, and a square that is two thirds coat comes back coat: the dark line round the figure had gaps with
             # the coat's colour in them. Every pixel on the figure's rim that is not dark takes the outline's colour - the colour
@@ -421,13 +562,15 @@ def main():
                     inner_ = ndi.binary_dilation(op_ & ~rim_, np.ones((3, 3))); fix_ = rim_ & ~dark_ & inner_
                     im[fix_, :3] = np.median(im[dark_][:, :3], 0).round(); EDGE.setdefault(f'{c}-{dr}', []).append((int(rim_.sum()), int(fix_.sum())))
             S_ = max(rm.shape) + 4 * CH_; cv = Image.new('RGBA', (S_, S_)); cv.alpha_composite(Image.fromarray(im), (2 * CH_ + ox, 2 * CH_ + oy)); fr.append(cv)
+            dm_ = im.copy(); back_ = chg_ & (im == post_).all(2); dm_[back_] = pre_[back_]          # (what the outline then set stays the outline)
+            cvd = Image.new('RGBA', (S_, S_)); cvd.alpha_composite(Image.fromarray(dm_), (2 * CH_ + ox, 2 * CH_ + oy)); frd.append(cvd)
         if not fr or (len(fr) != nframes(c) and not A.partial): continue
         box = None
         for f in fr: b = f.getbbox(); box = b if box is None else (min(box[0], b[0]), min(box[1], b[1]), max(box[2], b[2]), max(box[3], b[3]))
         # WHAT WAS FIXED BY HAND (pixeledit.py: a speck erased, a face redrawn) is laid on again, frame by frame - kept in
         # <character>/pixel/touch-<px>.json in the frame's render coordinates, so it lands on the same pixels whatever else this run
         # makes. A frame whose outline is no longer the one that was edited (its sheet was drawn anew) has its edits set aside.
-        BASES[(c, dr)] = [f.copy() for f in fr]; tj = TOUCH.get(f'{c}-{dr}', {})
+        BASES[(c, dr)] = [f.copy() for f in fr]; DRAWN[(c, dr)] = frd; tj = TOUCH.get(f'{c}-{dr}', {})
         for k_, e_ in tj.items():
             if not k_.isdigit(): continue          # (a frame ADDED by hand: laid on at the end, with the frames' order - pixeledit.apply_frames)
             n_ = int(k_)
@@ -446,7 +589,7 @@ def main():
     if A.palette:          # THE USER'S OWN PALETTE: every pixel its nearest colour in it (after the hand's edits: they are of the palette too)
         gp_ = P.load_palette(A.palette)
         for fr_, _ in strips.values(): fr_[:] = [Image.fromarray(P.to_palette(f, gp_)) for f in fr_]
-        for fr_ in BASES.values(): fr_[:] = [Image.fromarray(P.to_palette(f, gp_)) for f in fr_]          # (the editor's base too: it writes the strips from it)
+        for fr_ in list(BASES.values()) + list(DRAWN.values()): fr_[:] = [Image.fromarray(P.to_palette(f, gp_)) for f in fr_]          # (the editor's base too: it writes the strips from it)
         ncol = len(np.unique(np.concatenate([np.asarray(f)[np.asarray(f)[..., 3] > 0][:, :3] for fr_, _ in strips.values() for f in fr_]), axis=0)); print(f'  --palette: {len(gp_)} colours in {A.palette}, {ncol} of them used')
     elif A.colours:          # the count as it IS in the strips (the two palettes share a dark or two)
         ncol = len(np.unique(np.concatenate([np.asarray(f)[np.asarray(f)[..., 3] > 0][:, :3] for fr_, _ in strips.values() for f in fr_]), axis=0))
@@ -460,7 +603,7 @@ def main():
                 while i in to_: i = to_[i]
                 return i
             lut_ = {tuple(u_[i]): u_[end_(i)] for i in to_}
-            for fr_ in [x_[0] for x_ in strips.values()] + list(BASES.values()):          # (the editor's base too)
+            for fr_ in [x_[0] for x_ in strips.values()] + list(BASES.values()) + list(DRAWN.values()):          # (the editor's base too)
                 for n2_, f in enumerate(fr_):
                     a_ = np.asarray(f).copy()
                     for c_, v_ in lut_.items(): a_[(a_[..., :3] == c_).all(2) & (a_[..., 3] > 0), :3] = v_
@@ -469,6 +612,7 @@ def main():
     for k, v in fit.items(): print(f'  {k}: the sprites on their renders, overlap', v)
     for k_, v_ in PITCHES.items(): print('  squares (head across, head down, body across, body down) px:', k_, v_)
     if FINAL: print('  held thing put in its final colour (pixels per frame):', FINAL)
+    if HELDC: print('  held thing in its fixed colours, part by part (pixels per frame; --held-as-drawn leaves it as drawn):', HELDC)
     print('  outline per frame (pixels on the rim, of them not dark -> given the outline\'s colour):', EDGE)
     print('  white per frame (pixels; of them: paper made see-through, GPT\'s own white painted over, a real light part given the guide\'s colour):', GAPS)
     print('  head width per frame (px):', {k: [v[i] for i in sorted(v)] for k, v in HEADW.items()})
@@ -485,6 +629,11 @@ def main():
         (W / f'base-{H}').mkdir(exist_ok=True); sb = Image.new('RGBA', (fw * len(fr), fh))
         for n, f in enumerate(BASES[(c, dr)]): sb.paste(f.crop(box), (n * fw, 0))
         sb.save(W / f'base-{H}' / f'{c}-{dr}.png')
+        # the base AS DRAWN - the held thing in the colours GPT gave it, before they were made the same in every frame: pixeledit.py shows
+        # it beside the frame and its "as drawn" brush paints it back where it is rubbed (the user: "keep the original, so it can be brought back")
+        (W / f'drawn-{H}').mkdir(exist_ok=True); sd_ = Image.new('RGBA', (fw * len(fr), fh))
+        for n, f in enumerate(DRAWN.get((c, dr), BASES[(c, dr)])): sd_.paste(f.crop(box), (n * fw, 0))
+        sd_.save(W / f'drawn-{H}' / f'{c}-{dr}.png')
     z = max(1, 480 // fh); cols = min(4, len(strips)); rows = -(-len(strips) // cols); gif = []
     for t in range(8):
         f = Image.new('RGBA', (cols * fw, rows * fh), (58, 62, 74, 255))

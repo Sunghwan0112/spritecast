@@ -94,6 +94,7 @@ def serve(spec, px, port, open_, host='127.0.0.1', join=None, facing=None):
     tp = d / 'pixel' / f'touch-{px}.json'; tt = d / 'pixel' / f'touch-{px}-time.json'; cp = d / 'pixel' / f'colours-{px}.json'          # (cp: colours the user added to the page's palette)      # (the time at it, per animation: the editor counts it)
     prop = not (out / 'pixel.json').exists() and (d / 'out-pixel/pixel.json').exists()          # a PROP made by proppixel.py: its views are the frames of one strip, "views"
     if prop: out = d / 'out-pixel'; base = d / 'pixel-base'; tp = d / 'pixel-touch.json'; tt = d / 'pixel-touch-time.json'; cp = d / 'pixel-colours.json'; px = 'prop'
+    drawn = base.parent / base.name.replace('base', 'drawn', 1)          # (pixel/drawn-<px>/: the frames before the held thing's colours were made the same)
     if not (out / 'pixel.json').exists() or not base.is_dir(): sys.exit(f'pixeledit: no pixel sprites at {px} px yet - run pixelart.py (a character) or proppixel.py (a prop) first')
     meta = json.loads((out / 'pixel.json').read_text()); fw, fh = meta['frame']; origin = meta.get('origin', [0, 0]); names = [n for n in meta['animations'] if (base / f'{n}.png').exists()]
     lock = threading.Lock(); nbase = {n: Image.open(base / f'{n}.png').width // fw for n in names}; can_add = not prop and (base / 'pixel.json').exists()
@@ -169,8 +170,9 @@ def serve(spec, px, port, open_, host='127.0.0.1', join=None, facing=None):
                                                   'colours': load_touch(cp).get('colours', []), 'can_add': False,
                                                   'animations': [{'name': JN, 'frames': len(J), 'order': list(range(len(J))), 'added': {}, 'made': {}, 'seconds': sec.get(JN, 0),
                                                                   'edits': {str(j): t[a][str(k)] for j, (a, k) in enumerate(J) if str(k) in t.get(a, {})}}]}).encode(), 'application/json')
-            if J and u == f'/base/{JN}.png':
-                strips = {a: np.asarray(Image.open(base / f'{a}.png').convert('RGBA')) for a in {a for a, _ in J}}; t = load_touch(tp)
+            if J and u in (f'/base/{JN}.png', f'/drawn/{JN}.png'):
+                src_ = drawn if u.startswith('/drawn/') else base
+                strips = {a: np.asarray(Image.open((src_ / f'{a}.png') if (src_ / f'{a}.png').exists() else base / f'{a}.png').convert('RGBA')) for a in {a for a, _ in J}}; t = load_touch(tp)
                 fr = [strips[a][:, src_of(t, a, k) * fw:(src_of(t, a, k) + 1) * fw] for a, k in J]; b = io.BytesIO(); Image.fromarray(np.concatenate(fr, 1)).save(b, 'PNG')
                 return self.send(200, b.getvalue(), 'image/png')
             if J and (u.startswith('/ref/') or u.startswith('/refparts/')) and u.endswith('.png'):          # (a joined frame's 3D: its own animation's)
@@ -182,6 +184,8 @@ def serve(spec, px, port, open_, host='127.0.0.1', join=None, facing=None):
                                                   'colours': load_touch(cp).get('colours', []), 'can_add': can_add,
                                                   'animations': [{'name': n, 'frames': len(order_of(t, n, nbase[n])), 'order': order_of(t, n, nbase[n]), 'added': t.get('_added', {}).get(n, {}), 'edits': t.get(n, {}), 'made': m.get(n, {}), 'seconds': sec.get(n, 0)} for n in names]}).encode(), 'application/json')
             if u.startswith('/base/') and u[6:-4] in names: return self.send(200, (base / f'{u[6:-4]}.png').read_bytes(), 'image/png')
+            # the base AS DRAWN (pixelart.py keeps it: the held thing in GPT's own colours, before they were made one) - the base itself where there is none
+            if u.startswith('/drawn/') and u[7:-4] in names: return self.send(200, ((drawn if (drawn / f'{u[7:-4]}.png').exists() else base) / f'{u[7:-4]}.png').read_bytes(), 'image/png')
             if u.startswith('/refparts/') and u.endswith('.png') and u[10:-4].rsplit('/', 1)[0] in names: n_, i_ = u[10:-4].rsplit('/', 1); return self.send(200, ref_parts(n_, int(i_)), 'image/png')
             if u.startswith('/ref/') and u.endswith('.png') and u[5:-4].rsplit('/', 1)[0] in names: n_, i_ = u[5:-4].rsplit('/', 1); return self.send(200, ref(n_, int(i_)), 'image/png')
             self.send(404, b'not found', 'text/plain')

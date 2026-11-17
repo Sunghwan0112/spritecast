@@ -119,6 +119,29 @@ renders (`render/<clip>-<facing>-<i>-t.png`) and writes `trails/<clip>-<facing>.
 - A game that draws pixel art with see-through off (alpha test) shows mist as lumps or not at all.
 - Not checked: a whole `pixelart.py` run writing `"trails"` (the conversion itself was run on the rain girl's slash).
 
+## A held thing in the same colours in every frame
+GPT draws each sheet's held thing in whichever of the set's colours it lands on: the rain girl's umbrella came back in four different
+yellows from facing to facing (its yellow lies close to the coat's), its shaft silver in some sheets and dark in others. `pixelart.py`
+now gives **each part of the held thing** - from its render: an umbrella's handle, shaft, canopy, tip - **the same tones in every
+frame**, lit and shaded as the drawing had it. Free; by default; `--held-as-drawn` leaves it as drawn.
+- **Its colours**, per part, the first that is there: the `hold`'s own (`"handle"`, `"shaft"`, `"tip"`: `"shaft": "#3f2917"` makes a
+  silver shaft the handle's dark brown) → **`"colours_from": "<clip>-<facing>-<frame>"`** (frame from 1) - each part in the colour it
+  is DRAWN in, hand edits included, in the one frame the user picks as right (a part that frame does not show is taken from the
+  animation's next frames that do; an umbrella's shaft that none shows goes with the handle) → the umbrella's defaults, or for any
+  other held thing its render's own colour for that part. `"color"` stays the render's: with `colours_from` the canopy is the frame's.
+- **Only the thing**: pixels near where its render has each part and of that part's kind of colour - not the hand round it (skin has
+  a brown handle's hue, much lighter), not the hair (a handle's hue and lightness: nothing on the head is touched), not the coat
+  beside the canopy, not the outline. A silver shaft the image model drew a pixel or three off its render, or above the fist where
+  the render has the hand, is still the shaft's.
+- **`"as_drawn": ["slash-south-west-5"]`** in the `hold` (frames from 1): those frames left as drawn, for the user to paint by hand.
+  Nothing is lost by the colouring: `pixel/drawn-<px>/` keeps every frame as drawn, which `pixeledit.py` shows beside the frame and
+  paints back with its *as drawn brush*.
+- The build prints the colours it took (`held thing's colours from carry-south-east-0: {...}`) and the pixels changed per frame.
+- Checked on the rain girl's umbrella walk and swing in four facings (64 frames). Not checked: a thing other than the umbrella, a
+  thing with `"final"` (a snowball: skipped, its own rule).
+- An action's `"frame_words"` now go into the pixel sheets' prompts too (they were the illustrated sheets' only): the rain girl's
+  south-west swing had a hand across her chin until `"5@south-west": "BOTH hands hold the umbrella ..."` was said.
+
 ## Fixing by hand: `pixeledit.py`
 
 Pixel art is not all to be had by rule: a patch of paper left where an arm crosses the body, a face that came out poorer in one
@@ -144,7 +167,9 @@ Offer it whenever a set has more than one animation that a game plays in a row.
 | select (M), move (V) | drag a box; move drags what is in it, the arrow keys nudge it a pixel |
 | copy, paste (Ctrl+C / Ctrl+V) | a face that came out well in one frame, into another: paste, click to set it down - or "paste in every frame, same place" |
 | bring back (R) | takes the edits off where it is rubbed; "this frame as it was" takes them all off |
+| as drawn brush (O) | paints back the frame **as drawn** where it is rubbed: the held thing in GPT's own colours, before they were made the same in every frame (`pixel/drawn-<px>/`, kept by every build) - nothing of the drawing is lost |
 | ◀ ▶ (← →), play (Enter), "the frame before, faint" | to see a fix in motion and against its neighbour |
+| "as drawn beside" (5), "edited" | the frame as drawn (before the held thing's colours) beside the frame being drawn; with "edited" off, the drawing alone. With "3D render beside" on too: the render, the drawing and the edited frame side by side |
 | "3D render beside" (3), "3D render under, faint" | the render the frame was drawn from, at the frame's size and place: beside the sprite, or under it. To tell paper from a real gap, and to see what a pose or a part should be |
 | "3D shapes over" (4) | where the 3D has things, over the frame being drawn: the held thing filled red (`render/<clip>-<facing>-<i>-held.png`), the body's outline blue with a faint blue fill (`-body.png`; with neither, the whole render as the body). A held thing drawn too long, too short or at another angle shows at once - the image model does that to a thin thing the colour of the clothes (the rain girl's umbrella: 2 of 8 walk frames). Not saved into the sprite |
 | wheel, Space + drag, "behind" | zoom at the pointer, move the picture, the colour behind the sprite (white specks show on a dark one, dark specks on a light one) |
