@@ -5,11 +5,13 @@ Changes made because of a report or a request are marked *(feedback)*.
 
 ## 0.19.0 — 2026-11-17
 
-- **SpriteCast's own standing idle, by default.** `idleclip.py` makes a relaxed stand - the weight on one foot, the shoulders let down,
+- **SpriteCast's own standing idle, by default.** `idleclip.py` makes a relaxed stand - the feet side by side, the shoulders let down,
   the arms close by the body - and a seamless 4 s loop of a breath and a little sway, for any rig with Mixamo's bone names; `render`
-  adds it to a copy of the rig by itself (`<rig>-idle.glb`, free) and the standing views use it. Side by side with a Mixamo "Standing
-  Idle" it stood the same to 1-3 % of the height; the motion is all made here, nothing of anyone's animation in it (Mixamo's files may
-  be used, not handed on). `"idle_from": "tripo"` keeps the rig's own. An action can stand with something in hand on it:
+  adds it to a copy of the rig by itself (`<rig>-idle.glb`, free) and the standing views use it. The arms and shoulders were set
+  beside a Mixamo "Standing Idle" (the same to 1-3 % of the height); its stand on one foot was not kept - seen from the side of the
+  held thing's hand the figure came out a fifth thinner, the legs one behind the other. The motion is all made here, nothing of
+  anyone's animation in it (Mixamo's files may be used, not handed on). Still thinner from that side by the arm that holds the thing
+  in front of the body (the rain girl, south-west against south-east) - one hand holding something is not symmetric. `"idle_from": "tripo"` keeps the rig's own. An action can stand with something in hand on it:
   `{"name": "stand", "clip": "idle_spritecast", "frames": 3, "loop": true, "hold": ...}`. *(feedback)*
 - **addclip.py carries a Mixamo FBX over by direction**: each bone turned to point where the FBX's points, in the two bodies' frames.
   A download WITH its character (a skeleton per mesh, the bones out of their bind pose) held the arms out from the body before; it

@@ -3,11 +3,11 @@ animation copied (a Mixamo idle could not be shipped: its files may not be hande
 
     python idleclip.py RIG.glb OUT.glb [--head-down 24] [--seconds 4]
 
-The stand: the weight on the right foot, the left a little back and turned out; the shoulders let down, the arms hanging close by the
+The stand: the feet side by side, hip-width apart, the toes a little out; the shoulders let down, the arms hanging close by the
 body, the elbows a little bent. The motion, a seamless loop of 4 s: two breaths (the chest lifts), the hips moving from foot to foot
 by 0.4 % of the height and dipping as the weight arrives, the pelvis tipping and the chest balancing it, the head tilting a little,
-the arms swinging a little with the body. Put beside a Mixamo "Standing Idle" carried over by addclip.py, the two stood the same to
-1-3 % of the height (hands, feet, knees) - the pose was set by looking at it; the motion is all made here.
+the arms swinging a little with the body. The arms and shoulders were set by looking at a Mixamo "Standing Idle" carried over by
+addclip.py (the same to 1-3 % of the height); its stand on one foot was not kept (see FEET below); the motion is all made here.
 
 How: every bone is given the direction it should point at each moment, in the body's own frame (right: one thigh to the other, up: the
 hips to the head), and the rig is turned to it top-down from the hips - so it fits any rig with Mixamo's bone names (Tripo's), whatever
@@ -124,8 +124,10 @@ def make(j, T=4.0, head_down=24.0):
         a = np.radians(a); want[nm] = unit(want[nm] * np.cos(a) + toe[None] * np.sin(a))
     # the legs: the feet planted, the knees where a relaxed stand has them, moving half as far as the hips
     hip_pos = P0['Hips'][None] + np.stack([sway, bob, np.zeros(N)], 1) @ F.T
-    FEET = {'Left': [-0.094, -0.585, -0.083], 'Right': [0.046, -0.59, -0.004]}; KNEES = {'Left': [-0.08, -0.288, -0.083], 'Right': [0.057, -0.3, -0.028]}
-    TOES = {'Left': [-0.25, -0.78, -0.58], 'Right': [0.28, -0.74, -0.61]}
+    # (the feet side by side, as far apart as the hips - not one foot back: with one back, the figure seen from the side of the held
+    # thing's hand came out a fifth thinner than from the other side, the legs one behind the other)
+    FEET = {'Left': [-0.072, -0.588, -0.045], 'Right': [0.072, -0.588, -0.045]}; KNEES = {'Left': [-0.07, -0.294, -0.055], 'Right': [0.07, -0.294, -0.055]}
+    TOES = {'Left': [-0.26, -0.76, -0.6], 'Right': [0.26, -0.76, -0.6]}
     Rh = np.einsum('ij,njk,kl->nil', F, Rhip, F.T)
     for side in ('Left', 'Right'):
         hipj = hip_pos + np.einsum('nij,j->ni', Rh, P0[f'{side}UpLeg'] - P0['Hips'])
