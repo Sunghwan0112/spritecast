@@ -3,6 +3,12 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.19.1 — 2026-11-17
+
+- **A pixel prop's white specks are cleared by its render**, as a character's are: the AI cut-out took the gaps between a tree's leaves
+  for leaves and left them white. White where the render has nothing is made see-through, white where it has the object in a dark
+  colour is painted the colour beside it, a light part of the render stays. A forest tree in four views came out as clean as by hand. *(feedback)*
+
 ## 0.19.0 — 2026-11-17
 
 - **SpriteCast's own standing idle, by default.** `idleclip.py` makes a relaxed stand - the feet side by side, the shoulders let down,

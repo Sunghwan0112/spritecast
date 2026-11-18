@@ -93,8 +93,25 @@ def read(d, views, v):
     try: low, m = G.read(c, 0.0, 0.0, fg=None if fg is None else np.asarray(fg) > 127)[:2]
     finally: G.PITCH_XY[:] = [None, None]
     pl = P.palette(low[m], 28); rgb = (np.clip(P.lab2rgb(pl), 0, 1)[((P.lab(low.reshape(-1, 3))[:, None, :] - pl[None]) ** 2).sum(2).argmin(1)].reshape(low.shape) * 255).round().astype(np.uint8)
-    y0, y1 = np.nonzero(m.any(1))[0][[0, -1]]; x0, x1 = np.nonzero(m.any(0))[0][[0, -1]]; im = Image.fromarray(np.dstack([rgb, (m * 255).astype(np.uint8)])[y0:y1 + 1, x0:x1 + 1])
-    return im, {'squares_px': [round(pxy[0], 2), round(pxy[1], 2)], 'scaled': round(k, 2), 'ai_cut': mk is not None}
+    y0, y1 = np.nonzero(m.any(1))[0][[0, -1]]; x0, x1 = np.nonzero(m.any(0))[0][[0, -1]]; im = np.dstack([rgb, (m * 255).astype(np.uint8)])[y0:y1 + 1, x0:x1 + 1].copy()
+    paper = paper_white(im, vdir(d, views, v)); return Image.fromarray(im), {'squares_px': [round(pxy[0], 2), round(pxy[1], 2)], 'scaled': round(k, 2), 'ai_cut': mk is not None, 'paper_px': paper}
+
+
+def paper_white(im, vd):
+    """white the AI cut-out kept (it took the gaps between a tree's leaves for leaves), in place - the rule a character's frames get:
+    where the render has NOTHING it is paper, made see-through; where the render has the object but in a dark colour (a crown of dark leaves)
+    it is GPT's paper inside the object, painted the colour beside it; where the render is light there too, it is a real light part and stays.
+    -> [see-through, painted over] in pixels"""
+    r = Image.open(vd / 'render.png').convert('RGBA'); r = r.crop(r.getbbox()); h, w = im.shape[:2]
+    a = np.asarray(r, np.float32) / 255; pm = np.dstack([a[..., :3] * a[..., 3:], a[..., 3]]); ch = [np.asarray(Image.fromarray(pm[..., j]).resize((w, h), Image.BOX)) for j in range(4)]
+    al = ch[3]; light = (np.dstack(ch[:3]).max(2) / np.maximum(al, 1e-4)) >= 0.7
+    has = ndi.binary_dilation(al >= 0.38, iterations=1)          # (a square of leeway: the drawing is a pixel off here and there)
+    c = im[..., :3].astype(np.int16); white = (c.min(2) >= 215) & (c.max(2) - c.min(2) <= 24) & (im[..., 3] > 0)
+    gone = white & ~has; im[gone, 3] = 0
+    paint = white & has & ~ndi.binary_dilation(light, iterations=1)
+    if paint.any():
+        keep = (im[..., 3] > 0) & ~white; _, (iy, ix) = ndi.distance_transform_edt(~keep, return_indices=True); im[paint, :3] = im[iy[paint], ix[paint], :3]
+    return [int(gone.sum()), int(paint.sum())]
 
 
 def split(out):

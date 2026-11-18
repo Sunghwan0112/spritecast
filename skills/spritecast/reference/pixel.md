@@ -303,7 +303,10 @@ PYTHON proppixel.py PROP.json --ppm 54       # pixels per metre
   in the sprite's pixels; it can lie outside the picture for a thing on wheels or legs - what the squares came out at, the correction
   made), `preview.png`. **Show preview.png beside the guide's renders.** A view that is wrong: `--again <view>`.
 - White shut in by the object (the air under a roof, between spokes) is cleared by the AI cut-out, as for characters; a white thing
-  (a stack of bowls) stays. Never under 64 squares: a small prop is drawn 64 tall and made smaller. No pixel shadow yet: say so.
+  (a stack of bowls) stays. What the cut-out keeps that it should not (it took the gaps between a tree's leaves for leaves) goes by the
+  render, as a character's frames do: white where the render has nothing is made see-through; white where the render has the object
+  in a dark colour is painted the colour beside it; white where the render is light too is a real light part and stays. `pixel.json`
+  says how many pixels each view had of the first two (`paper_px`). A tree came out clean with nothing done by hand. Never under 64 squares: a small prop is drawn 64 tall and made smaller. No pixel shadow yet: say so.
 - **By hand**: `PYTHON pixeledit.py PROP.json` opens the same page as for a character - the views are the frames of one strip,
   "views" - for the user to finish a cut-out (magic erase) or fix a pixel. Kept in `<prop>/pixel-touch.json`, laid on again by every run of
   `proppixel.py`; a view drawn anew has its edits set aside. Offer it; a user who wants the cut-out their own way asks for exactly this.
