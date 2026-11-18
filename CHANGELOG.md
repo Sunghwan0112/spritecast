@@ -3,6 +3,21 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.19.0 — 2026-11-17
+
+- **SpriteCast's own standing idle, by default.** `idleclip.py` makes a relaxed stand - the weight on one foot, the shoulders let down,
+  the arms close by the body - and a seamless 4 s loop of a breath and a little sway, for any rig with Mixamo's bone names; `render`
+  adds it to a copy of the rig by itself (`<rig>-idle.glb`, free) and the standing views use it. Side by side with a Mixamo "Standing
+  Idle" it stood the same to 1-3 % of the height; the motion is all made here, nothing of anyone's animation in it (Mixamo's files may
+  be used, not handed on). `"idle_from": "tripo"` keeps the rig's own. An action can stand with something in hand on it:
+  `{"name": "stand", "clip": "idle_spritecast", "frames": 3, "loop": true, "hold": ...}`. *(feedback)*
+- **addclip.py carries a Mixamo FBX over by direction**: each bone turned to point where the FBX's points, in the two bodies' frames.
+  A download WITH its character (a skeleton per mesh, the bones out of their bind pose) held the arms out from the body before; it
+  now stands as in Mixamo. The throw it was made for came out as before. *(feedback)*
+- **A hand the body hides is not drawn raised**: the pixel sheets say a hand goes on a held thing only where the cell shows one; an
+  action on the SpriteCast idle gets, in the facings that turn the holding hand away, a sentence of its own. *(feedback)*
+- **pixelart.py names a swing effect missing in some facings**, with the free command that renders it. *(feedback)*
+
 ## 0.18.0 — 2026-11-17
 
 - **A held thing in the same colours in every pixel frame.** `pixelart.py` gives each part of what is held - an umbrella's handle,

@@ -65,7 +65,7 @@ def patched():
 def main(spec, WANT=WANT, sd=None, colour=False):
     """colour=True: the colour frames, shadows and held/body shots too, into render/ (for a held thing the repo's renderer does not know)"""
     from playwright.sync_api import sync_playwright
-    s, d = sd or CP.load(spec); glb = Path(s.get("rig_glb") or d / "rig/rig.glb"); out = d / "depth"; out.mkdir(exist_ok=True)
+    s, d = sd or CP.load(spec); glb = CP.rig_file(s, d); out = d / "depth"; out.mkdir(exist_ok=True)          # (the rig with SpriteCast's idle in it, as the renders were made from)
     html = patched()
 
     def serve(route):

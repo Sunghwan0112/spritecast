@@ -2,10 +2,11 @@
 as one more clip - so `charpipe.py render --only NAME`, the depth pass and pixelart.py use it like the clips the rig came with.
     python addclip.py SPEC.json Throw.fbx throw                -> <character>/rig/rig-<name>.glb  (give it to the spec as "rig_glb"
                                                                   and add the action; this prints both lines)
-How: the FBX is read in the browser (three's FBXLoader, in vendor/), its motion carried over bone by bone:
-  a bone's turn away from ITS rest pose, in world space, is applied to the rig's bone from the rig's rest pose - after the rig's
-  rest pose has been turned to the FBX's (Mixamo rests in a T-pose, a rig made from a drawing in an A-pose: without that the arms
-  hang 40 degrees low all through). The hips' travel is scaled by the two skeletons' hip heights.
+How: the FBX is read in the browser (three's FBXLoader, in vendor/), its motion carried over BY DIRECTION: every bone of the rig is
+  turned, parents first, to point where the FBX's same bone points (to the same child), in the two bodies' own frames - so rest poses
+  need not match (Mixamo's T-pose, a rig's A-pose) and neither does the way the FBX stands in its file (a download WITH its character
+  keeps its bones out of the bind pose: carried turn by turn from that "rest", the arms stood out from the body). The hips and the
+  head turn as the FBX's turn from its first frame; the hips' travel is scaled by the two skeletons' hip heights.
 Sampled at 30 a second and written into a copy of the rig's GLB as a new animation.
     python addclip.py SPEC.json Throw.fbx throw --clear-head 40   for a big-headed character: a hand raised past the ear swings its arm
                                                                   out by up to 40 degrees, so it does not go into the head"""
@@ -28,41 +29,54 @@ window.retarget = async (rigUrl, fbxUrl, fps, headDown, clearHead) => {
   const clip = fbx.animations.sort((a, b) => b.duration - a.duration)[0];
   const T = {}, S = {}; let skel = null;
   g.scene.traverse((o) => { if (o.isBone) T[key(o.name)] = o; if (o.isSkinnedMesh && !skel) skel = o.skeleton; });
-  fbx.traverse((o) => { if (o.isBone || o.type === 'Bone') S[key(o.name)] = o; });
+  // (the FIRST bone of a name, as the animation's own binding finds it: a download WITH its character has a skeleton per mesh - the
+  // last of a name was one the clip does not move, and the bind pose was read as the motion)
+  fbx.traverse((o) => { if ((o.isBone || o.type === 'Bone') && !S[key(o.name)]) S[key(o.name)] = o; });
   if (skel) skel.pose();                                   // the rig in its rest pose
   g.scene.updateMatrixWorld(true); fbx.updateMatrixWorld(true);
   const names = Object.keys(T).filter((n) => S[n]);
   const wq = (o) => o.getWorldQuaternion(new THREE.Quaternion()), wp = (o) => o.getWorldPosition(new THREE.Vector3());
-  // rest: world turns, and each bone's direction (to its first child that both skeletons have)
-  const restS = {}, restT = {}, C = {};
-  // a bone's direction: to the SAME child in both skeletons (their children come in different orders: the hips' first child was a
-  // leg in one and the spine in the other, and the whole body was turned over) - up the spine where there is a choice
-  const SPINE = ['Spine', 'Spine1', 'Spine2', 'Neck', 'Head', 'HeadTop_End'];
-  const child = (n) => { const cs = T[n].children.map((x) => key(x.name)).filter((k) => T[k] && S[k] && S[k].parent === S[n]); return cs.find((k) => SPINE.includes(k)) || cs[0]; };
-  const dir = (B, n) => { const c = child(n); return c ? wp(B[c]).sub(wp(B[n])).normalize() : null; };
-  for (const n of names) { restS[n] = wq(S[n]); restT[n] = wq(T[n]); }
+  // BY DIRECTION (the user's "Standing Idle", a Mixamo download WITH its character: carried over turn by turn, from the FBX's rest,
+  // it held the arms out from the body - the FBX's bones do not stand in their bind pose, and a turn "from rest" is then from the
+  // wrong place). Each bone of the rig is turned so that it points where the FBX's same bone points - to the same child, up the
+  // spine where there is a choice - parents first; rest poses do not have to match (T-pose against A-pose). The two bodies' frames
+  // (up: hips to head, right: one thigh to the other) are matched once, so a skeleton facing another way is no matter. What has
+  // no child in both (the head's top, a fingertip) and the hips and the head are turned as the FBX's turn from its first frame.
+  const SPINE = ['Spine', 'Spine1', 'Spine2', 'Neck', 'Head', 'HeadTop_End'], PREF = { LeftHand: 'LeftHandMiddle1', RightHand: 'RightHandMiddle1' };
+  const child = (n) => { if (PREF[n] && T[PREF[n]] && S[PREF[n]]) return PREF[n]; const cs = T[n].children.map((x) => key(x.name)).filter((k) => T[k] && S[k] && S[k].parent === S[n]); return cs.find((k) => SPINE.includes(k)) || cs[0]; };
   const order = names.slice().sort((a, b) => { let da = 0, db = 0; for (let p = T[a]; p; p = p.parent) da++; for (let p = T[b]; p; p = p.parent) db++; return da - db; });
-  for (const n of order) {
-    const ds = dir(S, n), dt = dir(T, n), par = T[n].parent && key(T[n].parent.name);
-    // only the limbs are turned to the FBX's rest (T-pose arms against A-pose arms); what hangs on a limb (hand, fingers, foot)
-    // goes with it; the hips, the spine, the neck and the head stand the same in both and are left - the head's "direction" is to
-    // a marker on top of the skull that each rig puts somewhere else (it tipped the head 40 degrees back)
-    const limb = /(Shoulder|Arm|ForeArm|UpLeg|Leg)$/.test(n);
-    C[n] = limb && ds && dt ? new THREE.Quaternion().setFromUnitVectors(dt, ds) : (C[par] && !/^(Hips|Spine\d?|Neck|Head)$/.test(par) ? C[par].clone() : new THREE.Quaternion());
-  }
+  const restL = {}; for (const n of order) restL[n] = T[n].quaternion.clone();
+  const frameOf = (B) => { const up = wp(B.Head).sub(wp(B.Hips)).normalize(), r = wp(B.RightUpLeg).sub(wp(B.LeftUpLeg)); r.sub(up.clone().multiplyScalar(r.dot(up))).normalize();
+    const f = new THREE.Vector3().crossVectors(r, up); return new THREE.Matrix4().makeBasis(r, up, f); };
   const hipS0 = wp(S.Hips), hipT0 = wp(T.Hips), ground = (B) => Math.min(...['LeftToeBase', 'RightToeBase', 'LeftFoot', 'RightFoot'].filter((n) => B[n]).map((n) => wp(B[n]).y));
-  const ratio = (hipT0.y - ground(T)) / (hipS0.y - ground(S));
-  const mixer = new THREE.AnimationMixer(fbx); mixer.clipAction(clip).play();
+  const Ft = frameOf(T);
+  const mixer = new THREE.AnimationMixer(fbx); mixer.clipAction(clip).play(); mixer.setTime(0); fbx.updateMatrixWorld(true);
+  const Fs0 = frameOf(S), Mm = Ft.clone().multiply(Fs0.clone().transpose()), M = new THREE.Quaternion().setFromRotationMatrix(Mm), Mi = M.clone().invert();
+  const S0 = {}; for (const n of order) S0[n] = wq(S[n]);           // the FBX's first frame: the hips' and the head's turns are counted from it
+  const hipS00 = wp(S.Hips), ratio = (hipT0.y - ground(T)) / (hipS00.y - ground(S));
   const n = Math.max(2, Math.round(clip.duration * fps) + 1), out = { duration: clip.duration, n, bones: {}, hips: [], names: order, ratio,
     facing: { rig: wp(T.LeftUpLeg).sub(wp(T.RightUpLeg)).normalize().toArray(), fbx: wp(S.LeftUpLeg).sub(wp(S.RightUpLeg)).normalize().toArray() } };
   for (const b of order) out.bones[b] = [];
+  const restW = {}; g.scene.updateMatrixWorld(true); for (const b of order) restW[b] = wq(T[b]);
   for (let i = 0; i < n; i++) {
     mixer.setTime(clip.duration * i / (n - 1)); fbx.updateMatrixWorld(true);
     const W = {};
     for (const b of order) {               // parents first: a bone's new world turn, then its local one
-      const d = wq(S[b]).multiply(restS[b].clone().invert()); W[b] = d.multiply(C[b]).multiply(restT[b]);
       const par = T[b].parent, pk = par && key(par.name);
       const pw = W[pk] ? W[pk] : (par ? wq(par) : new THREE.Quaternion());
+      const guess = pw.clone().multiply(restL[b]);
+      const c = child(b), free = b === 'Hips' || b === 'Head' || !c;
+      if (free) {
+        // its turn since the FBX's first frame, carried into the rig's frame: the hips from their rest; anything else (the head)
+        // by what it turned beyond its parent, on top of where the rig's parent now has it
+        const turn = (x) => M.clone().multiply(wq(S[x]).multiply(S0[x].clone().invert())).multiply(Mi);
+        if (b === 'Hips') W[b] = turn(b).multiply(restW[b]);
+        else { const sp = S[b].parent && key(S[b].parent.name), extra = sp && S0[sp] ? turn(sp).invert().premultiply(turn(b)) : turn(b); W[b] = extra.multiply(guess); }
+      } else {
+        const want = wp(S[c]).sub(wp(S[b])).applyMatrix4(new THREE.Matrix4().extractRotation(Mm)).normalize();
+        const now = T[c].position.clone().applyQuaternion(guess).normalize();
+        W[b] = new THREE.Quaternion().setFromUnitVectors(now, want).multiply(guess);
+      }
       const l = pw.clone().invert().multiply(W[b]);
       if (headDown && (b === 'Neck' || b === 'Head')) {      // the renderer lifts every clip's head by "head_up" (a Tripo walk looks down); this clip does not need it: taken off here
         const ax = new THREE.Vector3(-1, 0, 0).applyQuaternion(pw.clone().invert()).normalize(); l.premultiply(new THREE.Quaternion().setFromAxisAngle(ax, -(b === 'Neck' ? 0.4 : 0.6) * headDown * Math.PI / 180));
@@ -70,7 +84,7 @@ window.retarget = async (rigUrl, fbxUrl, fps, headDown, clearHead) => {
       }
       out.bones[b].push(l.x, l.y, l.z, l.w);
     }
-    const P = hipT0.clone().add(wp(S.Hips).sub(hipS0).multiplyScalar(ratio)); T.Hips.parent.worldToLocal(P); out.hips.push(P.x, P.y, P.z);
+    const P = hipT0.clone().add(wp(S.Hips).sub(hipS00).applyMatrix4(new THREE.Matrix4().extractRotation(Mm)).multiplyScalar(ratio)); T.Hips.parent.worldToLocal(P); out.hips.push(P.x, P.y, P.z);
     // A BIG HEAD IN THE HAND'S WAY (a character three heads tall: the clip was made for a small head, and a hand raised past the ear
     // goes into the skull): while a hand is above the head's joint its upper arm is swung outward, away from the head, by up to
     // `clearHead` degrees - nothing below that height is changed, and the swing eases in and out with the hand's height. It is the line

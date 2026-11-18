@@ -228,7 +228,10 @@ def held_words(clip, dr, idx):
               "at the chest or in the near hand there.\n" if back else '')
     if not yes and not back: return f"THE HANDS ARE EMPTY in every cell: the {k} has been let go and is NOT in the picture - draw nothing in or near the hands.\n"
     return ((f"IN THE HAND in cell{'s' if len(yes) > 1 else ''} {', '.join(yes)}: the {k} the cell shows - draw it as pixel art too, exactly where it is and just as big, in the "
-             "colour the cell has it in (NOT pure white: it must show on the white paper), with the same one-square dark outline as the figure, closed all round.\n" if yes else '')
+             "colour the cell has it in (NOT pure white: it must show on the white paper), with the same one-square dark outline as the figure, closed all round. "
+             f"Draw a hand on it only where the cell shows one: a hand the body hides stays hidden, and the {k} then just passes behind the body from it - "
+             f"do NOT raise an arm to hold the {k} where it shows (the rain girl seen from behind: her hand was down at her far hip and the umbrella showed "
+             "over her other shoulder; the image model drew her arm up at the shoulder holding it).\n" if yes else '')
             + behind + (f"In cell{'s' if len(no) > 1 else ''} {', '.join(no)} the hands are EMPTY: the {k} has been let go - draw nothing in or near the hands there.\n" if no else ''))
 
 def per_sheet(clip, dr):
@@ -674,6 +677,15 @@ def main():
         if e_ is None: continue
         (out / 'trails').mkdir(exist_ok=True); e_[0].save(out / 'trails' / f'{c}-{dr}.png')
         trails[f'{c}-{dr}'] = {'file': f'trails/{c}-{dr}.png', 'frame': e_[1], 'offset': [int(e_[2][0] + 2 * CH_ - box[0]), int(e_[2][1] + 2 * CH_ - box[1])], 'frames': len(tf_), 'per_frame': tx_}
+    # AN EFFECT IN SOME FACINGS ONLY - said aloud, never left for the game to find (the rain girl's pixel swing went into a game with
+    # its water in south-east alone: the renders had been copied from a folder where only that facing was rendered again, and nothing
+    # said so; the game covered the gap with stand-in drops). An action with "trail" has its effect in every facing it is drawn in, or
+    # the facings without it are named here, with what makes them: `charpipe.py render SPEC --only <action>` (free), then this again.
+    for c_ in sorted({c for c, _ in strips}):
+        if not s['actions'].get(c_, {}).get('trail'): continue
+        have_ = [dr for (c, dr) in strips if c == c_ and f'{c}-{dr}' in trails]; miss_ = [dr for (c, dr) in strips if c == c_ and f'{c}-{dr}' not in trails]
+        if miss_: print(f'  WARNING: "{c_}" has its "trail" ({s["actions"][c_]["trail"]}) in {", ".join(have_) or "no facing"} only - none in {", ".join(miss_)}: '
+                        f'`charpipe.py render {A.spec} --only {c_}` (free) renders it, then build again')
     releases = {}
     for (c, dr), (fr, _) in strips.items():
         hold = s['actions'].get(c, {}).get('hold')

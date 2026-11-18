@@ -180,7 +180,8 @@ a part jumps - each edit goes to its own animation's frame. **Something thrown**
 "final": "#ffffff", "until": "auto"}` on the action - drawn pale blue so that it shows on white paper, white in the end, let go when
 the hand is fastest; the folder then has the thing's own sprites and `release` in `pixel.json` (frame, point, direction, speed), and
 `<clip>-<facing>-flying.gif` to show. **An animation the rig lacks** (a throw): `PYTHON addclip.py CHAR.json Throw.fbx throw` puts a
-Mixamo FBX into a copy of the rig, free - render it and look before drawing.
+Mixamo FBX (with or without its character) into a copy of the rig, free, bone by bone BY DIRECTION - render it and look before drawing. Never put a Mixamo file
+in a public repository: its animations may be used, not handed on. **Standing still**: SpriteCast's own idle is the default (`idleclip.py`; `"idle_from": "tripo"` for Tripo's).
 
 **A prop as pixel art** (`PYTHON proppixel.py PROP.json`, reference/pixel.md "Props as pixel art"): the prop's guide pixelized and redrawn the same way, at the
 pixel character's pixels per metre (`--ppm` = its `figure_px` / its `height_m`) so they stand on one floor. One view of a simple thing works from blocks. **From

@@ -142,6 +142,15 @@ frame**, lit and shaded as the drawing had it. Free; by default; `--held-as-draw
 - An action's `"frame_words"` now go into the pixel sheets' prompts too (they were the illustrated sheets' only): the rain girl's
   south-west swing had a hand across her chin until `"5@south-west": "BOTH hands hold the umbrella ..."` was said.
 
+## A hand the body hides, an effect missing in a facing
+- **The hand that holds a thing, hidden by the body** (seen from behind on the holding side): the image model drew an arm raised to the
+  shoulder to hold an umbrella that showed past it (the rain girl standing, north-west). Every pixel sheet now says: a hand on the thing
+  only where the cell shows one. For an action on SpriteCast's idle (`"clip": "idle_spritecast"`) with something held, the facings that
+  turn the holding side away (right hand: north-west, west; left: north-east, east) get a sentence of their own: the hand down by the far
+  hip, hidden, the thing passing behind the body; both arms down. Drawn and checked for the right hand, north-west.
+- **A swing's effect missing in some facings**: `pixelart.py` names the facings an action with `"trail"` has no effect in, and the free
+  command that renders it (`charpipe.py render SPEC --only <action>`). (A pixel swing went into a game with its water in one facing of four.)
+
 ## Fixing by hand: `pixeledit.py`
 
 Pixel art is not all to be had by rule: a patch of paper left where an arm crosses the body, a face that came out poorer in one

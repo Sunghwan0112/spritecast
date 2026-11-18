@@ -69,7 +69,12 @@ def load(path):
     s.setdefault('facings', 8)
     if s['facings'] not in (4, 8): sys.exit('spec: "facings" is 8 (the default) or 4 (the four diagonals: south-east, south-west, north-east, north-west)')
     DIRS = list(DIAGONALS) if s['facings'] == 4 else ['south', 'south-east', 'east', 'north-east', 'north', 'north-west', 'west', 'south-west']; FRONT = DIRS[0]
-    s.setdefault('walk', {'clip': 'walk', 't0': 0, 't1': 1.1835}); s.setdefault('idle', {'clip': 'idle', 't': 0})
+    # THE STANDING POSE: SpriteCast's own idle by default (idleclip.py - a relaxed stand, made here, added to the rig when rendering);
+    # "idle_from": "tripo" keeps the rig's own idle clip (Tripo's: arms held out from the body more, little motion). A spec's own
+    # "idle" (a clip and a moment) is used as given.
+    s.setdefault('idle_from', 'spritecast')
+    if s['idle_from'] not in ('spritecast', 'tripo'): sys.exit('spec: "idle_from" is "spritecast" (the default) or "tripo"')
+    s.setdefault('walk', {'clip': 'walk', 't0': 0, 't1': 1.1835}); s.setdefault('idle', {'clip': 'idle_spritecast' if s['idle_from'] == 'spritecast' else 'idle', 't': 0})
     s.setdefault('frame_px', 256); s.setdefault('light', 'right'); s.setdefault('shadow', '3d'); s.setdefault('modeler', 'tripo'); s.setdefault('kind', 'person'); s.setdefault('redo_below', 0.75); s.setdefault('draw', True)
     # SOMETHING CARRIED ALL THE TIME ("hold" in the spec itself, not in one action): in the hand through the walk, the standing views and
     # every action that has no "hold" of its own. A figure with a thing in one hand is not its own mirror image - flipped, the thing
@@ -356,6 +361,23 @@ def rig(s, d, args):
 
 
 # --- render ---------------------------------------------------------------------------------------------------------------------------
+def rig_file(s, d):
+    """the rig GLB to render from: the spec's ("rig_glb", or rig/rig.glb) - with SpriteCast's idle added (idleclip.py, free) unless
+    "idle_from" is "tripo": a copy beside it, <rig>-idle.glb, made again when the rig or idleclip.py is newer. A rig without Mixamo's
+    bone names gets none, and the standing views fall back to its own "idle" clip, said aloud."""
+    glb = Path(s.get('rig_glb') or d / 'rig/rig.glb')
+    if s.get('kind') == 'animal' or s.get('idle_from') == 'tripo' or not glb.exists() or glb.stem.endswith('-idle'): return glb
+    out = glb.with_name(glb.stem + '-idle.glb'); src = HERE / 'idleclip.py'
+    if not out.exists() or out.stat().st_mtime < max(glb.stat().st_mtime, src.stat().st_mtime):
+        import idleclip
+        try: idleclip.add(glb, out, s.get('head_up', 24)); print(f'render: SpriteCast\'s idle added ("{idleclip.CLIP}") -> {out.name}')
+        except ValueError as e:
+            print(f'render: {e} - the standing views from the rig\'s own "idle"'); s['idle_from'] = 'tripo'
+            if s['idle'].get('clip') == 'idle_spritecast': s['idle'] = {'clip': 'idle', 't': 0}
+            return glb
+    return out
+
+
 def render(s, d, only=None):
     from playwright.sync_api import sync_playwright
     animal = s['kind'] == 'animal'
@@ -365,6 +387,7 @@ def render(s, d, only=None):
     else:
         glb = Path(s.get('rig_glb') or d / 'rig/rig.glb')
         if not glb.exists(): sys.exit('render: run `rig` first (or give "rig_glb")')
+        glb = rig_file(s, d)
 
     def serve(route):
         p = route.request.url.split('spritecast.local/', 1)[1]
@@ -598,10 +621,27 @@ def cell_words(a, idx, cell=None):
     what the render cannot show the image model: a hand the render has floating by the umbrella that holds it behind the head, say
     (it drew the fist pulled up into sight until it was told so). `cell`: the one cell a frame drawn alone sits in"""
     fw = a.get('frame_words') or {}; dr = a.get('_facing'); out = []
+    auto = idle_hidden_hand(a, dr)
     for n_, k in enumerate(idx):
-        w = fw.get(f'{k + 1}@{dr}') or fw.get(str(k + 1))
+        w = fw.get(f'{k + 1}@{dr}') or fw.get(str(k + 1)) or auto
         if w: out.append(f' IN CELL {cell or n_ + 1} (frame {k + 1}): {w}')
     return ''.join(out)
+
+
+# STANDING WITH SOMETHING IN HAND, SEEN FROM THE OTHER SIDE. SpriteCast's idle holds a thing low by the hip; turned away from the camera on
+# the holding side (the right hand: north-west, west), the hand is behind the body and only the thing shows, past the far shoulder - and
+# the image model, given a thing with no hand, raised an arm to the shoulder to hold it (the rain girl's umbrella, north-west: drawn
+# wrong, then right with this said). Said by itself for those facings; the action's own "frame_words" for a frame still come first.
+# (Checked on the right hand in north-west only; west and the left hand's mirror facings are the same case, not drawn yet.)
+def idle_hidden_hand(a, dr):
+    hold = a.get('hold')
+    if a.get('clip') != 'idle_spritecast' or not hold or not dr: return ''
+    left = isinstance(hold, dict) and hold.get('hand') == 'left'; k = hold if isinstance(hold, str) else hold.get('kind', 'thing')
+    if dr not in (('north-east', 'east') if left else ('north-west', 'west')): return ''
+    side, other = ('LEFT', 'RIGHT') if left else ('RIGHT', 'LEFT')
+    return (f"the {k} is held in the {side} hand, which hangs down by the {side.lower()} hip on the far side of the body, hidden by it (at most the end the "
+            f"hand holds shows beside the hip); the {k} points forward, away from the camera, so it shows past the {other} shoulder, going behind the body. "
+            "BOTH arms hang down: no hand is up at the shoulder, no arm is raised to hold it.")
 
 
 def draw_frame(s, d, name, dr, k):
@@ -705,6 +745,7 @@ def sit_render(s, d):
     if s['kind'] == 'animal': sys.exit('sit: people only for now')
     glb = Path(s.get('rig_glb') or d / 'rig/rig.glb')
     if not glb.exists(): sys.exit('sit: run `rig` first (or give "rig_glb")')
+    glb = rig_file(s, d)
 
     def serve(route):
         p = route.request.url.split('spritecast.local/', 1)[1]
