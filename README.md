@@ -114,7 +114,7 @@ be redrawn, never squeezed to fit. Props work the same way, with blocks at real 
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl/main/leaderboard.svg" alt="Rain Girl's leaderboard: this month's best ten and the best three ever, redrawn every half hour"></a></p>
 
-<p align="center"><i>우비소녀의 여행 · Rain Girl, a small pixel action game: a girl in a yellow raincoat puts out fire monsters with her umbrella's
+<p align="center"><i>Rain Girl, a small pixel action game: a girl in a yellow raincoat puts out fire monsters with her umbrella's
 water before the forest burns. The girl and every prop in it came out of SpriteCast.</i></p>
 
 - **The girl.** One illustration; a Tripo model, rigged and rendered at the game's camera (2:1, 30° down): a walk with her umbrella,

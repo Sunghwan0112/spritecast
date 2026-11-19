@@ -113,7 +113,7 @@ claude plugin install spritecast@spritecast
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl/main/leaderboard.svg" alt="Rain Girl のランキング: 今月のトップ10と歴代トップ3、30分ごとに描き直されます"></a></p>
 
-<p align="center"><i>우비소녀의 여행 · Rain Girl。黄色いレインコートの少女が傘の水で炎モンスターを消し、森が燃えるのを防ぐ小さなピクセル
+<p align="center"><i>Rain Girl。黄色いレインコートの少女が傘の水で炎モンスターを消し、森が燃えるのを防ぐ小さなピクセル
 アクションゲーム。少女とすべての小物を SpriteCast で作りました。</i></p>
 
 - **少女。** イラスト1枚 → Tripo モデルにリグを入れ、ゲームのカメラ(2:1、30°見下ろし)でレンダー → 傘を持った歩き、振り、立ちを斜め

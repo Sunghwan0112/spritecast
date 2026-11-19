@@ -113,7 +113,7 @@ claude plugin install spritecast@spritecast
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl/main/leaderboard.svg" alt="Rain Girl 排行榜:本月前十和历史前三,每半小时重画一次"></a></p>
 
-<p align="center"><i>우비소녀의 여행 · Rain Girl,一个小型像素动作游戏:穿黄色雨衣的女孩用伞里的水扑灭火焰怪物,不让森林烧起来。
+<p align="center"><i>Rain Girl,一个小型像素动作游戏:穿黄色雨衣的女孩用伞里的水扑灭火焰怪物,不让森林烧起来。
 女孩和游戏里的每个道具都出自 SpriteCast。</i></p>
 
 - **女孩。** 一张插画 → Tripo 模型,绑定骨骼,按游戏的相机(2:1,俯视 30°)渲染 → 打伞行走、挥伞、站立,四个斜向(`"facings": 4`),

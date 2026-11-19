@@ -114,7 +114,7 @@ ser redesenhado, nunca espremido para caber. Os props funcionam do mesmo jeito, 
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl/main/leaderboard.svg" alt="O ranking de Rain Girl: os dez melhores do mês e os três melhores de todos os tempos, redesenhado a cada meia hora"></a></p>
 
-<p align="center"><i>우비소녀의 여행 · Rain Girl, um pequeno jogo de ação em pixel art: uma menina de capa de chuva amarela apaga monstros de
+<p align="center"><i>Rain Girl, um pequeno jogo de ação em pixel art: uma menina de capa de chuva amarela apaga monstros de
 fogo com a água do guarda-chuva antes que a floresta queime. A menina e todos os objetos saíram do SpriteCast.</i></p>
 
 - **A menina.** Uma ilustração; um modelo do Tripo com esqueleto, renderizado com a câmera do jogo (2:1, 30° para baixo): andar com o
