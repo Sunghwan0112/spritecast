@@ -371,11 +371,11 @@ go black), and a palette with nothing near one of her colours will change that c
 The palettes that come with it, on the same two sprites - a yellow coat needs a yellow in the palette (`c64`, `gameboy`,
 `slso8` and `sweetie16` have none):
 
-![the rain girl and the ramen cart in each of the 15 palettes: aap64, apollo, c64, cga, db16, db32, endesga32, endesga64, gameboy, nes, pico8, resurrect64, slso8, sweetie16, zx](docs/pixel-palettes.png)
+![the rain girl and the ramen cart in each of the 16 palettes: aap64, apollo, c64, cga, db16, db32, endesga32, endesga64, gameboy, nes, pico8, resurrect64, slso8, sweetie16, wada094, zx](docs/pixel-palettes.png)
 
 *The palettes are their authors': AAP-64 by Adigun A. Polack, Apollo by AdamCYounis, DawnBringer 16/32 by DawnBringer, Endesga 32/64
-by ENDESGA, Resurrect 64 by Kerrie Lake, SLSO8 by Luis Miguel Maldonado, Sweetie 16 by GrafxKid - taken from
-[Lospec](https://lospec.com/palette-list).*
+by ENDESGA, Resurrect 64 by Kerrie Lake, SLSO8 by Luis Miguel Maldonado, Sweetie 16 by GrafxKid, Wada Plate 094 by Sanzo Wada
+(1930s colour research, via TKC's design system) - taken from [Lospec](https://lospec.com/palette-list).*
 
 **Sizes.** 96 px is the size for a character of ordinary proportions. **64 px works for a character designed small** - about three
 heads tall, with its own 3D model - and comes out about 70 px. Under that, the image model is never asked: it does not keep to so

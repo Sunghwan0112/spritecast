@@ -1,0 +1,38 @@
+; Wada Plate 094 - TKC design system chord - from Sanzo Wada's 1930s colour research
+; TKC (talent-support-dashboard) uses plate 094 as its secondary accent lineage:
+; paper #f4eedf, ground #e4dece, ink #202b29, muted #525d57, room #183d38,
+; floor #c5ccb4, wall #9cae98, rule #83917d, amber #f59e0b
+; Scene colours from TKC3D's world palette (tkc3d/src/core/palette.ts):
+f4eedf
+e4dece
+202b29
+525d57
+183d38
+c5ccb4
+9cae98
+83917d
+f59e0b
+efe6d2
+e2d6bd
+c9bb9c
+8a6a45
+6b5136
+b8443a
+8e3229
+d9a441
+efc463
+4a8fa8
+2f6b83
+5f8f43
+7cae55
+4e7a3a
+7a5c3d
+9a9384
+b9bec4
+7d848c
+9fd4dd
+1d4a52
+64e2d0
+f2f4f2
+ffd489
+ff8a4c

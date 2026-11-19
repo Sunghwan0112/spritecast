@@ -11,13 +11,30 @@
 // x = 0, y = 0. Inside the scene: model x = −(y − D/2), model z = x − W/2, model y = h, and the whole prop turned 45° about the up axis.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 let PITCH = 30 * Math.PI / 180, YAW = 45;
 // the light the shadows fall by: per metre up, a point lands this far along world x and z (away from the camera and to the left —
 // up and to the left on screen; mirrored for light from the upper left). Fixed to the screen, not to the prop.
 let SHADOW = [-0.42, -0.78];
-const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true });
-renderer.setPixelRatio(1); renderer.setClearColor(0x000000, 0); renderer.outputColorSpace = THREE.SRGBColorSpace;
+// TKC quality tiers (tkc3d/src/core/quality.ts), adapted for spritecast's
+// 3D guide rendering. The tier sets MSAA samples, pixel ratio cap and render
+// scale so a slow machine still produces a clean guide while a fast one gets
+// crisp thin geometry (rack edges, chair legs, screen bezels).
+const QUALITY_TIERS = {
+  low:  { msaa: 0,  maxPixelRatio: 1, renderScale: 1.0 },
+  medium: { msaa: 4,  maxPixelRatio: 1.5, renderScale: 1.15 },
+  high: { msaa: 4,  maxPixelRatio: 2, renderScale: 1.35 },
+};
+const quality = (() => {
+  const q = (typeof process !== 'undefined' && process.env && process.env.SPRITECAST_QUALITY) || 'high';
+  return q in QUALITY_TIERS ? q : 'high';
+})();
+const Q = QUALITY_TIERS[quality];
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: Q.msaa > 0, preserveDrawingBuffer: true });
+if (Q.msaa > 0) renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, Q.maxPixelRatio));
+else renderer.setPixelRatio(1);
+renderer.setClearColor(0x000000, 0); renderer.outputColorSpace = THREE.SRGBColorSpace;
 document.body.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 scene.add(new THREE.AmbientLight(0xffffff, 2.3));
@@ -106,7 +123,7 @@ function frame(pxm, pad = 0.12) {
       u0 = Math.min(u0, u); u1 = Math.max(u1, u); v0 = Math.min(v0, v); v1 = Math.max(v1, v);
     }
   }
-  const w = Math.ceil((u1 - u0 + 2 * pad) * pxm), h = Math.ceil((v1 - v0 + 2 * pad) * pxm);
+  const w = Math.ceil((u1 - u0 + 2 * pad) * pxm * Q.renderScale), h = Math.ceil((v1 - v0 + 2 * pad) * pxm * Q.renderScale);
   renderer.setSize(w, h);
   cam.left = u0 - pad; cam.right = cam.left + w / pxm; cam.top = v1 + pad; cam.bottom = cam.top - h / pxm; cam.updateProjectionMatrix();
   size = [w, h];
@@ -127,12 +144,24 @@ window.setup = async (spec) => {
 const draw = async () => { if (renderer.compileAsync) await renderer.compileAsync(scene, cam); renderer.render(scene, cam); renderer.render(scene, cam); };
 window.shot = async () => { await draw(); return renderer.domElement.toDataURL('image/png'); };
 // the prop's shadow on the ground, solid black alone: every point (x, y, z) pressed to (x + dx·y, 0, z + dz·y)
+// TKC shadow-proxy pattern (tkc3d/src/core/shadow-proxy.ts): merge all shadow-casting geometry into one
+// position-only proxy so the shadow pass is a single draw call instead of one per mesh. TKC's campus went
+// from ~870 shadow draw calls to a handful; here it keeps complex props fast too.
 window.shadowShot = async () => {
   const P = new THREE.Matrix4().set(1, SHADOW[0], 0, 0, 0, 0, 0, 0.001, 0, SHADOW[1], 1, 0, 0, 0, 0, 1);
+  const geos = [];
+  prop.traverse((o) => {
+    if (o.isMesh && o.geometry) {
+      const g = o.geometry.clone();
+      g.applyMatrix4(o.matrixWorld);
+      geos.push(g);
+    }
+  });
+  if (geos.length === 0) return null;
+  const merged = geos.length === 1 ? geos[0] : mergeGeometries(geos, false);
+  const proxy = new THREE.Mesh(merged, new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide }));
   const wrap = new THREE.Group(); wrap.matrixAutoUpdate = false; wrap.matrix.copy(P);
-  const ghost = prop.clone(true); const black = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide });
-  ghost.traverse((o) => { if (o.isMesh) o.material = black; if (o.isLineSegments) o.visible = false; });
-  wrap.add(ghost); scene.add(wrap); prop.visible = false;
+  wrap.add(proxy); scene.add(wrap); prop.visible = false;
   await draw(); const url = renderer.domElement.toDataURL('image/png');
   scene.remove(wrap); prop.visible = true; return url;
 };
