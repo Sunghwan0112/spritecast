@@ -61,6 +61,8 @@ still walks in all eight directions: asked for east, it shows the nearest facing
 | **[Pixel art](#pixel-art-arcade-size)**, about 100 px tall, with things that are held and thrown | **[Four-legged animals](#four-legged-animals)**, with no bought rig |
 | ![the rain girl seated on ten different seats](docs/seats.png) | ![guide → sprite](docs/showcase.png) |
 | **[Sitting](#sitting)** on your props, the armrest in front of her worked out in 3D | **[Props](#props-and-scenery)** at their real size, all on one floor |
+| ![a rattan peacock chair as pixel art under the sun, on a grey day, under a bare bulb, a lamp in front and behind it, and a big light above, on an oak floor lit by each - each shadow baked from its 3D model, the weave letting light through](docs/indoor-shadows.png) | ![a pixel-art tree from two sides swaying in the wind - clumps of leaves moving a pixel at a time, the trunk still, a gust leaning the top - and the same clumps in colours, cut from its 3D model](docs/sway.gif) |
+| **[Shadows baked from the 3D model](#light-shadow-wind)**: the sun, a grey day, or a lamp you place yourself | **[Wind in the leaves](#light-shadow-wind)**, bough by bough, from the same model |
 
 ## Things to ask for
 
@@ -100,6 +102,39 @@ be redrawn, never squeezed to fit. Props work the same way, with blocks at real 
   fit: you get a warning, and Claude suggests a fix before drawing again.
 - **Your game's view and your style.** 2:1 isometric, true isometric, 3/4 top-down, front or any angle; all four facings of one
   object; the bundled `cozy` style or one picture of your own.
+- **Light that agrees.** Every guide is lit by the same sun, fixed to the screen, and the image model draws over that render: the
+  light and shade on a thing come from its 3D shape, the same way on every side of every prop. Nothing is shaded by hand
+  ([in a game](#made-with-it-rain-girl)).
+
+## Made with it: Rain Girl
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="docs/rain-girl-play.gif" alt="Rain Girl: a girl in a yellow raincoat among pixel-art trees, rocks and bushes, with red, green and purple fire monsters and burning ground" width="100%"></a></p>
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><b>▶ Play it in your browser</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl">the game's code</a><br>No install, no account. Post your score and you are on the board below.</p>
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl/main/leaderboard.svg" alt="Rain Girl's leaderboard: this month's best ten and the best three ever, redrawn every half hour"></a></p>
+
+<p align="center"><i>우비소녀의 여행 · Rain Girl, a small pixel action game: a girl in a yellow raincoat puts out fire monsters with her umbrella's
+water before the forest burns. The girl and every prop in it came out of SpriteCast.</i></p>
+
+- **The girl.** One illustration; a Tripo model, rigged and rendered at the game's camera (2:1, 30° down): a walk with her umbrella,
+  the swing and standing, in the four diagonal facings (`"facings": 4`), every frame redrawn as 96 px pixel art. The water she throws
+  is the swing's effect, rendered in 3D and drawn the same way; the standing loop is `idleclip.py`.
+- **The forest.** Seven props - a tree, a half-burnt tree, a burnt tree, a bush, a burnt stump, a rock, mushrooms - each a Tripo model
+  rendered from four sides at the girl's scale (74 px a metre: a 2.4 m tree is about 175 px tall) and drawn as pixel art: 28 sprites.
+  The game shows each prop from one side at random; a tree that burns goes half-burnt, then burnt, from the side it stood.
+- **One light, no shading by hand.** All 28 are lit from the upper right, as their 3D guides were. Below, every side of every prop:
+
+![the 28 prop sprites on the game's grass: four sides each of a tree, a half-burnt tree, a burnt tree, a bush, a stump, a rock and mushrooms, all lit from the upper right](docs/rain-girl-props.png)
+
+- **One palette.** Afterwards the props and the grass tile were put on one 48-colour palette (from 755), so a tree's greens and a
+  bush's are the same greens.
+- **The 3D keeps working in the game.** The shadows on the ground are baked from each prop's model ([how](#light-shadow-wind)), and the girl darkens in a prop's shade - her
+  feet, middle and head each by what lies between them and the sun. Where a fireball breaks on cover comes from each prop's own model, cut at the fireball's
+  height (0.55 m), for the side that is showing: a trunk stops it, the crown above does not, a mushroom is too low.
+- **The wind is the model's too.** The crowns sway bough by bough: the leaves are grouped into clumps by where they are on the 3D
+  model, and each clump moves whole, a pixel at a time - with the round's wind, harder in a gust ([how](#light-shadow-wind)).
+- **A prop's cost:** about 20 Tripo credits for the model and about $0.3 to draw its four sides.
 
 ## Walking characters
 
@@ -385,8 +420,63 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # ~$0.08 a
 - **The cut-out is yours to finish.** The air under a roof and between spokes is cleared by the AI cut-out; what it leaves, open in the
   same pixel editor as the characters (`pixeledit.py cart.json`): the four sides are four frames, the 3D render can be shown beside
   or under the sprite, and what you erase is kept. The cart above had 122 pixels finished that way.
-- No pixel shadow for props yet. The cart is in [`examples/ramen_cart`](examples/ramen_cart): the spec, the Tripo model, the four guides
+- The cart is in [`examples/ramen_cart`](examples/ramen_cart): the spec, the Tripo model, the four guides
   and the four sprites.
+
+<a name="light-shadow-wind"></a>
+### Light, shadow and wind from the 3D model
+
+The model that gave a prop its sides also knows where its light is blocked and where its boughs are. So its shadow, a lamp's light
+on the floor and the wind in its leaves are worked out from it - free, on your computer, with no drawing.
+
+- **Its shadow, baked from its 3D model** (free, a few seconds, done by itself): the sun's light and the sky's on the ground, each
+  as much as the thing leaves open - so it is deep close by (under the cart, round a trunk's foot) and paler where it falls
+  from high up (a crown's, the light coming through between its leaves), in five steps of pixel art. The sun is the guide's own light, so the shade drawn on the prop and the shadow
+  on the ground agree. `--shadow overcast` (or `"shadow": "overcast"` in the spec) for a grey day: no sun, only the soft dark round it.
+  `out-pixel/shadow-<side>.png` and where it sits in `pixel.json`; draw it under the sprite.
+
+![the ramen cart from four sides, each with its shadow baked from the 3D model; below, a tree's shadow in sun (dark by the trunk, soft under the crown) and on a grey day (only soft, close round it)](docs/prop-shadows.png)
+
+- **Indoors, a lamp where you put it.** `--lamp -1,2.4,-0.2 --lamp-size 0.03` (metres from the prop's foot: right, up, towards the
+  viewer; the lamp's own size) - the shadow falls away from it, longer the lower it hangs, sharp from a bare bulb and soft from a big
+  shade, and fades as its light does across the floor. Its light on the floor comes too - `light-<side>.png`, brightest under it, the
+  thing's shadow cut out, dithered in steps - to lay on the floor with ADD - and the lamp itself as pixel art (`lamp.png`) with where it is in each side's
+  pixels in `pixel.json`, so a game draws the floor, its light, the shadow, the prop and the lamp right where the editor showed them. Leave it out and the sun is used. **See-through parts** (a wicker weave, leaves,
+  a net) are painted on a model, not cut: `"see_through": [{"colour": "#c8955a", "open": 0.35}]` lets the parts of that colour pass
+  that share of the light. A rattan peacock chair ([`examples/rattan_peacock_chair`](examples/rattan_peacock_chair)) under six lights:
+
+![a rattan peacock chair as pixel art under the sun, on a grey day, under a bare bulb, a lamp in front and behind it, and a big light above, on an oak floor lit by each - each shadow baked from its 3D model, the weave letting light through](docs/indoor-shadows.png)
+
+- **Move the light yourself**: `lightedit.py PROP.json` opens a page on your computer: drag the lamp across the floor, lift it with
+  the wheel, size it - the shadow and the lamp's light on the floor are redrawn as you go; Save bakes every side with it and keeps it in the spec.
+  **Your own lamp**: load a picture of it (a cut-out PNG at the prop's scale), click where its light comes from - it stands where you
+  drag it, in front of or behind the prop as it should, and its light comes from there. The shadow, the glow and the floor's light come
+  as pixel art (steps, dithered) or smooth (gradients, for a game in another style: `"light_style": "smooth"`). Below: a pixel floor lamp (`examples/lamps/floor_lamp/out-pixel/sprite.png`) in front, behind, and smooth.
+
+![the light editor at work: a pixel floor lamp dragged all the way round a rattan chair on a tiled floor - the chair's shadow swinging round to the side away from the lamp, longer and shorter, the lamp's light on the floor going with it, the lamp passing behind the chair and in front of it](docs/light-editor.gif)
+
+![a pixel-art floor lamp moved round the rattan chair in the light editor: in front of it on the right (the shadow falls back left), behind it on the left (the shadow falls forward right), and with the smooth look](docs/own-lamp.png)
+
+- **The wind in it, from its 3D model** (`"sway": "leaves"` in the spec, or `propshade.py PROP.json --sway leaves`; free): a crown is
+  boughs, not one sheet. Each leaf pixel takes the model's point it shows, the points are grouped by where they are in 3D - the near
+  boughs apart from those behind them - and every clump moves whole, a pixel at a time, far ones laid first; the trunk stands. No
+  warping, no hand-drawn frames. You get `sway-<side>.png` (12 frames x still air / breeze / gust - play a row as a loop),
+  `clumps-<side>.png` with each clump's place in 3D to move them yourself, and `preview-sway.gif`. The tree is in
+  [`examples/forest_tree`](examples/forest_tree); its leaves also let light through its shadow.
+
+![a pixel-art tree from two sides swaying in the wind - clumps of leaves moving a pixel at a time, the trunk still, a gust leaning the top - and the same clumps in colours, cut from its 3D model](docs/sway.gif)
+
+- **Where it is in the way, from the same model** (free, baked with the shadow): `solid-<side>.png` is where a walker cannot stand -
+  the prop's footprint, cut from the model near the ground (a trunk's foot, a table by its four legs) - and `"collide": {"cover": [0.55]}`
+  adds what stops a thing flying at that height: a trunk stops a fireball, the crown above it does not. Each comes with its place and
+  an outline for a collision polygon. And **a character darkens in its shade**: every shadow says how to read it for a point above the
+  ground, so her feet, middle and head each take what stands between them and the sun.
+- **Into your engine**: `export.py PROP/out-pixel` writes a Phaser 3 module and a Godot 4 scene - the shadow, a lamp's light, the wind,
+  the footprint as a collision polygon, and `shade()` / `cover()` to ask (opened and checked in Phaser 3.90 and Godot 4.7; Unity and
+  Aseprite are for characters only so far). A small thing sways too: mushrooms nod at the cap (`"sway": "caps"`,
+  [`examples/forest_mushrooms`](examples/forest_mushrooms)).
+
+![two pixel-art trees and three patches of mushrooms exported to Phaser, on grass: their baked shadows, the crowns swaying as a gust passes, the rain girl walking through and darkening in a tree's shade, balls flying knee-high - one stopped by a trunk, one passing under the crown - and at the end what the model says is in the way: red where a walker cannot stand, blue what stops a thing in the air](docs/prop-scene.gif)
 
 ### Skipping the drawing: the 3D renders as the frames
 
@@ -563,6 +653,13 @@ shadow, and walking characters cast their 3D body's own (above). Choose with `"s
 
 ![shadows from the blocks and from the drawing](docs/shadows.png)
 
+**A walking character's shadow is light as it falls** (since 0.20): the posed 3D body is pressed onto the ground along 16 directions across the sun's disc and 48
+across the sky, and what each hides is added up - the same sum as [a prop's baked shadow](#light-shadow-wind). So it is deep where
+the feet stand and under the body and pale at its far edge, and it changes with every frame's pose. The strips are shown at
+character.json's `shadow_alpha` (0.56); pixel sets get the shadow in five steps. `"shadow": "flat"` in the spec keeps the one hard shape of before.
+
+![the rain girl walking, running and jumping over her shadow - left, as it was: one hard shape at one strength; right, as light falls: deep under the feet, soft and pale at its edge](docs/character-shadow.png)
+
 ## Cameras
 
 | `camera` | looks down | for |
@@ -616,7 +713,7 @@ To do it yourself, the numbers are all in the JSON:
 
 **Walking characters.** `character.json` gives `frame` (`[w, h]` in px), `anchor` (between the feet, as a fraction of the frame)
 and `fps`. Each `walk-<facing>.png` is a strip of 8 frames side by side, and each `idle-<facing>.png` one frame. Shadow `i` of a
-facing, `shadows.walk[facing][i]`, is drawn at its `offset` from frame `i`'s top-left corner, at about 30 % under everything.
+facing, `shadows.walk[facing][i]`, is drawn at its `offset` from frame `i`'s top-left corner, under everything, at `shadow_alpha` (0.56: the shadow's darkness is in its own alpha - deep under the feet, pale at its far edge; 0.3 for a set made with `"shadow": "flat"`).
 There is no `px_per_m`: scale the frames to the height you want your character to stand. In Phaser, with `rain_girl`'s numbers:
 
 ```js

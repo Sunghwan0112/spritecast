@@ -398,7 +398,7 @@ def render(s, d, only=None):
     save = lambda url, p: Path(p).write_bytes(base64.b64decode(url.split(',', 1)[1]))
     with sync_playwright() as pw:
         br = BROWSER.launch(pw)
-        pg = br.new_page(); pg.route('http://spritecast.local/**', serve); pg.goto('http://spritecast.local/render_char.html')
+        pg = br.new_page(); pg.route('http://spritecast.local/**', serve); pg.goto('http://spritecast.local/render_char.html'); pg.evaluate('(f) => { window.shadowFlat = f }', s.get('shadow') == 'flat')          # ("shadow": "flat" - the one hard shape, as before 0.20)
         pg.wait_for_function('window.ready === true', timeout=30000); pg.evaluate('(r) => window.setRes(r)', CL.PX)
         if animal:
             info = pg.evaluate('([u, p, l]) => window.loadQuad(u, p, l)', ['http://spritecast.local/asset/rig.glb', s['pitch'], s['light']])
@@ -700,7 +700,7 @@ def loop_gif(s, d, names, dr, scale=0.42):
         def lay(p, shade=False):
             if not p.exists(): return None
             im = Image.open(p).convert('RGBA')
-            if shade: a_ = (np.asarray(im)[..., 3] > 128).astype(np.uint8) * 77; im = Image.fromarray(np.dstack([np.full(a_.shape + (3,), (40, 30, 24), np.uint8), a_]))
+            if shade: al_ = np.asarray(im)[..., 3]; a_ = np.round(CL.shadow_share(al_) * CL.SHADOW_DARK * 255).astype(np.uint8) if CL.is_graded(al_) else (al_ > 128).astype(np.uint8) * 77; im = Image.fromarray(np.dstack([np.full(a_.shape + (3,), (40, 30, 24), np.uint8), a_]))
             o = (S - im.width) // 2; c.alpha_composite(im, (o, o)); b = im.getchannel('A').getbbox(); return b and (b[0] + o, b[1] + o, b[2] + o, b[3] + o)
         bb = [lay(d / f'render/{nm}-{dr}-{k}-s.png', True), lay(d / f'frames/{nm}-{dr}-{k}.png')] + ([lay(d / f'render/{nm}-{dr}-{q}-t.png')] if q is not None else [])
         pics.append((c, ms)); boxes += [b for b in bb if b]
@@ -756,7 +756,7 @@ def sit_render(s, d):
     save = lambda url, p: Path(p).write_bytes(base64.b64decode(url.split(',', 1)[1]))
     seats, o = {}, s.get('sit') or {}
     with sync_playwright() as pw:
-        br = BROWSER.launch(pw); pg = br.new_page(); pg.route('http://spritecast.local/**', serve); pg.goto('http://spritecast.local/render_char.html')
+        br = BROWSER.launch(pw); pg = br.new_page(); pg.route('http://spritecast.local/**', serve); pg.goto('http://spritecast.local/render_char.html'); pg.evaluate('(f) => { window.shadowFlat = f }', s.get('shadow') == 'flat')          # ("shadow": "flat" - the one hard shape, as before 0.20)
         pg.wait_for_function('window.ready === true', timeout=30000); pg.evaluate('(r) => window.setRes(r)', CL.PX)
         pg.evaluate('([u, p, l]) => window.load(u, p, l)', ['http://spritecast.local/asset/rig.glb', s['pitch'], s['light']])
         for dr in DIRS:
@@ -1454,7 +1454,7 @@ def pack(s, d, report, out='out'):
     def shadow(src, name):
         """the frame's 3D shadow at the strips' scale → {file, offset}: its top-left from the frame's top-left, in frame px (it falls
         away from the light, often past the frame's edge)"""
-        if s['shadow'] != '3d' or not src.exists(): return None
+        if s['shadow'] not in ('3d', 'flat') or not src.exists(): return None
         sh, (x0, y0) = CL.shadow_3d(src)
         if sh is None: return None
         sh = sh.resize((max(1, round(sh.width * k)), max(1, round(sh.height * k))), Image.LANCZOS); sh.save(d / out / f'shadows/{name}.png', optimize=True)
@@ -1490,7 +1490,7 @@ def pack(s, d, report, out='out'):
             shs = []
             for i in range(len(ps)):
                 src = d / f'render/{name}-{dr}-{i}-s.png'
-                if s['shadow'] != '3d' or not src.exists(): break
+                if s['shadow'] not in ('3d', 'flat') or not src.exists(): break
                 shi, (x0, y0) = CL.shadow_3d(src)
                 if shi is None: break
                 shi = shi.resize((max(1, round(shi.width * k)), max(1, round(shi.height * k))), Image.LANCZOS); shi.save(d / out / f'shadows/{name}-{dr}-{i}.png', optimize=True)
@@ -1525,22 +1525,25 @@ def pack(s, d, report, out='out'):
                 sx, sy = seats[dr]['seat']; e['seat'] = [round((sx * S - sb[0]) / (sb[2] - sb[0]), 4), round((sy * S - sb[1]) / (sb[3] - sb[1]), 4)]
                 e['seat_height'] = seats[dr]['seatY']
             src = d / f'render/sit-{dr}-s.png'
-            if s['shadow'] == '3d' and src.exists():
+            if s['shadow'] in ('3d', 'flat') and src.exists():
                 shi, (x0, y0) = CL.shadow_3d(src)
                 if shi is not None:
+                    if CL.GRADED: shi.putalpha(shi.getchannel('A').point(lambda v: round(v * 0.3 / CL.SHADOW_ALPHA)))          # (seated: the one hard shape still - kept as dark as it was under the set's new "shadow_alpha")
                     shi = shi.resize((max(1, round(shi.width * k)), max(1, round(shi.height * k))), Image.LANCZOS); shi.save(d / out / f'shadows/sit-{dr}.png', optimize=True)
                     e['shadow'] = {'file': f'shadows/sit-{dr}.png', 'offset': [round((x0 - sb[0]) * k), round((y0 - sb[1]) * k)]}
             meta['sit'][dr] = e
+    # how dark to show the shadow strips: 0.56 for shadows as light falls (their alpha is the darkness against the deepest), 0.3 for the old hard shape
+    meta['shadow_alpha'] = CL.SHADOW_ALPHA if CL.GRADED else 0.3; meta['shadow_colour'] = [40, 30, 24]
     (d / out / 'character.json').write_text(json.dumps(meta, indent=1))
     print(f"finish: {d / out}  {len(meta['walk'])} walks, {len(meta['idle'])} standing, frame {fw}x{fh}, anchor {meta['anchor']}, "
           f"3D shadows for {len(meta['shadows']['walk'])} walks" + ('' if meta['shadows']['walk'] else ' (none: re-run `render` for the -s.png shadows)'))
 
 
 def with_shadow(d, frame, sh, pad, bg=(240, 236, 228, 255)):
-    """one frame over its shadow (at 30 %) on a backdrop the frame's size plus `pad` (left, top) - the shadow falls up and away"""
+    """one frame over its shadow (at the set's "shadow_alpha") on a backdrop the frame's size plus `pad` (left, top) - the shadow falls up and away"""
     pl, pt = pad; c = Image.new('RGBA', (frame.width + pl, frame.height + pt), bg)
     if sh:
-        a = Image.open(d / 'out' / sh['file']).getchannel('A').point(lambda v: v * 0.3)
+        k_ = json.loads((d / 'out/character.json').read_text()).get('shadow_alpha', 0.3); a = Image.open(d / 'out' / sh['file']).getchannel('A').point(lambda v: v * k_)
         c.paste(Image.new('RGBA', a.size, (40, 30, 24, 255)), (sh['offset'][0] + pl, sh['offset'][1] + pt), a)
     c.alpha_composite(frame, (pl, pt)); return c
 

@@ -61,6 +61,8 @@ exportado sigue caminando en las ocho direcciones: si pides el este, muestra la 
 | **[Pixel art](#pixel-art-tamaño-arcade)**, de unos 100 px de alto, con cosas que se sostienen y se lanzan | **[Animales de cuatro patas](#animales-de-cuatro-patas)**, sin comprar un rig |
 | ![la chica de la lluvia sentada en diez asientos distintos](docs/seats.png) | ![guía → sprite](docs/showcase.png) |
 | **[Sentarse](#sentarse)** en tus props, con el reposabrazos que queda delante de ella calculado en 3D | **[Props](#props-y-escenario)** a su tamaño real, todos en un mismo suelo |
+| ![una silla pavo real de ratán en pixel art bajo el sol, un día gris, una bombilla desnuda, una lámpara delante y detrás y una luz grande arriba, sobre un suelo de roble iluminado por cada una - cada sombra horneada desde su modelo 3D, el tejido dejando pasar la luz](docs/indoor-shadows.png) | ![un árbol en pixel art desde dos lados meciéndose con el viento - grupos de hojas moviéndose un píxel cada vez, el tronco quieto, una ráfaga inclinando la copa - y los mismos grupos en colores, sacados de su modelo 3D](docs/sway.gif) |
+| **[Sombras horneadas desde el modelo 3D](#light-shadow-wind)**: el sol, un día gris o una lámpara que colocas tú | **[Viento en las hojas](#light-shadow-wind)**, rama a rama, desde el mismo modelo |
 
 ## Cosas que puedes pedir
 
@@ -100,6 +102,41 @@ volver a dibujar, nunca se fuerza para que encaje. Los props funcionan igual, co
   que encaje: recibes un aviso, y Claude sugiere una corrección antes de volver a dibujar.
 - **La vista de tu juego y tu estilo.** Isométrico 2:1, isométrico real, cenital 3/4, frontal o cualquier ángulo; las cuatro orientaciones de un
   objeto; el estilo `cozy` incluido o una imagen tuya.
+- **Una luz que concuerda.** Cada guía se ilumina con el mismo sol, fijo a la pantalla, y el modelo de imagen dibuja encima de ese
+  render: las luces y sombras de un objeto salen de su forma 3D, igual en cada lado de cada objeto. Nada se sombrea a mano
+  ([en un juego](#hecho-con-spritecast-rain-girl)).
+
+## Hecho con SpriteCast: Rain Girl
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="docs/rain-girl-play.gif" alt="Rain Girl: una niña con impermeable amarillo entre árboles, rocas y arbustos en pixel art, con monstruos de fuego rojos, verdes y morados y suelo en llamas" width="100%"></a></p>
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><b>▶ Juégalo en el navegador</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl">el código del juego</a><br>Sin instalar nada y sin cuenta. Publica tu puntuación y sales en la clasificación de abajo.</p>
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl/main/leaderboard.svg" alt="La clasificación de Rain Girl: los diez mejores del mes y los tres mejores de siempre, redibujada cada media hora"></a></p>
+
+<p align="center"><i>우비소녀의 여행 · Rain Girl, un pequeño juego de acción en pixel art: una niña con impermeable amarillo apaga monstruos de
+fuego con el agua de su paraguas antes de que arda el bosque. La niña y todos los objetos salieron de SpriteCast.</i></p>
+
+- **La niña.** Una ilustración; un modelo de Tripo con esqueleto, renderizado con la cámara del juego (2:1, 30° hacia abajo): caminar
+  con el paraguas, el golpe y de pie, en las cuatro direcciones diagonales (`"facings": 4`), cada fotograma redibujado como pixel art de
+  96 px. El agua que lanza es el efecto del golpe, renderizado en 3D y dibujado igual; el bucle de pie es `idleclip.py`.
+- **El bosque.** Siete objetos - un árbol, un árbol medio quemado, un árbol quemado, un arbusto, un tocón quemado, una roca, setas -
+  cada uno un modelo de Tripo renderizado desde cuatro lados a la escala de la niña (74 px por metro: un árbol de 2,4 m mide unos
+  175 px) y dibujado como pixel art: 28 sprites. El juego muestra cada objeto desde un lado al azar; un árbol que arde pasa a medio
+  quemado y luego a quemado, desde el mismo lado.
+- **Una sola luz, ningún sombreado a mano.** Los 28 reciben la luz desde arriba a la derecha, como sus guías 3D. Abajo, cada lado de
+  cada objeto:
+
+![los 28 sprites sobre la hierba del juego: cuatro lados de un árbol, un árbol medio quemado, un árbol quemado, un arbusto, un tocón, una roca y setas, todos iluminados desde arriba a la derecha](docs/rain-girl-props.png)
+
+- **Una sola paleta.** Al final los objetos y la baldosa de hierba se pasaron a una paleta de 48 colores (desde 755): el verde de
+  un árbol y el de un arbusto son el mismo verde.
+- **El 3D sigue trabajando en el juego.** Las sombras en el suelo salen horneadas del modelo de cada objeto ([cómo](#light-shadow-wind)), y la niña se oscurece a la sombra de un
+  objeto: sus pies, su cintura y su cabeza, cada uno según lo que hay entre ellos y el sol. Dónde se rompe una bola de fuego contra una cobertura sale del propio modelo de cada objeto,
+  cortado a la altura de la bola (0,55 m), para el lado que se ve: un tronco la para, la copa de arriba no, una seta es demasiado baja.
+- **El viento también sale del modelo.** Las hojas se agrupan según dónde están en el modelo 3D y cada grupo se mueve entero, un
+  píxel cada vez: las copas se mecen rama a rama, con el viento de la ronda y más fuerte en una ráfaga ([cómo](#light-shadow-wind)).
+- **Lo que cuesta un objeto:** unos 20 créditos de Tripo por el modelo y unos $0,3 por dibujar sus cuatro lados.
 
 ## Personajes que caminan
 
@@ -385,8 +422,66 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # ~$0.08 a
 - **El recorte lo terminas tú.** El aire bajo un techo y entre radios lo limpia el recorte con IA; lo que deje, ábrelo en el
   mismo editor de píxeles que los personajes (`pixeledit.py cart.json`): los cuatro lados son cuatro fotogramas, el render 3D se puede mostrar al lado
   o debajo del sprite, y lo que borres se guarda. Al carrito de arriba se le terminaron así 122 píxeles.
-- Todavía no hay sombra en píxeles para los props. El carrito está en [`examples/ramen_cart`](examples/ramen_cart): la spec, el modelo de Tripo, las cuatro guías
+- El carrito está en [`examples/ramen_cart`](examples/ramen_cart): la spec, el modelo de Tripo, las cuatro guías
   y los cuatro sprites.
+
+<a name="light-shadow-wind"></a>
+### Luz, sombra y viento desde el modelo 3D
+
+El modelo que dio al objeto sus lados también sabe dónde se tapa la luz y dónde están sus ramas. Por eso su sombra, la luz de una
+lámpara en el suelo y el viento en sus hojas se calculan a partir de él: gratis, en tu ordenador y sin dibujar.
+
+- **Su sombra, horneada desde su modelo 3D** (gratis, unos segundos, sola): la luz del sol y la del cielo sobre el suelo, cada una
+  según lo que el objeto deja ver - oscura de cerca (bajo el carrito, alrededor del pie de un tronco) y más pálida donde cae desde
+  lo alto (la de una copa, con luz entre sus hojas), en cinco pasos de pixel art. El sol es la propia luz de la guía, así que el sombreado dibujado en el objeto
+  y la sombra en el suelo concuerdan. `--shadow overcast` (o `"shadow": "overcast"` en la spec) para un día gris: sin sol, solo la
+  penumbra suave alrededor. `out-pixel/shadow-<lado>.png` y dónde va en `pixel.json`; se dibuja debajo del sprite.
+
+![el carrito desde cuatro lados, cada uno con su sombra horneada desde el modelo 3D; abajo, la sombra de un árbol al sol (oscura junto al tronco, suave bajo la copa) y en un día gris (solo suave, alrededor)](docs/prop-shadows.png)
+
+- **En interiores, una lámpara donde la pongas.** `--lamp -1,2.4,-0.2 --lamp-size 0.03` (metros desde el pie del objeto: a la
+  derecha, hacia arriba, hacia quien mira; el tamaño de la propia lámpara) - la sombra cae lejos de ella, más larga cuanto más baja
+  cuelga, nítida con una bombilla desnuda y suave con una pantalla grande, y se desvanece con la luz sobre el suelo. También sale su luz
+  sobre el suelo: `light-<lado>.png`, más fuerte justo debajo, con la sombra del objeto recortada y los pasos tramados - se pone
+  sobre el suelo en modo suma (ADD). La lámpara misma sale como pixel art (`lamp.png`) y su sitio en cada lado
+  queda en `pixel.json`: un juego dibuja el suelo, su luz, la sombra, el objeto y la lámpara tal como los mostró el editor. Sin ella, el sol.
+  **Las partes que dejan pasar luz** (un tejido de mimbre, hojas, una red) en el modelo están pintadas, no caladas:
+  `"see_through": [{"colour": "#c8955a", "open": 0.35}]` deja pasar esa parte de la luz por lo que tiene ese color. Una silla
+  pavo real de ratán ([`examples/rattan_peacock_chair`](examples/rattan_peacock_chair)) bajo seis luces:
+
+![una silla pavo real de ratán en pixel art bajo el sol, un día gris, una bombilla desnuda, una lámpara delante y detrás y una luz grande arriba, sobre un suelo de roble iluminado por cada una - cada sombra horneada desde su modelo 3D, el tejido dejando pasar la luz](docs/indoor-shadows.png)
+
+- **Mueve la luz tú mismo**: `lightedit.py PROP.json` abre una página en tu ordenador: arrastra la lámpara por el suelo, súbela con
+  la rueda, cambia su tamaño - la sombra y la luz de la lámpara en el suelo se redibujan al momento; Guardar hornea todos los lados con ella y la deja en la spec.
+  **Tu propia lámpara**: carga su imagen (un PNG recortado a la escala del objeto), haz clic donde sale su luz - se queda donde la
+  arrastres, delante o detrás del objeto como corresponde, y su luz sale de ahí. La sombra, el brillo y la luz del suelo, en pixel art
+  (pasos, tramados) o suaves (degradados, para un juego en otro estilo: `"light_style": "smooth"`).
+
+![el editor de luz en marcha: una lámpara de pie en pixel art arrastrada dando toda la vuelta a una silla de ratán sobre un suelo de baldosas - la sombra de la silla gira hacia el lado opuesto a la lámpara, más larga y más corta, la luz de la lámpara en el suelo va con ella, y la lámpara pasa por detrás y por delante de la silla](docs/light-editor.gif)
+
+![una lámpara de pie en pixel art movida alrededor de la silla de ratán en el editor: delante a la derecha, detrás a la izquierda, y en suave](docs/own-lamp.png)
+
+- **El viento, también desde su modelo 3D** (`"sway": "leaves"` en la spec, o `propshade.py PROP.json --sway leaves`; gratis): una copa
+  son ramas, no una lámina. Cada píxel de hoja toma el punto del modelo que muestra, los puntos se agrupan por su lugar en 3D - las
+  ramas de delante aparte de las de detrás - y cada grupo se mueve entero, de píxel en píxel, los lejanos primero; el tronco no se
+  mueve. Sin deformar el dibujo ni dibujar fotogramas a mano. Sale `sway-<lado>.png` (12 fotogramas x calma / brisa / ráfaga: una
+  fila en bucle), `clumps-<lado>.png` con el lugar 3D de cada grupo para moverlos tú, y `preview-sway.gif`. El árbol está en
+  [`examples/forest_tree`](examples/forest_tree).
+
+![un árbol en pixel art desde dos lados meciéndose con el viento - grupos de hojas moviéndose un píxel cada vez, el tronco quieto, una ráfaga inclinando la copa - y los mismos grupos en colores, sacados de su modelo 3D](docs/sway.gif)
+
+- **Dónde estorba, desde el mismo modelo** (gratis, horneado con la sombra): `solid-<side>.png` es donde un personaje no puede pisar:
+  la huella del objeto, cortada del modelo cerca del suelo (el pie de un tronco, una mesa por sus cuatro patas). Con
+  `"collide": {"cover": [0.55]}` sale además lo que detiene algo que vuela a esa altura: un tronco para una bola de fuego, la copa de
+  arriba no. Cada una viene con su posición y un contorno para un polígono de colisión. Y **un personaje se oscurece a su sombra**:
+  cada sombra dice cómo leerla para un punto sobre el suelo, así que sus pies, su cintura y su cabeza toman cada uno lo que hay entre
+  ellos y el sol.
+- **A tu motor**: `export.py PROP/out-pixel` escribe un módulo de Phaser 3 y una escena de Godot 4: la sombra, la luz de una lámpara,
+  el viento, la huella como polígono de colisión y `shade()` / `cover()` para preguntar (abiertos y comprobados en Phaser 3.90 y
+  Godot 4.7; Unity y Aseprite, por ahora solo para personajes). Lo pequeño también se mece: las setas cabecean
+  (`"sway": "caps"`, [`examples/forest_mushrooms`](examples/forest_mushrooms)).
+
+![dos árboles en pixel art y tres grupos de setas exportados a Phaser, sobre la hierba: sus sombras horneadas, las copas meciéndose al pasar una ráfaga, la niña del impermeable caminando y oscureciéndose a la sombra de un árbol, bolas que vuelan a la altura de la rodilla (una detenida por un tronco, otra pasando bajo la copa) y, al final, lo que el modelo dice que estorba: rojo donde no se puede pisar, azul lo que detiene algo en el aire](docs/prop-scene.gif)
 
 ### Sin dibujo: los renders 3D como fotogramas
 
@@ -562,6 +657,13 @@ del lado opuesto a la luz, nunca delante. Las figuras en pose y las cosas `loose
 </details>
 
 ![sombras a partir de los bloques y a partir del dibujo](docs/shadows.png)
+
+**La sombra de un personaje que camina es la luz tal como cae** (desde 0.20): el cuerpo 3D en su pose se aplasta contra el suelo en 16 direcciones del disco
+del sol y 48 del cielo, y se suma lo que tapa cada una: la misma cuenta que [la sombra horneada de un objeto](#light-shadow-wind). Por eso es
+profunda donde pisan los pies y bajo el cuerpo y pálida en su borde lejano, y cambia con la pose de cada fotograma. Las tiras se muestran con el
+`shadow_alpha` de character.json (0,56); los sets en pixel art la reciben en cinco pasos. `"shadow": "flat"` en la spec conserva la forma dura de antes.
+
+![la niña del impermeable caminando, corriendo y saltando sobre su sombra: a la izquierda, como era, una forma dura de una sola intensidad; a la derecha, como cae la luz, profunda bajo los pies y suave y pálida en el borde](docs/character-shadow.png)
 
 ## Cámaras
 

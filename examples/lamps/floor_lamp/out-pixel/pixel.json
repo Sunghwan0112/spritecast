@@ -1,0 +1,42 @@
+{
+ "px_per_m": 54.0,
+ "views": {
+  "0": {
+   "file": "sprite.png",
+   "size": [
+    22,
+    73
+   ],
+   "anchor_px": [
+    10.9,
+    77.5
+   ],
+   "squares_px": [
+    25.27,
+    25.57
+   ],
+   "scaled": 1.47,
+   "ai_cut": true,
+   "paper_px": [
+    0,
+    0
+   ],
+   "in_frame": [
+    4,
+    4
+   ]
+  }
+ },
+ "frame": [
+  30,
+  81
+ ],
+ "animations": {
+  "views": 1
+ },
+ "origin": [
+  0,
+  0
+ ],
+ "review": {}
+}

@@ -3,6 +3,79 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.20.0 — 2026-11-18
+
+- **Rain Girl is playable**: the game made with SpriteCast runs in the browser, with a leaderboard - linked from the README
+  ([play](https://sunghwan0112.github.io/rain-girl/), [code](https://github.com/Sunghwan0112/rain-girl)).
+- **A character's shadow is light as it falls now**, like a prop's baked one: the posed 3D body is pressed onto the ground along 16
+  directions across the sun's disc and 48 across the sky, and what each hides is added up - so it is deep where the feet stand and
+  under the body, and pale out at its edge, not one hard shape at one strength. Frame by frame, free as before. character.json says how
+  dark to show the strips (`"shadow_alpha": 0.56`); the Godot, Phaser, Unity and Aseprite exports read it. Pixel sets get it in five
+  steps. **It changes how every new character's shadow looks, and the render takes longer** (64 passes a frame: ~9 minutes for a
+  character with three actions, where it took about one). `"shadow": "flat"` in the spec keeps the old one. Sets made before stay as
+  they are until rendered again; seated shadows are still the hard shape.
+- **A prop's 3D model now gives the game its rules too** (free, baked with the shadow). `solid-<side>.png`: where a walker cannot stand -
+  the prop's footprint, cut from the model below 0.4 m (a trunk's foot, a table by its four legs). `"collide": {"cover": [0.55]}`:
+  `cover-<h>-<side>.png`, what stops a thing flying at that height - a trunk does, the crown over it does not. Each with its place and
+  an outline for a collision polygon in pixel.json; `preview-collide.png` to look at. Made for Rain Girl, where fireballs break on
+  trunks and rocks.
+- **A character in a prop's shade**: every baked shadow now says how to read it for a point above the ground (`per_m_up`, `height_m`),
+  so her feet, middle and head each darken by what stands between them and the sun.
+- **Pixel props into an engine**: `export.py PROP/out-pixel` writes a Phaser 3 module and a Godot 4 scene with the shadow, a lamp's
+  light, the wind, the footprint as a collision polygon, and `shade` / `cover` to ask. Opened and checked in Phaser 3.90 and Godot 4.7.
+  Unity and Aseprite: characters only, as before.
+- **The wind in a small thing** (`"sway": "caps"`; chosen by itself under 700 moving pixels): mushrooms nod at the cap. Their parts are
+  read off the sprite - the model cannot part them at 20 px - and lifted as they move, so no second edge shows.
+  [`examples/forest_mushrooms`](examples/forest_mushrooms).
+- **The wind in a pixel prop, from its 3D model** (`"sway": "leaves"`, `propshade.py --sway leaves`; free): the crown's leaves are cut
+  into clumps from the model - each leaf pixel takes the model's point it shows, the points grouped by where they are in 3D, the near
+  boughs apart from those behind - and every clump moves whole, a pixel at a time, far ones laid first, the trunk still; a gust leans
+  the top clumps. No warp of the picture, no drawn frames. A moved clump takes its edge with it - the dark line round
+  the crown goes with the clump beside it, and the leaves a clump leaves behind are taken off at the crown's edge (kept inside it) -
+  so no second outline shows. `sway-<side>.png` (12 frames x still / breeze / gust), `clumps-<side>.png`
+  and each clump's place for a game that moves them itself, `preview-sway.gif`. Made for Rain Girl's forest, where a sheared and then
+  a rippled crown both looked wrong. `examples/forest_tree` shows it, with leaves that let light through its shadow. *(feedback)*
+- **A pixel prop's shadow, baked from its 3D model** (`propshade.py`; `proppixel.py` runs it itself, free, a few seconds a prop): the
+  light on the ground is the sun's part and the sky's, each as much as the thing leaves open - so the shadow is deep close by (under a
+  cart, round a trunk's foot) and paler where it falls from high up (a tree's crown, light coming through between its leaves), in
+  five steps of pixel art; the sun the size of the real one, so a bare branch's shadow comes out sharp. The sun is
+  the guide's own light, so the shade drawn on the prop and its shadow agree. `--shadow overcast` for a grey day (no sun: only the
+  soft dark round it), `none`. `shadow-<view>.png`, where it sits in `pixel.json`, `preview-shadow.png`. Made for a rainy forest game,
+  where a flat shadow of one strength looked pasted on. No new package: the model is read by the skill itself. *(feedback)*
+- **Indoors, a lamp where you put it** (`--lamp x,y,z --lamp-size r`, or `"lamp"` in the spec): the shadow falls away from it,
+  longer the lower it hangs, sharp from a bare bulb, soft from a big shade, fading with its light across the floor. Without it, the
+  sun. *(feedback)*
+- **See-through parts** (`"see_through": [{"colour", "open"}]`): a wicker weave or a crown of leaves is only painted on a model;
+  the parts of that colour now let that share of the light through. A rattan peacock chair (`examples/rattan_peacock_chair`, a Tripo
+  model, pixel art) shows it under six lights. *(feedback)*
+- **`lightedit.py`: move the light yourself** - a page on your computer with the prop on a floor: drag the lamp, lift it, size it,
+  and the shadow is redrawn as you go; Save bakes every side and keeps the light in the spec. propshade.py works it out once
+  (`prepare`) and then each shadow in ~0.15 s; `pixel.json` now says where each side's footprint middle is (`"foot"`), where a
+  lamp's place is measured from. *(feedback)*
+- **A lamp's light on the floor, baked too**: `light-<side>.png` - brightest right under the lamp, falling off as it really does
+  ((h/d)^3), the prop's shadow cut out of it, its steps dithered so no rings show; lay it on the floor with ADD. The light editor
+  shows the floor lit by it. *(feedback)*
+- **The lamp itself, for a game**: `lamp.png` (the light as pixel art: a core its size, a warm rim, a dithered glow) and where it
+  is in every side's pixels (`pixel.json`: `lamp`, each view's `lamp.at` / `lamp.spot`), so a game can draw the floor, its light,
+  the shadow, the prop and the lamp as the editor showed them. *(feedback)*
+- **Your own lamp in the light editor**: load a picture of it, click where its light comes from, and drag it round the prop - it
+  stands on the floor in front or behind as it should, its light from that point; saved in the spec and given to the game
+  (`lamp.png` is then yours, with its foot and light point). Mark its light or its foot with a click on it (a ring shows the light's
+  size, a red cross where it stands); scale it 0.25-3x - up by whole pixels, down by SpriteCast's pixel reducer - its height in
+  metres shown. Lamps loaded are named and kept (`~/.spritecast/lamps`, for every prop), each a button; "Save this
+  lamp's settings" keeps how it was set; "Bake & save the scene" and the page opens as it was saved. "Delete this lamp"
+  (two clicks). Any picture loads (PNG, JPG, WebP): a plain background is cut away, pixel art shown enlarged goes back to its
+  own pixels, one far too big or small starts at ~1.5 m. A pixel floor lamp to try (drawn by GPT from an iso block guide, `examples/lamps/floor_lamp.json`) is in `examples/lamps/floor_lamp/out-pixel/sprite.png`. *(feedback)*
+- **Pixel or smooth light**: `"light_style": "pixel"` (steps, dithered - the default) or `"smooth"` (gradients) for the glow and the
+  floor's light - and the shadow itself: five steps, or a gradient for a game not in pixel art (`--style smooth`); a switch in
+  the editor. *(feedback)*
+- **A weave is read with its model** (props with `see_through`): the palette had folded GPT's white paper into the rattan chair's
+  cream, so the white-speck rule found none - and the AI cut-out had cut into the cushion where it met the arm. Now each pale pixel
+  and each cut-out hole inside the thing asks the model what is there: the front surface, and what lies behind it. Pale where the
+  model is not white is paper: the floor shows (see-through) if nothing is behind, else the cushion or the far side of the weave, in
+  the sprite's own colour; a pale piece the model has white (the cushion) stays whole; a hole where the front is solid is filled. On
+  props without `see_through` nothing changes (the forest props came out pixel for pixel the same). *(feedback)*
+
 ## 0.19.1 — 2026-11-17
 
 - **A pixel prop's white specks are cleared by its render**, as a character's are: the AI cut-out took the gaps between a tree's leaves

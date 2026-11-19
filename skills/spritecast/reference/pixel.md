@@ -28,7 +28,8 @@ everything after the drawing (reading, sizing, cleaning, packing) is free to run
 - `<clip>-<facing>.png` - a strip, one frame after another, all the same size (`frame` in `pixel.json`), transparent around.
 - `shadows/<clip>-<facing>.png` - each frame's own shadow, from the 3D render (the body flat on the ground along the light), hard-edged,
   one colour. `pixel.json` says where its frame goes against the sprite's (`shadows.<name>.offset`), the colour and the strength
-  (30 %): the game lays it under the sprite at that alpha.
+  (30 %): the game lays it under the sprite at that alpha. Since 0.20 a set made anew has the shadow as light falls, in five steps
+  (10-56 %, each pixel's own alpha in the strip - lay it as it is): deep under the feet, pale at its far edge.
 - `preview.gif` - everything made, playing. Show this.
 - `pixel.json` - `figure_px` (the height it really came out at), `frame`, `colours`, `animations`, `shadows`, `release`.
 
@@ -306,7 +307,94 @@ PYTHON proppixel.py PROP.json --ppm 54       # pixels per metre
   (a stack of bowls) stays. What the cut-out keeps that it should not (it took the gaps between a tree's leaves for leaves) goes by the
   render, as a character's frames do: white where the render has nothing is made see-through; white where the render has the object
   in a dark colour is painted the colour beside it; white where the render is light too is a real light part and stays. `pixel.json`
-  says how many pixels each view had of the first two (`paper_px`). A tree came out clean with nothing done by hand. Never under 64 squares: a small prop is drawn 64 tall and made smaller. No pixel shadow yet: say so.
+  says how many pixels each view had of the first two (`paper_px`). A tree came out clean with nothing done by hand. Never under 64 squares: a small prop is drawn 64 tall and made smaller.
+- **Its shadow is baked from its 3D model** (`propshade.py`, free, a few seconds - `proppixel.py` runs it itself when the prop has a
+  model): the sun's light and the sky's on the ground, each as much as the thing leaves open - deep close by it (under a cart, round a
+  trunk's foot), paler where it falls from high up (a crown's, light coming through between its leaves), in five steps of alpha;
+  the sun as big as the real one, so a branch's shadow is sharp. The sun is the guide's own light (upper
+  right, or `"light": "left"`), so the shade drawn on the prop and the shadow agree. Out: `shadow-<view>.png` (the shadow colour, its
+  darkness in the alpha), each view's `"shadow": {"file", "at": [x, y]}` in `pixel.json` (the picture's top-left in the sprite's
+  pixels: draw it under the sprite), `preview-shadow.png` - **show it**. The weather: `--shadow overcast` / `"shadow": "overcast"` (a
+  grey day: no sun, only soft dark round it - a rainy scene), `none`, or again without drawing: `PYTHON propshade.py PROP.json
+  --weather overcast`. The model is laid on each sprite by its outline (`fit` in pixel.json: under ~0.75 the shadow may sit a little
+  off - say so). From blocks alone there is no shadow yet: say so.
+- **Indoors**: `--lamp x,y,z --lamp-size r` on `propshade.py` (or `"lamp": {"at": [x, y, z], "size": r}` in the spec) - metres from the
+  prop's foot, fixed to the screen like the sun (x right, y up, z towards the viewer); the size is the lamp's own: a bare bulb ~0.03
+  (sharp), a lampshade ~0.15-0.3, a ceiling panel ~0.4 (soft). The shadow falls away from it, longer the lower it is, and fades with
+  its light (1/d^2) across the floor; the room's other light is the sky's part. A lamp is fixed to the room, the prop is not: the
+  shadow is for the prop where it stands. Ask where the lamp is when the user says indoors; else the sun.
+- **A lamp's light on the floor comes too**: `light-<view>.png` (its colour warm, its strength in the alpha: brightest under the lamp,
+  (h/d)^3 - the 1/d^2 and the slant - the prop's shadow cut out of it, in 7 steps dithered where they meet) and each view's
+  `"light": {"file", "at", "blend": "add"}` in pixel.json: lay it on the floor with ADD (or screen), under the shadow and the sprite.
+- **The lamp itself, for the game**: `lamp.png` (the light as pixel art - a white core its size, a warm rim, a dithered glow) and in
+  pixel.json `"lamp": {"at_m", "size_m", "file", "middle", "colour"}` plus each view's `"lamp": {"at", "spot"}` - the light's middle
+  and its spot on the floor in that sprite's pixels. A game draws, all from the sprite's top-left:
+  ```js
+  const v = pj.views[side];                                   // pj = out-pixel/pixel.json
+  draw('light-' + side + '.png', x + v.light.at[0], y + v.light.at[1], 'add');   // the floor lit (ADD / 'lighter')
+  draw(v.shadow.file, x + v.shadow.at[0], y + v.shadow.at[1]);                 // the shadow
+  draw(v.file, x, y);                                                           // the prop
+  draw(pj.lamp.file, x + v.lamp.at[0] - pj.lamp.middle[0], y + v.lamp.at[1] - pj.lamp.middle[1]);   // the lamp
+  ```
+- **The wind in a prop** (`"sway": "leaves"` in the spec or `propshade.py PROP.json --sway leaves`; free, `proppixel.py` runs it
+  itself): the sprite's leaves (its green pixels; or `"sway": [{"colour": "#hex", "within": 60}]` for a flag, a curtain) are cut into
+  clumps from the 3D model - each moving pixel takes the model's point it shows, the points are grouped by where they are in 3D
+  (3-12 clumps by how much moves, the near ones apart from those behind) - and each clump moves whole, a pixel at a time, far ones
+  laid first; what stands, stands. A clump takes the crown's dark edge with it and leaves nothing behind at the edge (inside the crown
+  what it left stays: leaves behind leaves), so no second outline shows. Out, a side: `sway-<view>.png` (a sheet: 12 frames across, rows still / breeze / gust; each frame
+  4 px wider each side than the sprite and 1 px taller above it (`pad`, `top`: a part lifts a pixel) - draw it 4 px to the left and 1 up; play a row at ~4 fps, go down a row as the wind rises),
+  `clumps-<view>.png` (a pixel's clump, 1.. far to near, 0 still) with `"sway": {"at_m": [[across, up, towards], ...], ...}` in
+  pixel.json for a game that moves them itself, and `preview-sway.gif` - **show it**. Offer it for trees, bushes, plants. Not a warp
+  of the picture and not drawn frames: the picture's own pixels, moved by the model's boughs.
+- **A small thing in the wind** (`"sway": "caps"` for mushrooms; or any sway whose moving part is under 700 pixels; force either way with
+  `"sway": {"parts": "caps" | "leaves" | [{colour, within}], "by": "patches" | "model"}`): at 20 px across the model cannot tell one cap's
+  pixels from the next, so the parts are read off the sprite - each patch of the moving colour a part, two that touch told apart by their
+  middles, the dark line round a part going with it. A smooth cap left under its moved self would show as a second edge, so the parts are
+  lifted first (`"lift": true` in pixel.json): what a cap leaves bare is the stem under it carried up, or nothing. 2 frames a second.
+- **Where it is in the way** (free, with the shadow; `"collide": false` to leave out): `solid-<view>.png` - what stops a walker: the prop
+  below 0.4 m (`"collide": {"walk": 0.4}`) pressed onto the ground and what lies between (four legs: the table; a trunk's foot, not the
+  boughs that hang low); and for `"collide": {"cover": [0.55, ...]}` (or `propshade.py --cover 0.55`) `cover-<h>-<view>.png` - the model
+  0.1 m each way of that height, pressed down: what stops an arrow, a ball, a fireball flying that high (a trunk; not the crown above;
+  a mushroom is too low and has none). White = blocked. In pixel.json each view's `"solid"` / `"cover"`: `file`, `at` (its top-left in
+  the sprite's pixels), `hull` (its outline, up to 10 points, for a collision polygon). Both lie ON THE GROUND: test a flying thing at
+  the ground point under it. Look at `preview-collide.png` (red: a walker; blue: in the air) and **show it**.
+- **A character in its shade**: each view's `"shadow"` has `height_m` (the prop's) and, in sun, `per_m_up` [dx, dy]. A point of her
+  h metres up, standing at ground pixel (x, y), is shaded by the shadow's alpha at (x, y) + h x per_m_up - only if h < height_m (a rock
+  shades her feet, not her head). Feet (~0.05 m), middle (~0.6) and head (~1.1) each ask; darken that part by about 0.95 x the alpha
+  (in Phaser a four-corner tint: top = head and middle, bottom = middle and feet). Several props: the light left is what each leaves
+  in turn. A grey day: `per_m_up` is [0, 0]; a lamp: not given (its shade is not a shift).
+- **Into an engine**: `export.py PROP/out-pixel` (free; it hands a prop on to `propexport.py`) -> `export/phaser/<name>.js`
+  (`preload(scene, base)`, `add(scene, x, y, side)` -> the prop at its FOOT: light with ADD, shadow, body playing the wind; `.wind(0|1|2)`,
+  `.solid(x, y)`, `.cover(x, y, h)`, `.shade(x, y, h)`; `shadeOf(props, x, y, h)`) and `export/godot/<name>.tscn` + `.gd` (a Node2D at the
+  foot: Light, Shadow, Body - an AnimatedSprite2D when it sways - and Solid, a StaticBody2D with the footprint's polygon; `side`, `wind`;
+  `solid_at()`, `cover_at()`, `shade_at()`), both with `<name>.prop.json`: every layer's place from the foot. Checked by opening them:
+  Phaser 3.90 and Godot 4.7. **Unity and Aseprite are not written for props yet** (characters have them).
+- **A character in a prop's shade** (the game's part, from the shadow pictures): for a point of the character h m up, read the prop's
+  shadow on the floor where the line from it away from the sun comes down - from its feet, (-0.42 h, -0.39 h) x px_per_m on screen
+  for SpriteCast's sun - counting only props taller than h (a rock shades the feet, not the head), and darken the character there.
+  Rain Girl reads feet, middle and head (0.05, 0.6, 1.1 m) and tints her top and bottom in steps (`shadeOn` in its game.js).
+- **Moving the light by hand**: `PYTHON lightedit.py PROP.json` (free) opens a page on 127.0.0.1: drag on the floor to move the lamp,
+  the wheel for its height, a slider for its size, or the sun / a grey day; the shadow is redrawn as it moves (a quick bake, ~0.15 s).
+  Save bakes every side properly into out-pixel/ and writes the light into the spec (`"lamp"` or `"shadow"`), so proppixel.py keeps
+  it. Offer it to a user placing a prop in a lit room, or who is not sure where the light should be.
+  **Their own lamp**: "Your lamp..." loads a picture of it (a cut-out PNG at the prop's scale); its foot is found (the middle of its
+  lowest row), its light point guessed (as high as its brightest warm pixels) and set by a click on it; it stands where it is dragged,
+  drawn in front of or behind the prop by where it stands, its light's height from the picture. Saved as `"lamp": {"at", "size",
+  "picture": {"file", "foot", "light"}}`; `lamp.png` is then their picture and pixel.json's `lamp` has its `foot` and `light` (draw
+  it with its foot on the side's `lamp.spot`). A click on the lamp sets its light point or its foot (a switch); a red cross shows where it
+  stands, a yellow ring the light's size. **Scale**: 0.25-3x from the picture as loaded (kept as `lamp-source.png`) - bigger by whole
+  pixels (nearest), smaller by pixelsmall's reducer (outlines kept) - with its height in metres at the prop's scale shown, to match.
+  **Their lamps**: a picture loaded is named and kept in `~/.spritecast/lamps/<name>/` (for every prop), a button of its own beside
+  SpriteCast's (`examples/lamps/`); "Save this lamp's settings" keeps its scale, foot, light point and light size with it
+  (`lamp.json`) - one of SpriteCast's saved so becomes theirs. "Bake & save the scene" bakes and writes the spec; the page opens as saved.
+  "Delete this lamp" (two clicks) takes one of theirs out of their lamps, or puts one of SpriteCast's back as it came. A picture
+  loaded may be any kind (PNG, JPG, WebP): without see-through its background - the colour round its edge - is cut away; pixel art
+  shown enlarged (every pixel an N x N block) is taken back to its own pixels first; one far too big or small starts at ~1.5 m. **The look**: `"light_style": "pixel"` (the glow and the floor's light in steps,
+  dithered - the default) or `"smooth"` (gradients), a switch on the page - the shadow too: in five steps, or a gradient for a
+  game not drawn in pixel art (`propshade.py --style smooth`). A pixel floor lamp to try: `examples/lamps/floor_lamp/out-pixel/sprite.png`.
+- **See-through parts**: a model from a description is solid where a weave, leaves or a net would let light through (it is painted on).
+  `"see_through": [{"colour": "#c8955a", "open": 0.35, "within": 90}]` - the parts painted near that colour pass that share of the
+  light; the rest stays solid. Offer it for wicker, a tree's crown, a lace curtain, a fence.
 - **By hand**: `PYTHON pixeledit.py PROP.json` opens the same page as for a character - the views are the frames of one strip,
   "views" - for the user to finish a cut-out (magic erase) or fix a pixel. Kept in `<prop>/pixel-touch.json`, laid on again by every run of
   `proppixel.py`; a view drawn anew has its edits set aside. Offer it; a user who wants the cut-out their own way asks for exactly this.

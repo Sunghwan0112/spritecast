@@ -8,7 +8,7 @@ Free: nothing is drawn, the strips are read and laid out again.
   godot/     a folder to drop anywhere in a Godot 4 project: <name>.tscn (a Node2D at the feet, with Shadow and Body), its two
              SpriteFrames, <name>.gd (`play("walk", "south-east")`), and the strips. Animations are named `walk_south_east`.
   phaser/    <name>.js, an ES module for Phaser 3 (`preload(scene, base)`, `create(scene)`, `add(scene, x, y)`), and the strips.
-  aseprite/  <name>-<action>.aseprite, one per action (their frames differ in size): a tag per facing, the layers `shadow` (30 %),
+  aseprite/  <name>-<action>.aseprite, one per action (their frames differ in size): a tag per facing, the layers `shadow` (at the set's "shadow_alpha"),
              `body` and `effect`, the frame times from the fps, and a slice `feet` whose pivot is the point between the feet.
   unity/     copy its contents into Assets/: <name>/ (strips, <name>.spritecast.json) and SpriteCast/Editor/SpriteCastImporter.cs,
              which builds <name>.prefab (Animator > Shadow, Body), the controller and a clip per animation (`walk_south_east`);
@@ -19,7 +19,10 @@ A set drawn in four facings ("facings": 4 - the diagonals) still takes all eight
 
 What character.json keeps apart is put together here: every animation's shadows become one strip of equal cells with ONE offset,
 so an engine shows shadow frame i under body frame i and never reads a table. A swing's effect ("trail": water, flame, leaves ...)
-goes along as a third sprite over the body, played at its own pace (it may have two cells to each body frame)."""
+goes along as a third sprite over the body, played at its own pace (it may have two cells to each body frame).
+
+A pixel PROP (<name>/out-pixel, with pixel.json) is handed on to propexport.py: Godot and Phaser, with its baked shadow, a lamp's light,
+the wind in it, where it is in the way and how to shade a character in its shadow."""
 import argparse, json, re, shutil, struct, sys, zlib
 from pathlib import Path
 from PIL import Image
@@ -34,6 +37,7 @@ def load(out):
     out = Path(out); f = out / 'character.json'
     if not f.exists(): sys.exit(f'{f} not found: give the folder `finish` wrote (<name>/out). A pixel set (pixel.json) is not read yet.')
     d = json.loads(f.read_text()); an = []
+    global SHADOW_ALPHA; SHADOW_ALPHA = d.get('shadow_alpha', 0.3)          # (0.56 for shadows as light falls - since 0.20; 0.3 for the old hard shape)
     def add(action, facing, file, cell, anchor, fps, loop, sh, fx=None):
         p = out / file
         if not p.exists(): return
@@ -391,7 +395,10 @@ if __name__ == '__main__':
     ap.add_argument('--only', default=','.join(MAKERS), help='which, comma-separated: ' + ', '.join(MAKERS))
     ap.add_argument('--name', help="the character's name in file and node names (default: the folder's name)")
     g = ap.parse_args()
-    out = Path(g.out).resolve(); an = load(out)
+    out = Path(g.out).resolve()
+    if (out / 'pixel.json').exists() and not (out / 'character.json').exists() and 'views' in json.loads((out / 'pixel.json').read_text()):          # (a pixel prop: its own exporter)
+        import propexport; propexport.run(out, g.to, g.only if g.only != ','.join(MAKERS) else None, g.name); sys.exit()
+    an = load(out)
     name = ident(g.name or (out.parent.name if out.name == 'out' else out.name))
     to = Path(g.to).resolve() if g.to else out / 'export'
     for k in g.only.split(','):
@@ -399,4 +406,4 @@ if __name__ == '__main__':
         MAKERS[k](an, to / k, name)
     acts = list(dict.fromkeys(a['action'] for a in an))
     print(f'{name}: {len(an)} animations ({", ".join(acts)}) -> {to}/{{{g.only}}}')
-    print('free: nothing was drawn. The shadows are strips now, one offset an animation; show them at 30 % under everything.')
+    print(f'free: nothing was drawn. The shadows are strips now, one offset an animation; show them at {SHADOW_ALPHA:.0%} under everything.')

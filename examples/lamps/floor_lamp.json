@@ -1,0 +1,11 @@
+{
+  "name": "floor_lamp",
+  "footprint": [0.42, 0.42],
+  "description": "a floor lamp, switched on: a round frosted-glass globe shade glowing warm from the bulb inside (brightest at its middle), on a slim brass pole, standing on a round dark marble foot",
+  "camera": "iso-2:1",
+  "blocks": [
+    {"box": [0.05, 0.37, 0.05, 0.37, 0.0, 0.05], "color": "#4a4440", "shape": "sphere"},
+    {"box": [0.19, 0.23, 0.19, 0.23, 0.04, 1.16], "axis": "h", "color": "#c89a4a"},
+    {"box": [0.01, 0.41, 0.01, 0.41, 1.12, 1.46], "color": "#f2e4c4", "shape": "sphere"}
+  ]
+}

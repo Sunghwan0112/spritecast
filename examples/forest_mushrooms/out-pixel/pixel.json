@@ -1,0 +1,552 @@
+{
+ "px_per_m": 74.0,
+ "views": {
+  "0": {
+   "file": "sprite-0.png",
+   "size": [
+    20,
+    28
+   ],
+   "anchor_px": [
+    12.6,
+    31.8
+   ],
+   "squares_px": [
+    14.09,
+    14.19
+   ],
+   "scaled": 0.76,
+   "ai_cut": true,
+   "paper_px": [
+    0,
+    0
+   ],
+   "made_smaller": 0.44,
+   "in_frame": [
+    7,
+    5
+   ],
+   "shadow": {
+    "file": "shadow-0.png",
+    "at": [
+     -10,
+     10
+    ],
+    "foot": [
+     10.8,
+     23.8
+    ],
+    "fit": 0.96,
+    "height_m": 0.35,
+    "per_m_up": [
+     -31.08,
+     -28.86
+    ]
+   },
+   "sway": {
+    "clumps": "clumps-0.png",
+    "at_m": [
+     [
+      -0.01,
+      0.29,
+      0
+     ],
+     [
+      0.05,
+      0.13,
+      0
+     ]
+    ],
+    "sheet": "sway-0.png",
+    "frame": [
+     28,
+     29
+    ],
+    "frames": 12,
+    "rows": [
+     "still",
+     "breeze",
+     "gust"
+    ],
+    "pad": 4,
+    "top": 1,
+    "fps": 2,
+    "lift": true
+   },
+   "solid": {
+    "file": "solid-0.png",
+    "at": [
+     0,
+     17
+    ],
+    "size": [
+     22,
+     15
+    ],
+    "hull": [
+     [
+      19.0,
+      32.0
+     ],
+     [
+      11.0,
+      32.0
+     ],
+     [
+      4.0,
+      30.0
+     ],
+     [
+      0.0,
+      27.0
+     ],
+     [
+      0.0,
+      22.0
+     ],
+     [
+      6.0,
+      17.0
+     ],
+     [
+      14.0,
+      17.0
+     ],
+     [
+      18.0,
+      19.0
+     ],
+     [
+      22.0,
+      22.0
+     ],
+     [
+      22.0,
+      29.0
+     ]
+    ],
+    "below_m": 0.4
+   }
+  },
+  "90": {
+   "file": "sprite-90.png",
+   "size": [
+    25,
+    28
+   ],
+   "anchor_px": [
+    11.5,
+    31.5
+   ],
+   "squares_px": [
+    11.59,
+    11.29
+   ],
+   "scaled": 0.86,
+   "ai_cut": true,
+   "paper_px": [
+    0,
+    0
+   ],
+   "made_smaller": 0.44,
+   "in_frame": [
+    4,
+    5
+   ],
+   "shadow": {
+    "file": "shadow-90.png",
+    "at": [
+     -7,
+     10
+    ],
+    "foot": [
+     13.1,
+     23.6
+    ],
+    "fit": 0.96,
+    "height_m": 0.35,
+    "per_m_up": [
+     -31.08,
+     -28.86
+    ]
+   },
+   "sway": {
+    "clumps": "clumps-90.png",
+    "at_m": [
+     [
+      0.02,
+      0.27,
+      0
+     ],
+     [
+      -0.1,
+      0.19,
+      0
+     ]
+    ],
+    "sheet": "sway-90.png",
+    "frame": [
+     33,
+     29
+    ],
+    "frames": 12,
+    "rows": [
+     "still",
+     "breeze",
+     "gust"
+    ],
+    "pad": 4,
+    "top": 1,
+    "fps": 2,
+    "lift": true
+   },
+   "solid": {
+    "file": "solid-90.png",
+    "at": [
+     0,
+     19
+    ],
+    "size": [
+     27,
+     12
+    ],
+    "hull": [
+     [
+      9.0,
+      31.0
+     ],
+     [
+      2.0,
+      29.0
+     ],
+     [
+      0.0,
+      24.0
+     ],
+     [
+      2.0,
+      22.0
+     ],
+     [
+      9.0,
+      19.0
+     ],
+     [
+      23.0,
+      19.0
+     ],
+     [
+      27.0,
+      21.0
+     ],
+     [
+      27.0,
+      25.0
+     ],
+     [
+      23.0,
+      29.0
+     ],
+     [
+      18.0,
+      31.0
+     ]
+    ],
+    "below_m": 0.4
+   }
+  },
+  "180": {
+   "file": "sprite-180.png",
+   "size": [
+    21,
+    29
+   ],
+   "anchor_px": [
+    11.4,
+    31.6
+   ],
+   "squares_px": [
+    15.13,
+    15.73
+   ],
+   "scaled": 0.82,
+   "ai_cut": true,
+   "paper_px": [
+    0,
+    0
+   ],
+   "made_smaller": 0.45,
+   "in_frame": [
+    6,
+    4
+   ],
+   "shadow": {
+    "file": "shadow-180.png",
+    "at": [
+     -9,
+     9
+    ],
+    "foot": [
+     9.7,
+     23.5
+    ],
+    "fit": 0.91,
+    "height_m": 0.35,
+    "per_m_up": [
+     -31.08,
+     -28.86
+    ]
+   },
+   "sway": {
+    "clumps": "clumps-180.png",
+    "at_m": [
+     [
+      -0.01,
+      0.3,
+      0
+     ],
+     [
+      0.01,
+      0.15,
+      0
+     ]
+    ],
+    "sheet": "sway-180.png",
+    "frame": [
+     29,
+     30
+    ],
+    "frames": 12,
+    "rows": [
+     "still",
+     "breeze",
+     "gust"
+    ],
+    "pad": 4,
+    "top": 1,
+    "fps": 2,
+    "lift": true
+   },
+   "solid": {
+    "file": "solid-180.png",
+    "at": [
+     0,
+     17
+    ],
+    "size": [
+     23,
+     15
+    ],
+    "hull": [
+     [
+      18.0,
+      32.0
+     ],
+     [
+      7.0,
+      32.0
+     ],
+     [
+      2.0,
+      29.0
+     ],
+     [
+      0.0,
+      26.0
+     ],
+     [
+      1.0,
+      19.0
+     ],
+     [
+      4.0,
+      17.0
+     ],
+     [
+      11.0,
+      17.0
+     ],
+     [
+      20.0,
+      20.0
+     ],
+     [
+      23.0,
+      23.0
+     ],
+     [
+      22.0,
+      28.0
+     ]
+    ],
+    "below_m": 0.4
+   }
+  },
+  "270": {
+   "file": "sprite-270.png",
+   "size": [
+    26,
+    28
+   ],
+   "anchor_px": [
+    10.5,
+    31.7
+   ],
+   "squares_px": [
+    12.81,
+    12.76
+   ],
+   "scaled": 0.97,
+   "ai_cut": true,
+   "paper_px": [
+    0,
+    0
+   ],
+   "made_smaller": 0.44,
+   "in_frame": [
+    4,
+    5
+   ],
+   "shadow": {
+    "file": "shadow-270.png",
+    "at": [
+     -7,
+     10
+    ],
+    "foot": [
+     12.4,
+     23.9
+    ],
+    "fit": 0.96,
+    "height_m": 0.35,
+    "per_m_up": [
+     -31.08,
+     -28.86
+    ]
+   },
+   "sway": {
+    "clumps": "clumps-270.png",
+    "at_m": [
+     [
+      0.01,
+      0.27,
+      0
+     ],
+     [
+      -0.11,
+      0.15,
+      0
+     ]
+    ],
+    "sheet": "sway-270.png",
+    "frame": [
+     34,
+     29
+    ],
+    "frames": 12,
+    "rows": [
+     "still",
+     "breeze",
+     "gust"
+    ],
+    "pad": 4,
+    "top": 1,
+    "fps": 2,
+    "lift": true
+   },
+   "solid": {
+    "file": "solid-270.png",
+    "at": [
+     0,
+     19
+    ],
+    "size": [
+     28,
+     11
+    ],
+    "hull": [
+     [
+      0.0,
+      25.0
+     ],
+     [
+      5.0,
+      20.0
+     ],
+     [
+      7.0,
+      19.0
+     ],
+     [
+      20.0,
+      19.0
+     ],
+     [
+      27.0,
+      21.0
+     ],
+     [
+      28.0,
+      26.0
+     ],
+     [
+      25.0,
+      28.0
+     ],
+     [
+      20.0,
+      30.0
+     ],
+     [
+      2.0,
+      30.0
+     ],
+     [
+      0.0,
+      28.0
+     ]
+    ],
+    "below_m": 0.4
+   }
+  }
+ },
+ "frame": [
+  34,
+  37
+ ],
+ "animations": {
+  "views": 4
+ },
+ "origin": [
+  0,
+  0
+ ],
+ "review": {},
+ "shadow": {
+  "weather": "sun",
+  "style": "pixel",
+  "colour": [
+   40,
+   30,
+   24
+  ],
+  "steps": [
+   0.1,
+   0.2,
+   0.31,
+   0.43,
+   0.56
+  ],
+  "on_a_character": "a point of her h metres up, standing at ground pixel (x, y): read this shadow's alpha at (x, y) + h x per_m_up - only if h < height_m (a rock shades her feet, not her head) - and darken that part of her by it. Feet, middle and head each read their own"
+ },
+ "sway": {
+  "what": "caps",
+  "beat": 12,
+  "note": "play a row of sway-<side>.png as a loop (~4 frames a second); the row by the wind (still, breeze, gust; mirror the lean for wind from the right by using lean -1, -2 with clumps-<side>.png). Each frame is `pad` px wider each side than the sprite and `top` px taller above it: draw it `pad` px to the left and `top` px up"
+ },
+ "collide": {
+  "walk_m": 0.4,
+  "cover_m": [],
+  "note": "solid-<side>.png: where a walker cannot stand (where the prop stands: what it has below walk_m, on the ground, and what lies between); cover-<h>-<side>.png: where a thing flying h metres up is stopped. White = blocked; `at` is the mask's top-left in the sprite's pixels, `hull` its outline for a collision polygon. A thing in the air at height h over ground pixel (x, y) is tested at (x, y) itself: the masks are on the ground"
+ }
+}

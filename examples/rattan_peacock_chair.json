@@ -1,0 +1,89 @@
+{
+  "name": "rattan_peacock_chair",
+  "footprint": [
+    0.9,
+    0.85
+  ],
+  "facing": "its seat faces down-left, toward the viewer",
+  "description": "a bohemian rattan peacock chair: a tall fan-shaped back of open woven wicker - a lattice of thin rattan strands with many small diamond-shaped gaps you can see through - curving round into low arms, a round seat with a cream linen cushion, standing on an open woven hourglass-shaped wicker base; natural honey-coloured rattan",
+  "camera": "iso-2:1",
+  "views": [
+    0,
+    90,
+    180,
+    270
+  ],
+  "model": {
+    "glb": "rattan_peacock_chair/tripo.glb",
+    "size": [
+      0.9,
+      0.85,
+      1.55
+    ],
+    "yaw": 180
+  },
+  "blocks_draft": [
+    {
+      "box": [
+        0.27,
+        0.63,
+        0.25,
+        0.61,
+        0.0,
+        0.4
+      ],
+      "axis": "h",
+      "color": "#c8955a"
+    },
+    {
+      "box": [
+        0.12,
+        0.78,
+        0.18,
+        0.84,
+        0.4,
+        0.5
+      ],
+      "color": "#efe3cc"
+    },
+    {
+      "box": [
+        0.0,
+        0.9,
+        0.02,
+        0.2,
+        0.45,
+        1.55
+      ],
+      "color": "#c8955a"
+    },
+    {
+      "box": [
+        0.0,
+        0.12,
+        0.12,
+        0.7,
+        0.45,
+        0.68
+      ],
+      "color": "#c8955a"
+    },
+    {
+      "box": [
+        0.78,
+        0.9,
+        0.12,
+        0.7,
+        0.45,
+        0.68
+      ],
+      "color": "#c8955a"
+    }
+  ],
+  "see_through": [
+    {
+      "colour": "#c8955a",
+      "open": 0.35
+    }
+  ]
+}

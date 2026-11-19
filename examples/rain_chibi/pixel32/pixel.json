@@ -28,8 +28,8 @@
   "walk-south": {
    "file": "shadows/walk-south.png",
    "frame": [
-    25,
-    22
+    29,
+    24
    ],
    "offset": [
     -6,
@@ -39,74 +39,74 @@
   "walk-south-east": {
    "file": "shadows/walk-south-east.png",
    "frame": [
-    31,
-    22
+    34,
+    24
    ],
    "offset": [
     -8,
-    18
+    17
    ]
   },
   "walk-east": {
    "file": "shadows/walk-east.png",
    "frame": [
-    32,
-    19
+    34,
+    22
    ],
    "offset": [
-    -8,
-    19
+    -9,
+    18
    ]
   },
   "walk-north-east": {
    "file": "shadows/walk-north-east.png",
    "frame": [
-    31,
-    18
+    34,
+    21
    ],
    "offset": [
-    -8,
-    20
+    -9,
+    19
    ]
   },
   "walk-north": {
    "file": "shadows/walk-north.png",
    "frame": [
-    25,
-    18
+    29,
+    21
    ],
    "offset": [
-    -7,
-    20
+    -8,
+    19
    ]
   },
   "walk-north-west": {
    "file": "shadows/walk-north-west.png",
    "frame": [
-    24,
-    18
+    28,
+    21
    ],
    "offset": [
-    -5,
-    20
+    -6,
+    19
    ]
   },
   "walk-west": {
    "file": "shadows/walk-west.png",
    "frame": [
-    24,
-    19
+    28,
+    22
    ],
    "offset": [
     -4,
-    19
+    18
    ]
   },
   "walk-south-west": {
    "file": "shadows/walk-south-west.png",
    "frame": [
-    26,
-    22
+    28,
+    24
    ],
    "offset": [
     -4,
@@ -116,88 +116,88 @@
   "throw-south": {
    "file": "shadows/throw-south.png",
    "frame": [
-    30,
-    21
+    33,
+    23
    ],
    "offset": [
-    -8,
-    18
+    -9,
+    17
    ]
   },
   "throw-south-east": {
    "file": "shadows/throw-south-east.png",
    "frame": [
+    34,
+    24
+   ],
+   "offset": [
+    -10,
+    16
+   ]
+  },
+  "throw-east": {
+   "file": "shadows/throw-east.png",
+   "frame": [
     32,
-    21
+    24
+   ],
+   "offset": [
+    -8,
+    16
+   ]
+  },
+  "throw-north-east": {
+   "file": "shadows/throw-north-east.png",
+   "frame": [
+    32,
+    23
    ],
    "offset": [
     -10,
     17
    ]
   },
-  "throw-east": {
-   "file": "shadows/throw-east.png",
+  "throw-north": {
+   "file": "shadows/throw-north.png",
    "frame": [
-    29,
+    33,
     22
    ],
    "offset": [
-    -8,
-    17
+    -10,
+    18
    ]
   },
-  "throw-north-east": {
-   "file": "shadows/throw-north-east.png",
+  "throw-north-west": {
+   "file": "shadows/throw-north-west.png",
    "frame": [
-    30,
-    20
+    33,
+    22
    ],
    "offset": [
     -9,
     18
    ]
   },
-  "throw-north": {
-   "file": "shadows/throw-north.png",
-   "frame": [
-    31,
-    18
-   ],
-   "offset": [
-    -10,
-    19
-   ]
-  },
-  "throw-north-west": {
-   "file": "shadows/throw-north-west.png",
-   "frame": [
-    28,
-    18
-   ],
-   "offset": [
-    -8,
-    20
-   ]
-  },
   "throw-west": {
    "file": "shadows/throw-west.png",
    "frame": [
-    25,
-    21
+    30,
+    23
    ],
    "offset": [
-    -7,
-    18
+    -8,
+    17
    ]
   },
   "throw-south-west": {
    "file": "shadows/throw-south-west.png",
    "frame": [
-    25,
-    22
+    30,
+    24
    ],
    "offset": [
-    -6,
+    -7,
     18
    ]
   }

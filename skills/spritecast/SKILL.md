@@ -101,7 +101,7 @@ Then, asking for each paid round:
    other's flipped; south and north, which have no pair, get their low frames drawn one at a time (~$0.11 each, once each).
 A low score is not always a bad drawing: lay the render's outline over the frame and look. For an animal the size is matched by overlap
 per sheet (its height is mostly the tail), so a low score there is the drawing itself - a head turned another way, legs bunched.
-Then tell the user the shadows are per frame (`out/shadows/`, draw them at ~30 % under the sprites). Matching outfits (`facecheck`),
+Then tell the user the shadows are per frame (`out/shadows/`, draw them under the sprites at character.json's `shadow_alpha`: 0.56 - since 0.20 a shadow is light as it falls, deep under the feet and pale at its far edge; `"shadow": "flat"` in the spec for the old one hard shape at 0.3; the render takes longer for it, ~9 min a character with three actions). Matching outfits (`facecheck`),
 the anchor on the soles, and what to do when the cut-out stops for want of onnxruntime: [reference/character.md](reference/character.md#notes).
 
 ## More actions: run, jump, a slash with something held (people)
@@ -186,7 +186,21 @@ in a public repository: its animations may be used, not handed on. **Standing st
 **A prop as pixel art** (`PYTHON proppixel.py PROP.json`, reference/pixel.md "Props as pixel art"): the prop's guide pixelized and redrawn the same way, at the
 pixel character's pixels per metre (`--ppm` = its `figure_px` / its `height_m`) so they stand on one floor. One view of a simple thing works from blocks. **From
 several sides the guide must be a 3D model** (`isoprop.py model`, ~20 Tripo credits: say the cost and wait) - from blocks the image model cannot tell which face has
-what on it. Show `out-pixel/preview.png` beside the renders.
+what on it. Show `out-pixel/preview.png` beside the renders. With a model, its **shadow** is baked from it by itself (free): show
+`out-pixel/preview-shadow.png`; for a rainy or grey scene offer `--shadow overcast` (or `propshade.py PROP.json --weather overcast`, no drawing); indoors ask where the lamp is
+(`--lamp x,y,z --lamp-size r`) or offer `PYTHON lightedit.py PROP.json` (free, 127.0.0.1) - the user drags a lamp round the prop and sees the shadow and the
+floor's light as it moves; a lamp of their own (any picture - "Load a picture...", kept in `~/.spritecast/lamps` for every prop; SpriteCast's in `examples/lamps/`) stands
+on the floor in front or behind, its light point and foot set by a click on it, scaled 0.05-3x (pixel art stays pixel art), its settings saved with it, deleted in two clicks;
+"Bake & save the scene" writes `shadow-<side>.png`, `light-<side>.png` (the floor's light, ADD), `lamp.png` and where it all goes in `pixel.json` for the game. Pixel or
+smooth light (`"light_style"`). For wicker, leaves or a net offer `"see_through"` (reference/pixel.md).
+**The wind**: for a tree, a bush or a plant offer `"sway": "leaves"` (free) - its leaves cut into clumps from the model, each moving whole a pixel at a time: `sway-<side>.png`
+(12 frames x still / breeze / gust), `clumps-<side>.png`, `preview-sway.gif` - show the GIF. A small thing (mushrooms: `"sway": "caps"`) has its parts read off the sprite
+instead, lifted as they move - chosen by itself under 700 moving pixels.
+**For the game's rules** (free, baked with the shadow): `solid-<side>.png`, where a walker cannot stand (the prop's footprint, cut from the model below 0.4 m), and for
+`"collide": {"cover": [0.55]}` `cover-<h>-<side>.png`, what stops a thing flying at that height (a trunk does, the crown over it does not) - show `preview-collide.png`.
+Each side's `shadow` in pixel.json says how to **darken a character in its shade** (`per_m_up`, `height_m`). **Into the engine**: `export.py PROP/out-pixel` ->
+`export/godot/` (a scene: Light, Shadow, Body that sways, Solid polygon; `shade_at()`, `cover_at()`) and `export/phaser/` (a module: `add()`, `.wind()`, `.solid()`,
+`.cover()`, `.shade()`, `shadeOf()`). Unity and Aseprite: not for props yet - say so.
 
 ## Sitting (people) - details in [reference/sitting.md](reference/sitting.md)
 Offer it once a character walks. 1) `charpipe.py sit CHAR.json` (free): the rig seated in 8 facings, on nothing - show the renders.

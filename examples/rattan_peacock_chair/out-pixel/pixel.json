@@ -1,0 +1,401 @@
+{
+ "px_per_m": 54.0,
+ "views": {
+  "0": {
+   "file": "sprite-0.png",
+   "size": [
+    56,
+    91
+   ],
+   "anchor_px": [
+    33.3,
+    99.3
+   ],
+   "squares_px": [
+    16.01,
+    16.96
+   ],
+   "scaled": 1.28,
+   "ai_cut": true,
+   "paper_px": [
+    23,
+    0
+   ],
+   "in_frame": [
+    4,
+    4
+   ],
+   "shadow": {
+    "file": "shadow-0.png",
+    "at": [
+     -18,
+     37
+    ],
+    "foot": [
+     27.8,
+     81.9
+    ],
+    "fit": 0.9
+   },
+   "solid": {
+    "file": "solid-0.png",
+    "at": [
+     7,
+     73
+    ],
+    "size": [
+     40,
+     21
+    ],
+    "hull": [
+     [
+      47.0,
+      87.0
+     ],
+     [
+      37.0,
+      94.0
+     ],
+     [
+      18.0,
+      94.0
+     ],
+     [
+      12.0,
+      92.0
+     ],
+     [
+      7.0,
+      87.0
+     ],
+     [
+      7.0,
+      79.0
+     ],
+     [
+      13.0,
+      75.0
+     ],
+     [
+      21.0,
+      73.0
+     ],
+     [
+      32.0,
+      73.0
+     ],
+     [
+      44.0,
+      77.0
+     ]
+    ],
+    "below_m": 0.4
+   }
+  },
+  "90": {
+   "file": "sprite-90.png",
+   "size": [
+    52,
+    91
+   ],
+   "anchor_px": [
+    21.2,
+    99.3
+   ],
+   "squares_px": [
+    10.86,
+    10.61
+   ],
+   "scaled": 0.8,
+   "ai_cut": true,
+   "paper_px": [
+    31,
+    0
+   ],
+   "in_frame": [
+    6,
+    4
+   ],
+   "shadow": {
+    "file": "shadow-90.png",
+    "at": [
+     -31,
+     37
+    ],
+    "foot": [
+     26.3,
+     80.2
+    ],
+    "fit": 0.92
+   },
+   "solid": {
+    "file": "solid-90.png",
+    "at": [
+     10,
+     72
+    ],
+    "size": [
+     39,
+     20
+    ],
+    "hull": [
+     [
+      10.0,
+      86.0
+     ],
+     [
+      10.0,
+      79.0
+     ],
+     [
+      13.0,
+      75.0
+     ],
+     [
+      22.0,
+      72.0
+     ],
+     [
+      36.0,
+      72.0
+     ],
+     [
+      49.0,
+      78.0
+     ],
+     [
+      49.0,
+      84.0
+     ],
+     [
+      45.0,
+      89.0
+     ],
+     [
+      38.0,
+      92.0
+     ],
+     [
+      20.0,
+      92.0
+     ]
+    ],
+    "below_m": 0.4
+   }
+  },
+  "180": {
+   "file": "sprite-180.png",
+   "size": [
+    57,
+    77
+   ],
+   "anchor_px": [
+    34.3,
+    87.1
+   ],
+   "squares_px": [
+    18.88,
+    20.43
+   ],
+   "scaled": 1.35,
+   "ai_cut": true,
+   "paper_px": [
+    5,
+    0
+   ],
+   "in_frame": [
+    4,
+    18
+   ],
+   "shadow": {
+    "file": "shadow-180.png",
+    "at": [
+     -31,
+     35
+    ],
+    "foot": [
+     28.7,
+     70.7
+    ],
+    "fit": 0.92
+   },
+   "solid": {
+    "file": "solid-180.png",
+    "at": [
+     11,
+     60
+    ],
+    "size": [
+     41,
+     21
+    ],
+    "hull": [
+     [
+      42.0,
+      81.0
+     ],
+     [
+      22.0,
+      81.0
+     ],
+     [
+      15.0,
+      78.0
+     ],
+     [
+      11.0,
+      73.0
+     ],
+     [
+      12.0,
+      67.0
+     ],
+     [
+      22.0,
+      60.0
+     ],
+     [
+      38.0,
+      60.0
+     ],
+     [
+      49.0,
+      64.0
+     ],
+     [
+      52.0,
+      68.0
+     ],
+     [
+      52.0,
+      75.0
+     ]
+    ],
+    "below_m": 0.4
+   }
+  },
+  "270": {
+   "file": "sprite-270.png",
+   "size": [
+    52,
+    77
+   ],
+   "anchor_px": [
+    20.6,
+    87.1
+   ],
+   "squares_px": [
+    11.97,
+    11.97
+   ],
+   "scaled": 0.77,
+   "ai_cut": true,
+   "paper_px": [
+    8,
+    0
+   ],
+   "in_frame": [
+    6,
+    18
+   ],
+   "shadow": {
+    "file": "shadow-270.png",
+    "at": [
+     -19,
+     34
+    ],
+    "foot": [
+     25.7,
+     68.1
+    ],
+    "fit": 0.94
+   },
+   "solid": {
+    "file": "solid-270.png",
+    "at": [
+     5,
+     58
+    ],
+    "size": [
+     39,
+     20
+    ],
+    "hull": [
+     [
+      44.0,
+      65.0
+     ],
+     [
+      44.0,
+      72.0
+     ],
+     [
+      34.0,
+      78.0
+     ],
+     [
+      16.0,
+      78.0
+     ],
+     [
+      10.0,
+      76.0
+     ],
+     [
+      5.0,
+      70.0
+     ],
+     [
+      5.0,
+      66.0
+     ],
+     [
+      9.0,
+      61.0
+     ],
+     [
+      17.0,
+      58.0
+     ],
+     [
+      34.0,
+      58.0
+     ]
+    ],
+    "below_m": 0.4
+   }
+  }
+ },
+ "frame": [
+  65,
+  99
+ ],
+ "animations": {
+  "views": 4
+ },
+ "origin": [
+  0,
+  0
+ ],
+ "review": {},
+ "shadow": {
+  "weather": "sun",
+  "colour": [
+   40,
+   30,
+   24
+  ],
+  "steps": [
+   0.1,
+   0.2,
+   0.31,
+   0.43,
+   0.56
+  ]
+ },
+ "collide": {
+  "walk_m": 0.4,
+  "cover_m": [],
+  "note": "solid-<side>.png: where a walker cannot stand (where the prop stands: what it has below walk_m, on the ground, and what lies between); cover-<h>-<side>.png: where a thing flying h metres up is stopped. White = blocked; `at` is the mask's top-left in the sprite's pixels, `hull` its outline for a collision polygon. A thing in the air at height h over ground pixel (x, y) is tested at (x, y) itself: the masks are on the ground"
+ }
+}

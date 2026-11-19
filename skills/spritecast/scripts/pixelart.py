@@ -654,17 +654,24 @@ def main():
     # (render/<clip>-<facing>-<i>-s.png) - and the pipeline lays it under the sprite in (40, 30, 24) at 30 %. The same here, at the
     # sprite's size, with hard edges: shadows/<clip>-<facing>.png, one frame under each of the animation's, and where its frame
     # goes against the sprite's ("shadows" in pixel.json: offset, frame).
-    SHADE = (40, 30, 24, 77); shadows = {}; (out / 'shadows').mkdir(exist_ok=True)
+    # Since 0.20 the renderer's shadow is light as it falls (the sun's disc and the sky, each as much as the body hides: its alpha the share
+    # of the light taken) - here, as for a pixel prop, in five steps of darkness, hard-edged: deep where the feet stand, pale at its far edge.
+    SHADE = (40, 30, 24, 77); shadows = {}; (out / 'shadows').mkdir(exist_ok=True); import charlib as CL_
+    STEPS_ = np.array([0, 0.1, 0.2, 0.31, 0.43, 0.56]); graded = False
     for (c, dr), (fr, _) in strips.items():
         ms_ = []
         for i in range(len(fr)):
             sp_ = d / f'render/{c}-{dr}-{i}-s.png'
             if not sp_.exists(): break
-            ms_.append(P.down(Image.open(sp_).convert('RGBA'), hh)[1] >= 0.5)
+            al_ = np.asarray(Image.open(sp_).convert('RGBA'))[..., 3]
+            if CL_.is_graded(al_):          # (-> each pixel's step, 0-5)
+                graded = True; g_ = np.zeros(al_.shape + (4,), np.uint8); g_[..., 3] = np.round(np.clip(CL_.shadow_share(al_), 0, 1) * 255)
+                ms_.append(np.abs(P.down(Image.fromarray(g_), hh)[1][..., None] * CL_.SHADOW_DARK - STEPS_).argmin(-1))
+            else: ms_.append((P.down(Image.open(sp_).convert('RGBA'), hh)[1] >= 0.5) * 3)          # (the old hard shape: one step, 31 % ~ the old 30)
         if len(ms_) != len(fr) or not any(m_.any() for m_ in ms_): continue
-        sy0, sy1, sx0, sx1 = bbox(np.any(ms_, 0)); st_ = Image.new('RGBA', ((sx1 - sx0) * len(ms_), sy1 - sy0))
+        sy0, sy1, sx0, sx1 = bbox(np.any(np.array(ms_) > 0, 0)); st_ = Image.new('RGBA', ((sx1 - sx0) * len(ms_), sy1 - sy0))
         for n_, m_ in enumerate(ms_):
-            a_ = np.zeros(m_[sy0:sy1, sx0:sx1].shape + (4,), np.uint8); a_[m_[sy0:sy1, sx0:sx1]] = SHADE; st_.paste(Image.fromarray(a_), (n_ * (sx1 - sx0), 0))
+            c_ = m_[sy0:sy1, sx0:sx1]; a_ = np.zeros(c_.shape + (4,), np.uint8); a_[c_ > 0, :3] = SHADE[:3]; a_[..., 3] = np.round(STEPS_[c_] * 255) if graded else (c_ > 0) * 77; st_.paste(Image.fromarray(a_), (n_ * (sx1 - sx0), 0))
         st_.save(out / 'shadows' / f'{c}-{dr}.png'); shadows[f'{c}-{dr}'] = {'file': f'shadows/{c}-{dr}.png', 'frame': [int(sx1 - sx0), int(sy1 - sy0)], 'offset': [int(sx0 + 2 * CH_ - box[0]), int(sy0 + 2 * CH_ - box[1])]}
     # A SWING'S EFFECT ("trail" in the action; render/<clip>-<facing>-<i>-t.png): the same sprite of its own as in the painted set, as
     # pixel art - hard edges, a few colours - laid OVER the figure at the same frame number ("trails" in pixel.json: file, frame, offset)
@@ -776,9 +783,13 @@ def main():
                 if 1 <= n_ < land_:
                     # the thing's shadow, by the same light: a point h above the ground is shadowed (-0.42 h, -0.78 h) away over the ground
                     # (the renderer's SHADOW; mirrored for a light from the left), which this camera shows as (-0.42 h, -0.78 h sin pitch);
-                    # h is the screen height over cos(pitch). A flat ellipse, the pipeline's shadow colour.
+                    # h is the screen height over cos(pitch). An ellipse in the pipeline's shadow colour.
                     sx_, sy_ = gnd_(n_); h_ = hgt_(n_) + drop_; h_ = max(0.0, h_) / np.cos(s['pitch'] * np.pi / 180); lx_ = 0.42 if s['light'] == 'left' else -0.42
-                    sx_ += lx_ * h_; sy_ += -0.78 * h_ * np.sin(s['pitch'] * np.pi / 180); o_ = Image.new('RGBA', f_.size); ImageDraw.Draw(o_).ellipse((sx_ - 7, sy_ - 3, sx_ + 7, sy_ + 3), fill=SHADE); f_.alpha_composite(o_)
+                    sx_ += lx_ * h_; sy_ += -0.78 * h_ * np.sin(s['pitch'] * np.pi / 180); o_ = Image.new('RGBA', f_.size); od_ = ImageDraw.Draw(o_); k_ = min(1.0, h_ / 70)
+                    # (in steps, as the figure's is since 0.20: deep in the middle and ringed with paler near the ground; wider and paler the higher the thing is)
+                    for rx_, ry_, al_ in ((9 + 4 * k_, 4 + 1.5 * k_, 0.10), (7 + 2 * k_, 3 + k_, 0.20 if k_ < 0.75 else 0.10), (5, 2, (0.43, 0.31, 0.20, 0.20)[int(k_ * 3)]), (3 - k_, 1, (0.56, 0.43, 0.31, 0.20)[int(k_ * 3)])):
+                        od_.ellipse((sx_ - rx_, sy_ - ry_, sx_ + rx_, sy_ + ry_), fill=SHADE[:3] + (round(255 * al_),))
+                    f_.alpha_composite(o_)
                 f_.alpha_composite(fr_[min(t_, len(fr_) - 1)].crop(box), (X0, top_))
                 if 1 <= n_ < land_:
                     for back_, small_ in ((2, 6), (1, 10)):                           # after-images: where it was, smaller

@@ -1,0 +1,40 @@
+{
+  "name": "forest_mushrooms",
+  "footprint": [
+    0.5,
+    0.5
+  ],
+  "description": "a small cluster of three forest mushrooms of different heights: red caps with white spots, thick pale stems, a little moss at their foot",
+  "loose": true,
+  "camera": "iso-2:1",
+  "views": [
+    0,
+    90,
+    180,
+    270
+  ],
+  "model": {
+    "glb": "forest_mushrooms/tripo.glb",
+    "size": [
+      0.5,
+      0.5,
+      0.35
+    ],
+    "yaw": 0
+  },
+  "blocks_draft": [
+    {
+      "box": [
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.35
+      ],
+      "color": "#c0392b",
+      "shape": "sphere"
+    }
+  ],
+  "sway": "caps"
+}

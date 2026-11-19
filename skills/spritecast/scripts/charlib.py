@@ -366,12 +366,50 @@ def fit_walk(sprites, rens, split=SPLIT, own=(), mult=None):
     return out, ious
 
 
+SHADOW_DARK = 0.62        # (how dark the ground gets where no light reaches: the same as a prop's baked shadow - propshade.py)
+SHADOW_ALPHA = 0.56       # (a graded shadow's strip is shown at this: its alpha 255 = this dark, the deepest a shadow gets)
+
+
+GRADED = False            # (set when a graded shadow has been read: character.json then says "shadow_alpha": SHADOW_ALPHA)
+
+
+def is_graded(al): return ((al > 12) & (al < 243)).sum() > 0.25 * (al > 12).sum()
+
+
+def shadow_share(al):
+    """a graded shadow render's alpha -> the share of the light taken at each pixel, 0-1, smoothed: the directions are many but not
+    endless. Where the sun is hidden the rim wants only a touch of smoothing; out where only some of the sky is, the 48 pale shapes it
+    was added up from would show as petals - smoothed wide there, they are the soft dark they stand for"""
+    a0 = al.astype(float) / 255; fine, wide = ndimage.gaussian_filter(a0, 2.2 * PX), ndimage.gaussian_filter(a0, 9 * PX)
+    k = np.clip((ndimage.gaussian_filter(a0, 4 * PX) - 0.3) / 0.25, 0, 1); return fine * k + wide * (1 - k)
+
+
+def shadow_graded(al):
+    """the shadow as light falls (render_char.html's shadowShot: the sun's disc and the sky, each as much as the body hides) -> the
+    same (RGBA black with the shadow in alpha, its top-left corner): deep under the body, pale at its far edge. The alpha is the
+    darkness against SHADOW_ALPHA, so the strip is shown at SHADOW_ALPHA (character.json's "shadow_alpha"), not at the old 30 %"""
+    global GRADED; GRADED = True
+    # (the sky's part reaches far and thin - a haze over the whole picture that ended in a straight line at the picture's edge, a pale box
+    # round the figure on a light floor. Under 7 % dark it is let go, smoothly from 7 down to 2: the soft dark close round the feet stays)
+    d = shadow_share(al) * SHADOW_DARK; w = np.clip((d - 0.02) / 0.05, 0, 1); d = d * w * w * (3 - 2 * w)
+    a = np.clip(d / SHADOW_ALPHA, 0, 1); a[a < 0.012] = 0
+    lab, n = ndimage.label(a > 0)
+    if n > 1: sizes = ndimage.sum(a, lab, range(1, n + 1)); a = a * np.isin(lab, np.nonzero(sizes >= 0.02 * sizes.max())[0] + 1)
+    m = Image.fromarray(np.round(a * 255).astype(np.uint8)); bb = m.getbbox()
+    if bb is None: return None, (0, 0)
+    sh = Image.new('RGBA', (bb[2] - bb[0], bb[3] - bb[1]), (0, 0, 0, 0)); sh.putalpha(m.crop(bb))
+    return sh, (bb[0], bb[1])
+
+
 def shadow_3d(spng, close=None):
     """the 3D figure's own shadow (render_char.html's flat pass) as a clean mask: gaps closed, no pinholes, no specks → (RGBA black with
     the shadow in alpha, its top-left corner in the render's px)"""
     from PIL import ImageFilter
     close = close or (round(5 * PX) | 1)
-    m = Image.fromarray(((np.array(Image.open(spng).convert('RGBA'))[..., 3] > 127) * 255).astype(np.uint8))
+    al = np.array(Image.open(spng).convert('RGBA'))[..., 3]
+    if is_graded(al):          # (the shadow as light falls: the share of the light taken, in the alpha)
+        return shadow_graded(al)
+    m = Image.fromarray(((al > 127) * 255).astype(np.uint8))
     a = ndimage.minimum_filter(ndimage.maximum_filter(np.array(m), close, mode='nearest'), close, mode='nearest')   # (PIL's Max/MinFilter,
     m = Image.fromarray(a)                                                                 # the same square, separable: ~50x faster)
     a = ndimage.binary_fill_holes(np.array(m) > 0); lab, n = ndimage.label(a)

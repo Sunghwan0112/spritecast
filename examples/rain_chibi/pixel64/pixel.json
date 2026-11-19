@@ -207,177 +207,177 @@
   "walk-south": {
    "file": "shadows/walk-south.png",
    "frame": [
-    50,
-    43
+    58,
+    49
    ],
    "offset": [
-    -12,
-    36
+    -13,
+    34
    ]
   },
   "walk-south-east": {
    "file": "shadows/walk-south-east.png",
    "frame": [
-    62,
-    43
+    67,
+    48
    ],
    "offset": [
-    -16,
-    36
+    -17,
+    34
    ]
   },
   "walk-east": {
    "file": "shadows/walk-east.png",
    "frame": [
-    64,
-    38
-   ],
-   "offset": [
-    -17,
-    37
-   ]
-  },
-  "walk-north-east": {
-   "file": "shadows/walk-north-east.png",
-   "frame": [
-    62,
-    37
-   ],
-   "offset": [
-    -17,
-    39
-   ]
-  },
-  "walk-north": {
-   "file": "shadows/walk-north.png",
-   "frame": [
-    50,
-    36
-   ],
-   "offset": [
-    -14,
-    40
-   ]
-  },
-  "walk-north-west": {
-   "file": "shadows/walk-north-west.png",
-   "frame": [
-    49,
-    37
-   ],
-   "offset": [
-    -10,
-    40
-   ]
-  },
-  "walk-west": {
-   "file": "shadows/walk-west.png",
-   "frame": [
-    48,
-    38
-   ],
-   "offset": [
-    -8,
-    38
-   ]
-  },
-  "walk-south-west": {
-   "file": "shadows/walk-south-west.png",
-   "frame": [
-    51,
+    69,
     43
-   ],
-   "offset": [
-    -9,
-    36
-   ]
-  },
-  "throw-south": {
-   "file": "shadows/throw-south.png",
-   "frame": [
-    60,
-    42
-   ],
-   "offset": [
-    -17,
-    36
-   ]
-  },
-  "throw-south-east": {
-   "file": "shadows/throw-south-east.png",
-   "frame": [
-    65,
-    42
-   ],
-   "offset": [
-    -19,
-    35
-   ]
-  },
-  "throw-east": {
-   "file": "shadows/throw-east.png",
-   "frame": [
-    58,
-    43
-   ],
-   "offset": [
-    -16,
-    35
-   ]
-  },
-  "throw-north-east": {
-   "file": "shadows/throw-north-east.png",
-   "frame": [
-    60,
-    40
    ],
    "offset": [
     -18,
     36
    ]
   },
-  "throw-north": {
-   "file": "shadows/throw-north.png",
+  "walk-north-east": {
+   "file": "shadows/walk-north-east.png",
    "frame": [
-    62,
-    36
+    67,
+    42
+   ],
+   "offset": [
+    -18,
+    38
+   ]
+  },
+  "walk-north": {
+   "file": "shadows/walk-north.png",
+   "frame": [
+    58,
+    42
+   ],
+   "offset": [
+    -15,
+    39
+   ]
+  },
+  "walk-north-west": {
+   "file": "shadows/walk-north-west.png",
+   "frame": [
+    57,
+    42
+   ],
+   "offset": [
+    -11,
+    39
+   ]
+  },
+  "walk-west": {
+   "file": "shadows/walk-west.png",
+   "frame": [
+    57,
+    43
+   ],
+   "offset": [
+    -9,
+    37
+   ]
+  },
+  "walk-south-west": {
+   "file": "shadows/walk-south-west.png",
+   "frame": [
+    57,
+    48
+   ],
+   "offset": [
+    -9,
+    35
+   ]
+  },
+  "throw-south": {
+   "file": "shadows/throw-south.png",
+   "frame": [
+    66,
+    46
+   ],
+   "offset": [
+    -18,
+    35
+   ]
+  },
+  "throw-south-east": {
+   "file": "shadows/throw-south-east.png",
+   "frame": [
+    68,
+    47
    ],
    "offset": [
     -19,
-    38
+    34
+   ]
+  },
+  "throw-east": {
+   "file": "shadows/throw-east.png",
+   "frame": [
+    65,
+    47
+   ],
+   "offset": [
+    -17,
+    34
+   ]
+  },
+  "throw-north-east": {
+   "file": "shadows/throw-north-east.png",
+   "frame": [
+    64,
+    46
+   ],
+   "offset": [
+    -19,
+    35
+   ]
+  },
+  "throw-north": {
+   "file": "shadows/throw-north.png",
+   "frame": [
+    66,
+    43
+   ],
+   "offset": [
+    -19,
+    37
    ]
   },
   "throw-north-west": {
    "file": "shadows/throw-north-west.png",
    "frame": [
-    57,
-    37
+    66,
+    44
    ],
    "offset": [
-    -17,
-    38
+    -18,
+    36
    ]
   },
   "throw-west": {
    "file": "shadows/throw-west.png",
    "frame": [
-    50,
-    42
+    61,
+    46
    ],
    "offset": [
-    -14,
-    36
+    -15,
+    35
    ]
   },
   "throw-south-west": {
    "file": "shadows/throw-south-west.png",
    "frame": [
-    50,
-    45
+    61,
+    49
    ],
    "offset": [
-    -13,
-    35
+    -14,
+    34
    ]
   }
  },
@@ -549,5 +549,12 @@
    "hand_s": 24,
    "px": 11363
   }
- }
+ },
+ "shadow_steps": [
+  0.1,
+  0.2,
+  0.31,
+  0.43,
+  0.56
+ ]
 }

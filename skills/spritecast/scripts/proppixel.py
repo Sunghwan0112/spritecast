@@ -9,6 +9,8 @@
 It needs the prop's guide (isoprop.py render; with "views": [0, 90, 180, 270] in the spec, one per side) and OPENAI_API_KEY.
     guide (3D) -> pixelized -> the image model redraws it as pixel art on the same grid -> read back on the grid it drew
     -> brought to the guide's size -> <prop>/out-pixel/sprite[-<view>].png, pixel.json (size, anchor), preview.png
+    -> with a 3D model, its shadow on the ground baked from it (propshade.py: free) -> shadow[-<view>].png, preview-shadow.png
+    -> with "sway": "leaves" in the spec, the wind in it (free) -> sway[-<view>].png (frames), clumps[-<view>].png, preview-sway.gif
 
 FROM SEVERAL SIDES, THE GUIDE HAS TO BE A 3D MODEL (isoprop.py model - Tripo, ~20 credits - then yaws, render). A block guide shows
 where the thing stands and how big it is, not which face has the screen on it: an arcade cabinet drawn from blocks came out with its
@@ -74,7 +76,7 @@ def guide(spec, d, views, v, ppm, first):
     return n_w, n_h, Z
 
 
-def read(d, views, v):
+def read(d, views, v, see=(), spec=None, ppm=54.0):
     """the answer -> the sprite (RGBA), read on the grid it was drawn on and brought to the guide's size"""
     import pixelgrid as G, pixelkit as P, charlib as CL
     o = vdir(d, views, v) / 'pixel'; mt = json.loads((o / 'meta.json').read_text()); G.Z = mt['z']; a = np.asarray(Image.open(o / 'out.png').convert('RGB'), np.float32) / 255
@@ -94,21 +96,48 @@ def read(d, views, v):
     finally: G.PITCH_XY[:] = [None, None]
     pl = P.palette(low[m], 28); rgb = (np.clip(P.lab2rgb(pl), 0, 1)[((P.lab(low.reshape(-1, 3))[:, None, :] - pl[None]) ** 2).sum(2).argmin(1)].reshape(low.shape) * 255).round().astype(np.uint8)
     y0, y1 = np.nonzero(m.any(1))[0][[0, -1]]; x0, x1 = np.nonzero(m.any(0))[0][[0, -1]]; im = np.dstack([rgb, (m * 255).astype(np.uint8)])[y0:y1 + 1, x0:x1 + 1].copy()
-    paper = paper_white(im, vdir(d, views, v)); return Image.fromarray(im), {'squares_px': [round(pxy[0], 2), round(pxy[1], 2)], 'scaled': round(k, 2), 'ai_cut': mk is not None, 'paper_px': paper}
+    layer = None
+    if see and spec is not None and spec.get('model'):
+        import propshade; layer = propshade.layers(spec, d.parent, d, v, views, im, ppm)
+    paper = paper_white(im, vdir(d, views, v), see, layer); return Image.fromarray(im), {'squares_px': [round(pxy[0], 2), round(pxy[1], 2)], 'scaled': round(k, 2), 'ai_cut': mk is not None, 'paper_px': paper}
 
 
-def paper_white(im, vd):
+def paper_white(im, vd, see=(), layer=None):
     """white the AI cut-out kept (it took the gaps between a tree's leaves for leaves), in place - the rule a character's frames get:
     where the render has NOTHING it is paper, made see-through; where the render has the object but in a dark colour (a crown of dark leaves)
     it is GPT's paper inside the object, painted the colour beside it; where the render is light there too, it is a real light part and stays.
+    INSIDE A WEAVE (the spec's "see_through" colours) the paper can come out cream, not white - the palette folds it into a cream of the
+    object's own (a rattan chair's paper and its cushion became one colour): there a warm white speck or gap where the model's front is
+    the weave shows what the model has BEHIND it (propshade.layers) - nothing: the floor, made see-through; the cushion or the far side:
+    that, in the sprite's own colour nearest it. A big white piece (the cushion itself) stays. And the cut-out's own holes inside the
+    thing are put right the same way: open only where the front is the weave with nothing behind (it had cut into the cushion too). Only there: on
+    other things a cream or a light grey is a real colour (a mushroom's spots, a rock's light side).
     -> [see-through, painted over] in pixels"""
     r = Image.open(vd / 'render.png').convert('RGBA'); r = r.crop(r.getbbox()); h, w = im.shape[:2]
     a = np.asarray(r, np.float32) / 255; pm = np.dstack([a[..., :3] * a[..., 3:], a[..., 3]]); ch = [np.asarray(Image.fromarray(pm[..., j]).resize((w, h), Image.BOX)) for j in range(4)]
-    al = ch[3]; light = (np.dstack(ch[:3]).max(2) / np.maximum(al, 1e-4)) >= 0.7
+    al = ch[3]; rc = np.dstack(ch[:3]) / np.maximum(al, 1e-4)[..., None]; light = rc.max(2) >= 0.7
     has = ndi.binary_dilation(al >= 0.38, iterations=1)          # (a square of leeway: the drawing is a pixel off here and there)
     c = im[..., :3].astype(np.int16); white = (c.min(2) >= 215) & (c.max(2) - c.min(2) <= 24) & (im[..., 3] > 0)
-    gone = white & ~has; im[gone, 3] = 0
+    gone = white & ~has
     paint = white & has & ~ndi.binary_dilation(light, iterations=1)
+    if see:          # (what shows between the strands, from the model: the floor, or the cushion / the far side behind them)
+        fc, back, bc = layer if layer is not None else (rc * 255, np.zeros(white.shape, bool), None)
+        pale = (c.min(2) >= 180) & (c.max(2) - c.min(2) <= 50) & (im[..., 3] > 0)          # (paper: white, cream or a pale grey once the palette is done)
+        if layer is None:          # (no model to ask: small pale specks only - a big pale piece is a white thing)
+            lab, n = ndi.label(pale); pale &= ~np.isin(lab, 1 + np.nonzero(ndi.sum(pale, lab, range(1, n + 1)) > 30)[0]) if n else pale
+        mine = np.unique(im[im[..., 3] > 0][:, :3], axis=0).astype(np.float32)          # (the sprite's own colours)
+        solid_white = (fc.min(2) >= 170)          # (the model is white there itself: the cushion)
+        lab, n = ndi.label(pale)          # (a pale piece the model mostly has white is a white thing, all of it - the cushion, whatever a pixel's fit)
+        whole = np.isin(lab, 1 + np.nonzero(ndi.mean(solid_white, lab, range(1, n + 1)) > 0.5)[0]) if n else pale & False
+        gap = pale & ~whole & (~has | ~solid_white)          # (pale where the model is not: paper - the floor or what is behind shows there)
+        show = gap & back & has          # (something behind: its colour, as the sprite has it)
+        if show.any(): im[show, :3] = mine[((bc[show][:, None, :] - mine[None]) ** 2).sum(2).argmin(1)].astype(np.uint8)
+        gone |= gap & ~show; paint &= ~gap
+        if layer is not None:          # the cut-out's own holes inside the thing, by the model: open only where the front is a weave with nothing behind
+            hole = ndi.binary_fill_holes(im[..., 3] > 0) & (im[..., 3] == 0) & has; weave = ~solid_white          # (the strands; the cushion is solid)
+            fill = hole & ~(weave & ~back); src = np.where((weave & back)[..., None], bc, fc)
+            if fill.any(): im[fill, :3] = mine[((src[fill][:, None, :] - mine[None]) ** 2).sum(2).argmin(1)].astype(np.uint8); im[fill, 3] = 255
+    im[gone, 3] = 0
     if paint.any():
         keep = (im[..., 3] > 0) & ~white; _, (iy, ix) = ndi.distance_transform_edt(~keep, return_indices=True); im[paint, :3] = im[iy[paint], ix[paint], :3]
     return [int(gone.sum()), int(paint.sum())]
@@ -124,6 +153,7 @@ def split(out):
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('spec', nargs='?'); ap.add_argument('--yes', action='store_true'); ap.add_argument('--ppm', type=float, default=54.0); ap.add_argument('--again', default=''); ap.add_argument('--colours', type=int, default=0, help='how many colours the object has, all its sides together (default: about 28 a side). Free: nothing is drawn again')
     ap.add_argument('--palette', default='', help="a palette you already have: a .png of it, or a text file with one hex colour a line. Every pixel takes its nearest colour in it. Free")
+    ap.add_argument('--shadow', choices=['sun', 'overcast', 'none'], default='', help='its shadow on the ground, baked from the 3D model: sun (default, or the spec\'s "shadow"), overcast (a grey day: only soft, close in), none. Free')
     A = ap.parse_args()
     if A.palette == 'list': import pixelkit as P; P.show_palettes(); return
     if not A.spec: ap.error('the prop\'s spec (PROP.json) is wanted')
@@ -150,7 +180,7 @@ def main():
     for v in vs:
         o = vdir(d, views, v) / 'pixel'
         if not (o / 'out.png').exists(): continue
-        im, info = read(d, views, v); mt = json.loads((o / 'meta.json').read_text()); name = f'sprite-{v}.png' if views else 'sprite.png'
+        im, info = read(d, views, v, spec.get("see_through") or (), spec, A.ppm); mt = json.loads((o / 'meta.json').read_text()); name = f'sprite-{v}.png' if views else 'sprite.png'
         if mt['asked_px'] < 64:          # never asked under 64: made smaller here, from what was drawn
             import pixelsmall; im = Image.fromarray(pixelsmall.reduce(np.asarray(im), mt['asked_px'] / 64)); info['made_smaller'] = round(mt['asked_px'] / 64, 2)
         im.save(out / name); f = im.width / mt['squares'][0] if mt['asked_px'] >= 64 else im.height / 64
@@ -187,6 +217,13 @@ def main():
     z = max(2, 360 // max(c.height for c in cells)); pv = Image.new('RGB', (sum(c.width * z + 24 for c in cells) + 24, max(c.height for c in cells) * z + 48), (58, 62, 74)); x = 24
     for c in cells: g = c.resize((c.width * z, c.height * z), Image.NEAREST); pv.paste(g, (x, pv.height - 24 - g.height), g); x += g.width + 24
     pv.save(out / 'preview.png'); print(f'{out}: {len(done)} sprite(s) at {A.ppm:g} px a metre - look at preview.png. To fix a cut-out or a pixel by hand: pixeledit.py {Path(A.spec).name}')
+    # its shadow on the ground, baked from the 3D model (free, a few seconds): deep close by it, soft where it falls from high up
+    if spec.get('model') and (A.shadow or spec.get('shadow', 'sun')) not in ('none', False):
+        import propshade; propshade.bake(A.spec, A.shadow or None)
+    if spec.get('model') and spec.get('sway'):          # (the wind in it: its leaves in clumps cut from the model, a sheet of frames - free)
+        import propshade; propshade.sway(A.spec)
+    if spec.get('model') and spec.get('collide') is not False:          # (where it is in the way, cut from the model: solid-<side>.png, and cover-<h>-<side>.png for "collide": {"cover": [...]} - free)
+        import propshade; propshade.collide(A.spec)
 
 
 if __name__ == '__main__': main()

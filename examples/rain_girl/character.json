@@ -34,57 +34,57 @@
     {
      "file": "shadows/walk-south-0.png",
      "offset": [
-      -30,
-      118
+      -36,
+      111
      ]
     },
     {
      "file": "shadows/walk-south-1.png",
      "offset": [
-      -30,
-      120
+      -36,
+      112
      ]
     },
     {
      "file": "shadows/walk-south-2.png",
      "offset": [
-      -31,
-      121
+      -38,
+      113
      ]
     },
     {
      "file": "shadows/walk-south-3.png",
      "offset": [
-      -32,
-      119
+      -38,
+      112
      ]
     },
     {
      "file": "shadows/walk-south-4.png",
      "offset": [
-      -30,
-      118
+      -37,
+      111
      ]
     },
     {
      "file": "shadows/walk-south-5.png",
      "offset": [
-      -28,
-      119
+      -35,
+      112
      ]
     },
     {
      "file": "shadows/walk-south-6.png",
      "offset": [
-      -27,
-      120
+      -34,
+      113
      ]
     },
     {
      "file": "shadows/walk-south-7.png",
      "offset": [
-      -29,
-      120
+      -35,
+      112
      ]
     }
    ],
@@ -92,57 +92,57 @@
     {
      "file": "shadows/walk-south-east-0.png",
      "offset": [
-      -43,
-      119
+      -49,
+      111
      ]
     },
     {
      "file": "shadows/walk-south-east-1.png",
      "offset": [
-      -42,
-      120
+      -48,
+      112
      ]
     },
     {
      "file": "shadows/walk-south-east-2.png",
      "offset": [
-      -42,
-      122
+      -48,
+      114
      ]
     },
     {
      "file": "shadows/walk-south-east-3.png",
      "offset": [
-      -44,
-      120
+      -50,
+      113
      ]
     },
     {
      "file": "shadows/walk-south-east-4.png",
      "offset": [
-      -43,
-      118
+      -49,
+      111
      ]
     },
     {
      "file": "shadows/walk-south-east-5.png",
      "offset": [
-      -40,
-      119
+      -47,
+      111
      ]
     },
     {
      "file": "shadows/walk-south-east-6.png",
      "offset": [
-      -39,
-      120
+      -46,
+      113
      ]
     },
     {
      "file": "shadows/walk-south-east-7.png",
      "offset": [
-      -41,
-      119
+      -47,
+      112
      ]
     }
    ],
@@ -150,57 +150,57 @@
     {
      "file": "shadows/walk-east-0.png",
      "offset": [
-      -50,
-      124
+      -56,
+      116
      ]
     },
     {
      "file": "shadows/walk-east-1.png",
      "offset": [
-      -48,
-      124
+      -55,
+      117
      ]
     },
     {
      "file": "shadows/walk-east-2.png",
      "offset": [
-      -46,
-      126
+      -53,
+      119
      ]
     },
     {
      "file": "shadows/walk-east-3.png",
      "offset": [
-      -49,
-      125
+      -55,
+      118
      ]
     },
     {
      "file": "shadows/walk-east-4.png",
      "offset": [
-      -50,
-      123
+      -56,
+      116
      ]
     },
     {
      "file": "shadows/walk-east-5.png",
      "offset": [
-      -48,
-      123
+      -55,
+      116
      ]
     },
     {
      "file": "shadows/walk-east-6.png",
      "offset": [
-      -47,
-      124
+      -53,
+      117
      ]
     },
     {
      "file": "shadows/walk-east-7.png",
      "offset": [
-      -48,
-      124
+      -54,
+      116
      ]
     }
    ],
@@ -208,57 +208,57 @@
     {
      "file": "shadows/walk-north-east-0.png",
      "offset": [
-      -50,
-      127
+      -56,
+      120
      ]
     },
     {
      "file": "shadows/walk-north-east-1.png",
      "offset": [
-      -48,
-      128
+      -54,
+      120
      ]
     },
     {
      "file": "shadows/walk-north-east-2.png",
      "offset": [
-      -44,
-      129
+      -51,
+      122
      ]
     },
     {
      "file": "shadows/walk-north-east-3.png",
      "offset": [
-      -47,
-      129
+      -53,
+      121
      ]
     },
     {
      "file": "shadows/walk-north-east-4.png",
      "offset": [
-      -50,
-      127
+      -55,
+      120
      ]
     },
     {
      "file": "shadows/walk-north-east-5.png",
      "offset": [
-      -49,
-      126
+      -55,
+      119
      ]
     },
     {
      "file": "shadows/walk-north-east-6.png",
      "offset": [
-      -48,
-      128
+      -54,
+      120
      ]
     },
     {
      "file": "shadows/walk-north-east-7.png",
      "offset": [
-      -49,
-      127
+      -55,
+      120
      ]
     }
    ],
@@ -266,57 +266,57 @@
     {
      "file": "shadows/walk-north-0.png",
      "offset": [
-      -39,
-      131
+      -46,
+      123
      ]
     },
     {
      "file": "shadows/walk-north-1.png",
      "offset": [
-      -38,
-      130
+      -45,
+      123
      ]
     },
     {
      "file": "shadows/walk-north-2.png",
      "offset": [
-      -35,
-      131
+      -41,
+      124
      ]
     },
     {
      "file": "shadows/walk-north-3.png",
      "offset": [
-      -36,
-      131
+      -43,
+      124
      ]
     },
     {
      "file": "shadows/walk-north-4.png",
      "offset": [
-      -40,
-      130
+      -47,
+      122
      ]
     },
     {
      "file": "shadows/walk-north-5.png",
      "offset": [
-      -41,
-      130
+      -47,
+      123
      ]
     },
     {
      "file": "shadows/walk-north-6.png",
      "offset": [
-      -39,
-      131
+      -46,
+      124
      ]
     },
     {
      "file": "shadows/walk-north-7.png",
      "offset": [
-      -40,
-      130
+      -47,
+      123
      ]
     }
    ],
@@ -324,57 +324,57 @@
     {
      "file": "shadows/walk-north-west-0.png",
      "offset": [
-      -31,
-      131
+      -37,
+      124
      ]
     },
     {
      "file": "shadows/walk-north-west-1.png",
      "offset": [
-      -31,
-      131
+      -36,
+      124
      ]
     },
     {
      "file": "shadows/walk-north-west-2.png",
      "offset": [
-      -29,
-      130
+      -34,
+      123
      ]
     },
     {
      "file": "shadows/walk-north-west-3.png",
      "offset": [
-      -29,
-      130
+      -34,
+      123
      ]
     },
     {
      "file": "shadows/walk-north-west-4.png",
      "offset": [
-      -32,
-      130
+      -38,
+      123
      ]
     },
     {
      "file": "shadows/walk-north-west-5.png",
      "offset": [
-      -33,
-      131
+      -39,
+      124
      ]
     },
     {
      "file": "shadows/walk-north-west-6.png",
      "offset": [
-      -31,
-      132
+      -37,
+      125
      ]
     },
     {
      "file": "shadows/walk-north-west-7.png",
      "offset": [
-      -32,
-      131
+      -38,
+      124
      ]
     }
    ],
@@ -382,57 +382,57 @@
     {
      "file": "shadows/walk-west-0.png",
      "offset": [
-      -25,
-      128
+      -31,
+      121
      ]
     },
     {
      "file": "shadows/walk-west-1.png",
      "offset": [
-      -26,
-      128
+      -32,
+      121
      ]
     },
     {
      "file": "shadows/walk-west-2.png",
      "offset": [
-      -26,
-      128
+      -32,
+      120
      ]
     },
     {
      "file": "shadows/walk-west-3.png",
      "offset": [
-      -25,
-      127
+      -31,
+      120
      ]
     },
     {
      "file": "shadows/walk-west-4.png",
      "offset": [
-      -26,
-      128
+      -33,
+      120
      ]
     },
     {
      "file": "shadows/walk-west-5.png",
      "offset": [
-      -26,
-      129
+      -33,
+      121
      ]
     },
     {
      "file": "shadows/walk-west-6.png",
      "offset": [
-      -25,
-      130
+      -31,
+      123
      ]
     },
     {
      "file": "shadows/walk-west-7.png",
      "offset": [
-      -26,
-      129
+      -32,
+      122
      ]
     }
    ],
@@ -440,57 +440,57 @@
     {
      "file": "shadows/walk-south-west-0.png",
      "offset": [
-      -24,
-      122
+      -30,
+      115
      ]
     },
     {
      "file": "shadows/walk-south-west-1.png",
      "offset": [
-      -25,
-      123
+      -31,
+      115
      ]
     },
     {
      "file": "shadows/walk-south-west-2.png",
      "offset": [
-      -26,
-      123
+      -32,
+      116
      ]
     },
     {
      "file": "shadows/walk-south-west-3.png",
      "offset": [
-      -26,
-      122
+      -31,
+      114
      ]
     },
     {
      "file": "shadows/walk-south-west-4.png",
      "offset": [
-      -25,
-      122
+      -31,
+      114
      ]
     },
     {
      "file": "shadows/walk-south-west-5.png",
      "offset": [
-      -24,
-      123
+      -30,
+      116
      ]
     },
     {
      "file": "shadows/walk-south-west-6.png",
      "offset": [
-      -23,
-      124
+      -29,
+      117
      ]
     },
     {
      "file": "shadows/walk-south-west-7.png",
      "offset": [
-      -24,
-      123
+      -30,
+      116
      ]
     }
    ]
@@ -499,57 +499,57 @@
    "south": {
     "file": "shadows/idle-south.png",
     "offset": [
-     -35,
-     119
+     -44,
+     114
     ]
    },
    "south-east": {
     "file": "shadows/idle-south-east.png",
     "offset": [
-     -44,
-     120
+     -48,
+     115
     ]
    },
    "east": {
     "file": "shadows/idle-east.png",
     "offset": [
      -48,
-     124
+     117
     ]
    },
    "north-east": {
     "file": "shadows/idle-north-east.png",
     "offset": [
-     -46,
-     127
+     -47,
+     117
     ]
    },
    "north": {
     "file": "shadows/idle-north.png",
     "offset": [
-     -38,
-     128
+     -43,
+     116
     ]
    },
    "north-west": {
     "file": "shadows/idle-north-west.png",
     "offset": [
-     -32,
-     128
+     -42,
+     116
     ]
    },
    "west": {
     "file": "shadows/idle-west.png",
     "offset": [
-     -29,
-     125
+     -43,
+     116
     ]
    },
    "south-west": {
     "file": "shadows/idle-south-west.png",
     "offset": [
-     -30,
-     120
+     -43,
+     114
     ]
    }
   }
@@ -1045,9 +1045,9 @@
     [],
     [],
     [
-     "dark brown → nothing",
-     "silver-grey (bare metal) → nothing",
-     "yellow → nothing"
+     "dark brown \u2192 nothing",
+     "silver-grey (bare metal) \u2192 nothing",
+     "yellow \u2192 nothing"
     ],
     [],
     []
@@ -1087,13 +1087,13 @@
    "parts": [
     [],
     [
-     "silver-grey (bare metal) → yellow"
+     "silver-grey (bare metal) \u2192 yellow"
     ],
     [],
     [],
     [],
     [
-     "silver-grey (bare metal) → yellow"
+     "silver-grey (bare metal) \u2192 yellow"
     ],
     [],
     []
@@ -1133,7 +1133,7 @@
    "parts": [
     [],
     [
-     "dark brown → yellow"
+     "dark brown \u2192 yellow"
     ],
     [],
     [],
@@ -1180,7 +1180,7 @@
     [],
     [],
     [
-     "silver-grey (bare metal) → dark grey"
+     "silver-grey (bare metal) \u2192 dark grey"
     ],
     [],
     [],
@@ -1220,10 +1220,10 @@
    ],
    "parts": [
     [
-     "silver-grey (bare metal) → nothing"
+     "silver-grey (bare metal) \u2192 nothing"
     ],
     [
-     "silver-grey (bare metal) → dark brown"
+     "silver-grey (bare metal) \u2192 dark brown"
     ],
     [],
     [],
@@ -1269,8 +1269,8 @@
     [],
     [],
     [
-     "silver-grey (bare metal) → yellow",
-     "yellow → yellow"
+     "silver-grey (bare metal) \u2192 yellow",
+     "yellow \u2192 yellow"
     ],
     [],
     [],
@@ -1330,57 +1330,57 @@
      {
       "file": "shadows/run-south-0.png",
       "offset": [
-       -16,
-       153
+       -22,
+       145
       ]
      },
      {
       "file": "shadows/run-south-1.png",
       "offset": [
-       -16,
-       144
+       -22,
+       137
       ]
      },
      {
       "file": "shadows/run-south-2.png",
       "offset": [
-       -6,
-       151
+       -13,
+       144
       ]
      },
      {
       "file": "shadows/run-south-3.png",
       "offset": [
-       -25,
-       148
+       -31,
+       140
       ]
      },
      {
       "file": "shadows/run-south-4.png",
       "offset": [
-       -13,
-       149
+       -19,
+       142
       ]
      },
      {
       "file": "shadows/run-south-5.png",
       "offset": [
-       -16,
-       147
+       -22,
+       140
       ]
      },
      {
       "file": "shadows/run-south-6.png",
       "offset": [
-       -7,
-       148
+       -14,
+       140
       ]
      },
      {
       "file": "shadows/run-south-7.png",
       "offset": [
-       -23,
-       149
+       -29,
+       141
       ]
      }
     ],
@@ -1388,57 +1388,57 @@
      {
       "file": "shadows/run-south-east-0.png",
       "offset": [
-       14,
-       146
+       7,
+       139
       ]
      },
      {
       "file": "shadows/run-south-east-1.png",
       "offset": [
-       15,
-       128
+       8,
+       121
       ]
      },
      {
       "file": "shadows/run-south-east-2.png",
       "offset": [
-       6,
-       144
+       0,
+       137
       ]
      },
      {
       "file": "shadows/run-south-east-3.png",
       "offset": [
-       -26,
-       141
+       -32,
+       133
       ]
      },
      {
       "file": "shadows/run-south-east-4.png",
       "offset": [
-       6,
-       145
+       -1,
+       138
       ]
      },
      {
       "file": "shadows/run-south-east-5.png",
       "offset": [
-       10,
-       135
+       4,
+       128
       ]
      },
      {
       "file": "shadows/run-south-east-6.png",
       "offset": [
-       4,
-       141
+       -1,
+       134
       ]
      },
      {
       "file": "shadows/run-south-east-7.png",
       "offset": [
-       -22,
-       141
+       -27,
+       134
       ]
      }
     ],
@@ -1446,57 +1446,57 @@
      {
       "file": "shadows/run-east-0.png",
       "offset": [
-       7,
-       139
+       1,
+       132
       ]
      },
      {
       "file": "shadows/run-east-1.png",
       "offset": [
-       -6,
-       130
+       -9,
+       123
       ]
      },
      {
       "file": "shadows/run-east-2.png",
       "offset": [
-       -8,
-       130
+       -15,
+       123
       ]
      },
      {
       "file": "shadows/run-east-3.png",
       "offset": [
-       2,
-       128
+       -4,
+       120
       ]
      },
      {
       "file": "shadows/run-east-4.png",
       "offset": [
-       -10,
-       134
+       -16,
+       127
       ]
      },
      {
       "file": "shadows/run-east-5.png",
       "offset": [
-       2,
-       131
+       -3,
+       124
       ]
      },
      {
       "file": "shadows/run-east-6.png",
       "offset": [
-       -8,
-       128
+       -15,
+       121
       ]
      },
      {
       "file": "shadows/run-east-7.png",
       "offset": [
-       8,
-       128
+       2,
+       121
       ]
      }
     ],
@@ -1504,57 +1504,57 @@
      {
       "file": "shadows/run-north-east-0.png",
       "offset": [
-       -12,
-       123
+       -18,
+       116
       ]
      },
      {
       "file": "shadows/run-north-east-1.png",
       "offset": [
-       -39,
-       120
+       -44,
+       112
       ]
      },
      {
       "file": "shadows/run-north-east-2.png",
       "offset": [
-       1,
-       115
+       -5,
+       108
       ]
      },
      {
       "file": "shadows/run-north-east-3.png",
       "offset": [
-       10,
-       115
+       4,
+       107
       ]
      },
      {
       "file": "shadows/run-north-east-4.png",
       "offset": [
-       6,
-       119
+       1,
+       112
       ]
      },
      {
       "file": "shadows/run-north-east-5.png",
       "offset": [
-       -22,
-       119
+       -29,
+       112
       ]
      },
      {
       "file": "shadows/run-north-east-6.png",
       "offset": [
-       0,
-       115
+       -6,
+       108
       ]
      },
      {
       "file": "shadows/run-north-east-7.png",
       "offset": [
-       11,
-       115
+       5,
+       108
       ]
      }
     ],
@@ -1562,57 +1562,57 @@
      {
       "file": "shadows/run-north-0.png",
       "offset": [
-       -9,
-       113
+       -16,
+       105
       ]
      },
      {
       "file": "shadows/run-north-1.png",
       "offset": [
-       -31,
-       110
+       -38,
+       103
       ]
      },
      {
       "file": "shadows/run-north-2.png",
       "offset": [
-       -11,
-       110
+       -18,
+       102
       ]
      },
      {
       "file": "shadows/run-north-3.png",
       "offset": [
-       -16,
-       108
+       -22,
+       102
       ]
      },
      {
       "file": "shadows/run-north-4.png",
       "offset": [
-       -4,
-       112
+       -10,
+       104
       ]
      },
      {
       "file": "shadows/run-north-5.png",
       "offset": [
-       -22,
-       108
+       -29,
+       104
       ]
      },
      {
       "file": "shadows/run-north-6.png",
       "offset": [
-       -13,
-       111
+       -20,
+       103
       ]
      },
      {
       "file": "shadows/run-north-7.png",
       "offset": [
-       -15,
-       111
+       -21,
+       104
       ]
      }
     ],
@@ -1620,57 +1620,57 @@
      {
       "file": "shadows/run-north-west-0.png",
       "offset": [
-       -28,
-       116
+       -34,
+       108
       ]
      },
      {
       "file": "shadows/run-north-west-1.png",
       "offset": [
-       -33,
-       114
+       -39,
+       107
       ]
      },
      {
       "file": "shadows/run-north-west-2.png",
       "offset": [
-       -41,
-       117
+       -47,
+       110
       ]
      },
      {
       "file": "shadows/run-north-west-3.png",
       "offset": [
-       -54,
-       120
+       -59,
+       113
       ]
      },
      {
       "file": "shadows/run-north-west-4.png",
       "offset": [
-       -33,
-       116
+       -39,
+       109
       ]
      },
      {
       "file": "shadows/run-north-west-5.png",
       "offset": [
-       -34,
-       115
+       -39,
+       108
       ]
      },
      {
       "file": "shadows/run-north-west-6.png",
       "offset": [
-       -40,
-       118
+       -46,
+       111
       ]
      },
      {
       "file": "shadows/run-north-west-7.png",
       "offset": [
-       -42,
-       120
+       -48,
+       112
       ]
      }
     ],
@@ -1678,57 +1678,57 @@
      {
       "file": "shadows/run-west-0.png",
       "offset": [
-       -48,
-       129
+       -55,
+       122
       ]
      },
      {
       "file": "shadows/run-west-1.png",
       "offset": [
        -59,
-       128
+       121
       ]
      },
      {
       "file": "shadows/run-west-2.png",
       "offset": [
-       -52,
-       132
+       -59,
+       125
       ]
      },
      {
       "file": "shadows/run-west-3.png",
       "offset": [
        -59,
-       132
+       124
       ]
      },
      {
       "file": "shadows/run-west-4.png",
       "offset": [
-       -48,
-       129
+       -54,
+       122
       ]
      },
      {
       "file": "shadows/run-west-5.png",
       "offset": [
        -59,
-       127
+       120
       ]
      },
      {
       "file": "shadows/run-west-6.png",
       "offset": [
-       -50,
-       132
+       -56,
+       124
       ]
      },
      {
       "file": "shadows/run-west-7.png",
       "offset": [
        -59,
-       132
+       124
       ]
      }
     ],
@@ -1736,57 +1736,57 @@
      {
       "file": "shadows/run-south-west-0.png",
       "offset": [
-       -42,
-       144
+       -49,
+       136
       ]
      },
      {
       "file": "shadows/run-south-west-1.png",
       "offset": [
-       -45,
-       144
+       -51,
+       136
       ]
      },
      {
       "file": "shadows/run-south-west-2.png",
       "offset": [
-       -37,
-       146
+       -43,
+       139
       ]
      },
      {
       "file": "shadows/run-south-west-3.png",
       "offset": [
-       -33,
-       134
+       -37,
+       126
       ]
      },
      {
       "file": "shadows/run-south-west-4.png",
       "offset": [
-       -39,
-       142
+       -45,
+       135
       ]
      },
      {
       "file": "shadows/run-south-west-5.png",
       "offset": [
-       -51,
-       140
+       -56,
+       133
       ]
      },
      {
       "file": "shadows/run-south-west-6.png",
       "offset": [
-       -35,
-       144
+       -41,
+       136
       ]
      },
      {
       "file": "shadows/run-south-west-7.png",
       "offset": [
-       -34,
-       136
+       -39,
+       129
       ]
      }
     ]
@@ -1819,57 +1819,57 @@
      {
       "file": "shadows/jump-south-0.png",
       "offset": [
-       -55,
-       152
+       -61,
+       145
       ]
      },
      {
       "file": "shadows/jump-south-1.png",
       "offset": [
-       -68,
-       131
+       -75,
+       124
       ]
      },
      {
       "file": "shadows/jump-south-2.png",
       "offset": [
-       -66,
-       137
+       -73,
+       130
       ]
      },
      {
       "file": "shadows/jump-south-3.png",
       "offset": [
-       -56,
-       153
+       -63,
+       145
       ]
      },
      {
       "file": "shadows/jump-south-4.png",
       "offset": [
-       -65,
-       140
+       -72,
+       133
       ]
      },
      {
       "file": "shadows/jump-south-5.png",
       "offset": [
-       -67,
-       144
+       -73,
+       137
       ]
      },
      {
       "file": "shadows/jump-south-6.png",
       "offset": [
-       -60,
-       154
+       -66,
+       147
       ]
      },
      {
       "file": "shadows/jump-south-7.png",
       "offset": [
-       -55,
-       152
+       -61,
+       145
       ]
      }
     ],
@@ -1877,57 +1877,57 @@
      {
       "file": "shadows/jump-south-east-0.png",
       "offset": [
-       -59,
-       153
+       -65,
+       145
       ]
      },
      {
       "file": "shadows/jump-south-east-1.png",
       "offset": [
-       -81,
-       132
+       -88,
+       125
       ]
      },
      {
       "file": "shadows/jump-south-east-2.png",
       "offset": [
-       -74,
-       137
+       -80,
+       130
       ]
      },
      {
       "file": "shadows/jump-south-east-3.png",
       "offset": [
-       -60,
-       154
+       -67,
+       147
       ]
      },
      {
       "file": "shadows/jump-south-east-4.png",
       "offset": [
-       -70,
-       140
+       -76,
+       133
       ]
      },
      {
       "file": "shadows/jump-south-east-5.png",
       "offset": [
-       -67,
-       144
+       -73,
+       136
       ]
      },
      {
       "file": "shadows/jump-south-east-6.png",
       "offset": [
-       -59,
-       155
+       -65,
+       148
       ]
      },
      {
       "file": "shadows/jump-south-east-7.png",
       "offset": [
-       -59,
-       153
+       -65,
+       145
       ]
      }
     ],
@@ -1935,57 +1935,57 @@
      {
       "file": "shadows/jump-east-0.png",
       "offset": [
-       -60,
-       155
+       -66,
+       147
       ]
      },
      {
       "file": "shadows/jump-east-1.png",
       "offset": [
-       -88,
-       138
+       -94,
+       131
       ]
      },
      {
       "file": "shadows/jump-east-2.png",
       "offset": [
-       -78,
-       140
+       -84,
+       132
       ]
      },
      {
       "file": "shadows/jump-east-3.png",
       "offset": [
-       -60,
-       157
+       -66,
+       149
       ]
      },
      {
       "file": "shadows/jump-east-4.png",
       "offset": [
-       -72,
-       141
+       -79,
+       134
       ]
      },
      {
       "file": "shadows/jump-east-5.png",
       "offset": [
-       -66,
-       144
+       -72,
+       136
       ]
      },
      {
       "file": "shadows/jump-east-6.png",
       "offset": [
-       -55,
-       156
+       -62,
+       148
       ]
      },
      {
       "file": "shadows/jump-east-7.png",
       "offset": [
-       -60,
-       155
+       -66,
+       147
       ]
      }
     ],
@@ -1993,57 +1993,57 @@
      {
       "file": "shadows/jump-north-east-0.png",
       "offset": [
-       -59,
-       154
+       -65,
+       147
       ]
      },
      {
       "file": "shadows/jump-north-east-1.png",
       "offset": [
-       -86,
-       142
+       -92,
+       135
       ]
      },
      {
       "file": "shadows/jump-north-east-2.png",
       "offset": [
-       -78,
-       141
+       -84,
+       134
       ]
      },
      {
       "file": "shadows/jump-north-east-3.png",
       "offset": [
-       -57,
-       156
+       -63,
+       149
       ]
      },
      {
       "file": "shadows/jump-north-east-4.png",
       "offset": [
-       -73,
-       141
+       -79,
+       134
       ]
      },
      {
       "file": "shadows/jump-north-east-5.png",
       "offset": [
-       -67,
-       142
+       -73,
+       134
       ]
      },
      {
       "file": "shadows/jump-north-east-6.png",
       "offset": [
-       -54,
-       153
+       -60,
+       146
       ]
      },
      {
       "file": "shadows/jump-north-east-7.png",
       "offset": [
-       -59,
-       154
+       -65,
+       147
       ]
      }
     ],
@@ -2051,57 +2051,57 @@
      {
       "file": "shadows/jump-north-0.png",
       "offset": [
-       -55,
-       155
+       -62,
+       147
       ]
      },
      {
       "file": "shadows/jump-north-1.png",
       "offset": [
-       -75,
-       145
+       -81,
+       138
       ]
      },
      {
       "file": "shadows/jump-north-2.png",
       "offset": [
-       -72,
-       143
+       -79,
+       136
       ]
      },
      {
       "file": "shadows/jump-north-3.png",
       "offset": [
-       -51,
-       156
+       -58,
+       149
       ]
      },
      {
       "file": "shadows/jump-north-4.png",
       "offset": [
-       -71,
-       142
+       -77,
+       135
       ]
      },
      {
       "file": "shadows/jump-north-5.png",
       "offset": [
-       -67,
-       141
+       -74,
+       133
       ]
      },
      {
       "file": "shadows/jump-north-6.png",
       "offset": [
-       -53,
-       151
+       -59,
+       144
       ]
      },
      {
       "file": "shadows/jump-north-7.png",
       "offset": [
-       -55,
-       155
+       -62,
+       147
       ]
      }
     ],
@@ -2109,57 +2109,57 @@
      {
       "file": "shadows/jump-north-west-0.png",
       "offset": [
-       -55,
-       155
+       -60,
+       148
       ]
      },
      {
       "file": "shadows/jump-north-west-1.png",
       "offset": [
-       -66,
-       145
+       -71,
+       138
       ]
      },
      {
       "file": "shadows/jump-north-west-2.png",
       "offset": [
-       -69,
-       144
+       -75,
+       136
       ]
      },
      {
       "file": "shadows/jump-north-west-3.png",
       "offset": [
-       -52,
-       155
+       -58,
+       148
       ]
      },
      {
       "file": "shadows/jump-north-west-4.png",
       "offset": [
-       -75,
-       143
+       -79,
+       136
       ]
      },
      {
       "file": "shadows/jump-north-west-5.png",
       "offset": [
-       -71,
-       142
+       -76,
+       135
       ]
      },
      {
       "file": "shadows/jump-north-west-6.png",
       "offset": [
-       -57,
-       151
+       -63,
+       144
       ]
      },
      {
       "file": "shadows/jump-north-west-7.png",
       "offset": [
-       -55,
-       155
+       -60,
+       148
       ]
      }
     ],
@@ -2167,57 +2167,57 @@
      {
       "file": "shadows/jump-west-0.png",
       "offset": [
-       -55,
-       155
+       -62,
+       147
       ]
      },
      {
       "file": "shadows/jump-west-1.png",
       "offset": [
-       -60,
-       141
+       -66,
+       134
       ]
      },
      {
       "file": "shadows/jump-west-2.png",
       "offset": [
-       -66,
-       143
+       -72,
+       136
       ]
      },
      {
       "file": "shadows/jump-west-3.png",
       "offset": [
-       -53,
-       155
+       -60,
+       147
       ]
      },
      {
       "file": "shadows/jump-west-4.png",
       "offset": [
-       -70,
-       144
+       -75,
+       136
       ]
      },
      {
       "file": "shadows/jump-west-5.png",
       "offset": [
-       -73,
-       144
+       -79,
+       136
       ]
      },
      {
       "file": "shadows/jump-west-6.png",
       "offset": [
-       -61,
-       152
+       -67,
+       144
       ]
      },
      {
       "file": "shadows/jump-west-7.png",
       "offset": [
-       -55,
-       155
+       -62,
+       147
       ]
      }
     ],
@@ -2225,57 +2225,57 @@
      {
       "file": "shadows/jump-south-west-0.png",
       "offset": [
-       -55,
-       153
+       -61,
+       145
       ]
      },
      {
       "file": "shadows/jump-south-west-1.png",
       "offset": [
-       -77,
-       135
+       -80,
+       127
       ]
      },
      {
       "file": "shadows/jump-south-west-2.png",
       "offset": [
-       -64,
-       139
+       -70,
+       132
       ]
      },
      {
       "file": "shadows/jump-south-west-3.png",
       "offset": [
-       -54,
-       153
+       -60,
+       145
       ]
      },
      {
       "file": "shadows/jump-south-west-4.png",
       "offset": [
-       -77,
-       142
+       -80,
+       134
       ]
      },
      {
       "file": "shadows/jump-south-west-5.png",
       "offset": [
-       -70,
-       144
+       -76,
+       136
       ]
      },
      {
       "file": "shadows/jump-south-west-6.png",
       "offset": [
-       -61,
-       152
+       -67,
+       145
       ]
      },
      {
       "file": "shadows/jump-south-west-7.png",
       "offset": [
-       -55,
-       153
+       -61,
+       145
       ]
      }
     ]
@@ -2308,57 +2308,57 @@
      {
       "file": "shadows/slash-south-0.png",
       "offset": [
-       44,
-       206
+       38,
+       199
       ]
      },
      {
       "file": "shadows/slash-south-1.png",
       "offset": [
-       48,
-       216
+       42,
+       209
       ]
      },
      {
       "file": "shadows/slash-south-2.png",
       "offset": [
-       63,
-       224
+       57,
+       217
       ]
      },
      {
       "file": "shadows/slash-south-3.png",
       "offset": [
-       63,
-       161
+       55,
+       166
       ]
      },
      {
       "file": "shadows/slash-south-4.png",
       "offset": [
-       45,
-       161
+       39,
+       167
       ]
      },
      {
       "file": "shadows/slash-south-5.png",
       "offset": [
-       25,
-       225
+       27,
+       219
       ]
      },
      {
       "file": "shadows/slash-south-6.png",
       "offset": [
-       30,
-       226
+       24,
+       220
       ]
      },
      {
       "file": "shadows/slash-south-7.png",
       "offset": [
-       28,
-       226
+       22,
+       219
       ]
      }
     ],
@@ -2366,57 +2366,57 @@
      {
       "file": "shadows/slash-south-east-0.png",
       "offset": [
-       55,
-       199
+       49,
+       192
       ]
      },
      {
       "file": "shadows/slash-south-east-1.png",
       "offset": [
-       55,
-       205
+       49,
+       199
       ]
      },
      {
       "file": "shadows/slash-south-east-2.png",
       "offset": [
-       72,
-       205
+       65,
+       198
       ]
      },
      {
       "file": "shadows/slash-south-east-3.png",
       "offset": [
-       53,
-       146
+       57,
+       152
       ]
      },
      {
       "file": "shadows/slash-south-east-4.png",
       "offset": [
-       7,
-       169
+       19,
+       172
       ]
      },
      {
       "file": "shadows/slash-south-east-5.png",
       "offset": [
-       70,
-       224
+       64,
+       218
       ]
      },
      {
       "file": "shadows/slash-south-east-6.png",
       "offset": [
-       70,
-       227
+       64,
+       220
       ]
      },
      {
       "file": "shadows/slash-south-east-7.png",
       "offset": [
-       70,
-       227
+       64,
+       220
       ]
      }
     ],
@@ -2424,57 +2424,57 @@
      {
       "file": "shadows/slash-east-0.png",
       "offset": [
-       66,
-       189
+       59,
+       182
       ]
      },
      {
       "file": "shadows/slash-east-1.png",
       "offset": [
-       72,
-       188
+       65,
+       182
       ]
      },
      {
       "file": "shadows/slash-east-2.png",
       "offset": [
-       75,
-       171
+       68,
+       175
       ]
      },
      {
       "file": "shadows/slash-east-3.png",
       "offset": [
-       -30,
-       166
+       -16,
+       168
       ]
      },
      {
       "file": "shadows/slash-east-4.png",
       "offset": [
-       -31,
-       169
+       -16,
+       162
       ]
      },
      {
       "file": "shadows/slash-east-5.png",
       "offset": [
-       75,
+       68,
        201
       ]
      },
      {
       "file": "shadows/slash-east-6.png",
       "offset": [
-       75,
-       222
+       68,
+       215
       ]
      },
      {
       "file": "shadows/slash-east-7.png",
       "offset": [
-       74,
-       221
+       67,
+       214
       ]
      }
     ],
@@ -2482,57 +2482,57 @@
      {
       "file": "shadows/slash-north-east-0.png",
       "offset": [
-       53,
-       179
+       47,
+       172
       ]
      },
      {
       "file": "shadows/slash-north-east-1.png",
       "offset": [
-       63,
-       174
+       56,
+       168
       ]
      },
      {
       "file": "shadows/slash-north-east-2.png",
       "offset": [
-       45,
-       169
+       48,
+       162
       ]
      },
      {
       "file": "shadows/slash-north-east-3.png",
       "offset": [
-       -59,
-       171
+       -45,
+       164
       ]
      },
      {
       "file": "shadows/slash-north-east-4.png",
       "offset": [
-       -14,
-       161
+       -8,
+       153
       ]
      },
      {
       "file": "shadows/slash-north-east-5.png",
       "offset": [
-       73,
-       147
+       65,
+       152
       ]
      },
      {
       "file": "shadows/slash-north-east-6.png",
       "offset": [
-       76,
-       189
+       69,
+       187
       ]
      },
      {
       "file": "shadows/slash-north-east-7.png",
       "offset": [
-       76,
-       191
+       69,
+       184
       ]
      }
     ],
@@ -2540,57 +2540,57 @@
      {
       "file": "shadows/slash-north-0.png",
       "offset": [
-       31,
-       176
+       25,
+       169
       ]
      },
      {
       "file": "shadows/slash-north-1.png",
       "offset": [
-       29,
-       172
+       22,
+       165
       ]
      },
      {
       "file": "shadows/slash-north-2.png",
       "offset": [
-       -37,
-       173
+       -24,
+       166
       ]
      },
      {
       "file": "shadows/slash-north-3.png",
       "offset": [
-       -18,
-       177
+       -15,
+       170
       ]
      },
      {
       "file": "shadows/slash-north-4.png",
       "offset": [
-       -5,
-       168
+       -11,
+       158
       ]
      },
      {
       "file": "shadows/slash-north-5.png",
       "offset": [
-       61,
-       119
+       55,
+       126
       ]
      },
      {
       "file": "shadows/slash-north-6.png",
       "offset": [
-       71,
-       149
+       62,
+       154
       ]
      },
      {
       "file": "shadows/slash-north-7.png",
       "offset": [
-       70,
-       152
+       62,
+       156
       ]
      }
     ],
@@ -2598,57 +2598,57 @@
      {
       "file": "shadows/slash-north-west-0.png",
       "offset": [
-       12,
-       183
+       6,
+       176
       ]
      },
      {
       "file": "shadows/slash-north-west-1.png",
       "offset": [
-       1,
-       182
+       -5,
+       176
       ]
      },
      {
       "file": "shadows/slash-north-west-2.png",
       "offset": [
-       -42,
-       193
+       -33,
+       186
       ]
      },
      {
       "file": "shadows/slash-north-west-3.png",
       "offset": [
-       -5,
-       193
+       -11,
+       186
       ]
      },
      {
       "file": "shadows/slash-north-west-4.png",
       "offset": [
-       -18,
-       184
+       -26,
+       177
       ]
      },
      {
       "file": "shadows/slash-north-west-5.png",
       "offset": [
-       -42,
-       133
+       -33,
+       139
       ]
      },
      {
       "file": "shadows/slash-north-west-6.png",
       "offset": [
-       1,
-       159
+       8,
+       163
       ]
      },
      {
       "file": "shadows/slash-north-west-7.png",
       "offset": [
-       4,
-       162
+       10,
+       165
       ]
      }
     ],
@@ -2656,57 +2656,57 @@
      {
       "file": "shadows/slash-west-0.png",
       "offset": [
-       -30,
-       195
+       -20,
+       188
       ]
      },
      {
       "file": "shadows/slash-west-1.png",
       "offset": [
-       -30,
-       200
+       -22,
+       193
       ]
      },
      {
       "file": "shadows/slash-west-2.png",
       "offset": [
-       -9,
-       216
+       -15,
+       208
       ]
      },
      {
       "file": "shadows/slash-west-3.png",
       "offset": [
-       7,
-       206
+       0,
+       199
       ]
      },
      {
       "file": "shadows/slash-west-4.png",
       "offset": [
-       -8,
-       195
+       -18,
+       188
       ]
      },
      {
       "file": "shadows/slash-west-5.png",
       "offset": [
        -86,
-       187
+       182
       ]
      },
      {
       "file": "shadows/slash-west-6.png",
       "offset": [
-       -78,
-       197
+       -63,
+       191
       ]
      },
      {
       "file": "shadows/slash-west-7.png",
       "offset": [
-       -75,
-       195
+       -61,
+       188
       ]
      }
     ],
@@ -2714,57 +2714,57 @@
      {
       "file": "shadows/slash-south-west-0.png",
       "offset": [
-       -17,
-       204
+       -12,
+       197
       ]
      },
      {
       "file": "shadows/slash-south-west-1.png",
       "offset": [
-       10,
-       213
+       9,
+       206
       ]
      },
      {
       "file": "shadows/slash-south-west-2.png",
       "offset": [
-       32,
-       223
+       26,
+       216
       ]
      },
      {
       "file": "shadows/slash-south-west-3.png",
       "offset": [
-       39,
+       32,
        202
       ]
      },
      {
       "file": "shadows/slash-south-west-4.png",
       "offset": [
-       16,
-       180
+       10,
+       182
       ]
      },
      {
       "file": "shadows/slash-south-west-5.png",
       "offset": [
-       -71,
-       223
+       -59,
+       216
       ]
      },
      {
       "file": "shadows/slash-south-west-6.png",
       "offset": [
-       -58,
-       224
+       -48,
+       217
       ]
      },
      {
       "file": "shadows/slash-south-west-7.png",
       "offset": [
-       -57,
-       224
+       -46,
+       216
       ]
      }
     ]
@@ -3002,5 +3002,11 @@
     ]
    }
   }
- }
+ },
+ "shadow_alpha": 0.56,
+ "shadow_colour": [
+  40,
+  30,
+  24
+ ]
 }

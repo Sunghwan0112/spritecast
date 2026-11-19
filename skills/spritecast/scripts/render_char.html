@@ -33,14 +33,50 @@ let root, mixer, clips = [], hips = null; const bones = {};
 // the whole body pressed flat onto the ground along the light: a point h up lands (dx·h, dz·h) away on the floor (the game's light,
 // the same as render.html's SHADOW for props) - the 3D figure's own shadow, frame by frame, with the feet touching it
 let SHADOW = [-0.42, -0.78];
+const SH_U = { value: new THREE.Vector2(SHADOW[0], SHADOW[1]) };          // (the way a point's shadow goes for each metre it is up: set per pass)
 function flatMaterial() {
   const m = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide });
   m.onBeforeCompile = (sh) => {
-    sh.vertexShader = sh.vertexShader.replace('#include <project_vertex>',
-      `vec4 wp = modelMatrix * vec4(transformed, 1.0); float hy = wp.y; wp.x += ${SHADOW[0].toFixed(5)} * hy; wp.z += ${SHADOW[1].toFixed(5)} * hy; wp.y = 0.0;
+    sh.uniforms.uSh = SH_U;
+    sh.vertexShader = 'uniform vec2 uSh;\n' + sh.vertexShader.replace('#include <project_vertex>',
+      `vec4 wp = modelMatrix * vec4(transformed, 1.0); float hy = wp.y; wp.x += uSh.x * hy; wp.z += uSh.y * hy; wp.y = 0.0;
   vec4 mvPosition = viewMatrix * wp; gl_Position = projectionMatrix * mvPosition;`);
   };
   return m;
+}
+// THE SHADOW, AS LIGHT FALLS: the light on the ground is the sun's part and the sky's, each as much as the body leaves open (the same
+// as a prop's baked shadow - propshade.py): the body is pressed flat along 16 directions across the sun's own disc (0.27 degrees: a
+// sharp edge) and 48 across the sky from 20 degrees up (more of its light from high up), and what each hides is added up. So the
+// shadow is deep where the feet stand and under the body, and pale out where only a hand or the head stood in the way of some sky.
+// -> a picture whose alpha is the share of the light taken, 0-1. window.shadowFlat = true: the one hard shape, as before.
+const SUN_PART = 0.65, SKY_PART = 0.35, SUN_DISC = 0.27 * Math.PI / 180;
+function lightDirs() {
+  const g = (n) => Array.from({ length: n }, (_, i) => [Math.sqrt((i + 0.5) / n), i * Math.PI * (3 - Math.sqrt(5))]);
+  const s = new THREE.Vector3(-SHADOW[0], 1, -SHADOW[1]).normalize(), a = new THREE.Vector3().crossVectors(s, new THREE.Vector3(0, 0, 1)).normalize(), b = new THREE.Vector3().crossVectors(s, a);
+  const out = [];
+  for (const [r, t] of g(16)) { const k = r * Math.tan(SUN_DISC), d = s.clone().addScaledVector(a, k * Math.cos(t)).addScaledVector(b, k * Math.sin(t)); out.push([-d.x / d.y, -d.z / d.y, SUN_PART / 16]); }
+  const sky = g(48).map(([r, t]) => { const el = 20 * Math.PI / 180 + (Math.PI / 2 - 20 * Math.PI / 180) * (1 - r * r); return [Math.cos(el) * Math.cos(t), Math.sin(el), Math.cos(el) * Math.sin(t), Math.sin(el)]; });
+  const W = sky.reduce((q, d) => q + d[3], 0);
+  for (const [x, y, z, w] of sky) out.push([-x / y, -z / y, SKY_PART * w / W]);
+  return out;
+}
+function shadowShot() {          // (the pose as it stands now -> its shadow's picture; the body's own materials put back after)
+  root.traverse((o) => { if (o.isMesh) o.material = o.userData.flat; });
+  let url;
+  if (window.shadowFlat) { SH_U.value.set(SHADOW[0], SHADOW[1]); renderer.render(scene, cam); url = renderer.domElement.toDataURL('image/png'); }
+  else {
+    const gl = renderer.getContext(), w = renderer.domElement.width, h = renderer.domElement.height, acc = new Float32Array(w * h), buf = new Uint8Array(w * h * 4);
+    for (const [dx, dz, wt] of lightDirs()) {
+      SH_U.value.set(dx, dz); renderer.render(scene, cam); gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, buf);
+      for (let i = 0; i < w * h; i++) if (buf[i * 4 + 3]) acc[i] += wt * buf[i * 4 + 3] / 255;
+    }
+    SH_U.value.set(SHADOW[0], SHADOW[1]);
+    const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'), im = g.createImageData(w, h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) im.data[((h - 1 - y) * w + x) * 4 + 3] = Math.round(255 * Math.min(1, acc[y * w + x]));          // (read bottom row first)
+    g.putImageData(im, 0, 0); url = c.toDataURL('image/png');
+  }
+  root.traverse((o) => { if (o.isMesh) o.material = o.userData.toon; });
+  return url;
 }
 
 window.load = async (url, pitch = 30, light = 'right') => {
@@ -358,9 +394,7 @@ window.frames = (clipName, dir, n, t0, t1, head, up = 0, wide = 1, shadows = fal
       renderer.render(scene, cam); window.bodyShots.push(renderer.domElement.toDataURL('image/png')); held.visible = true;
     }
     if (shadows) {                       // the same pose, flat on the ground → window.shadowShots
-      root.traverse((o) => { if (o.isMesh) o.material = o.userData.flat; });
-      renderer.render(scene, cam); window.shadowShots.push(renderer.domElement.toDataURL('image/png'));
-      root.traverse((o) => { if (o.isMesh) o.material = o.userData.toon; });
+      window.shadowShots.push(shadowShot());
     }
   }
   return out;
@@ -388,9 +422,7 @@ window.blendFrames = (clipA, tA, clipB, tB, dir, n, head, up = 0, wide = 1, shad
       renderer.render(scene, cam); window.bodyShots.push(renderer.domElement.toDataURL('image/png')); held.visible = true;
     }
     if (shadows) {                       // the in-between pose, flat on the ground
-      root.traverse((o) => { if (o.isMesh) o.material = o.userData.flat; });
-      renderer.render(scene, cam); window.shadowShots.push(renderer.domElement.toDataURL('image/png'));
-      root.traverse((o) => { if (o.isMesh) o.material = o.userData.toon; });
+      window.shadowShots.push(shadowShot());
     }
   }
   A.setEffectiveWeight(1); B.setEffectiveWeight(1); mixer.stopAllAction();
@@ -627,7 +659,7 @@ window.sitFrames = (dir, head, up = 0, wide = 1, o = {}, shadows = false) => {
   renderer.render(scene, cam); const out = renderer.domElement.toDataURL('image/png');
   if (shadows) {
     root.traverse((m) => { if (m.isMesh) m.material = m.userData.flat; });
-    renderer.render(scene, cam); window.shadowShots.push(renderer.domElement.toDataURL('image/png'));
+    SH_U.value.set(SHADOW[0], SHADOW[1]); renderer.render(scene, cam); window.shadowShots.push(renderer.domElement.toDataURL('image/png'));          // (seated: the one hard shape - seat.py makes the shadow with the chair's)
     // every pixel's height above the ground (in the figure's heights, up to VIEW_H) as 16 bits, red high, green low - for working out
     // what of a chair stands in front of the sitter (seat.py)
     const hm = new THREE.ShaderMaterial({ uniforms: { uTop: { value: VIEW_H } }, side: THREE.DoubleSide,
@@ -818,9 +850,7 @@ window.quadFrames = (dir, n, idle = false, shadows = false) => {
     for (const [nm, deg] of Object.entries(p.sway)) swayBone(nm, deg);
     renderer.render(scene, cam); out.push(renderer.domElement.toDataURL('image/png'));
     if (shadows) {
-      root.traverse((o) => { if (o.isMesh) o.material = o.userData.flat; });
-      renderer.render(scene, cam); window.shadowShots.push(renderer.domElement.toDataURL('image/png'));
-      root.traverse((o) => { if (o.isMesh) o.material = o.userData.toon; });
+      window.shadowShots.push(shadowShot());
     }
   }
   return out;

@@ -71,7 +71,7 @@ Three OKs: `turnaround`, `3d` (= `model` + `rig` + `render`), `draw` (then `fini
 
 ## Output (`<name>/out/`)
 `walk-<facing>.png` (a strip of `frames`), `idle-<facing>.png`, `shadows/walk-<facing>-<i>.png` and `shadows/idle-<facing>.png`
-(solid black in alpha - draw at ~30 % under everything), `character.json` (frame size, anchor between the feet as a fraction of the
+(black, its darkness in the alpha - draw it under everything at character.json's `shadow_alpha`: 0.56 for shadows as light falls, the default since 0.20; 0.3 for `"shadow": "flat"`, the one hard shape), `character.json` (frame size, anchor between the feet as a fraction of the
 frame, fps, `shadows`: each frame's `{file, offset}` - its top-left from the frame's top-left in frame px, often negative: it falls
 past the frame's edge - and the fit report), `sheet.png` and `walk-<facing>.gif` (with the shadows). Facings: south (toward the viewer), south-east, east,
 north-east, north, north-west, west, south-west.

@@ -1,0 +1,38 @@
+{
+  "name": "forest_tree",
+  "footprint": [
+    1.6,
+    1.6
+  ],
+  "description": "a round leafy forest tree in the rain: a short thick brown trunk with a few roots, a full dark-green crown of clustered leaves, wet and glossy",
+  "loose": true,
+  "camera": "iso-2:1",
+  "model": {
+    "glb": "forest_tree/tripo.glb",
+    "size": [
+      1.6,
+      1.6,
+      2.4
+    ],
+    "yaw": 0
+  },
+  "views": [
+    0,
+    90,
+    180,
+    270
+  ],
+  "sway": "leaves",
+  "see_through": [
+    {
+      "colour": "#3f7a35",
+      "open": 0.3,
+      "within": 110
+    }
+  ],
+  "collide": {
+    "cover": [
+      0.55
+    ]
+  }
+}

@@ -39,14 +39,15 @@ def reduce(a, k):
     return out
 
 
-def shade(a, k):          # a shadow's frame: a pixel where half its block or more is shadow, the colour and strength kept
+def shade(a, k):          # a shadow's frame: a pixel where half its block or more is shadow, in the strength most of the block has (a graded shadow keeps its steps)
     ys, xs = edges(a.shape[0], k), np.round(np.arange(max(1, round(a.shape[1] * k)) + 1) / k).astype(int).clip(0, a.shape[1]); out = np.zeros((len(ys) - 1, len(xs) - 1, 4), np.uint8); on = a[..., 3] > 0
     if not on.any(): return out
     c = a[on][0]
     for y in range(len(ys) - 1):
         for x in range(len(xs) - 1):
             b = on[ys[y]:max(ys[y] + 1, ys[y + 1]), xs[x]:max(xs[x] + 1, xs[x + 1])]
-            if b.mean() >= 0.5: out[y, x] = c
+            if b.mean() >= 0.5:
+                q = a[ys[y]:max(ys[y] + 1, ys[y + 1]), xs[x]:max(xs[x] + 1, xs[x + 1])][b]; al, n_ = np.unique(q[:, 3], return_counts=True); out[y, x] = (*c[:3], al[n_.argmax()])
     return out
 
 

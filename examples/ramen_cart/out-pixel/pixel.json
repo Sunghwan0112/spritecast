@@ -20,7 +20,73 @@
    "in_frame": [
     6,
     9
-   ]
+   ],
+   "shadow": {
+    "file": "shadow-0.png",
+    "at": [
+     -42,
+     50
+    ],
+    "foot": [
+     57.8,
+     117.4
+    ],
+    "fit": 0.92
+   },
+   "solid": {
+    "file": "solid-0.png",
+    "at": [
+     11,
+     94
+    ],
+    "size": [
+     89,
+     46
+    ],
+    "hull": [
+     [
+      41.0,
+      94.0
+     ],
+     [
+      62.0,
+      99.0
+     ],
+     [
+      87.0,
+      112.0
+     ],
+     [
+      96.0,
+      120.0
+     ],
+     [
+      100.0,
+      135.0
+     ],
+     [
+      98.0,
+      140.0
+     ],
+     [
+      63.0,
+      138.0
+     ],
+     [
+      46.0,
+      132.0
+     ],
+     [
+      22.0,
+      120.0
+     ],
+     [
+      12.0,
+      109.0
+     ]
+    ],
+    "below_m": 0.4
+   }
   },
   "90": {
    "file": "sprite-90.png",
@@ -41,7 +107,73 @@
    "in_frame": [
     4,
     7
-   ]
+   ],
+   "shadow": {
+    "file": "shadow-90.png",
+    "at": [
+     -43,
+     50
+    ],
+    "foot": [
+     59.0,
+     114.1
+    ],
+    "fit": 0.94
+   },
+   "solid": {
+    "file": "solid-90.png",
+    "at": [
+     11,
+     93
+    ],
+    "size": [
+     91,
+     47
+    ],
+    "hull": [
+     [
+      42.0,
+      140.0
+     ],
+     [
+      12.0,
+      125.0
+     ],
+     [
+      11.0,
+      122.0
+     ],
+     [
+      23.0,
+      113.0
+     ],
+     [
+      49.0,
+      100.0
+     ],
+     [
+      64.0,
+      95.0
+     ],
+     [
+      100.0,
+      93.0
+     ],
+     [
+      102.0,
+      99.0
+     ],
+     [
+      97.0,
+      115.0
+     ],
+     [
+      62.0,
+      135.0
+     ]
+    ],
+    "below_m": 0.4
+   }
   },
   "180": {
    "file": "sprite-180.png",
@@ -62,7 +194,73 @@
    "in_frame": [
     10,
     7
-   ]
+   ],
+   "shadow": {
+    "file": "shadow-180.png",
+    "at": [
+     -41,
+     51
+    ],
+    "foot": [
+     45.4,
+     112.0
+    ],
+    "fit": 0.88
+   },
+   "solid": {
+    "file": "solid-180.png",
+    "at": [
+     7,
+     92
+    ],
+    "size": [
+     85,
+     45
+    ],
+    "hull": [
+     [
+      10.0,
+      92.0
+     ],
+     [
+      43.0,
+      94.0
+     ],
+     [
+      82.0,
+      111.0
+     ],
+     [
+      92.0,
+      119.0
+     ],
+     [
+      91.0,
+      122.0
+     ],
+     [
+      63.0,
+      137.0
+     ],
+     [
+      44.0,
+      132.0
+     ],
+     [
+      19.0,
+      119.0
+     ],
+     [
+      10.0,
+      112.0
+     ],
+     [
+      7.0,
+      93.0
+     ]
+    ],
+    "below_m": 0.4
+   }
   },
   "270": {
    "file": "sprite-270.png",
@@ -83,7 +281,73 @@
    "in_frame": [
     8,
     4
-   ]
+   ],
+   "shadow": {
+    "file": "shadow-270.png",
+    "at": [
+     -44,
+     52
+    ],
+    "foot": [
+     44.7,
+     118.7
+    ],
+    "fit": 0.91
+   },
+   "solid": {
+    "file": "solid-270.png",
+    "at": [
+     5,
+     96
+    ],
+    "size": [
+     88,
+     45
+    ],
+    "hull": [
+     [
+      64.0,
+      96.0
+     ],
+     [
+      92.0,
+      110.0
+     ],
+     [
+      82.0,
+      122.0
+     ],
+     [
+      55.0,
+      135.0
+     ],
+     [
+      42.0,
+      139.0
+     ],
+     [
+      10.0,
+      141.0
+     ],
+     [
+      5.0,
+      140.0
+     ],
+     [
+      7.0,
+      122.0
+     ],
+     [
+      20.0,
+      113.0
+     ],
+     [
+      43.0,
+      101.0
+     ]
+    ],
+    "below_m": 0.4
+   }
   }
  },
  "frame": [
@@ -97,5 +361,25 @@
   0,
   0
  ],
- "review": {}
+ "review": {},
+ "shadow": {
+  "weather": "sun",
+  "colour": [
+   40,
+   30,
+   24
+  ],
+  "steps": [
+   0.1,
+   0.2,
+   0.31,
+   0.43,
+   0.56
+  ]
+ },
+ "collide": {
+  "walk_m": 0.4,
+  "cover_m": [],
+  "note": "solid-<side>.png: where a walker cannot stand (where the prop stands: what it has below walk_m, on the ground, and what lies between); cover-<h>-<side>.png: where a thing flying h metres up is stopped. White = blocked; `at` is the mask's top-left in the sprite's pixels, `hull` its outline for a collision polygon. A thing in the air at height h over ground pixel (x, y) is tested at (x, y) itself: the masks are on the ground"
+ }
 }
