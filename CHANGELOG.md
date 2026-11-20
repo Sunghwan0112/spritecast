@@ -12,7 +12,8 @@ Changes made because of a report or a request are marked *(feedback)*.
   character's `shadow_alpha` in character.json goes with it, so the exports show it right.
 - **Pixel art's shadows are 1.5 times as deep by default** (56 % at their deepest -> 71 %, 10 % at their far edge -> 15 %): pixel art says
   things a little louder than they are. **It changes how a pixel prop's and a pixel character's shadow looks the next time it is
-  baked** - `"shadow_strength": 1` gives the old one. Painted character sets and smooth shadows stay at 1.
+  baked** - `"shadow_strength": 1` gives the old one. Painted character sets and smooth shadows stay at 1. The README shows why, the same
+  tree and character at 1, 1.5 and 2 on dark ground and on a pale floor.
 
 ## 0.20.0 — 2026-11-18
 

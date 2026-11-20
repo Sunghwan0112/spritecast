@@ -439,6 +439,14 @@ lámpara en el suelo y el viento en sus hojas se calculan a partir de él: grati
 
 ![el carrito desde cuatro lados, cada uno con su sombra horneada desde el modelo 3D; abajo, la sombra de un árbol al sol (oscura junto al tronco, suave bajo la copa) y en un día gris (solo suave, alrededor)](docs/prop-shadows.png)
 
+- **Cuánta fuerza tiene la sombra** (gratis): `"shadow_strength"` en la especificación, o `--shadow-strength` - la sombra como si se
+  pusiera esa cantidad de veces sobre sí misma. Tal como la da la luz (1) la sombra es correcta pero floja: sobre suelo oscuro se pierde,
+  y el sprite parece flotar en vez de estar de pie en el suelo. El pixel art dice las cosas un poco más fuerte de lo que son, así que
+  **los sprites en pixel art usan 1.5 por defecto**, objetos y personajes por igual (71 % en lo más oscuro en lugar de 56 %). En un
+  suelo claro donde pese demasiado, pide 1; en suelo muy oscuro, 2. El editor de luz tiene un control deslizante para esto.
+
+![el mismo árbol y la niña de la lluvia con sus sombras a fuerza 1, 1.5 y 2: sobre hierba oscura y lluviosa la sombra a 1 casi se pierde y ambos parecen flotar, a 1.5 están de pie en el suelo; sobre un suelo claro 1 ya se ve bien y 2 pesa demasiado](docs/shadow-strength.gif)
+
 - **En interiores, una lámpara donde la pongas.** `--lamp -1,2.4,-0.2 --lamp-size 0.03` (metros desde el pie del objeto: a la
   derecha, hacia arriba, hacia quien mira; el tamaño de la propia lámpara) - la sombra cae lejos de ella, más larga cuanto más baja
   cuelga, nítida con una bombilla desnuda y suave con una pantalla grande, y se desvanece con la luz sobre el suelo. También sale su luz

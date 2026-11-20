@@ -437,6 +437,14 @@ on the floor and the wind in its leaves are worked out from it - free, on your c
 
 ![the ramen cart from four sides, each with its shadow baked from the 3D model; below, a tree's shadow in sun (dark by the trunk, soft under the crown) and on a grey day (only soft, close round it)](docs/prop-shadows.png)
 
+- **How deep the shadow is** (free): `"shadow_strength"` in the spec, or `--shadow-strength` - the shadow as if laid that many times
+  over itself. As the light gives it (1) a shadow is right but quiet: on dark ground it is lost, and the sprite seems to float over the
+  ground instead of standing on it. Pixel art says things a little louder than they are, so **pixel sprites get 1.5 by default**, props
+  and characters alike (71 % at its deepest instead of 56 %). On a light floor where that looks heavy ask for 1; on very dark ground, 2.
+  The light editor has a slider for it.
+
+![the same tree and the rain girl with their shadows at strength 1, 1.5 and 2: on dark rainy grass the shadow at 1 is nearly lost and both seem to float, at 1.5 they stand on the ground; on a pale floor 1 is already clear and 2 is heavy](docs/shadow-strength.gif)
+
 - **Indoors, a lamp where you put it.** `--lamp -1,2.4,-0.2 --lamp-size 0.03` (metres from the prop's foot: right, up, towards the
   viewer; the lamp's own size) - the shadow falls away from it, longer the lower it hangs, sharp from a bare bulb and soft from a big
   shade, and fades as its light does across the floor. Its light on the floor comes too - `light-<side>.png`, brightest under it, the

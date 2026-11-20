@@ -439,6 +439,14 @@ luminária no chão e o vento nas folhas são calculados a partir dele: grátis,
 
 ![o carrinho de quatro lados, cada um com a sombra assada do modelo 3D; abaixo, a sombra de uma árvore ao sol (escura junto ao tronco, suave sob a copa) e num dia nublado (só suave, em volta)](docs/prop-shadows.png)
 
+- **Quão forte é a sombra** (grátis): `"shadow_strength"` na especificação, ou `--shadow-strength` - a sombra como se fosse posta
+  esse número de vezes sobre si mesma. Como a luz a dá (1) a sombra está certa, mas fraca: em chão escuro ela some, e o sprite parece
+  flutuar em vez de estar de pé no chão. Pixel art diz as coisas um pouco mais alto do que elas são, então **sprites em pixel art usam
+  1.5 por padrão**, objetos e personagens (71 % no ponto mais escuro em vez de 56 %). Em um piso claro onde isso pesar, peça 1; em
+  chão muito escuro, 2. O editor de luz tem um controle deslizante para isso.
+
+![a mesma árvore e a menina da chuva com as sombras em força 1, 1.5 e 2: na grama escura e chuvosa a sombra em 1 quase some e os dois parecem flutuar, em 1.5 eles ficam de pé no chão; em um piso claro 1 já aparece bem e 2 pesa demais](docs/shadow-strength.gif)
+
 - **Em ambientes internos, uma luminária onde você quiser.** `--lamp -1,2.4,-0.2 --lamp-size 0.03` (metros a partir do pé do objeto:
   para a direita, para cima, na direção de quem olha; o tamanho da própria luminária) - a sombra cai para longe dela, mais longa
   quanto mais baixa ela estiver, nítida com uma lâmpada nua e suave com uma cúpula grande, e some conforme a luz se espalha pelo chão. A luz no chão
