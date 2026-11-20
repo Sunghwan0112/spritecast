@@ -658,6 +658,7 @@ def main():
     # of the light taken) - here, as for a pixel prop, in five steps of darkness, hard-edged: deep where the feet stand, pale at its far edge.
     SHADE = (40, 30, 24, 77); shadows = {}; (out / 'shadows').mkdir(exist_ok=True); import charlib as CL_
     STEPS_ = np.array([0, 0.1, 0.2, 0.31, 0.43, 0.56]); graded = False
+    SHOWN_ = 1 - (1 - STEPS_) ** float(s.get('shadow_strength', 1.5))          # (the steps as written - as if laid 1.5 times, pixel art's default, like a pixel prop's: 71 % at its deepest; or the spec's "shadow_strength")
     for (c, dr), (fr, _) in strips.items():
         ms_ = []
         for i in range(len(fr)):
@@ -671,7 +672,7 @@ def main():
         if len(ms_) != len(fr) or not any(m_.any() for m_ in ms_): continue
         sy0, sy1, sx0, sx1 = bbox(np.any(np.array(ms_) > 0, 0)); st_ = Image.new('RGBA', ((sx1 - sx0) * len(ms_), sy1 - sy0))
         for n_, m_ in enumerate(ms_):
-            c_ = m_[sy0:sy1, sx0:sx1]; a_ = np.zeros(c_.shape + (4,), np.uint8); a_[c_ > 0, :3] = SHADE[:3]; a_[..., 3] = np.round(STEPS_[c_] * 255) if graded else (c_ > 0) * 77; st_.paste(Image.fromarray(a_), (n_ * (sx1 - sx0), 0))
+            c_ = m_[sy0:sy1, sx0:sx1]; a_ = np.zeros(c_.shape + (4,), np.uint8); a_[c_ > 0, :3] = SHADE[:3]; a_[..., 3] = np.round(SHOWN_[c_] * 255) if graded else (c_ > 0) * 77; st_.paste(Image.fromarray(a_), (n_ * (sx1 - sx0), 0))
         st_.save(out / 'shadows' / f'{c}-{dr}.png'); shadows[f'{c}-{dr}'] = {'file': f'shadows/{c}-{dr}.png', 'frame': [int(sx1 - sx0), int(sy1 - sy0)], 'offset': [int(sx0 + 2 * CH_ - box[0]), int(sy0 + 2 * CH_ - box[1])]}
     # A SWING'S EFFECT ("trail" in the action; render/<clip>-<facing>-<i>-t.png): the same sprite of its own as in the painted set, as
     # pixel art - hard edges, a few colours - laid OVER the figure at the same frame number ("trails" in pixel.json: file, frame, offset)

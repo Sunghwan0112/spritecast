@@ -43,6 +43,22 @@ from scipy import ndimage as ndi
 COLOUR = (40, 30, 24)                     # (the shadow colour of SpriteCast's characters)
 WEATHER = {'sun': ((0.65, 0.35), 0.62), 'overcast': ((0.0, 1.0), 0.8), 'lamp': ((0.7, 0.3), 0.66)}          # (the light's sun (lamp) part and sky (room) part; darkness 1 -> this alpha)
 STEPS = np.array([0, 0.1, 0.2, 0.31, 0.43, 0.56])          # (the alpha in steps)
+STRENGTH = 1.0            # ("shadow_strength" / --strength: the shadow as if laid this many times - 1 as the light gives it)
+PIXEL_STRENGTH = 1.5      # (the default for pixel art, which wants things said a little louder than they are: 56 % at its deepest -> 71 %, 10 % at
+                          # its far edge -> 15 %. A smooth shadow ("light_style": "smooth") stays at 1)
+
+
+def strength_of(v, style='pixel'):
+    """a spec's or a flag's strength -> the number, or the reason it is not one; none given: pixel art's 1.5, a smooth shadow's 1"""
+    try: k = float((PIXEL_STRENGTH if style == 'pixel' else 1) if v is None else v)
+    except (TypeError, ValueError): sys.exit(f'shadow strength: a number from 0.3 to 3 (1 as the light gives it; pixel art 1.5 by default), not {v!r}')
+    if not 0.3 <= k <= 3: sys.exit(f'shadow strength: from 0.3 to 3 (1 as the light gives it; pixel art 1.5 by default), not {k:g}')
+    return k
+
+
+def deeper(a, k=None):
+    """a darkness 0-1 -> as dark as it is laid k times over itself (k under 1: paler)"""
+    k = STRENGTH if k is None else k; return a if k == 1 else 1 - (1 - np.clip(a, 0, 1)) ** k
 SUN_DISC = 0.27           # (degrees from its middle: the real sun's - a branch's shadow comes out sharp, a crown's with the gaps between its leaves)
 PAD = 14                  # (room round a sprite for the fit)
 SS = 4                    # (outlines drawn 4x fine, then taken down)
@@ -275,14 +291,17 @@ def shadow_of(prep, view, weather, lamp=None, fast=False, with_pool=False, style
     got = darkness(pts, (sh[0] + 2 * room, sh[1] + 2 * room), view['sc'], view['off'] + room, view['pitch'], ppm, view['sun'], light, lamp if weather == 'lamp' else None, opq, fast, pool=bool(want))
     D, lit = got if want else (got, None); pl = pool_of(lit, room, style) if want else None
     al = STEPS[np.abs(D[..., None] * dark - STEPS).argmin(-1)] if style == 'pixel' else np.clip(D * dark, 0, STEPS[-1]) * (D * dark > 0.02)          # (pixel: in steps; smooth: as it is)
+    al = deeper(al)
     if not (al > 0).any(): return (None, pl) if with_pool else None
     ys, xs = np.nonzero(al > 0); y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1; c = al[y0:y1, x0:x1]
     img = np.zeros(c.shape + (4,), np.uint8); img[..., :3] = COLOUR; img[..., 3] = np.round(c * 255)
     sh_ = (Image.fromarray(img), [int(x0) - PAD - room, int(y0) - PAD - room]); return (sh_, pl) if with_pool else sh_
 
 
-def bake(spec_path, weather=None, quiet=False, lamp=None, prep=None, style=None):
+def bake(spec_path, weather=None, quiet=False, lamp=None, prep=None, style=None, strength=None):
+    global STRENGTH
     spec_path = Path(spec_path); spec = json.loads(spec_path.read_text(encoding='utf-8')); out = spec_path.resolve().parent / spec['name'] / 'out-pixel'
+    STRENGTH = strength_of(spec.get('shadow_strength') if strength is None else strength, style or spec.get('light_style', 'pixel'))
     lamp = lamp_of(spec, lamp)
     weather = weather or ('lamp' if lamp else spec.get('shadow') if spec.get('shadow') is not None else 'sun'); weather = 'none' if weather is False else weather
     if weather == 'lamp' and not lamp: sys.exit('propshade: a lamp wants where it is: --lamp x,y,z (metres from the prop\'s foot) or "lamp": {"at": [x, y, z], "size": r}')
@@ -322,7 +341,7 @@ def bake(spec_path, weather=None, quiet=False, lamp=None, prep=None, style=None)
             pj['lamp'] = {'at_m': list(lamp[0]), 'size_m': lamp[1], 'file': 'lamp.png', 'middle': list(mid), 'colour': list(POOL),
                       'draw': 'floor, then light-<side>.png with ADD, shadow-<side>.png, the sprite, lamp.png with its middle on the side\'s lamp.at - all in the sprite\'s pixels'}
     else: pj.pop('lamp', None); (out / 'lamp.png').unlink(missing_ok=True)
-    pj['shadow'] = {'weather': weather, 'style': style, **({'lamp': {'at': list(lamp[0]), 'size': lamp[1]}} if weather == 'lamp' else {}), 'colour': list(COLOUR), 'steps': STEPS[1:].round(2).tolist(),
+    pj['shadow'] = {'weather': weather, 'style': style, **({'lamp': {'at': list(lamp[0]), 'size': lamp[1]}} if weather == 'lamp' else {}), 'colour': list(COLOUR), 'strength': STRENGTH, 'steps': np.round(deeper(STEPS[1:]), 2).tolist(),
                     'on_a_character': "a point of her h metres up, standing at ground pixel (x, y): read this shadow's alpha at (x, y) + h x per_m_up - only if h < height_m (a rock shades her feet, not her head) - and darken that part of her by it. Feet, middle and head each read their own"}; (out / 'pixel.json').write_text(json.dumps(pj, indent=1))
     if cells:          # to look at: each side over its shadow, on a plain green ground
         boxes = [(min(0, at[0]), min(0, at[1]), max(sp.width, at[0] + sh.width), max(sp.height, at[1] + sh.height)) for sp, sh, at in cells]
@@ -331,7 +350,7 @@ def bake(spec_path, weather=None, quiet=False, lamp=None, prep=None, style=None)
             w, h = b[2] - b[0], b[3] - b[1]; t = Image.new('RGBA', (w, h)); t.alpha_composite(sh, (at[0] - b[0], at[1] - b[1])); t.alpha_composite(sp, (-b[0], -b[1]))
             pv.alpha_composite(t.resize((w * z, h * z), Image.NEAREST), (x, H - 16 - h * z)); x += w * z + 16
         pv.convert('RGB').save(out / 'preview-shadow.png')
-        if not quiet: print(f'{out}: shadows ({weather}) - look at preview-shadow.png')
+        if not quiet: print(f'{out}: shadows ({weather}' + f', strength {STRENGTH:g}' + ') - look at preview-shadow.png')
 
 
 WALK = 0.4                # (m: what a prop has below this is what it stands on - a trunk's foot, a table's legs; boughs hanging low are not)
@@ -579,7 +598,8 @@ def main():
     ap.add_argument('--sway', default=None, help='the wind in it: "leaves" (its green parts move, in clumps cut from the model) - or the spec\'s "sway"; writes sway-<side>.png, clumps-<side>.png, preview-sway.gif')
     ap.add_argument('--cover', default=None, help='heights (m, comma-separated) at which to cut the model for what stops a thing in the air: cover-<h>-<side>.png (or the spec\'s "collide": {"cover": [0.55]}); solid-<side>.png, what stops a walker, is always written')
     ap.add_argument('--lamp-size', type=float, default=0.1, help='the lamp\'s radius in metres: a bare bulb ~0.03, a lampshade ~0.15, a ceiling panel ~0.4 (bigger: softer)')
-    A = ap.parse_args(); bake(A.spec, A.weather, style=A.style, lamp=([float(x) for x in A.lamp.split(',')], A.lamp_size) if A.lamp else None)
+    ap.add_argument('--strength', type=float, default=None, help='how deep the shadow is, as if laid this many times: pixel art 1.5 by default (71 %% at its deepest), a smooth shadow 1 (56 %%: as the light gives it) - or the spec\'s "shadow_strength"; from 0.3 to 3')
+    A = ap.parse_args(); bake(A.spec, A.weather, style=A.style, lamp=([float(x) for x in A.lamp.split(',')], A.lamp_size) if A.lamp else None, strength=A.strength)
     sway(A.spec, A.sway); collide(A.spec, [float(h) for h in A.cover.split(',')] if A.cover else None)
 
 

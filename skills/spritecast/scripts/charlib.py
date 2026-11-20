@@ -370,7 +370,21 @@ SHADOW_DARK = 0.62        # (how dark the ground gets where no light reaches: th
 SHADOW_ALPHA = 0.56       # (a graded shadow's strip is shown at this: its alpha 255 = this dark, the deepest a shadow gets)
 
 
-GRADED = False            # (set when a graded shadow has been read: character.json then says "shadow_alpha": SHADOW_ALPHA)
+SHADOW_STRENGTH = 1.0     # (the spec's "shadow_strength": the shadow as if laid this many times - 1 as the light gives it, a painted set's default;
+                          # a pixel set's is 1.5, like a pixel prop's: pixelart.py, propshade.py)
+
+
+def deeper(d):
+    """a darkness 0-1 -> as dark as it is laid SHADOW_STRENGTH times over itself"""
+    return d if SHADOW_STRENGTH == 1 else 1 - (1 - np.clip(d, 0, 1)) ** SHADOW_STRENGTH
+
+
+def shadow_alpha():
+    """how dark a graded shadow's strip is shown (character.json's "shadow_alpha"): the deepest a shadow gets at this strength - 0.56 at 1, 0.73 at 1.6"""
+    return round(float(deeper(SHADOW_ALPHA)), 3)
+
+
+GRADED = False            # (set when a graded shadow has been read: character.json then says "shadow_alpha": shadow_alpha())
 
 
 def is_graded(al): return ((al > 12) & (al < 243)).sum() > 0.25 * (al > 12).sum()
@@ -392,7 +406,7 @@ def shadow_graded(al):
     # (the sky's part reaches far and thin - a haze over the whole picture that ended in a straight line at the picture's edge, a pale box
     # round the figure on a light floor. Under 7 % dark it is let go, smoothly from 7 down to 2: the soft dark close round the feet stays)
     d = shadow_share(al) * SHADOW_DARK; w = np.clip((d - 0.02) / 0.05, 0, 1); d = d * w * w * (3 - 2 * w)
-    a = np.clip(d / SHADOW_ALPHA, 0, 1); a[a < 0.012] = 0
+    a = np.clip(deeper(d) / shadow_alpha(), 0, 1); a[a < 0.012] = 0
     lab, n = ndimage.label(a > 0)
     if n > 1: sizes = ndimage.sum(a, lab, range(1, n + 1)); a = a * np.isin(lab, np.nonzero(sizes >= 0.02 * sizes.max())[0] + 1)
     m = Image.fromarray(np.round(a * 255).astype(np.uint8)); bb = m.getbbox()

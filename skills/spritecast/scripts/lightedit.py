@@ -46,6 +46,8 @@ canvas{image-rendering:pixelated;background:#000;border-radius:6px;cursor:crossh
 </div>
 <div class="box"><b>Look</b><div class="row"><button data-s="pixel">Pixel</button><button data-s="smooth">Smooth</button></div>
  <small>Pixel: the shadow, the glow and the floor's light in steps, dithered. Smooth: gradients (a game not in pixel art).</small></div>
+<div class="box"><label>Shadow strength <span id="dv"></span></label><input id="d" type="range" min="0.5" max="2.5" step="0.1" value="1">
+ <small>The shadow as if laid this many times. 1: as the light gives it. Pixel art starts at 1.5 - a little louder than it is, so things stand on the ground.</small></div>
 <div class="box" id="picbox"><b>The lamp</b><div class="row" id="lamps"><button data-p="glow">A glow</button></div>
  <div class="row"><button data-p="own">Load a picture...</button><input id="lname" placeholder="its name (else the file's)" style="flex:1;min-width:0;font:inherit;padding:5px;border-radius:6px;border:1px solid #5a534b;background:#1d1b19;color:#e9e4dc"></div>
  <small>Your lamps are kept in ~/.spritecast/lamps (for every prop); the ones that come with SpriteCast too.</small>
@@ -68,7 +70,7 @@ const Z = 4, W = 260, H = 230, FX = 130, FY = 170;
 const cv = document.getElementById('c'), x = cv.getContext('2d'); cv.width = W * Z; cv.height = H * Z; x.imageSmoothingEnabled = false;
 const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
 let info, view, sprites = {}, shade = null, pool = null, lampImg = null, busy = false, again = false;
-let L = {w: 'lamp', x: -0.9, y: 2.0, z: -0.3, r: 0.05, style: 'pixel', pic: null};          // pic: {file, foot, light} - a lamp picture of one's own
+let L = {w: 'lamp', x: -0.9, y: 2.0, z: -0.3, r: 0.05, d: 1.5, style: 'pixel', pic: null};          // pic: {file, foot, light} - a lamp picture of one's own
 let picImg = null, pickWhat = 'move';          // (on the lamp: drag it about, or one click sets its light point / where it stands, then back to moving)
 const $ = (id) => document.getElementById(id), msg = (t) => $('msg').textContent = t;
 fetch('info').then(r => r.json()).then(j => {
@@ -77,12 +79,12 @@ fetch('info').then(r => r.json()).then(j => {
     const b = document.createElement('button'); b.textContent = v.key + '°'; b.onclick = () => { view = v; mark(); ask(); }; b.dataset.k = v.key; $('views').appendChild(b);
     const im = new Image(); im.src = 'sprite/' + v.key; im.onload = draw; sprites[v.key] = im;
   }
-  view = j.views[0]; $('h').value = L.y; $('r').value = L.r; mark(); ask();
+  view = j.views[0]; $('h').value = L.y; $('r').value = L.r; $('d').value = L.d; mark(); ask();
 });
 function mark() {
   document.querySelectorAll('#views button').forEach(b => b.classList.toggle('on', b.dataset.k === view.key));
   document.querySelectorAll('[data-w]').forEach(b => b.classList.toggle('on', b.dataset.w === L.w));
-  $('lampbox').style.opacity = L.w === 'lamp' ? 1 : 0.35; $('hv').textContent = (+L.y).toFixed(2) + ' m'; $('rv').textContent = (+L.r).toFixed(2) + ' m';
+  $('lampbox').style.opacity = L.w === 'lamp' ? 1 : 0.35; $('hv').textContent = (+L.y).toFixed(2) + ' m'; $('rv').textContent = (+L.r).toFixed(2) + ' m'; $('dv').textContent = (+L.d).toFixed(1) + ' x';
   document.querySelectorAll('[data-s]').forEach(b => b.classList.toggle('on', b.dataset.s === L.style));
   document.querySelectorAll('[data-p]').forEach(b => b.classList.toggle('on', b.dataset.p === (L.pic ? 'x-' + L.pic.from : 'glow')));
   $('h').disabled = !!L.pic; $('pic').style.display = L.pic ? 'block' : 'none'; $('pictools').style.display = L.pic ? 'flex' : 'none';
@@ -92,6 +94,7 @@ function mark() {
 }
 document.querySelectorAll('[data-w]').forEach(b => b.onclick = () => { L.w = b.dataset.w; mark(); ask(); });
 $('h').oninput = () => { L.y = +$('h').value; mark(); ask(); };
+$('d').oninput = () => { L.d = +$('d').value; mark(); ask(); };
 $('r').oninput = () => { L.r = +$('r').value; mark(); picUp(); draw(); ask(); };
 $('pool').onchange = draw;
 document.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { L.style = b.dataset.s; mark(); ask(); });
@@ -158,7 +161,7 @@ let kt = null; $('k').oninput = () => { $('kv').textContent = (+$('k').value).to
 $('k1').onclick = () => { $('k').value = 1; rescale(1); };
 function ask() {          // the quick shadow from the page's server; one at a time, the last asked wins
   if (busy) { again = true; return; } busy = true;
-  const q = new URLSearchParams({v: view.key, w: L.w, x: L.x, y: L.y, z: L.z, r: L.r, s: L.style});
+  const q = new URLSearchParams({v: view.key, w: L.w, x: L.x, y: L.y, z: L.z, r: L.r, s: L.style, d: L.d});
   fetch('shade?' + q).then(r => r.json()).then(j => {
     pool = null;
     if (j.lamp) { const li = new Image(); li.onload = () => { lampImg = {im: li, mid: j.lamp.mid}; draw(); }; li.src = 'data:image/png;base64,' + j.lamp.png; }
@@ -275,7 +278,7 @@ def main():
     def info():          # (read from the spec each time the page opens: it opens as it was last saved)
         sp = json.loads(spec_path.read_text(encoding='utf-8')); lp = S.lamp_of(sp); pc = sp['lamp'].get('picture') if isinstance(sp.get('lamp'), dict) else None
         light = {'w': 'lamp', 'x': lp[0][0], 'y': lp[0][1], 'z': lp[0][2], 'r': lp[1], 'pic': pc} if lp else {'w': sp.get('shadow') or 'sun'}
-        light['style'] = sp.get('light_style', 'pixel')
+        light['style'] = sp.get('light_style', 'pixel'); light['d'] = S.strength_of(sp.get('shadow_strength'), light['style'])
         return {'name': spec['name'], 'ppm': prep['ppm'], 'pitch': prep['views'][0]['pitch'], 'light': light, 'views': [{'key': v['key'], 'foot': v['foot']} for v in prep['views']]}
 
     class H(BaseHTTPRequestHandler):
@@ -302,7 +305,7 @@ def main():
             if u.path == '/shade':
                 v = next((v for v in prep['views'] if v['key'] == q.get('v')), prep['views'][0]); w = q.get('w', 'sun')
                 lp = ([float(q['x']), max(0.05, float(q['y'])), float(q['z'])], max(0.005, float(q['r']))) if w == 'lamp' else None; st = q.get('s', 'pixel')
-                with lock: got, pl = S.shadow_of(prep, v, w, lp, fast=True, with_pool=True, style=st)
+                with lock: S.STRENGTH = min(3.0, max(0.3, float(q.get('d', 1)))); got, pl = S.shadow_of(prep, v, w, lp, fast=True, with_pool=True, style=st)
                 def enc(g): b = io.BytesIO(); g[0].save(b, 'PNG'); return {'png': base64.b64encode(b.getvalue()).decode(), 'at': g[1]}
                 lm = S.lamp_sprite(lp[1], prep['ppm'], st) if lp else None          # (the light itself, as pixel art or smooth)
                 return self.send(json.dumps({**(enc(got) if got else {}), **({'pool': enc(pl)} if pl else {}), **({'lamp': {**enc((lm[0], None)), 'mid': lm[1]}} if lm else {})}).encode(), 'application/json')
@@ -345,11 +348,13 @@ def main():
                 pc = L.get('pic'); raw['lamp'] = {'at': lp[0], 'size': lp[1], **({'picture': {'file': pc['file'], 'from': pc.get('from'), 'foot': [round(v, 1) for v in pc['foot']], 'light': [round(v, 1) for v in pc['light']],
                                                                                   'foot0': [round(v, 2) for v in pc['foot0']], 'light0': [round(v, 2) for v in pc['light0']], 'scale': round(float(pc.get('scale') or 1), 2)}} if pc else {})}; raw.pop('shadow', None)
             else: lp = None; raw.pop('lamp', None); raw['shadow'] = L['w']
+            dk = round(min(3.0, max(0.3, float(L.get('d', 1)))), 2)
+            raw['shadow_strength'] = dk          # (always said: the default is not the same for pixel art and a smooth shadow)
             spec_path.write_text(json.dumps(raw, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
             with lock: S.bake(spec_path, L['w'], quiet=True, lamp=lp, prep=prep)
             where = f"a lamp at {lp[0]} m, size {lp[1]} m" if lp else ('the sun' if L['w'] == 'sun' else 'a grey day')
             done = "every side's shadow under " + where + ' - out-pixel/shadow-*.png' + (', and its light on the floor - light-*.png' if lp else '')
-            return self.send(f'saved: {done}; the light is in the spec'.encode(), 'text/plain; charset=utf-8')
+            return self.send((f'saved: {done}' + f', at strength {dk:g}' + '; the light is in the spec').encode(), 'text/plain; charset=utf-8')
 
         def log_message(self, f, *a):          # (only what changes things, and what fails)
             line = f % a

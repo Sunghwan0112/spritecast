@@ -76,6 +76,10 @@ def load(path):
     if s['idle_from'] not in ('spritecast', 'tripo'): sys.exit('spec: "idle_from" is "spritecast" (the default) or "tripo"')
     s.setdefault('walk', {'clip': 'walk', 't0': 0, 't1': 1.1835}); s.setdefault('idle', {'clip': 'idle_spritecast' if s['idle_from'] == 'spritecast' else 'idle', 't': 0})
     s.setdefault('frame_px', 256); s.setdefault('light', 'right'); s.setdefault('shadow', '3d'); s.setdefault('modeler', 'tripo'); s.setdefault('kind', 'person'); s.setdefault('redo_below', 0.75); s.setdefault('draw', True)
+    # HOW DEEP THE SHADOWS ARE ("shadow_strength"): 1 as the light gives them - the painted set's default; a pixel set's is 1.5 (pixelart.py). Free: `pack` writes them again
+    try: CL.SHADOW_STRENGTH = float(s.get('shadow_strength', 1))
+    except (TypeError, ValueError): sys.exit('spec: "shadow_strength" is a number from 0.3 to 3 (1 as the light gives it)')
+    if not 0.3 <= CL.SHADOW_STRENGTH <= 3: sys.exit('spec: "shadow_strength" is from 0.3 to 3 (1 as the light gives it; pixel art 1.5 by default)')
     # SOMETHING CARRIED ALL THE TIME ("hold" in the spec itself, not in one action): in the hand through the walk, the standing views and
     # every action that has no "hold" of its own. A figure with a thing in one hand is not its own mirror image - flipped, the thing
     # changes hands - so nothing is ever flipped for it ("mirror": "never", which a symmetrical character can ask for too).
@@ -700,7 +704,7 @@ def loop_gif(s, d, names, dr, scale=0.42):
         def lay(p, shade=False):
             if not p.exists(): return None
             im = Image.open(p).convert('RGBA')
-            if shade: al_ = np.asarray(im)[..., 3]; a_ = np.round(CL.shadow_share(al_) * CL.SHADOW_DARK * 255).astype(np.uint8) if CL.is_graded(al_) else (al_ > 128).astype(np.uint8) * 77; im = Image.fromarray(np.dstack([np.full(a_.shape + (3,), (40, 30, 24), np.uint8), a_]))
+            if shade: al_ = np.asarray(im)[..., 3]; a_ = np.round(CL.deeper(CL.shadow_share(al_) * CL.SHADOW_DARK) * 255).astype(np.uint8) if CL.is_graded(al_) else (al_ > 128).astype(np.uint8) * 77; im = Image.fromarray(np.dstack([np.full(a_.shape + (3,), (40, 30, 24), np.uint8), a_]))
             o = (S - im.width) // 2; c.alpha_composite(im, (o, o)); b = im.getchannel('A').getbbox(); return b and (b[0] + o, b[1] + o, b[2] + o, b[3] + o)
         bb = [lay(d / f'render/{nm}-{dr}-{k}-s.png', True), lay(d / f'frames/{nm}-{dr}-{k}.png')] + ([lay(d / f'render/{nm}-{dr}-{q}-t.png')] if q is not None else [])
         pics.append((c, ms)); boxes += [b for b in bb if b]
@@ -1528,12 +1532,13 @@ def pack(s, d, report, out='out'):
             if s['shadow'] in ('3d', 'flat') and src.exists():
                 shi, (x0, y0) = CL.shadow_3d(src)
                 if shi is not None:
-                    if CL.GRADED: shi.putalpha(shi.getchannel('A').point(lambda v: round(v * 0.3 / CL.SHADOW_ALPHA)))          # (seated: the one hard shape still - kept as dark as it was under the set's new "shadow_alpha")
+                    if CL.GRADED: shi.putalpha(shi.getchannel('A').point(lambda v: round(v * 0.3 / CL.shadow_alpha())))          # (seated: the one hard shape still - kept as dark as it was under the set's new "shadow_alpha")
                     shi = shi.resize((max(1, round(shi.width * k)), max(1, round(shi.height * k))), Image.LANCZOS); shi.save(d / out / f'shadows/sit-{dr}.png', optimize=True)
                     e['shadow'] = {'file': f'shadows/sit-{dr}.png', 'offset': [round((x0 - sb[0]) * k), round((y0 - sb[1]) * k)]}
             meta['sit'][dr] = e
     # how dark to show the shadow strips: 0.56 for shadows as light falls (their alpha is the darkness against the deepest), 0.3 for the old hard shape
-    meta['shadow_alpha'] = CL.SHADOW_ALPHA if CL.GRADED else 0.3; meta['shadow_colour'] = [40, 30, 24]
+    meta['shadow_alpha'] = CL.shadow_alpha() if CL.GRADED else 0.3; meta['shadow_colour'] = [40, 30, 24]
+    if CL.SHADOW_STRENGTH != 1: meta['shadow_strength'] = CL.SHADOW_STRENGTH
     (d / out / 'character.json').write_text(json.dumps(meta, indent=1))
     print(f"finish: {d / out}  {len(meta['walk'])} walks, {len(meta['idle'])} standing, frame {fw}x{fh}, anchor {meta['anchor']}, "
           f"3D shadows for {len(meta['shadows']['walk'])} walks" + ('' if meta['shadows']['walk'] else ' (none: re-run `render` for the -s.png shadows)'))

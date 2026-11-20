@@ -317,7 +317,13 @@ PYTHON proppixel.py PROP.json --ppm 54       # pixels per metre
   pixels: draw it under the sprite), `preview-shadow.png` - **show it**. The weather: `--shadow overcast` / `"shadow": "overcast"` (a
   grey day: no sun, only soft dark round it - a rainy scene), `none`, or again without drawing: `PYTHON propshade.py PROP.json
   --weather overcast`. The model is laid on each sprite by its outline (`fit` in pixel.json: under ~0.75 the shadow may sit a little
-  off - say so). From blocks alone there is no shadow yet: say so.
+  off - say so). From blocks alone there is no shadow yet: say so. **How deep it is**: `--shadow-strength K` / `"shadow_strength": K` (or
+  `propshade.py PROP.json --strength K`, free) - the shadow as if laid K times over itself: **1.5 by default for pixel art** (71 % at its
+  deepest, 15 % at its far edge - a little louder than it is, so things stand on the ground; `"light_style": "smooth"` 1), 1 as the
+  light gives it (56 % and 10 %: for a light floor where 1.5 looks heavy), more for dark ground; from 0.3 to 3. The steps
+  stay five, each deeper; `pixel.json`'s `shadow.strength` and `shadow.steps` say what was baked. A character's spec takes the same
+  `"shadow_strength"` (then `charpipe.py CHAR.json pack`, or `pixelart.py` for a pixel set - whose default is 1.5 too; a painted set's is 1), so a game's props and people agree. A
+  character walking into a deeper shadow is darkened by more too (`on_a_character` reads this alpha).
 - **Indoors**: `--lamp x,y,z --lamp-size r` on `propshade.py` (or `"lamp": {"at": [x, y, z], "size": r}` in the spec) - metres from the
   prop's foot, fixed to the screen like the sun (x right, y up, z towards the viewer); the size is the lamp's own: a bare bulb ~0.03
   (sharp), a lampshade ~0.15-0.3, a ceiling panel ~0.4 (soft). The shadow falls away from it, longer the lower it is, and fades with

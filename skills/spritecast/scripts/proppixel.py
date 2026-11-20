@@ -154,6 +154,7 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument('spec', nargs='?'); ap.add_argument('--yes', action='store_true'); ap.add_argument('--ppm', type=float, default=54.0); ap.add_argument('--again', default=''); ap.add_argument('--colours', type=int, default=0, help='how many colours the object has, all its sides together (default: about 28 a side). Free: nothing is drawn again')
     ap.add_argument('--palette', default='', help="a palette you already have: a .png of it, or a text file with one hex colour a line. Every pixel takes its nearest colour in it. Free")
     ap.add_argument('--shadow', choices=['sun', 'overcast', 'none'], default='', help='its shadow on the ground, baked from the 3D model: sun (default, or the spec\'s "shadow"), overcast (a grey day: only soft, close in), none. Free')
+    ap.add_argument('--shadow-strength', type=float, default=None, help='how deep the shadow is, as if laid this many times: 1.5 by default (or the spec\'s "shadow_strength"); 1 as the light gives it, paler; from 0.3 to 3; free')
     A = ap.parse_args()
     if A.palette == 'list': import pixelkit as P; P.show_palettes(); return
     if not A.spec: ap.error('the prop\'s spec (PROP.json) is wanted')
@@ -219,7 +220,7 @@ def main():
     pv.save(out / 'preview.png'); print(f'{out}: {len(done)} sprite(s) at {A.ppm:g} px a metre - look at preview.png. To fix a cut-out or a pixel by hand: pixeledit.py {Path(A.spec).name}')
     # its shadow on the ground, baked from the 3D model (free, a few seconds): deep close by it, soft where it falls from high up
     if spec.get('model') and (A.shadow or spec.get('shadow', 'sun')) not in ('none', False):
-        import propshade; propshade.bake(A.spec, A.shadow or None)
+        import propshade; propshade.bake(A.spec, A.shadow or None, strength=A.shadow_strength)
     if spec.get('model') and spec.get('sway'):          # (the wind in it: its leaves in clumps cut from the model, a sheet of frames - free)
         import propshade; propshade.sway(A.spec)
     if spec.get('model') and spec.get('collide') is not False:          # (where it is in the way, cut from the model: solid-<side>.png, and cover-<h>-<side>.png for "collide": {"cover": [...]} - free)

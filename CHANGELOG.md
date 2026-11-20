@@ -3,6 +3,17 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.21.0 — 2026-11-19
+
+- **How deep a shadow is can be set** *(feedback: on Rain Girl's dark, rainy ground the baked shadows were lost and the sprites looked
+  as if they did not stand on it)*: `"shadow_strength"` in a prop's or a character's spec, `--shadow-strength` on `proppixel.py`,
+  `--strength` on `propshade.py`, and a slider in the light editor (`lightedit.py`), kept in the spec on Save. The number is how many
+  times the shadow is laid over itself: 1 as the light gives it, more for dark ground, under 1 paler. Free: nothing is drawn again. A
+  character's `shadow_alpha` in character.json goes with it, so the exports show it right.
+- **Pixel art's shadows are 1.5 times as deep by default** (56 % at their deepest -> 71 %, 10 % at their far edge -> 15 %): pixel art says
+  things a little louder than they are. **It changes how a pixel prop's and a pixel character's shadow looks the next time it is
+  baked** - `"shadow_strength": 1` gives the old one. Painted character sets and smooth shadows stay at 1.
+
 ## 0.20.0 — 2026-11-18
 
 - **Rain Girl is playable**: the game made with SpriteCast runs in the browser, with a leaderboard - linked from the README
