@@ -78,6 +78,8 @@ every frame (an umbrella, a pistol or a water pistol for now; the right hand, or
 image model part by part - most carefully the end at the hand (the handle, the first stretch of the shaft), which is small and against
 the body and is where it guesses otherwise.
 
+**Which to use: Tripo to save time, Mixamo when the result matters.** Tripo gives the moves in one step, with nothing to download - and a walk, a run, a jump (nothing in the hands) come out fine from it. When the result matters more than the time, we recommend [Mixamo](https://www.mixamo.com/#/?page=1&query=melee&type=Motion%2CMotionPack) (free, with an Adobe account), attacks above all: motion-captured moves look more natural, there are thousands, and the attacks of one set start and end in the same stance, so they join into combos (`motion.py link`). It takes a little longer: download one (FBX Binary, 30 fps, Without Skin) and `addclip.py hero.json Move.fbx name` carries it onto the character's rig, free. The catch: Mixamo has no API, so SpriteCast cannot fetch from it - you go to the site, look through the moves and download them yourself; Claude gives you the search link. Rain Girl's combo is two Mixamo moves. Never put the FBX files in a public repository.
+
 ![the rain girl running, jumping and slashing with her umbrella - the slash seen from the side](../actions.gif)
 
 **Most of it comes out in one go.** The rain girl's walk, run and jump fit their 3D renders at 0.78 or better in every frame, all

@@ -38,7 +38,7 @@ todo frame é a mesma pessoa, e ela anda de verdade.
 | | você dá | você recebe | você paga |
 |---|---|---|---|
 | **Um personagem que anda** | uma ilustração | uma caminhada em 8 direções, poses paradas, uma sombra por frame | cerca de $2.2 + 75 créditos Tripo |
-| **Mais ações** | um nome, ou um FBX do Mixamo | correr, pular, golpear, arremessar... em 8 direções | cerca de 10 créditos Tripo cada (um FBX: nada) + o desenho |
+| **Mais ações** | um nome (Tripo: rápido), ou um FBX do Mixamo (mais natural) | correr, pular, golpear, arremessar... em 8 direções | cerca de 10 créditos Tripo cada (um FBX: nada) + o desenho |
 | **Pixel art** | um personagem que anda | sprites em pixel com cerca de 100 px de altura | cerca de $0.075 por folha (uma caminhada, 8 direções: ~$1.35) |
 | **Um animal** | uma ilustração | uma caminhada de quadrúpede em 8 direções | 30 créditos Tripo + o desenho |
 | **Sentado** | um personagem que anda | sentado em 8 direções, posicionado nos seus props | cerca de $0.22 |
@@ -191,6 +191,8 @@ frame. Um golpe precisa de algo na mão: `"hold"` monta o objeto a partir de for
 todo frame (por enquanto um guarda-chuva, uma pistola ou uma pistola d'água; a mão direita, ou `"hand": "left"`). Com seu próprio modelo com rig, qualquer clipe dele pode ser uma ação. Um objeto segurado é descrito ao
 modelo de imagem parte por parte - com mais cuidado a ponta que fica na mão (o cabo, o primeiro trecho da haste), que é pequena e fica contra
 o corpo, e é onde ele chuta, se não for assim.
+
+**Qual usar: Tripo para poupar tempo, Mixamo quando o resultado importa.** A Tripo dá os movimentos num passo, sem baixar nada, e andar, correr ou pular (de mãos vazias) saem bem com ela. Quando o resultado importa mais que o tempo, recomendamos o [Mixamo](https://www.mixamo.com/#/?page=1&query=melee&type=Motion%2CMotionPack) (grátis, com uma conta Adobe), sobretudo para ataques: movimentos capturados parecem mais naturais, há milhares, e os ataques de uma mesma série começam e terminam na mesma guarda, então se encadeiam em combos (`motion.py link`). Leva um pouco mais: baixe um (FBX Binary, 30 fps, Without Skin) e `addclip.py hero.json Move.fbx name` o passa para o esqueleto do personagem, de graça. O porém: o Mixamo não tem API, então o SpriteCast não consegue baixar dele - você vai ao site, olha os movimentos e baixa você mesmo; o Claude te dá o link de busca. O combo da Rain Girl são dois movimentos do Mixamo. Nunca coloque os FBX num repositório público.
 
 ![a garota da chuva correndo, pulando e golpeando com o guarda-chuva - o golpe visto de lado](docs/actions.gif)
 
