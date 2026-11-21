@@ -181,7 +181,18 @@ a part jumps - each edit goes to its own animation's frame. **Something thrown**
 the hand is fastest; the folder then has the thing's own sprites and `release` in `pixel.json` (frame, point, direction, speed), and
 `<clip>-<facing>-flying.gif` to show. **An animation the rig lacks** (a throw): `PYTHON addclip.py CHAR.json Throw.fbx throw` puts a
 Mixamo FBX (with or without its character) into a copy of the rig, free, bone by bone BY DIRECTION - render it and look before drawing. Never put a Mixamo file
-in a public repository: its animations may be used, not handed on. **Standing still**: SpriteCast's own idle is the default (`idleclip.py`; `"idle_from": "tripo"` for Tripo's).
+in a public repository: its animations may be used, not handed on. **Attacks that work together** (free, `PYTHON motion.py`, reference/character.md "Moves that join"):
+`ground` puts a carried clip's feet on the ground (a Mixamo clip stood 8-15 cm in the air on a child's rig), `plant` holds them where they
+stand, `link SPEC A@t B@t0-t1 NAME` starts move B from the pose A is in - the way a game joins a combo, B's stroke its own - `blade` makes
+an axe's chop a sword's cut (less bend, the blade running on from the arm on an arc), `join` makes a combo one clip to render at 24 a
+second and look at the joins. A swing's water reaching further: `"trail_reach": 2` in the action (the frame renders bigger; free). Ask for Mixamo moves of one set (one actor: "Standing Melee Attack ...") - they start and end in one stance. **Standing still**: SpriteCast's own idle is the default (`idleclip.py`; `"idle_from": "tripo"` for Tripo's).
+
+**Effects for the game round the sprites** (free, nothing drawn, reference/pixel.md "Effects from the pack"): 253 pixel effects of PVFX
+Foundry (CC0 1.0) come with SpriteCast (`effects/pvfx/`) - hits, splashes, fire, explosions, ice, lightning, smoke, sword trails, projectiles,
+pickups, status. `PYTHON fxpack.py list --search water`, `preview ID ...` (show the picture), `export ID --out assets/fx --as hit
+[--scale 2] [--palette CHAR.json] [--hue 210]` - a sheet and fx.json (cell, pivot, frames, ms) at the sprites' pixel size and, asked, in
+their colours. Offer it when a game wants hits, pickups or a finisher's flourish. A ring round a character is cut at its pivot's line:
+the far half behind, the near half in front. Say where an effect came from (the pack's licence: effects/pvfx/LICENSE.txt).
 
 **A prop as pixel art** (`PYTHON proppixel.py PROP.json`, reference/pixel.md "Props as pixel art"): the prop's guide pixelized and redrawn the same way, at the
 pixel character's pixels per metre (`--ppm` = its `figure_px` / its `height_m`) so they stand on one floor. One view of a simple thing works from blocks. **From

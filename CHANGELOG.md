@@ -3,6 +3,31 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.22.0 — 2026-11-20
+
+- **Attacks that join** *(feedback: a second swing for Rain Girl's combo - "the moves between the attacks look odd", "the legs change too
+  abruptly", "made for an axe")*: `motion.py`, free, on the rig. `ground` puts a carried Mixamo clip's feet on the ground (it stood 8-15
+  cm in the air), `plant` holds the feet where they stand and gives the hips' turn to the spine, `link` starts one move from the pose the
+  last one is in - its difference fading out inside the wind-up, the stroke untouched (how games join a combo) - `blade` makes an axe's
+  chop a sword's cut (less bend; the blade running on from the arm on an arc round the shoulder), `join` makes a combo one clip to
+  render at 24 frames a second and look at. reference/character.md, "Moves that join".
+- **253 pixel effects come with SpriteCast** - [PVFX Foundry](https://nerijs.itch.io/pvfx-foundry) by Pixel VFX Studio, CC0 1.0, its
+  strict tier (`effects/pvfx/`): hits, splashes, fire, explosions, ice, lightning, smoke, sword trails, projectiles, pickups. `fxpack.py`
+  finds one, shows it, and writes it out for a game at the sprites' pixel size, in their colours if asked (`--palette`, `--hue`). Rain Girl
+  plays nine of them; a ring round the girl is cut at its middle, the far half behind her. reference/pixel.md, "Effects from the pack".
+- **A long thing swung far is drawn, not left out**: a frame too wide for two to a sheet gets a sheet of its own; a frame too tall (an
+  umbrella straight up over the head) a sheet of its own standing up (1024x1536). Before, the whole facing was left out - and a frame
+  that fitted no sheet ran on into the drawing and stopped it half paid; now it is named and left out.
+- **A swing's water fades out with the distance from the figure** instead of being cut in a straight line where it ran off the render's
+  frame; an action with `"trail"` renders in a 1024 px frame (768 before) and `render` says when its trail still runs off.
+  `"trail_reach"` in the action sets how far it shows (Rain Girl's combo: 2, the user's "twice as far"; the frame grows with it).
+- **Fixed: the first frame of a swing with a trail showed an arm raised straight up.** three's mixer writes a bone only when its value
+  changed; the shoulders lifted after each pose were never undone on a bone the clip holds still, and tracing the trail poses the
+  swing 200 times first. The pose is now put back before every new one (and after the hand's check shots). Renders without a trail
+  come out the same to the pixel.
+- The rain girl's downward cut and backhand, four facings, 64 frames with their water - one person throughout - made with all of it.
+  The README's banner shows the combo now: the cut's water bursts on a mushroom, the backhand's ring sweeps round her and wets the title.
+
 ## 0.21.0 — 2026-11-19
 
 - **How deep a shadow is can be set** *(feedback: on Rain Girl's dark, rainy ground the baked shadows were lost and the sprites looked

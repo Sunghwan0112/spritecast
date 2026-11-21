@@ -459,7 +459,7 @@ def render(s, d, only=None):
             t0, t1, n = a['t0'], a['t1'] if a['t1'] is not None else clips[a['clip']], a['frames']
             t1x = t1 if a['loop'] else t0 + (t1 - t0) * n / max(1, n - 1)
             hold = a.get('hold'); small = isinstance(hold, dict) and (hold.get('in_model') or hold.get('kind') in ('pistol', 'watergun'))
-            canvas = a.get('canvas') or (768 if hold and not small else 512)       # (a pistol stays inside the walk's frame)
+            canvas = a.get('canvas') or ((round(1024 * max(1.0, float(a.get('trail_reach', 1) or 1)) / 64) * 64 if a.get('trail') else 768) if hold and not small else 512)       # (a pistol stays inside the walk's frame; a swing's trail reaches past the held thing's tip - its arc was cut by the 768 frame's edge)
             pg.evaluate('(px) => window.setCanvas(px)', canvas)       # (a held thing reaches past the walk's 512 px frame: 768 at the same scale)
             shown = put(hold, name, a['clip'], t0)
             pg.evaluate('(w) => { window.wantHeld = w; }', bool(shown))
@@ -478,6 +478,8 @@ def render(s, d, only=None):
                     if u: save(u, d / f'render/{name}-{dr}-{k}-t.png')
             pg.evaluate('() => { window.wantHeld = false; return window.setTrail(null); }')
             pg.evaluate('() => window.clearHold()'); pg.evaluate('() => window.setCanvas(512)')
+            cut_ = [f.name for f in sorted((d / 'render').glob(f'{name}-*-t.png')) if (lambda im, b: b and (b[0] == 0 or b[1] == 0 or b[2] == im.width or b[3] == im.height))(*(lambda im: (im, im.getbbox()))(Image.open(f)))]
+            if cut_: print(f'render: {name}: the trail runs off the frame in {len(cut_)} cells ({cut_[0]} ...) - give the action a bigger "canvas" than {canvas} (same scale, more room)')
             info.setdefault('actions', {})[name] = {'clip': a['clip'], 't0': t0, 't1': t1, 'frames': n, 'loop': a['loop'], 'canvas': canvas}
             print(f'render: {name} - {n} frames of "{a["clip"]}" {t0:.2f}-{t1:.2f} s, {len(DIRS)} facings')
         br.close()

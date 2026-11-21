@@ -118,7 +118,38 @@ renders (`render/<clip>-<facing>-<i>-t.png`) and writes `trails/<clip>-<facing>.
   solid, mist was a lump of cotton (the user: "use see-through"). A dot of four pixels or fewer (a drop, a flake of ash) is never
   see-through: solid, or not there.
 - A game that draws pixel art with see-through off (alpha test) shows mist as lumps or not at all.
-- Not checked: a whole `pixelart.py` run writing `"trails"` (the conversion itself was run on the rain girl's slash).
+- **Faded out with the distance from the figure**: the drops a swing throws fly on and on and ran off the render's frame at any size -
+  cut in a straight line (the user saw the squares). Full near the figure, gone by 1.15 of its height from its middle (or just inside
+  the frame's edge, if that comes first) - times the action's `"trail_reach"` (2: twice as far, the frame rendered bigger to hold it). `charpipe.py render` gives an action with `"trail"` a 1024 px frame by default (768 before)
+  and says when the trail still runs off it.
+- A whole `pixelart.py` run writing `"trails"`: the rain girl's downward cut and backhand, four facings, 64 frames (2026-11-20).
+
+## A long thing swung far: a sheet of one frame, wide or standing up
+Four frames go on a sheet (48-px cells at 96 px), or three, or two, wider. A sword's arc held out at arm's length is wider than half a
+sheet, and an umbrella raised straight up over the head taller than a cell: such a frame was left out, and the facing with it.
+- **Too wide for two**: one frame to a sheet, the sheet's whole width (192 px at 96).
+- **Too tall**: one frame to a sheet, and that sheet drawn standing up (1024x1536 - 176 px for the figure from the feet up, at 96).
+  The other frames of the animation stay on landscape sheets; every frame is read back at the one scale.
+- A frame that still does not fit is left out with a line that says so (it went on into the drawing and stopped there, after paying
+  for the sheets before it): render that moment a little earlier or later (`"t0"`, `"t1"`).
+- One frame to a sheet costs a sheet a frame (~$0.075): a facing of an 8-frame swing ~$0.60. GPT keeps the set's look across them from
+  the turnaround and the animation's first sheet (the rain girl's 64 frames of two swings: one person throughout).
+
+## Effects from the pack: `fxpack.py` (PVFX Foundry, CC0) - free
+253 pixel-art effects by Pixel VFX Studio come with SpriteCast in `effects/pvfx/<category>/<effect>/` (`sheet.png`, a grid; `manifest.json`;
+`index.json` lists them all with what each shows). Their strict tier: binary alpha, a limited palette - pixel art that sits with the sprites.
+CC0 1.0 for the sheets and manifests (`effects/pvfx/LICENSE.txt`, `THIRD_PARTY_NOTICES.txt`); the names and marks are not - say where one came from.
+- `fxpack.py list [--search q] [--category c]`, `preview ID ...` -> fx-preview.png, `export ID ... --out DIR [--as NAME] [--scale N]
+  [--palette CHAR.json|FILE|name] [--hue H]` -> `<DIR>/<name>.png` and `<DIR>/fx.json` (w, h, px, py, n, cols, ms, loop, src).
+- Whole scales only (`--scale 2` keeps a pixel a pixel): a ring drawn at 2x was as wide as the backhand it marked.
+- `--palette CHAR.json`: every pixel to the nearest colour of the character's pixel set; `--hue`: the hues turned, lights and darks kept.
+- **In the game**: play the cells in order at `ms` from the pivot, once (or looping when `loop`). A thing in flight (`projectiles/*-flight`)
+  is drawn going right: turn it the way it flies. A RING round a character (`melee/spin-slash`, at the waist) is cut at the pivot's line -
+  the half above at a depth behind her, the half below in front (drawn whole in front, it went through her body: the user saw it).
+- Rain Girl plays nine: `water/bubble-burst` (a hit - round, so no way it points; the directional `water-bolt-impact` looked odd),
+  `impacts/death-poof`, `water/drip-splash`, `fire/fireball-impact` (from its burst, frame 4), `projectiles/fireball-flight` (each
+  monster's colour by the game's own recolour), `ui/heart-pickup`, `ui/mana-pickup`, and for the backhand `melee/spin-slash` and
+  `impacts/shockwave-ring` at 2x.
 
 ## A held thing in the same colours in every frame
 GPT draws each sheet's held thing in whichever of the set's colours it lands on: the rain girl's umbrella came back in four different

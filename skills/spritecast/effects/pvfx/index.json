@@ -1,0 +1,6079 @@
+{
+"pack": "PVFX Foundry",
+"version": "1.2.0",
+"source": "https://nerijs.itch.io/pvfx-foundry",
+"tier": "strict (binary alpha, limited palette), grid sheets",
+"effects": [
+{
+"id": "ambient/broken-wire-sparks",
+"category": "ambient",
+"name": "Broken wire sparks",
+"description": "Seamless ambient loop of a severed cable hanging from a conduit: it sways and sparks in irregular bursts, each a blue-white flash with jagged arcs that makes the cable recoil, spraying spark streaks that arc and cool from yellow to ember red and dropping molten bits that go dark as they fall.",
+"tags": [
+"ambient",
+"electric",
+"sparks",
+"hazard",
+"loop"
+],
+"size": [
+40,
+56
+],
+"pivot": [
+20,
+4
+],
+"frames": 20,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "ambient/candle-flame",
+"category": "ambient",
+"name": "Candle flame",
+"description": "Seamless candle-flame loop: a small teardrop flame on a dark wick with a cream heart and a blue foot that sways gently, and once per loop stretches tall and thin in a draught, sheds a cooling speck off its tip, ducks short and settles, with a soft breathing glow in the lit tier.",
+"tags": [
+"ambient",
+"loop",
+"fire",
+"candle",
+"light-source"
+],
+"size": [
+12,
+20
+],
+"pivot": [
+6,
+18
+],
+"frames": 16,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "ambient/cloud-drift",
+"category": "ambient",
+"name": "Cloud drift",
+"description": "Seamless tileable cloud loop: a few big flat-toned cloud masses drift right at two depths, each a flat-bottomed bank under breathing rounded bumps with a lit cap, a shaded lower band, contact creases where bumps overlap and a soft thinning underside; once per loop a trailing bump tears off as a wisp that hollows into dashes; every element wraps on a 128 px torus.",
+"tags": [
+"ambient",
+"weather",
+"cloud",
+"fog",
+"loop",
+"tile"
+],
+"size": [
+128,
+128
+],
+"pivot": [
+64,
+64
+],
+"frames": 96,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "ambient/crystal-glow",
+"category": "ambient",
+"name": "Crystal glow",
+"description": "Seamless ambient loop of a faceted crystal cluster on a rubble mound: light cores rise and sink inside each crystal on offset clocks, a specular glint sweeps up the cluster and fires a white star off the tallest tip once per loop with a smaller wink half a loop away, and motes lift off and fade.",
+"tags": [
+"ambient",
+"loop",
+"crystal",
+"magic",
+"glow"
+],
+"size": [
+32,
+40
+],
+"pivot": [
+16,
+36
+],
+"frames": 24,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "ambient/dust-motes",
+"category": "ambient",
+"name": "Dust motes",
+"description": "Seamless ambient loop of dust in a slanted shaft of light: motes drift lazily on small looping paths, dim outside the shaft and warming inside it, each flashing a pale fleck or 4-point glint when it turns its face to the light, while once per loop a curled fibre tumbles through the beam.",
+"tags": [
+"ambient",
+"dust",
+"light",
+"motes",
+"loop"
+],
+"size": [
+96,
+96
+],
+"pivot": [
+48,
+48
+],
+"frames": 32,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "ambient/falling-leaves",
+"category": "ambient",
+"name": "Falling leaves",
+"description": "Seamless tileable autumn loop: crimson, orange, amber and gold leaves in three depths tumble diagonally down-right, swinging like pendulums or spinning end over end, flipping between face, edge-on sliver and dark back across three silhouettes (elm, aspen, maple), with one gust per loop that shoves and spins the whole field; every element wraps on a 128 px torus.",
+"tags": [
+"ambient",
+"weather",
+"leaves",
+"autumn",
+"loop",
+"tile"
+],
+"size": [
+128,
+128
+],
+"pivot": [
+64,
+64
+],
+"frames": 96,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "ambient/fireflies",
+"category": "ambient",
+"name": "Fireflies",
+"description": "Seamless fireflies loop: nine fireflies wander on smooth looping paths and blink on their own clocks, waking in a frame, holding a lime glow with a pale heart and fading through green with a short trail, while once per loop three of them answer each other in a two-frame cascade that ends on the brightest flash; soft glow in the lit tier.",
+"tags": [
+"ambient",
+"loop",
+"nature",
+"fireflies",
+"night",
+"particles"
+],
+"size": [
+96,
+64
+],
+"pivot": [
+48,
+32
+],
+"frames": 40,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "ambient/fog-bank",
+"category": "ambient",
+"name": "Fog bank",
+"description": "Seamless tileable low fog loop (tiles on x at 160 px): a translucent, streaky fog volume hugs the ground and drifts sideways, feathering out to a low soft top and thinning into the ground, with long wisps that drift ahead, stretch and fray into dashes; once per loop a tongue lifts off the top.",
+"tags": [
+"ambient",
+"weather",
+"fog",
+"mist",
+"loop",
+"tile"
+],
+"size": [
+160,
+56
+],
+"pivot": [
+80,
+28
+],
+"frames": 120,
+"frame_ms": 100,
+"loop": true
+},
+{
+"id": "ambient/lantern-glow",
+"category": "ambient",
+"name": "Lantern glow",
+"description": "Seamless ambient loop of a hanging iron lantern: a small flame flickers behind glass panes that take its light, a warm halo breathes around it, and moths of light flutter round on looping paths until one bumps the glass, flaring the flame and popping a ring of sparks.",
+"tags": [
+"ambient",
+"light",
+"lantern",
+"fire",
+"loop"
+],
+"size": [
+48,
+60
+],
+"pivot": [
+24,
+30
+],
+"frames": 24,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "ambient/lava-bubbles",
+"category": "ambient",
+"name": "Lava bubbles",
+"description": "Seamless ambient loop of a lava pool: hot veins wander through the orange surface between drifting crust plates whose edges glow and cool on their own clocks, bubbles swell into shaded domes and pop with a splat of droplets and a crater ring that crusts over, two big pops per loop with a pale splash crown, and thin dark wisps curl off each pop.",
+"tags": [
+"ambient",
+"loop",
+"fire",
+"lava",
+"pool",
+"bubbles"
+],
+"size": [
+64,
+32
+],
+"pivot": [
+32,
+20
+],
+"frames": 20,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "ambient/magic-motes",
+"category": "ambient",
+"name": "Magic motes",
+"description": "Seamless ambient loop of drifting arcane motes over a 64 px area: specks, beads and diamonds fade in, rise on slow sways with cooling trails, each twinkling into a 4-point star glint at its own moment, two hero motes flaring a long white-cored star half a loop apart, then shrinking back down the ramp to nothing.",
+"tags": [
+"ambient",
+"loop",
+"arcane",
+"magic",
+"sparkle",
+"motes"
+],
+"size": [
+64,
+64
+],
+"pivot": [
+32,
+32
+],
+"frames": 24,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "ambient/portal-idle",
+"category": "ambient",
+"name": "Portal idle",
+"description": "Seamless ambient loop of a standing portal in the portal-summon palette: three spiral arms wind into a dark eye and turn steadily, a thick rim with ragged licks carries two chasing bright arcs and three riding glints, motes are sucked in along the arms, and once per loop a pale ring collapses from the lip into the eye, which flares; a broken floor ring grounds it.",
+"tags": [
+"ambient",
+"loop",
+"arcane",
+"portal",
+"magic"
+],
+"size": [
+64,
+80
+],
+"pivot": [
+32,
+76
+],
+"frames": 24,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "ambient/rain",
+"category": "ambient",
+"name": "Rain",
+"description": "Seamless tileable rain loop: slanted streaks in far, mid and near depth layers (far shorter, dimmer and slower), each drop falling its own distance and ending in a two-frame crown of splash ticks at a scattered height, with one gust sheet of near drops per loop; every element wraps on a 128 px torus.",
+"tags": [
+"ambient",
+"weather",
+"rain",
+"loop",
+"tile"
+],
+"size": [
+128,
+128
+],
+"pivot": [
+64,
+64
+],
+"frames": 24,
+"frame_ms": 60,
+"loop": true
+},
+{
+"id": "ambient/rising-embers",
+"category": "ambient",
+"name": "Rising embers",
+"description": "Seamless rising-embers loop for over lava or a campfire: a sparse column of streaks, sparks and a few big cinders that rise on varied periods, sway and bend with a slow draught, cool from cream through amber and crimson to plum and die at their own heights, while twice per loop a cinder pops into three arcing sparks; soft warm light on hot embers in the lit tier.",
+"tags": [
+"ambient",
+"loop",
+"fire",
+"embers",
+"particles"
+],
+"size": [
+64,
+96
+],
+"pivot": [
+32,
+96
+],
+"frames": 30,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "ambient/sandstorm",
+"category": "ambient",
+"name": "Sandstorm",
+"description": "Seamless tileable sandstorm loop: wind-blown sand streaks in far, mid and near layers (stacked sheets, thick near ribbons that tear into dashes), tumbling grains, and one gust roll per loop that curls over and breaks apart; wraps on a 160x120 torus in x, y and time.",
+"tags": [
+"ambient",
+"weather",
+"sand",
+"wind",
+"loop",
+"tile"
+],
+"size": [
+160,
+120
+],
+"pivot": [
+80,
+60
+],
+"frames": 24,
+"frame_ms": 60,
+"loop": true
+},
+{
+"id": "ambient/snowfall",
+"category": "ambient",
+"name": "Snowfall",
+"description": "Seamless tileable snowfall loop: flakes in far, mid and near depth layers drift down with their own sinusoidal sway, far ones single dim pixels, near ones pale plus and 2x2 flakes that tumble between shapes, with one soft gust per loop that leans the whole field downwind; every element wraps on a 128 px torus.",
+"tags": [
+"ambient",
+"weather",
+"snow",
+"loop",
+"tile"
+],
+"size": [
+128,
+128
+],
+"pivot": [
+64,
+64
+],
+"frames": 96,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "ambient/wall-torch",
+"category": "ambient",
+"name": "Wall torch",
+"description": "Seamless wall-torch loop: a single tall flame in an iron cup that sways and licks with two low side licks, tears a teardrop off its tip once per loop that rises and hollows into a cooling crescent, flicks a spark off a side lick half a loop later, sheds sparks on varied periods, and lights a warm halo in the lit tier.",
+"tags": [
+"ambient",
+"loop",
+"fire",
+"torch",
+"light-source"
+],
+"size": [
+24,
+40
+],
+"pivot": [
+12,
+32
+],
+"frames": 12,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "ambient/water-sparkle",
+"category": "ambient",
+"name": "Water sparkle",
+"description": "Seamless ambient loop of sunlight glinting on water: clusters of glints wake along faint swaying ripples in perspective, each opening from a speck into a flat dash or 4-point star and thinning away as it drifts, with one hero glint per loop flaring into a long star that splits in two.",
+"tags": [
+"ambient",
+"water",
+"sparkle",
+"glint",
+"loop"
+],
+"size": [
+96,
+48
+],
+"pivot": [
+48,
+24
+],
+"frames": 24,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "ambient/waterfall",
+"category": "ambient",
+"name": "Waterfall",
+"description": "Seamless waterfall segment: a rippling curtain of falling water with dark and pale flow streaks that stretch as they accelerate and foam bands tearing across it, plunging into a churning bank of foam lobes that boil on offset cycles, throw arcing spray and once per loop burst up in a taller fan, over a pool with outward ripples; drifting spray mist in the lit tier.",
+"tags": [
+"ambient",
+"loop",
+"water",
+"waterfall",
+"environment"
+],
+"size": [
+48,
+96
+],
+"pivot": [
+24,
+88
+],
+"frames": 16,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "arcane/arcane-beam",
+"category": "arcane",
+"name": "Arcane beam",
+"description": "Spiked source orb, a banded beam whose width churns locally with spiral strands, one bright node per loop that runs down the core and bursts at a spiked impact crown that throws sparks back. Seamless loop.",
+"tags": [
+"beam",
+"arcane",
+"loop",
+"flagship"
+],
+"size": [
+168,
+64
+],
+"pivot": [
+18,
+32
+],
+"frames": 8,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "arcane/arcane-cast",
+"category": "arcane",
+"name": "Arcane cast",
+"description": "Rune glyph motes orbit the hand on a tilted ellipse and contract into a swelling magenta core, a small rune ring snaps on and tightens, one white four-point star flare releases it, then the ring breaks into arcs and dashes while the glyphs scatter into + sparkles and dots.",
+"tags": [
+"cast",
+"charge",
+"arcane",
+"magic",
+"one-shot"
+],
+"size": [
+64,
+64
+],
+"pivot": [
+32,
+34
+],
+"frames": 13,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "arcane/arcane-orb-projectile",
+"category": "arcane",
+"name": "Arcane orb projectile",
+"description": "A small bright magenta orb charges from spiralling rune motes, flies trailing satellite motes and a smooth tapering ribbon that cools pink to deep violet, bursts in one white frame of core and short rays, then a thin broken ring opens and dots out while + sparkles twinkle and linger.",
+"tags": [
+"arcane",
+"projectile",
+"impact",
+"one-shot"
+],
+"size": [
+128,
+52
+],
+"pivot": [
+104,
+26
+],
+"frames": 27,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "arcane/arcane-rain",
+"category": "arcane",
+"name": "Arcane rain",
+"description": "Violet lances of light rain down on a marked ground area in staggered strikes; each lands as a star burst that opens into a broken ring with thrown sparks and a lingering scorch glyph, the central strike flashing white at the peak.",
+"tags": [
+"arcane",
+"spell",
+"area",
+"one-shot"
+],
+"size": [
+128,
+118
+],
+"pivot": [
+64,
+94
+],
+"frames": 24,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "arcane/blink-dash",
+"category": "arcane",
+"name": "Blink dash",
+"description": "A slit swallows the figure, one designed smear frame crosses with stepped afterimages, a white arrival peak, motes linger at both ends.",
+"tags": [
+"dash",
+"blink",
+"teleport",
+"one-shot",
+"flagship"
+],
+"size": [
+128,
+48
+],
+"pivot": [
+64,
+24
+],
+"frames": 22,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "arcane/blink-out",
+"category": "arcane",
+"name": "Blink out",
+"description": "The figure's space folds into vertical streaks that pinch to a bright line, flash white once, and the line snaps upward and away, leaving a collapsing ring, drifting rune motes and a fading floor glyph.",
+"tags": [
+"arcane",
+"blink",
+"teleport",
+"vanish",
+"one-shot"
+],
+"size": [
+64,
+80
+],
+"pivot": [
+32,
+72
+],
+"frames": 19,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "arcane/dispel",
+"category": "arcane",
+"name": "Dispel",
+"description": "A white-blue ring snaps out from a star burst and sweeps through a violet rune circle, breaking the enchantment into turning glass shards that are flung out, glint and fall away to specks.",
+"tags": [
+"arcane",
+"spell",
+"dispel",
+"cleanse",
+"one-shot"
+],
+"size": [
+88,
+100
+],
+"pivot": [
+44,
+44
+],
+"frames": 17,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "arcane/gravity-well",
+"category": "arcane",
+"name": "Gravity well",
+"description": "Seamless loop of a void core inside a flickering photon ring, lensed light rings that bend and fall inward, broken accretion arms and rock debris spiralling in to be stretched and swallowed, with one swallowed chunk flaring the ring each loop.",
+"tags": [
+"arcane",
+"void",
+"gravity",
+"vortex",
+"loop"
+],
+"size": [
+112,
+100
+],
+"pivot": [
+56,
+50
+],
+"frames": 24,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "arcane/magic-circle",
+"category": "arcane",
+"name": "Magic circle summon",
+"description": "An inner ring draws on, the outer ring and runes counter-rotate in holds, a pillar of light peaks white once, the runes lift off as glyph specks and the rings break into dashes.",
+"tags": [
+"cast",
+"arcane",
+"summon",
+"one-shot",
+"flagship"
+],
+"size": [
+96,
+64
+],
+"pivot": [
+48,
+47
+],
+"frames": 20,
+"frame_ms": 80,
+"loop": false
+},
+{
+"id": "arcane/mana-shield",
+"category": "arcane",
+"name": "Mana shield",
+"description": "Seamless loop of a hexagon-cell mana dome over a ground ring: a slowly turning lattice lit from the upper left with a sweeping sheen, where cells flare white-hot for a frame and send a ripple of lit cells across the dome, shedding motes.",
+"tags": [
+"arcane",
+"shield",
+"barrier",
+"buff",
+"loop"
+],
+"size": [
+80,
+76
+],
+"pivot": [
+40,
+66
+],
+"frames": 20,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "arcane/polymorph-poof",
+"category": "arcane",
+"name": "Polymorph poof",
+"description": "A comic poof: a pink-violet smoke puff blooms with a white pop, twists round a spiral curl, throws spinning cartoon stars on a spiral and hollows away into crescents and specks.",
+"tags": [
+"arcane",
+"polymorph",
+"smoke",
+"poof",
+"one-shot"
+],
+"size": [
+64,
+64
+],
+"pivot": [
+32,
+34
+],
+"frames": 16,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "arcane/portal-summon",
+"category": "arcane",
+"name": "Portal summon",
+"description": "A rune band draws itself around a floor ellipse, the floor tears open on one white frame, a lobed column of energy erupts, twists, splits open and slumps back in; the hole pinches shut and the band breaks into drifting arcs and motes.",
+"tags": [
+"cast",
+"arcane",
+"summon",
+"portal",
+"ground",
+"one-shot"
+],
+"size": [
+108,
+128
+],
+"pivot": [
+54,
+108
+],
+"frames": 22,
+"frame_ms": 80,
+"loop": false
+},
+{
+"id": "arcane/rune-trap",
+"category": "arcane",
+"name": "Rune trap",
+"description": "A dormant teal floor seal lights its runes one by one, fires a jagged spike of light (one white frame) that throws tumbling rune-glyph shards, collapses into a falling spark shower, then cracks and erodes from its ends while two shards linger and blink out.",
+"tags": [
+"arcane",
+"impact",
+"hit",
+"trap",
+"ground",
+"one-shot"
+],
+"size": [
+64,
+48
+],
+"pivot": [
+32,
+39
+],
+"frames": 19,
+"frame_ms": 65,
+"loop": false
+},
+{
+"id": "arcane/shield-shatter",
+"category": "arcane",
+"name": "Shield shatter",
+"description": "A hex-faceted violet dome is hit from the left, cracks, flashes white along its cracks for one frame, then breaks into spinning angular glass shards that arc right, fall and taper to chips while its base ring hollows away.",
+"tags": [
+"impact",
+"hit",
+"arcane",
+"shield",
+"one-shot"
+],
+"size": [
+64,
+64
+],
+"pivot": [
+0,
+0
+],
+"frames": 17,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "arcane/teleport-in",
+"category": "arcane",
+"name": "Teleport in",
+"description": "Motes and streaks converge onto the spot as a floor glyph tightens, a slit of light opens and flashes white once, widens into a body-sized column that peels away in upward-sweeping bands, and sparkles and a ground shimmer fade last.",
+"tags": [
+"arcane",
+"buff"
+],
+"size": [
+40,
+64
+],
+"pivot": [
+20,
+57
+],
+"frames": 19,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "arcane/time-stop",
+"category": "arcane",
+"name": "Time stop",
+"description": "A clockwork dial snaps open with ticking hands, greys the world inside into frozen ripples, stops, cracks white across its fracture lines and shatters into spinning dial fragments that fly out, fall and hollow away.",
+"tags": [
+"arcane",
+"spell",
+"time",
+"one-shot"
+],
+"size": [
+144,
+144
+],
+"pivot": [
+72,
+68
+],
+"frames": 28,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "explosions/arcane-burst",
+"category": "explosions",
+"name": "Arcane burst",
+"description": "A violet charge curls five streaks inward, bursts on one white frame into a leaning magenta star-flower with a broken rune ring and spiralling shards; the petals hollow into curled crescents and dashes while glints fade to plum.",
+"tags": [
+"arcane",
+"impact",
+"hit",
+"explosion",
+"magic",
+"one-shot"
+],
+"size": [
+72,
+72
+],
+"pivot": [
+36,
+38
+],
+"frames": 20,
+"frame_ms": 65,
+"loop": false
+},
+{
+"id": "explosions/barrel-explosion",
+"category": "explosions",
+"name": "Barrel explosion",
+"description": "Powder keg blast: one white peak, a squat orange fireball hugging the ground, wooden staves and iron hoops thrown out spinning, a black smoke column that rises and hollows, and burning bits on the floor that outlast it.",
+"tags": [
+"explosion",
+"fire",
+"smoke",
+"debris",
+"one-shot"
+],
+"size": [
+128,
+128
+],
+"pivot": [
+64,
+116
+],
+"frames": 23,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "explosions/big-explosion",
+"category": "explosions",
+"name": "Big explosion",
+"description": "One white peak, a lobed fireball that cools white to red, smoke that rises and hollows, debris arcs and a ground dust ring.",
+"tags": [
+"explosion",
+"fire",
+"smoke",
+"one-shot",
+"flagship"
+],
+"size": [
+128,
+128
+],
+"pivot": [
+64,
+113
+],
+"frames": 18,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "explosions/cluster-bomb",
+"category": "explosions",
+"name": "Cluster bomb",
+"description": "One white flash, then a ring of smaller staggered blasts popping around it on the ground, each a little fireball that cools to smoke, all feeding one broad smoke pall that rises and hollows away.",
+"tags": [
+"explosion",
+"fire",
+"smoke",
+"cluster",
+"one-shot"
+],
+"size": [
+176,
+136
+],
+"pivot": [
+88,
+108
+],
+"frames": 31,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "explosions/fire-nova",
+"category": "explosions",
+"name": "Fire nova",
+"description": "One-shot radial fire nova around a caster: embers sucked into a hot ground core, one white burst, then a thick lobed wall of flame tongues runs out along a perspective floor ellipse (tall near, short and dark far), leans out and tears its tips, hollows and cools from the inside over glowing cinders, breaks into burning patches, then embers, char dashes and smoke.",
+"tags": [
+"impact",
+"fire",
+"explosion"
+],
+"size": [
+96,
+64
+],
+"pivot": [
+48,
+44
+],
+"frames": 19,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "explosions/firework-burst",
+"category": "explosions",
+"name": "Firework burst",
+"description": "A rocket spark climbs, hangs, and bursts on one white frame into uneven magenta-gold comet streamers that arc down under gravity and crackle into twinkling sparkles, with willow drips falling last.",
+"tags": [
+"explosions",
+"firework",
+"celebration",
+"impact",
+"one-shot"
+],
+"size": [
+64,
+80
+],
+"pivot": [
+32,
+30
+],
+"frames": 23,
+"frame_ms": 65,
+"loop": false
+},
+{
+"id": "explosions/frost-explosion",
+"category": "explosions",
+"name": "Frost explosion",
+"description": "A cold ground detonation: one white crystalline star, a crown of ice spikes that holds and shatters, faceted shards thrown out in a ring, a heavy white fog rolling low both ways, and frost glitter falling after it.",
+"tags": [
+"explosion",
+"ice",
+"frost",
+"fog",
+"shards",
+"one-shot"
+],
+"size": [
+136,
+104
+],
+"pivot": [
+68,
+80
+],
+"frames": 25,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "explosions/implosion",
+"category": "explosions",
+"name": "Implosion",
+"description": "A black void with a hot lobed rim opens and drags dust and sparks inward, crushes to a held bead, flashes once in its own shape, and releases a thick lobed ring, an echo ring and smoke that hollow away.",
+"tags": [
+"impact",
+"explosion",
+"implosion",
+"one-shot",
+"flagship"
+],
+"size": [
+96,
+96
+],
+"pivot": [
+48,
+48
+],
+"frames": 28,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "explosions/small-explosion",
+"category": "explosions",
+"name": "Small explosion",
+"description": "One white flash, four lobes that roll out and cool to smoke, flung debris, puffs that hollow and lift, a scorch mark.",
+"tags": [
+"explosion",
+"fire",
+"smoke",
+"impact",
+"one-shot"
+],
+"size": [
+64,
+64
+],
+"pivot": [
+32,
+57
+],
+"frames": 14,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "explosions/toxic-explosion",
+"category": "explosions",
+"name": "Toxic explosion",
+"description": "A chemical blast: one white splash-crown frame, a green-yellow bloom that keeps bubbling and popping, acid droplets that arc out and sizzle where they land, and a murky low cloud that spreads, thins and fades.",
+"tags": [
+"explosion",
+"poison",
+"acid",
+"toxic",
+"gas",
+"one-shot"
+],
+"size": [
+128,
+96
+],
+"pivot": [
+64,
+82
+],
+"frames": 27,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "fire/campfire",
+"category": "fire",
+"name": "Campfire",
+"description": "Seamless campfire loop: crossed logs lit on their fire side, a coal bed, leaning flame tongues of different heights where the tall one tears off a teardrop once per loop, rising embers on varied periods, and a soft light pool on the ground in the lit tier.",
+"tags": [
+"fire",
+"loop",
+"ambient"
+],
+"size": [
+40,
+56
+],
+"pivot": [
+20,
+50
+],
+"frames": 12,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "fire/fire-breath",
+"category": "fire",
+"name": "Fire breath",
+"description": "A dragon's breath to the right: a continuous jet of flame from a white-hot mouth that widens into a cone with flame teeth licking along both edges, holds for a beat, then lets go of the mouth and burns off outward, its far end tearing into rising tongues and thin smoke wisps.",
+"tags": [
+"fire",
+"breath",
+"cone",
+"jet",
+"one-shot"
+],
+"size": [
+160,
+96
+],
+"pivot": [
+8,
+50
+],
+"frames": 24,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "fire/fire-cast",
+"category": "fire",
+"name": "Fire cast",
+"description": "Four lobed flame tongues and a swarm of embers spiral into the palm around a swelling white-hot bead, the held fireball pinches tight, one flame-shaped white burst releases a big bloom of shaded flame lobes that breaks upward, curls and cools to maroon while embers drift up and two smoke curls rise and break apart.",
+"tags": [
+"fire",
+"cast",
+"charge",
+"one-shot"
+],
+"size": [
+64,
+64
+],
+"pivot": [
+32,
+38
+],
+"frames": 15,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "fire/fire-dash",
+"category": "fire",
+"name": "Fire dash",
+"description": "A burning dash trail: a mover streaks forward leaving a line of fire whose tongues lick up, dragged back, then burn out from the back to the front into ember dashes on a char streak.",
+"tags": [
+"fire",
+"one-shot",
+"dash",
+"trail",
+"ground"
+],
+"size": [
+128,
+56
+],
+"pivot": [
+64,
+46
+],
+"frames": 18,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "fire/fire-pillar",
+"category": "fire",
+"name": "Fire pillar",
+"description": "A ground crack heats up, a column of fire erupts with one white-yellow peak, fat tongues lick up and tear off the top, then the pillar collapses into rising embers, dark smoke curls and a scorched patch that cools.",
+"tags": [
+"fire",
+"impact",
+"ground",
+"pillar",
+"one-shot"
+],
+"size": [
+64,
+112
+],
+"pivot": [
+32,
+102
+],
+"frames": 24,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "fire/fire-tornado",
+"category": "fire",
+"name": "Fire tornado",
+"description": "Seamless fire-tornado loop: a leaning open funnel of two torn flame ribbons climbing a spiral (bright front ribbons over deep-red back ribbons seen through the gaps), licks streaming off in the spin direction, swept ground-fire arcs, tongues tearing off its edges and hollowing as they rise, a swirling ring of ground fire flinging embers, embers spiralling up, and once per loop a flare climbing the funnel that throws a big tongue off the top.",
+"tags": [
+"fire",
+"loop",
+"tornado",
+"hazard"
+],
+"size": [
+48,
+80
+],
+"pivot": [
+24,
+74
+],
+"frames": 16,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "fire/fire-wall",
+"category": "fire",
+"name": "Fire wall",
+"description": "Seamless, tileable fire barrier loop: a ground line of tall shaded flame tongues before a cooler back row that churn, lean in a wave along the wall and lick upward, two tongue tips tearing off as rising crescents each loop, embers on varied periods, a cinder-lit char strip at the base.",
+"tags": [
+"fire",
+"loop",
+"barrier",
+"wall",
+"tile"
+],
+"size": [
+128,
+76
+],
+"pivot": [
+64,
+68
+],
+"frames": 16,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "fire/fireball-impact",
+"category": "fire",
+"name": "Fireball impact",
+"description": "Fireball travel loop with lobed trailing tongues, a squash on contact, one white impact frame, a lobed fire burst that hollows into crescents and cools to maroon, debris specks.",
+"tags": [
+"fire",
+"projectile",
+"impact",
+"one-shot",
+"flagship"
+],
+"size": [
+96,
+64
+],
+"pivot": [
+72,
+38
+],
+"frames": 15,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "fire/flame-ring",
+"category": "fire",
+"name": "Flame ring",
+"description": "Fire erupts in a ring on the ground around the caster and runs outward, the near side taller and hotter, then hollows into hooked licks and burns out as ember dashes along the floor.",
+"tags": [
+"fire",
+"one-shot",
+"ring",
+"nova",
+"ground"
+],
+"size": [
+112,
+80
+],
+"pivot": [
+56,
+60
+],
+"frames": 17,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "fire/flamethrower",
+"category": "fire",
+"name": "Flamethrower",
+"description": "Seamless flamethrower jet blowing right: cream core at the nozzle, an orange body of rolling lobes, fat lobes tearing off the far end and curling into dark smoke, embers spitting forward; two gouts per loop surge down the jet.",
+"tags": [
+"fire",
+"flamethrower",
+"beam",
+"loop",
+"flagship"
+],
+"size": [
+128,
+48
+],
+"pivot": [
+6,
+32
+],
+"frames": 16,
+"frame_ms": 60,
+"loop": true
+},
+{
+"id": "fire/ground-flames",
+"category": "fire",
+"name": "Ground flames",
+"description": "Seamless burning-ground hazard loop: four lobed flame clumps along a scorched perspective ellipse (near clumps tall and bright, far clumps short and dark) whose tongues lick and tear off rising tips, glowing cinders on a char patch, embers on varied periods, and once per loop the tallest clump flares and throws a separate flame tongue.",
+"tags": [
+"fire",
+"loop",
+"hazard",
+"ground"
+],
+"size": [
+64,
+40
+],
+"pivot": [
+32,
+33
+],
+"frames": 16,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "fire/incinerate",
+"category": "fire",
+"name": "Incinerate",
+"description": "A target catches fire from the feet up, flares white, and the fire collapses into tumbling black ash flakes that drift up and away, leaving a char smear on the floor.",
+"tags": [
+"fire",
+"one-shot",
+"death",
+"burn",
+"ash"
+],
+"size": [
+64,
+64
+],
+"pivot": [
+22,
+60
+],
+"frames": 19,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "fire/lava-burst",
+"category": "fire",
+"name": "Lava burst",
+"description": "The ground bulges and its cracks glow, one white peak bursts it open, a heavy lava fountain throws fat blobs on ropes that arc and splat into pools; the pools crust over from the edges, their cracks glow last, and dark wisps rise as they die.",
+"tags": [
+"fire",
+"impact",
+"hit"
+],
+"size": [
+64,
+72
+],
+"pivot": [
+32,
+62
+],
+"frames": 23,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "fire/meteor-strike",
+"category": "fire",
+"name": "Meteor strike",
+"description": "A rock falls diagonally with a lit leading rim and a tongued flame trail, one white impact frame, a lobed fire dome, a ground shockwave and bouncing chunks, smoke that rises and hollows, a cooling crater and embers.",
+"tags": [
+"fire",
+"impact",
+"hit"
+],
+"size": [
+96,
+96
+],
+"pivot": [
+47,
+82
+],
+"frames": 26,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "fire/phoenix-burst",
+"category": "fire",
+"name": "Phoenix burst",
+"description": "A bird of flame spreads its wings upward with one white flare, beats once, then scatters into feathers of fire that flutter down, hollow and fade.",
+"tags": [
+"fire",
+"one-shot",
+"phoenix",
+"burst",
+"buff"
+],
+"size": [
+128,
+112
+],
+"pivot": [
+64,
+84
+],
+"frames": 22,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "holy/angel-feathers",
+"category": "holy",
+"name": "Angel feathers",
+"description": "A chunky tilted golden halo torus flares over the head, flashes white once and bursts quill feathers that spiral out in three drifts, then rock down like falling feathers, tumbling and cooling cream to amber, while golden motes twinkle and the halo shrinks and hollows away.",
+"tags": [
+"holy",
+"buff"
+],
+"size": [
+56,
+72
+],
+"pivot": [
+28,
+17
+],
+"frames": 21,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "holy/barrier-block",
+"category": "holy",
+"name": "Barrier block",
+"description": "A hexagonal light pane snaps in, takes a hit from the right in one white frame, ripples a flash through its hex cells, cracks, and dissolves cell by cell into falling gold motes.",
+"tags": [
+"holy",
+"impact",
+"hit"
+],
+"size": [
+40,
+56
+],
+"pivot": [
+0,
+0
+],
+"frames": 16,
+"frame_ms": 55,
+"loop": false
+},
+{
+"id": "holy/divine-beam",
+"category": "holy",
+"name": "Divine beam",
+"description": "A faint sliver and a broken floor halo build, then a heavy notched column of light slams down with one white ground-hit frame and a flat starburst; it holds with climbing streaks and descending rings, then narrows into three slivers that break into rising dashes and motes while the halo hollows last.",
+"tags": [
+"holy",
+"impact",
+"beam",
+"one-shot"
+],
+"size": [
+48,
+96
+],
+"pivot": [
+24,
+88
+],
+"frames": 19,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "holy/halo-crown",
+"category": "holy",
+"name": "Halo crown",
+"description": "Seamless floating halo loop: a golden ring crowned with six small tines slowly tilts open and closed and rolls side to side, a highlight slides along its rim and flares into one white glint per loop, and tiny beads of light drip off and fall, cooling as they go.",
+"tags": [
+"holy",
+"status",
+"halo",
+"buff",
+"loop"
+],
+"size": [
+44,
+50
+],
+"pivot": [
+22,
+16
+],
+"frames": 24,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "holy/holy-cast",
+"category": "holy",
+"name": "Holy cast",
+"description": "A small halo ring draws itself around the palm and tightens while light motes rise and curve into a growing golden core, the core holds as a twinkling four-point gem, one white cross-shaped flare peaks, the halo is flung out as a broken ring, and sparkles and three small feathers fall swaying and fade from gold to rust.",
+"tags": [
+"holy",
+"light",
+"cast",
+"charge",
+"one-shot"
+],
+"size": [
+64,
+64
+],
+"pivot": [
+32,
+28
+],
+"frames": 16,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "holy/holy-heal",
+"category": "holy",
+"name": "Holy heal",
+"description": "Ground glint, floor ring, rising rods pulled into a star, one white pillar frame that breaks into banded light shafts, ascending crosses, plus sparkles that blink out.",
+"tags": [
+"holy",
+"heal",
+"buff",
+"one-shot",
+"flagship"
+],
+"size": [
+64,
+96
+],
+"pivot": [
+32,
+86
+],
+"frames": 21,
+"frame_ms": 80,
+"loop": false
+},
+{
+"id": "holy/holy-nova",
+"category": "holy",
+"name": "Holy nova",
+"description": "A radiant holy burst: one white eight-point star flare, a wide halo ring that widens, cools and breaks into arcs, light rays that shoot off, and feathers of light that rock down and fade long after the flash.",
+"tags": [
+"holy",
+"explosion",
+"light",
+"feathers",
+"one-shot"
+],
+"size": [
+128,
+108
+],
+"pivot": [
+64,
+48
+],
+"frames": 25,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "holy/holy-smite",
+"category": "holy",
+"name": "Holy smite",
+"description": "A golden-white pillar slams down in two frames, one white peak with a domed splash, a thick broken halo ring and a cross scorch on the floor; the column collapses top-down into broad rising light shards while feathers tumble up.",
+"tags": [
+"holy",
+"smite",
+"impact",
+"strike",
+"one-shot",
+"flagship"
+],
+"size": [
+80,
+120
+],
+"pivot": [
+40,
+108
+],
+"frames": 14,
+"frame_ms": 80,
+"loop": false
+},
+{
+"id": "holy/holy-sword-fall",
+"category": "holy",
+"name": "Holy sword fall",
+"description": "A great sword of light falls point first into the ground with one white cross-shaped flash, stands while radiant cracks race out and cool, then dissolves upward into rising strands of light.",
+"tags": [
+"holy",
+"light",
+"sword",
+"impact",
+"hit",
+"ground",
+"one-shot"
+],
+"size": [
+104,
+112
+],
+"pivot": [
+52,
+100
+],
+"frames": 14,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "holy/purify",
+"category": "holy",
+"name": "Purify",
+"description": "A cleansing burst: a gold ring opens at the feet, one white star flashes at the chest, and dark specks lift off the figure and dissolve into gold and cream motes rising in a column of light.",
+"tags": [
+"holy",
+"light",
+"cleanse",
+"buff",
+"one-shot"
+],
+"size": [
+60,
+88
+],
+"pivot": [
+30,
+76
+],
+"frames": 16,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "holy/regen-aura",
+"category": "holy",
+"name": "Regen aura",
+"description": "Seamless health-regeneration status loop: a low broken ellipse of green light at the feet (bright near arc, dim far arc), three twisting wisps of light rising off it, chunky shaded crosses and leaf motes riding the wisps up that sway, shrink and hollow as they fade, and once per loop a big cross that pulses bright and pops into four motes.",
+"tags": [
+"holy",
+"status",
+"loop",
+"heal",
+"buff"
+],
+"size": [
+48,
+64
+],
+"pivot": [
+24,
+57
+],
+"frames": 16,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "holy/resurrect",
+"category": "holy",
+"name": "Resurrect",
+"description": "A golden floor sigil draws itself, a beam with a ray-broken top descends onto it, one white peak, then the beam hollows into rails and dashes while feathers and sparkles rise gold to pale amber to dusky rose and the sigil breaks up from the inside last.",
+"tags": [
+"holy",
+"buff",
+"revive",
+"one-shot"
+],
+"size": [
+48,
+80
+],
+"pivot": [
+24,
+72
+],
+"frames": 21,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "holy/sanctuary",
+"category": "holy",
+"name": "Sanctuary",
+"description": "A golden ground circle with turning glyph marks, a light wave running round it and soft columns of light rising from its rim one after another; a seamless loop.",
+"tags": [
+"holy",
+"light",
+"circle",
+"aura",
+"ground",
+"loop"
+],
+"size": [
+132,
+114
+],
+"pivot": [
+66,
+80
+],
+"frames": 40,
+"frame_ms": 60,
+"loop": true
+},
+{
+"id": "holy/shield-bubble",
+"category": "holy",
+"name": "Shield bubble",
+"description": "Seamless holy shield loop: a sphere shell with a bright gold rim on the lit upper left and a thin far rim behind the character, hexagon facets shimmering in a travelling band, orbiting motes, and once per loop a strike that sends a ripple across the shell.",
+"tags": [
+"holy",
+"shield",
+"buff",
+"status",
+"loop"
+],
+"size": [
+72,
+88
+],
+"pivot": [
+36,
+84
+],
+"frames": 16,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "ice/blizzard",
+"category": "ice",
+"name": "Blizzard",
+"description": "Seamless localized snowstorm: wind-driven snow slanting down-right in far, mid and near depth bands grouped into gusts, two broad pale gust ribbons, a churning snow-mist drift on the ground, and once per loop a gust swell where the snow thickens and a ribbon tears off.",
+"tags": [
+"ice",
+"status",
+"loop"
+],
+"size": [
+80,
+56
+],
+"pivot": [
+40,
+50
+],
+"frames": 16,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "ice/freeze-encase",
+"category": "ice",
+"name": "Freeze encase",
+"description": "Ice teeth grow up around a character footprint into a faceted block that glints white once, holds, cracks and shatters into falling shards over a frost patch that fades last.",
+"tags": [
+"ice",
+"status"
+],
+"size": [
+56,
+64
+],
+"pivot": [
+28,
+57
+],
+"frames": 20,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "ice/frost-armor",
+"category": "ice",
+"name": "Frost armor",
+"description": "Seamless status loop: a faceted crystal shell around a figure whose facets glint one after another, flaring once per loop, with cold mist curling off the bottom and frost shards at the feet.",
+"tags": [
+"ice",
+"loop",
+"status",
+"buff",
+"shield"
+],
+"size": [
+60,
+64
+],
+"pivot": [
+30,
+60
+],
+"frames": 16,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "ice/frost-breath",
+"category": "ice",
+"name": "Frost breath",
+"description": "Seamless cone of cold blowing right: a dense pale root, rolling vapour lobes with lit tops and deep-blue undersides that slow, curl back into crescents and break up, tumbling 2x2 ice chips and glints; once per loop a shard cluster forms at the far end, flashes and shatters.",
+"tags": [
+"ice",
+"loop",
+"beam"
+],
+"size": [
+96,
+40
+],
+"pivot": [
+4,
+21
+],
+"frames": 14,
+"frame_ms": 65,
+"loop": true
+},
+{
+"id": "ice/frost-nova",
+"category": "ice",
+"name": "Frost nova",
+"description": "Converging motes, an empty beat, a white eruption of faceted ice crystals on a floor ring, a hold, a crack, then large shards that fly and fall while the ice floor cracks into segments.",
+"tags": [
+"ice",
+"frost",
+"nova",
+"ground",
+"one-shot",
+"flagship"
+],
+"size": [
+120,
+76
+],
+"pivot": [
+60,
+50
+],
+"frames": 18,
+"frame_ms": 80,
+"loop": false
+},
+{
+"id": "ice/frozen-ground",
+"category": "ice",
+"name": "Frozen ground",
+"description": "Seamless loop of a single patch of ice on the floor (it does not tile): a frost-rimmed, cracked sheet with a slow sheen travelling across it, sparkles twinkling, and one white glint per loop where the sheen crosses a crack.",
+"tags": [
+"ice",
+"loop",
+"ground",
+"floor",
+"hazard"
+],
+"size": [
+128,
+64
+],
+"pivot": [
+64,
+32
+],
+"frames": 24,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "ice/ice-cast",
+"category": "ice",
+"name": "Ice cast",
+"description": "Bold frost streaks and tumbling hex shards shoot into the palm inside a contracting broken hexagon, a faceted crystal grows, holds with a running glint and cracks bright, flashes white in a six-point frost star, then shatters into tumbling shards and an expanding broken ring while snow glitter drifts down and winks out.",
+"tags": [
+"ice",
+"frost",
+"cast",
+"charge",
+"one-shot"
+],
+"size": [
+64,
+64
+],
+"pivot": [
+32,
+28
+],
+"frames": 16,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "ice/ice-shatter",
+"category": "ice",
+"name": "Ice shatter",
+"description": "A frozen block cracks with white lines, then bursts into real faceted fragments that tumble, bounce, skid and glint before eroding away over a fading frost patch.",
+"tags": [
+"ice",
+"one-shot",
+"shatter",
+"break",
+"ground"
+],
+"size": [
+100,
+64
+],
+"pivot": [
+50,
+54
+],
+"frames": 23,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "ice/ice-spike",
+"category": "ice",
+"name": "Ice spike",
+"description": "Frost spreads under the target, a big faceted ice crystal with three side shards shoots up and flashes white, holds, then cracks and shatters into tumbling shards and frost mist over a lingering frost patch.",
+"tags": [
+"impact",
+"ice",
+"frost",
+"ground",
+"one-shot"
+],
+"size": [
+96,
+80
+],
+"pivot": [
+46,
+68
+],
+"frames": 26,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "ice/ice-wall",
+"category": "ice",
+"name": "Ice wall",
+"description": "Frost creeps along the ground, a staggered row of jagged faceted ice slabs erupts into a wall, glints white once, holds under curling frost mist, then shatters from the top down into tumbling shards while the stumps sink and the frost fades from its ends.",
+"tags": [
+"ice",
+"impact",
+"ground",
+"defense",
+"one-shot"
+],
+"size": [
+80,
+56
+],
+"pivot": [
+40,
+48
+],
+"frames": 21,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "ice/icicle-rain",
+"category": "ice",
+"name": "Icicle rain",
+"description": "Icicles drop in staggered columns and shatter on the floor in small crystal bursts of tumbling chips, each leaving a frost mark that lingers and breaks up.",
+"tags": [
+"ice",
+"one-shot",
+"rain",
+"area",
+"ground"
+],
+"size": [
+160,
+104
+],
+"pivot": [
+80,
+92
+],
+"frames": 25,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "ice/snowball-impact",
+"category": "ice",
+"name": "Snowball impact",
+"description": "A lumpy shaded snowball arcs in shedding powder puffs, squashes on the target, flashes white once as a packed mass of chunks, then the chunks fly and fall into melting slush while a cold powder cloud billows and hollows and ice glints twinkle.",
+"tags": [
+"ice",
+"snow",
+"projectile",
+"impact",
+"one-shot"
+],
+"size": [
+80,
+48
+],
+"pivot": [
+62,
+26
+],
+"frames": 20,
+"frame_ms": 65,
+"loop": false
+},
+{
+"id": "impacts/block-guard",
+"category": "impacts",
+"name": "Block guard",
+"description": "A blocked hit: a guard plane bows back into one white lens under the blow, sparks shear off its edges, and a blue rim shimmers along it as it thins away.",
+"tags": [
+"impact",
+"hit",
+"block",
+"guard",
+"one-shot"
+],
+"size": [
+48,
+60
+],
+"pivot": [
+22,
+26
+],
+"frames": 10,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "impacts/blood-splat",
+"category": "impacts",
+"name": "Blood splat",
+"description": "A crimson pop, then seven jets of blood tear out of the wound as lit ligaments over a thick red cup, neck into beaded drops while the heart of the splash hollows into a sagging crescent and pulls apart, and the heavy drops arc down to land as puddles that outlast the splash.",
+"tags": [
+"impact",
+"hit",
+"liquid",
+"blood",
+"one-shot"
+],
+"size": [
+128,
+120
+],
+"pivot": [
+28,
+62
+],
+"frames": 16,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "impacts/crater-impact",
+"category": "impacts",
+"name": "Crater impact",
+"description": "A heavy landing: a flat white ground flash, a crater rim of rock teeth heaved up in an ellipse, chunks thrown in an arc, a dust skirt that lingers and a scorched dent that cools last.",
+"tags": [
+"impact",
+"hit",
+"earth",
+"ground",
+"one-shot"
+],
+"size": [
+96,
+64
+],
+"pivot": [
+48,
+40
+],
+"frames": 17,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "impacts/crit-hit",
+"category": "impacts",
+"name": "Crit hit",
+"description": "Inward pinch, one white jagged starburst cut by a diagonal slash, chunky shards and a broken tilted shock ring cooling to deep red.",
+"tags": [
+"impact",
+"hit",
+"crit",
+"one-shot"
+],
+"size": [
+96,
+80
+],
+"pivot": [
+48,
+40
+],
+"frames": 11,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "impacts/death-poof",
+"category": "impacts",
+"name": "Death poof",
+"description": "An enemy despawn: a pale pop, one white star flash, then a cluster of distinct lavender smoke puffs bursts out, swells and drifts, hollows from inside into shadow-side crescents that break into dashes, while soul motes rise and outlive the smoke.",
+"tags": [
+"impact",
+"hit",
+"death",
+"despawn",
+"poof",
+"smoke",
+"one-shot"
+],
+"size": [
+48,
+48
+],
+"pivot": [
+24,
+28
+],
+"frames": 13,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "impacts/ground-slam",
+"category": "impacts",
+"name": "Ground slam shockwave",
+"description": "One white crack-flash on the floor, a flattened shockwave ring that breaks into arcs, thrown earth chunks that bounce once, dust that rolls out and hollows, cracks that fade.",
+"tags": [
+"impact",
+"hit",
+"ground",
+"earth",
+"one-shot",
+"flagship"
+],
+"size": [
+128,
+64
+],
+"pivot": [
+64,
+44
+],
+"frames": 19,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "impacts/hit-spark",
+"category": "impacts",
+"name": "Hit spark",
+"description": "Needle, one white peak frame, a long X and broken ring that cool down the ramp, embers that scatter and vanish.",
+"tags": [
+"impact",
+"hit",
+"spark",
+"one-shot",
+"flagship"
+],
+"size": [
+64,
+64
+],
+"pivot": [
+32,
+32
+],
+"frames": 8,
+"frame_ms": 80,
+"loop": false
+},
+{
+"id": "impacts/magic-hit",
+"category": "impacts",
+"name": "Magic hit",
+"description": "A small spell hit: a violet star pop, a broken ring that thins as it spreads, and runic motes that orbit the hit once and wink out.",
+"tags": [
+"impact",
+"hit",
+"magic",
+"arcane",
+"one-shot"
+],
+"size": [
+48,
+48
+],
+"pivot": [
+24,
+24
+],
+"frames": 14,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "impacts/metal-clang",
+"category": "impacts",
+"name": "Metal clang",
+"description": "Blade on armour: one hard white tick, a fan of orange sparks that hang, fall and skid along the floor, and a scratch that cools from glowing to bare steel.",
+"tags": [
+"impact",
+"hit",
+"spark",
+"metal",
+"one-shot"
+],
+"size": [
+58,
+44
+],
+"pivot": [
+24,
+26
+],
+"frames": 13,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "impacts/parry",
+"category": "impacts",
+"name": "Parry",
+"description": "Contact needle, one white cross-glint peak, a steel ring that breaks into arcs, sparks that arc up, cool and fall.",
+"tags": [
+"impact",
+"parry",
+"spark",
+"metal",
+"one-shot"
+],
+"size": [
+96,
+80
+],
+"pivot": [
+48,
+38
+],
+"frames": 13,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "impacts/punch-hit",
+"category": "impacts",
+"name": "Punch hit",
+"description": "Squashed pinch, one white uneven comic-burst star, a hollow jagged ring of the same spikes, thick wedges knocked right and dust chips that drop.",
+"tags": [
+"impact",
+"hit",
+"melee",
+"blunt",
+"one-shot"
+],
+"size": [
+48,
+40
+],
+"pivot": [
+17,
+21
+],
+"frames": 11,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "impacts/rock-shatter",
+"category": "impacts",
+"name": "Rock shatter",
+"description": "A faceted boulder struck from above-left cracks, flares pale cream along its cracks for one frame with a low dust burst, then breaks into eight faceted chunks that tumble, bounce once and shrink away, while two light dust puffs hollow into crescents and a dust smear lingers on the ground.",
+"tags": [
+"impact",
+"hit",
+"earth",
+"rock",
+"one-shot"
+],
+"size": [
+64,
+56
+],
+"pivot": [
+30,
+44
+],
+"frames": 18,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "impacts/shockwave-ring",
+"category": "impacts",
+"name": "Shockwave ring",
+"description": "A clean perspective shockwave ring for landings and heavy blows: white contact flash, a thick near-bright ring that thins and breaks into arcs and dashes, a band of dust and air distortion, fading cracks.",
+"tags": [
+"impact",
+"shockwave",
+"ground",
+"ring",
+"landing",
+"one-shot"
+],
+"size": [
+120,
+52
+],
+"pivot": [
+60,
+30
+],
+"frames": 16,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "impacts/slime-splat",
+"category": "impacts",
+"name": "Slime splat",
+"description": "A goo hit: a green glob squashes into a crowned splat, ropes stretch and snap into flung droplets and drips, and the puddle left behind shrinks with a last bubble.",
+"tags": [
+"impact",
+"hit",
+"slime",
+"goo",
+"one-shot"
+],
+"size": [
+64,
+44
+],
+"pivot": [
+32,
+36
+],
+"frames": 16,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "impacts/wood-splinter",
+"category": "impacts",
+"name": "Wood splinter",
+"description": "A blunt hit on wood: a pale splintered flash, tan splinters and chips that spin out, fall and bounce, and a puff of sawdust that settles into a small heap.",
+"tags": [
+"impact",
+"hit",
+"wood",
+"debris",
+"one-shot"
+],
+"size": [
+50,
+40
+],
+"pivot": [
+22,
+26
+],
+"frames": 14,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "lightning/arc-discharge",
+"category": "lightning",
+"name": "Arc discharge",
+"description": "A heavy, jagged white-cored arc jumps between two points with forked branches, re-paths and thins, flickers back once, then breaks into dashes, falling sparks and crawling squiggles.",
+"tags": [
+"lightning",
+"electric",
+"arc",
+"one-shot"
+],
+"size": [
+100,
+66
+],
+"pivot": [
+50,
+36
+],
+"frames": 14,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "lightning/ball-lightning",
+"category": "lightning",
+"name": "Ball lightning",
+"description": "A crackling plasma orb with flickering jagged tendrils flies left to right, trailing a broken afterimage and spat sparks, then discharges in one white frame: six forked bolts and a ring of static that break into dashes and jittering motes fading to violet.",
+"tags": [
+"lightning",
+"projectile",
+"impact",
+"hit"
+],
+"size": [
+96,
+48
+],
+"pivot": [
+0,
+24
+],
+"frames": 20,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "lightning/chain-lightning",
+"category": "lightning",
+"name": "Chain lightning",
+"description": "A bolt hops left to right across three targets in quick succession; each hop strikes as a forked white-cored arc with a spiky burst, while earlier arcs flicker, break into dashes and crumble into specks.",
+"tags": [
+"lightning",
+"electric",
+"chain",
+"impact",
+"one-shot"
+],
+"size": [
+180,
+72
+],
+"pivot": [
+10,
+40
+],
+"frames": 14,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "lightning/lightning-cast",
+"category": "lightning",
+"name": "Lightning cast",
+"description": "Five charge nodes close in on the palm while angular arcs crackle between them and into a growing crackling ball, the ball pinches, one white discharge frame fires six thick zigzag bolts that re-path in cyan, then curly residual arcs unfurl and static sparks pop, cooling to indigo.",
+"tags": [
+"lightning",
+"electric",
+"cast",
+"charge",
+"one-shot"
+],
+"size": [
+64,
+64
+],
+"pivot": [
+32,
+32
+],
+"frames": 15,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "lightning/lightning-dash",
+"category": "lightning",
+"name": "Lightning dash",
+"description": "A zigzag teleport streak: one white flash from the departure to a tall slit flash at the arrival, then the streak splits into two crackling strands that break into dashes and shed falling sparks.",
+"tags": [
+"lightning",
+"electric",
+"dash",
+"teleport",
+"movement",
+"one-shot"
+],
+"size": [
+126,
+60
+],
+"pivot": [
+12,
+32
+],
+"frames": 11,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "lightning/lightning-strike",
+"category": "lightning",
+"name": "Lightning strike",
+"description": "Leader, one white peak strike with a spike crown, re-strikes every 3 frames on fresh paths, fork afterimages, a chain arc to a second target, squiggle residue.",
+"tags": [
+"lightning",
+"electric",
+"strike",
+"chain",
+"one-shot",
+"flagship"
+],
+"size": [
+96,
+128
+],
+"pivot": [
+38,
+118
+],
+"frames": 18,
+"frame_ms": 80,
+"loop": false
+},
+{
+"id": "lightning/lightning-whip",
+"category": "lightning",
+"name": "Lightning whip",
+"description": "An electric whip lashes out in an S-curve, its tip cracks in a white spiky burst, then the crackling body flickers off, breaks into dashes and leaves falling sparks and squiggles.",
+"tags": [
+"lightning",
+"electric",
+"whip",
+"melee",
+"one-shot"
+],
+"size": [
+138,
+88
+],
+"pivot": [
+14,
+44
+],
+"frames": 14,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "lightning/static-burst",
+"category": "lightning",
+"name": "Static burst",
+"description": "Angular bolts stab inward to a pale knot, then one white frame of a large clean nine-point burst with a solid cyan rim and five zigzag bolts; a hollowing pale burst holds as seven live 2 px tendrils crawl outward, rise, break into dashes and cool cyan -> blue -> indigo over a crumbling indigo residue.",
+"tags": [
+"lightning",
+"electric",
+"impact",
+"hit",
+"one-shot"
+],
+"size": [
+112,
+112
+],
+"pivot": [
+56,
+58
+],
+"frames": 13,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "lightning/storm-field",
+"category": "lightning",
+"name": "Storm field",
+"description": "A crackling ground circle of static where small bolts strike at random points around the rim and one hero bolt lands hard each cycle; a seamless loop.",
+"tags": [
+"lightning",
+"electric",
+"field",
+"aura",
+"ground",
+"loop"
+],
+"size": [
+124,
+129
+],
+"pivot": [
+62,
+95
+],
+"frames": 24,
+"frame_ms": 60,
+"loop": true
+},
+{
+"id": "lightning/thunder-cloud",
+"category": "lightning",
+"name": "Thunder cloud",
+"description": "Seamless storm-cloud hazard loop: dark slate lobes churn over slanted two-depth rain that splashes on the ground below; once per loop the underside flashes from inside and a jagged forked bolt strikes the ground, with a ground flash, sparks and a scorch.",
+"tags": [
+"lightning",
+"loop",
+"hazard"
+],
+"size": [
+56,
+72
+],
+"pivot": [
+28,
+69
+],
+"frames": 24,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "lightning/thunderclap",
+"category": "lightning",
+"name": "Thunderclap",
+"description": "A thunder blast on the ground: one jagged white flash, then a crackling electric ring races outward with a fainter second ring behind it, both breaking into arcs, dashes and specks.",
+"tags": [
+"lightning",
+"electric",
+"shockwave",
+"ring",
+"one-shot"
+],
+"size": [
+128,
+112
+],
+"pivot": [
+64,
+72
+],
+"frames": 11,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "melee/axe-smear",
+"category": "melee",
+"name": "Axe smear",
+"description": "A heavy overhead axe chop: a thick steel crescent smear arcs down over three frames with a white, warm-edged leading rim and breaks into chunky fragments and sparks where it lands.",
+"tags": [
+"melee",
+"slash",
+"axe",
+"smear",
+"hit",
+"one-shot"
+],
+"size": [
+128,
+104
+],
+"pivot": [
+66,
+50
+],
+"frames": 9,
+"frame_ms": 80,
+"loop": false
+},
+{
+"id": "melee/dagger-slash",
+"category": "melee",
+"name": "Dagger slash",
+"description": "A quick double stab-slash: two thin, short steel crescents hook forward to the same point, the second one's white rim and a small hard star landing together, then both thin to rim dashes and a dotted afterimage while a few specks fly forward and cool.",
+"tags": [
+"melee",
+"slash",
+"dagger",
+"smear",
+"hit",
+"impact",
+"one-shot"
+],
+"size": [
+48,
+40
+],
+"pivot": [
+22,
+20
+],
+"frames": 7,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "melee/greatsword-sweep",
+"category": "melee",
+"name": "Greatsword sweep",
+"description": "A heavy two-handed horizontal sweep: a slow wind-up glint, one thick steel crescent with a white leading edge round the front of the arc, and dust kicked along the floor that lingers.",
+"tags": [
+"melee",
+"slash",
+"sword",
+"smear",
+"one-shot"
+],
+"size": [
+104,
+64
+],
+"pivot": [
+52,
+34
+],
+"frames": 15,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "melee/hammer-smash",
+"category": "melee",
+"name": "Hammer smash",
+"description": "A heavy overhead hammer blow: a thick earth-toned crescent smear lands on the ground, one chunky white-cored ground burst, a perspective shockwave that breaks into arcs, cracks, kicked-up rock chips, rolling dust billows and a lingering dust bank.",
+"tags": [
+"impact",
+"hit",
+"melee",
+"blunt",
+"ground",
+"one-shot"
+],
+"size": [
+84,
+56
+],
+"pivot": [
+44,
+44
+],
+"frames": 15,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "melee/quickdraw-slash",
+"category": "melee",
+"name": "Quickdraw slash",
+"description": "An iaido draw: one white hairline cut across the frame, a held beat of stillness, then the line splits open into a wide white burst whose lips part and break away.",
+"tags": [
+"melee",
+"slash",
+"sword",
+"iaido",
+"one-shot"
+],
+"size": [
+104,
+64
+],
+"pivot": [
+52,
+32
+],
+"frames": 11,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "melee/rapier-flurry",
+"category": "melee",
+"name": "Rapier flurry",
+"description": "A flurry of fast rapier thrusts: thin steel needles stabbing out at slightly different angles, each with a tiny star on its point, the last one flashing white, then breaking into dashes and sparks.",
+"tags": [
+"melee",
+"thrust",
+"rapier",
+"flurry",
+"one-shot"
+],
+"size": [
+64,
+48
+],
+"pivot": [
+6,
+24
+],
+"frames": 16,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "melee/scythe-reap",
+"category": "melee",
+"name": "Scythe reap",
+"description": "A wide reaping stroke swept low to high: a hooked violet crescent with one white edge, ghost after-images trailing the blade, and dark wisps that peel off, curl and drift away.",
+"tags": [
+"melee",
+"slash",
+"scythe",
+"dark",
+"smear",
+"one-shot"
+],
+"size": [
+96,
+92
+],
+"pivot": [
+44,
+58
+],
+"frames": 16,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "melee/shadow-claw",
+"category": "melee",
+"name": "Shadow claw",
+"description": "A three-claw shadow rake swiped down-right: three tapered violet crescents land a frame apart, flash once over a dark burst, then hollow tail-first into dashes while dark wisps curl up.",
+"tags": [
+"melee",
+"shadow",
+"hit",
+"impact",
+"claw",
+"one-shot"
+],
+"size": [
+56,
+56
+],
+"pivot": [
+28,
+28
+],
+"frames": 12,
+"frame_ms": 50,
+"loop": false
+},
+{
+"id": "melee/shield-bash",
+"category": "melee",
+"name": "Shield bash",
+"description": "A forward shield shove: a curved shield-shaped shock front with one white frame, a jolt of small stars around it, and a cone of dust kicked forward along the ground that rolls out and hollows away.",
+"tags": [
+"melee",
+"bash",
+"shield",
+"shove",
+"dust",
+"one-shot"
+],
+"size": [
+72,
+52
+],
+"pivot": [
+14,
+28
+],
+"frames": 16,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "melee/spear-thrust",
+"category": "melee",
+"name": "Spear thrust",
+"description": "A straight spear lunge: a tapered steel wedge smear with a warm-white head and parallel speed streaks, a star burst at the tip, then the smear hollows from the rear into dashes.",
+"tags": [
+"melee",
+"thrust",
+"spear",
+"smear",
+"hit",
+"impact",
+"one-shot"
+],
+"size": [
+72,
+32
+],
+"pivot": [
+12,
+16
+],
+"frames": 10,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "melee/spin-slash",
+"category": "melee",
+"name": "Spin slash",
+"description": "A full spinning slash around the actor: a flattened ring smear, thick and bright on the near half and thin behind, one white frame, steel shards flicking off along the spin, then the ring breaks into dashes.",
+"tags": [
+"melee",
+"slash",
+"spin",
+"smear",
+"one-shot"
+],
+"size": [
+120,
+72
+],
+"pivot": [
+60,
+34
+],
+"frames": 14,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "melee/sword-combo",
+"category": "melee",
+"name": "Sword combo",
+"description": "Three crescent slashes in quick succession: down, rising reverse, and a heavy horizontal finisher with a spark burst.",
+"tags": [
+"melee",
+"slash",
+"sword",
+"combo",
+"smear",
+"one-shot",
+"flagship"
+],
+"size": [
+104,
+64
+],
+"pivot": [
+52,
+30
+],
+"frames": 14,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "melee/uppercut",
+"category": "melee",
+"name": "Uppercut",
+"description": "A rising fist: a tall teardrop smear that shoots up, a white pop of sparks at the top, and wind lines that keep trailing upward after it.",
+"tags": [
+"melee",
+"punch",
+"uppercut",
+"hit",
+"one-shot"
+],
+"size": [
+48,
+76
+],
+"pivot": [
+24,
+62
+],
+"frames": 10,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "melee/whip-crack",
+"category": "melee",
+"name": "Whip crack",
+"description": "A whip lashes out to the right: a hooked wind-up, an S-wave rolling out along the lash with a speed smear, a snap nearly straight with a white crack star and a tiny shock ring at the tip, then the lash goes slack and falls back in dashes while the ring breaks up and sparks fly on.",
+"tags": [
+"melee",
+"whip",
+"lash",
+"crack",
+"hit",
+"impact",
+"one-shot"
+],
+"size": [
+96,
+40
+],
+"pivot": [
+5,
+22
+],
+"frames": 8,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "nature/acid-spit",
+"category": "nature",
+"name": "Acid spit",
+"description": "A lumpy, glowing gob of acid is spat along a shallow arc, dripping droplets and shedding a beaded trail, splats against a wall on one pale peak frame, throws a crown of thick tapered tongues back, and leaves a sizzling puddle whose bubbles pop and fumes hollow away before it shrinks, darkens and is gone.",
+"tags": [
+"nature",
+"projectile",
+"impact",
+"hit",
+"acid",
+"poison",
+"liquid",
+"one-shot"
+],
+"size": [
+80,
+40
+],
+"pivot": [
+74,
+26
+],
+"frames": 20,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "nature/acid-splash",
+"category": "nature",
+"name": "Acid splash",
+"description": "A glob lands and bursts into a crown of acid droplets that arc and splat; the puddle bubbles and fumes, then evaporates to nothing.",
+"tags": [
+"impact",
+"poison",
+"acid",
+"liquid",
+"one-shot",
+"flagship"
+],
+"size": [
+96,
+72
+],
+"pivot": [
+48,
+64
+],
+"frames": 27,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "nature/bloom-heal",
+"category": "nature",
+"name": "Bloom heal",
+"description": "A sprout pushes out of a soil crack, unfurls two leaves and a bud that blooms into a six-petal flower with one pale peak; a pollen puff and green healing motes spiral up, the petals detach and tumble away, the stem wilts back into the ground and the grass tufts follow.",
+"tags": [
+"heal",
+"nature",
+"buff",
+"ground",
+"one-shot"
+],
+"size": [
+56,
+64
+],
+"pivot": [
+28,
+55
+],
+"frames": 22,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "nature/boulder-toss",
+"category": "nature",
+"name": "Boulder toss",
+"description": "A faceted, mossy boulder tumbles along a shallow arc trailing dust, lands in one white dust-crown frame, cracks into four dark-rimmed chunks that bounce once and sink, while a forward-skewed dust ring and a low, warm, broad-lobed dust cloud spread and hollow away.",
+"tags": [
+"nature",
+"projectile",
+"impact",
+"hit",
+"earth",
+"one-shot"
+],
+"size": [
+80,
+56
+],
+"pivot": [
+50,
+46
+],
+"frames": 22,
+"frame_ms": 65,
+"loop": false
+},
+{
+"id": "nature/earth-spike",
+"category": "nature",
+"name": "Earth spike row",
+"description": "A fissure splits the floor, six faceted rock spikes punch up in a quick staggered row, hold, then crack along seams, slide apart, shatter into chunks and sink back into the ground under hollowing dust.",
+"tags": [
+"impact",
+"ground",
+"earth",
+"nature",
+"one-shot"
+],
+"size": [
+128,
+64
+],
+"pivot": [
+62,
+54
+],
+"frames": 22,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "nature/fissure",
+"category": "nature",
+"name": "Ground fissure",
+"description": "A jagged, branching crack races along the ground, opening into a glowing gap as slabs tilt up beside it; one orange-yellow burst when it reaches the end, then dust plumes hollow, grit falls, the slabs settle and the glow cools and closes.",
+"tags": [
+"nature",
+"impact",
+"hit",
+"earth",
+"ground",
+"one-shot"
+],
+"size": [
+112,
+40
+],
+"pivot": [
+8,
+27
+],
+"frames": 21,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "nature/leaf-storm",
+"category": "nature",
+"name": "Leaf storm",
+"description": "Leaves spiral in from the edges into a spinning knot that bursts in one pale flash as a fan of lime wind-slash crescents aimed right; the leaves ride the crescents out, flutter down with sway, settle and fade while the crescents hollow into dashes.",
+"tags": [
+"nature",
+"impact"
+],
+"size": [
+80,
+56
+],
+"pivot": [
+0,
+0
+],
+"frames": 18,
+"frame_ms": 65,
+"loop": false
+},
+{
+"id": "nature/mud-splash",
+"category": "nature",
+"name": "Mud splash",
+"description": "A heavy glob of mud slaps the floor and throws up a thick crown with blunt fingers that pinch off clods; the clods drop fast and splat while the crown slumps into a glossy puddle that one slow ripple crosses before it soaks away.",
+"tags": [
+"nature",
+"mud",
+"splash",
+"earth",
+"one-shot"
+],
+"size": [
+80,
+64
+],
+"pivot": [
+40,
+50
+],
+"frames": 26,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "nature/nature-cast",
+"category": "nature",
+"name": "Nature cast",
+"description": "Leaves tumble in on a tightening swirl with green spores while a bud of light swells in the hand between closing sepals, blooms on one white frame into a six-petal flower, opens pink, then its petals tear loose and tumble away as pollen and spores drift up and two leaves flutter off.",
+"tags": [
+"cast",
+"charge",
+"nature",
+"heal",
+"one-shot"
+],
+"size": [
+64,
+64
+],
+"pivot": [
+32,
+36
+],
+"frames": 13,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "nature/poison-cloud",
+"category": "nature",
+"name": "Poison cloud",
+"description": "Seamless lingering poison gas loop: a ground-hugging cumulus of shaded green-and-purple lobes that churns in place, with bubbles popping inside it and skull-shaped wisps rising off it and dissolving.",
+"tags": [
+"nature",
+"poison",
+"gas",
+"cloud",
+"loop",
+"status"
+],
+"size": [
+64,
+48
+],
+"pivot": [
+32,
+45
+],
+"frames": 24,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "nature/pollen-drift",
+"category": "nature",
+"name": "Pollen drift",
+"description": "Seamless ambient loop: golden pollen motes swirl around a lazily swaying column and drift upward at their own speeds, near grains big and bright, far ones dim specks, a few twinkling into four-point stars.",
+"tags": [
+"nature",
+"ambient",
+"pollen",
+"motes",
+"loop"
+],
+"size": [
+64,
+96
+],
+"pivot": [
+32,
+92
+],
+"frames": 32,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "nature/quicksand",
+"category": "nature",
+"name": "Quicksand",
+"description": "Seamless sinking-sand loop: an elliptical pit with a lit far slope and shadowed near slope, spiral grooves creeping slowly into a dark throat, grains sliding down them, and once per loop the throat gulps as a clump breaks off the lip and slides in.",
+"tags": [
+"nature",
+"earth",
+"sand",
+"trap",
+"hazard",
+"loop"
+],
+"size": [
+112,
+60
+],
+"pivot": [
+56,
+28
+],
+"frames": 24,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "nature/rockfall",
+"category": "nature",
+"name": "Rockfall",
+"description": "Faceted boulders and pebbles tumble down in turn, the biggest landing with one white flash and cracking into chunks that hop apart, every landing throwing a warm lobed dust cloud and marking the floor with a crack; the rocks then darken and sink while the dust hollows away.",
+"tags": [
+"nature",
+"earth",
+"rock",
+"falling",
+"one-shot"
+],
+"size": [
+128,
+134
+],
+"pivot": [
+64,
+122
+],
+"frames": 31,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "nature/spore-burst",
+"category": "nature",
+"name": "Spore burst",
+"description": "A fungal puffball squashes and bursts: a dense ochre-and-olive spore cloud billows up in a few big shaded lobes, hollows from the inside into drifting spore motes, and leaves a few glowing spores and a brief ground stain.",
+"tags": [
+"nature",
+"poison",
+"spore",
+"gas",
+"impact",
+"one-shot"
+],
+"size": [
+64,
+56
+],
+"pivot": [
+32,
+52
+],
+"frames": 20,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "nature/sprout-burst",
+"category": "nature",
+"name": "Sprout burst",
+"description": "Seeds pop out of the soil and drop back in, a tuft of grass whips up around a climbing stem, a pink flower blooms open with a puff of gold pollen, the tuft sways to stillness, then the petals drop and the grass folds back into the soil.",
+"tags": [
+"nature",
+"growth",
+"plant",
+"heal",
+"one-shot"
+],
+"size": [
+64,
+56
+],
+"pivot": [
+32,
+48
+],
+"frames": 30,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "nature/thorn-wall",
+"category": "nature",
+"name": "Thorn wall",
+"description": "A row of woody bramble briars, thick bark canes hooked over with big curved thorns, whips up out of cracking ground in a left-to-right wave, overshoots and holds as a barrier, then withers dark, sinks back into the soil and drops leaves that flutter down; a single row that does not tile.",
+"tags": [
+"nature",
+"barrier",
+"wall",
+"thorns",
+"one-shot"
+],
+"size": [
+128,
+70
+],
+"pivot": [
+64,
+60
+],
+"frames": 27,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "nature/vine-snare",
+"category": "nature",
+"name": "Vine snare",
+"description": "The ground cracks, four thick vines whip up and coil around the target, lock in one green-gold flash, grip, then wither to brown, break into chunks and sink, leaving clods and a fading scar.",
+"tags": [
+"nature",
+"status",
+"ground",
+"one-shot"
+],
+"size": [
+56,
+56
+],
+"pivot": [
+28,
+46
+],
+"frames": 19,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "projectiles/acid-glob-flight",
+"category": "projectiles",
+"name": "Acid glob flight",
+"description": "Seamless acid glob flight loop pointing right: a wobbling green glob with a lime lit side and a streaming tail, bubbles drifting through it, a drip that swells, tears off and falls behind once per loop, flung droplets and a faint vapour peeling off the top.",
+"tags": [
+"projectile",
+"loop",
+"acid",
+"poison",
+"nature",
+"flight"
+],
+"size": [
+52,
+38
+],
+"pivot": [
+38,
+16
+],
+"frames": 8,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "projectiles/acid-glob-impact",
+"category": "projectiles",
+"name": "Acid glob impact",
+"description": "The acid glob lands: it squashes and throws up a tall, hollow splash crown of bulb-tipped fingers whose beads tear off, arc out and sizzle where they land, then settles into a wide hissing puddle that bubbles and sends up fume strands before it hollows away to nothing.",
+"tags": [
+"impact",
+"hit",
+"projectile",
+"acid",
+"poison",
+"nature",
+"splash",
+"one-shot"
+],
+"size": [
+80,
+60
+],
+"pivot": [
+38,
+48
+],
+"frames": 21,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "projectiles/arrow-flight",
+"category": "projectiles",
+"name": "Arrow flight",
+"description": "Seamless arrow flight loop pointing right: a wooden arrow with a steel broadhead, fletching that ripples and catches a pale sheen, a thin wind trail of torn dashes streaming back in a narrow V, and a glint that crosses the head once per loop.",
+"tags": [
+"projectile",
+"loop",
+"arrow",
+"physical",
+"flight"
+],
+"size": [
+51,
+15
+],
+"pivot": [
+45,
+7
+],
+"frames": 8,
+"frame_ms": 60,
+"loop": true
+},
+{
+"id": "projectiles/arrow-impact",
+"category": "projectiles",
+"name": "Arrow impact",
+"description": "A wooden arrow flies in on a short pale wind streak, thunks into a surface with one white chip-star frame, quivers and settles while a warm dust puff curls up and hollows and splinters arc down, then darkens to a silhouette and breaks into dashes.",
+"tags": [
+"projectile",
+"impact",
+"hit",
+"physical",
+"one-shot"
+],
+"size": [
+64,
+32
+],
+"pivot": [
+50,
+17
+],
+"frames": 17,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "projectiles/fireball-flight",
+"category": "projectiles",
+"name": "Fireball flight",
+"description": "Seamless fireball flight loop pointing right: a round head with a white-yellow leading point and a roiling red rim, three breathing flame tongues that cool to maroon tips, flame puffs tearing off the tail and cooling into hollowing smoke specks, embers shed off the shell.",
+"tags": [
+"projectile",
+"loop",
+"fire",
+"fireball",
+"flight"
+],
+"size": [
+72,
+32
+],
+"pivot": [
+58,
+16
+],
+"frames": 6,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "projectiles/fireball-impact",
+"category": "projectiles",
+"name": "Fireball impact",
+"description": "Starts at contact: the fireball squashes on the target, one white lobed splat frame with spray jets fanning back, then six separate shaded flame chunks thrown back that hollow into crescents and cool to maroon while plum smoke puffs rise and break into dashes and debris embers arc down cooling.",
+"tags": [
+"projectile",
+"impact",
+"fire",
+"fireball",
+"one-shot"
+],
+"size": [
+64,
+56
+],
+"pivot": [
+42,
+32
+],
+"frames": 13,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "projectiles/holy-lance-flight",
+"category": "projectiles",
+"name": "Holy lance flight",
+"description": "Seamless holy-lance flight loop pointing right: a bold faceted golden lance head with a white-hot core, gold band and amber rim, a tapering wake of light that sweeps in a travelling wave and cools into umber dots, a bright ribbon twisting around it, holy glint motes shedding off, and a star glint on the tip once per loop.",
+"tags": [
+"projectile",
+"loop",
+"holy",
+"light",
+"flight"
+],
+"size": [
+72,
+28
+],
+"pivot": [
+64,
+14
+],
+"frames": 8,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "projectiles/holy-lance-impact",
+"category": "projectiles",
+"name": "Holy lance impact",
+"description": "Starts at contact: the holy lance pins into the target, one white cross-flare frame that holds and shrinks while the pinned lance dissolves from its tail, a thin gold ring snaps out, and a ring of light motes opens, slows and falls twinkling as it cools from cream to umber.",
+"tags": [
+"projectile",
+"impact",
+"holy",
+"light",
+"one-shot"
+],
+"size": [
+72,
+72
+],
+"pivot": [
+46,
+34
+],
+"frames": 17,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "projectiles/ice-shard",
+"category": "projectiles",
+"name": "Ice shard",
+"description": "A faceted ice crystal launched from a frost puff flies right on a thin cold streak shedding frost motes, rams the target, flashes white once and shatters into faceted fragments, frost mist and a rime splat that cool and break up.",
+"tags": [
+"ice",
+"frost",
+"projectile",
+"impact",
+"one-shot"
+],
+"size": [
+112,
+48
+],
+"pivot": [
+92,
+24
+],
+"frames": 19,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "projectiles/lightning-bolt-flight",
+"category": "projectiles",
+"name": "Lightning bolt flight",
+"description": "Seamless lightning-bolt flight loop pointing right: a crackling spearpoint head with a white-hot core and a cyan band leading a thick hard zigzag bolt with a bright core and a dark rim that cools from cyan to violet and breaks into dashes at the tail, re-forming every other frame, with forks and sparks leaping off it and one beat where the core runs white.",
+"tags": [
+"projectile",
+"loop",
+"lightning",
+"electric",
+"flight"
+],
+"size": [
+72,
+32
+],
+"pivot": [
+58,
+16
+],
+"frames": 10,
+"frame_ms": 60,
+"loop": true
+},
+{
+"id": "projectiles/lightning-bolt-impact",
+"category": "projectiles",
+"name": "Lightning bolt impact",
+"description": "Starts at contact: the lightning spear rams the target, one white jagged starburst frame, then six branching discharges that re-form every frame and cool cyan to blue to violet as they let go of the contact and break into separate drifting fragments, while sparks streak out and outlive them and a last crackle flickers at the contact.",
+"tags": [
+"projectile",
+"impact",
+"lightning",
+"electric",
+"one-shot"
+],
+"size": [
+64,
+64
+],
+"pivot": [
+42,
+32
+],
+"frames": 12,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "projectiles/magic-missile",
+"category": "projectiles",
+"name": "Magic missile",
+"description": "Arcane orb: gather, flight on an S path dragging a long twisting ribbon that ends in a dotted thread, a squash, one white flash frame, a hot disc that opens into a thin ring with radial streaks, + sparkles that outlive it.",
+"tags": [
+"arcane",
+"projectile",
+"impact",
+"one-shot"
+],
+"size": [
+156,
+60
+],
+"pivot": [
+128,
+30
+],
+"frames": 28,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "projectiles/poison-dart",
+"category": "projectiles",
+"name": "Poison dart",
+"description": "A small barbed dart streaks in trailing toxic droplets and a curling vapour wisp, bursts into one white-green splat star, throws a splash of tapered droplets and leaves a bubbling toxic patch that pops, hollows and fades.",
+"tags": [
+"projectile",
+"impact",
+"nature",
+"poison",
+"one-shot"
+],
+"size": [
+96,
+40
+],
+"pivot": [
+80,
+18
+],
+"frames": 18,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "projectiles/shuriken-flight",
+"category": "projectiles",
+"name": "Shuriken flight",
+"description": "Seamless shuriken flight loop travelling right: a four-point steel star with hooked, bevelled blades spins clockwise inside a thin motion-blur ring, speed dashes stream behind, and once per loop a tip flares white as it passes the light.",
+"tags": [
+"projectile",
+"loop",
+"shuriken",
+"physical",
+"flight"
+],
+"size": [
+36,
+24
+],
+"pivot": [
+22,
+12
+],
+"frames": 8,
+"frame_ms": 60,
+"loop": true
+},
+{
+"id": "projectiles/shuriken-impact",
+"category": "projectiles",
+"name": "Shuriken impact",
+"description": "A spinning steel shuriken bites into a wall on the right: one white tick along the wall face, a fan of sparks thrown back that fall and cool, a damped wobble as it sticks, chips and a crack at the bite, a pale glint along a blade, then the star darkens and breaks into dashes.",
+"tags": [
+"impact",
+"hit",
+"projectile",
+"shuriken",
+"physical",
+"one-shot"
+],
+"size": [
+46,
+48
+],
+"pivot": [
+34,
+18
+],
+"frames": 12,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "projectiles/thorn-shot-flight",
+"category": "projectiles",
+"name": "Thorn shot (flight)",
+"description": "Seamless thorn-shot flight loop pointing right: a bold hooked thorn with a pale lit rim spinning on its long axis, its barbs swinging round a helix, trailing a swaying ribbon of green energy wrapped in twisting strands that breaks into dashes and dots, with tumbling leaves and spore sparkles shed behind.",
+"tags": [
+"projectile",
+"loop",
+"nature",
+"thorn",
+"flight"
+],
+"size": [
+64,
+28
+],
+"pivot": [
+46,
+14
+],
+"frames": 8,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "projectiles/thorn-shot-impact",
+"category": "projectiles",
+"name": "Thorn shot (impact)",
+"description": "A spinning thorn punches into a target on one white crack-flash, its shaft splinters into tumbling brown slivers while green sap specks burst out in a fan, the broken tip stays stuck in a running sap blot that hollows away, and two loosened leaves flutter down, fray to their midribs and vanish.",
+"tags": [
+"projectile",
+"impact",
+"nature",
+"thorn",
+"one-shot"
+],
+"size": [
+64,
+40
+],
+"pivot": [
+46,
+16
+],
+"frames": 17,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "projectiles/water-bolt-flight",
+"category": "projectiles",
+"name": "Water bolt (flight)",
+"description": "Seamless water-bolt flight loop pointing right: a wobbling teardrop of water with a foam crescent riding its head and a wave travelling down its tapering tail, pale foam spray peeling back off the head, and a trail of droplets that drift back, sag and shrink from lit teardrops to dark specks.",
+"tags": [
+"projectile",
+"loop",
+"water",
+"liquid",
+"flight"
+],
+"size": [
+56,
+28
+],
+"pivot": [
+40,
+14
+],
+"frames": 6,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "projectiles/water-bolt-impact",
+"category": "projectiles",
+"name": "Water bolt (impact)",
+"description": "A water bolt slaps into a target on one white frame, blooms back into a tall crescent cup of water with a foam rim that thins, tears into dashes and breaks into dotted droplets that arc down and splat, while a sheet runs down the target face into a small puddle that ripples, hollows into a ring and fades.",
+"tags": [
+"projectile",
+"impact",
+"water",
+"liquid",
+"one-shot"
+],
+"size": [
+72,
+52
+],
+"pivot": [
+50,
+26
+],
+"frames": 18,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "scifi/bullet-impact",
+"category": "scifi",
+"name": "Bullet impact",
+"description": "A bullet from the left strikes a hard surface: a contact bead and crack of light, one white frame of a half-star flash with a flare along the surface, brass sparks ricocheting back left that slow, fall and cool to red, chips of debris tumbling away, and a steel-grey dust puff that kicks off the wall, lifts and hollows away.",
+"tags": [
+"scifi",
+"ballistics",
+"impact",
+"hit",
+"bullet",
+"one-shot"
+],
+"size": [
+56,
+48
+],
+"pivot": [
+42,
+26
+],
+"frames": 13,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "scifi/bullet-tracer",
+"category": "scifi",
+"name": "Bullet tracer",
+"description": "Seamless tracer round in flight pointing right: a cel-shaded slug with a cream core inside yellow, orange and red shells, a tapered flame streak whose layers flicker and lick as they cool to deep red, flame scraps tearing off the tail and spent sparks falling back, with one white flash in the slug's heart per loop.",
+"tags": [
+"projectile",
+"loop",
+"scifi",
+"ballistics",
+"tracer",
+"bullet",
+"flight"
+],
+"size": [
+56,
+16
+],
+"pivot": [
+46,
+8
+],
+"frames": 8,
+"frame_ms": 60,
+"loop": true
+},
+{
+"id": "scifi/cloak-shimmer",
+"category": "scifi",
+"name": "Cloak shimmer",
+"description": "Seamless sci-fi cloak loop: an invisible figure shown only by a broken refractive outline whose bright runs crawl up the body, torn sideways by two scanline distortion bands travelling down per loop, faltering once into a pale full outline with a faint body hatch.",
+"tags": [
+"scifi",
+"cloak",
+"stealth",
+"status",
+"loop"
+],
+"size": [
+48,
+72
+],
+"pivot": [
+22,
+69
+],
+"frames": 24,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "scifi/drone-thruster",
+"category": "scifi",
+"name": "Drone thruster",
+"description": "Seamless sci-fi drone thruster loop: a small steel nozzle firing a downward jet with a pale spine and blue shells pinched by shock diamonds, flickering in length and edge, shedding exhaust dashes that cool to steel specks, and surging long once per loop to throw a broken exhaust ring.",
+"tags": [
+"scifi",
+"thruster",
+"jet",
+"engine",
+"loop"
+],
+"size": [
+24,
+40
+],
+"pivot": [
+12,
+9
+],
+"frames": 12,
+"frame_ms": 60,
+"loop": true
+},
+{
+"id": "scifi/emp-pulse",
+"category": "scifi",
+"name": "EMP pulse",
+"description": "An electromagnetic pulse face-on: a primed device core, one white square-cornered flash, then a banded, stepped electric front (pale edge, cyan body, blue trail) punches out fast with big zigzag arcs riding it, a fainter inner ring behind and scanline tears inside, slows and breaks into arcs and dashes, while square glitch specks blink in its wake and the burnt device winks out; it ends hollow, on scattered glitch blocks.",
+"tags": [
+"scifi",
+"emp",
+"electric",
+"shockwave",
+"burst",
+"one-shot"
+],
+"size": [
+120,
+120
+],
+"pivot": [
+60,
+60
+],
+"frames": 14,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "scifi/energy-shield",
+"category": "scifi",
+"name": "Energy shield",
+"description": "Seamless sci-fi shield loop: a tall hard-surface dome with a crisp cyan rim, a faint hex lattice whose cells blink on their own, emitter nodes riding the floor ring, and once per loop a scan line that sweeps from crown to floor lighting each hex cell it crosses before the floor ring flares and throws a ground pulse.",
+"tags": [
+"scifi",
+"shield",
+"buff",
+"status",
+"loop"
+],
+"size": [
+88,
+64
+],
+"pivot": [
+44,
+57
+],
+"frames": 16,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "scifi/hologram-glitch",
+"category": "scifi",
+"name": "Hologram glitch",
+"description": "Seamless sci-fi hologram loop: a projector puck with chasing status lights throws a dashed cone of light holding a scanline figure whose rows crawl upward under a climbing refresh band, and the picture glitches on a beat: slices tear sideways and snap back, it drops out for a frame and flickers back faint, then a small twitch.",
+"tags": [
+"scifi",
+"hologram",
+"ambient",
+"loop"
+],
+"size": [
+48,
+64
+],
+"pivot": [
+24,
+60
+],
+"frames": 16,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "scifi/laser-beam",
+"category": "scifi",
+"name": "Laser beam",
+"description": "A ruler-straight cyan laser held from a pulsing emitter flare off the right edge: a crisp banded bar with a pale core, energy ripples crawling down it, a dashed containment sheath scrolling faster, ion motes peeling off the edges, and one beat per loop where the flare fires white and a swollen white-cored surge runs the whole length. Seamless loop.",
+"tags": [
+"scifi",
+"beam",
+"laser",
+"energy",
+"loop"
+],
+"size": [
+128,
+24
+],
+"pivot": [
+12,
+12
+],
+"frames": 8,
+"frame_ms": 60,
+"loop": true
+},
+{
+"id": "scifi/laser-impact",
+"category": "scifi",
+"name": "Laser impact",
+"description": "A cyan laser burns into a surface, starting on contact: a hot dot, one white frame flattens a flash along the surface, a pale contact point melts a molten crater whose scorch lens spreads, molten sparks spray back in falling arcs, the beam stub cuts to a retreating broken line, the scorch cools to ember and steel and hollows while drips run down, and steel smoke wisps curl away last.",
+"tags": [
+"impact",
+"scifi",
+"laser",
+"energy",
+"burn",
+"one-shot"
+],
+"size": [
+80,
+56
+],
+"pivot": [
+64,
+30
+],
+"frames": 18,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "scifi/laser-sword-slash",
+"category": "scifi",
+"name": "Laser sword slash",
+"description": "A neon blade swings a wide diagonal arc: one white-cored peak crescent inside pink and violet glow, then the live blade thins and cools while an after-image of the arc hangs and fades in hard scanline bands to dashes and specks, and neon motes flick off the tip.",
+"tags": [
+"scifi",
+"melee",
+"slash",
+"laser",
+"one-shot"
+],
+"size": [
+96,
+80
+],
+"pivot": [
+48,
+37
+],
+"frames": 10,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "scifi/mech-explosion",
+"category": "scifi",
+"name": "Mech explosion",
+"description": "A machine blowing apart on the ground: cracks of light, one white frame of an angular starburst, an orange fireball choked fast by oily black smoke that climbs into a leaning column and hollows away, rotating steel shrapnel plates and bolts on ballistic arcs (the heavy ones landing and lying on the ground), fast sparks, a secondary pop to one side, and black smoke rolling out along the ground.",
+"tags": [
+"scifi",
+"ballistics",
+"explosion",
+"mech",
+"smoke",
+"one-shot"
+],
+"size": [
+120,
+128
+],
+"pivot": [
+60,
+119
+],
+"frames": 19,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "scifi/muzzle-flash",
+"category": "scifi",
+"name": "Muzzle flash",
+"description": "A gun's muzzle flash firing right: one white star frame with a long forward spike and diamond bloom, an orange fire star that pinches and hollows into split petal tips, hot specks thrown forward, and a small steel-grey smoke puff that rolls forward and up off the barrel and hollows away.",
+"tags": [
+"scifi",
+"ballistics",
+"muzzle-flash",
+"gun",
+"one-shot"
+],
+"size": [
+40,
+28
+],
+"pivot": [
+3,
+15
+],
+"frames": 10,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "scifi/plasma-bolt-flight",
+"category": "scifi",
+"name": "Plasma bolt (flight)",
+"description": "A cyan plasma slug in flight, pointing +x: a round white-hot heart banded through pale cyan and cyan to a deep-teal rim, a spinning broken containment ring that throws crackle spikes, a tapering ionised ribbon that sweeps and twists behind it and frays into dashes, and + sparks that fly back and cool to specks. Seamless 8-frame loop; pairs with plasma-impact.",
+"tags": [
+"projectile",
+"loop",
+"scifi",
+"plasma",
+"energy"
+],
+"size": [
+72,
+28
+],
+"pivot": [
+65,
+14
+],
+"frames": 8,
+"frame_ms": 60,
+"loop": true
+},
+{
+"id": "scifi/plasma-impact",
+"category": "scifi",
+"name": "Plasma impact",
+"description": "The cyan plasma bolt splashes on a target, starting on contact: its nose squashes, one white splat frame throws ragged spikes, a tilted ring bursts out bright on the near side and breaks into arcs and dashes while crackling arcs re-strike inside it, and ion motes and a hollowing teal haze outlive it. Pairs with plasma-bolt-flight.",
+"tags": [
+"impact",
+"projectile",
+"scifi",
+"plasma",
+"energy",
+"one-shot"
+],
+"size": [
+88,
+64
+],
+"pivot": [
+54,
+32
+],
+"frames": 18,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "scifi/railgun-shot",
+"category": "scifi",
+"name": "Railgun shot",
+"description": "A railgun fires right: a pale charge, one white frame of a dead-straight hair-thin beam with a hard muzzle flare, then the beam fades fast while a spiral wake coiled round its path lingers, widening and cooling until its turns break into loops, dashes and specks.",
+"tags": [
+"scifi",
+"beam",
+"projectile",
+"railgun",
+"one-shot"
+],
+"size": [
+160,
+32
+],
+"pivot": [
+9,
+16
+],
+"frames": 15,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "scifi/rocket-exhaust",
+"category": "scifi",
+"name": "Rocket exhaust",
+"description": "Seamless rocket thruster plume streaming left from a nozzle on the right: a pale blue-white core cone with flickering shock diamonds, an orange flame of rolling puffs that cool yellow to red at their rims, puffs that turn to steel-grey smoke, lift and hollow away, and two fat gouts per loop that flare the core.",
+"tags": [
+"scifi",
+"ballistics",
+"rocket",
+"thruster",
+"exhaust",
+"fire",
+"smoke",
+"loop"
+],
+"size": [
+96,
+40
+],
+"pivot": [
+90,
+20
+],
+"frames": 8,
+"frame_ms": 60,
+"loop": true
+},
+{
+"id": "scifi/scanner-sweep",
+"category": "scifi",
+"name": "Scanner sweep",
+"description": "Seamless sci-fi scanner loop: a pale cyan scan line sweeps across a floor area in perspective, the grid flaring behind it and cooling through cyan and teal, while the targets it finds flare into amber crosses, throw a ping ring and blink as markers before the area goes dark for the next pass.",
+"tags": [
+"scifi",
+"scanner",
+"grid",
+"ui",
+"loop"
+],
+"size": [
+104,
+64
+],
+"pivot": [
+52,
+30
+],
+"frames": 24,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "scifi/shield-hit",
+"category": "scifi",
+"name": "Shield hit",
+"description": "The energy shield takes a shot from the left: a plasma bolt strikes the dome, the hex cells round the contact flare white once, a ripple of lit cells and a rim highlight run out across the dome as the whole lattice shows for an instant, the hit cells hollow to their corners, and deflected sparks arc away and cool until the shield is quiet.",
+"tags": [
+"scifi",
+"shield",
+"impact",
+"hit",
+"block"
+],
+"size": [
+88,
+64
+],
+"pivot": [
+44,
+57
+],
+"frames": 12,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "scifi/shotgun-blast",
+"category": "scifi",
+"name": "Shotgun blast",
+"description": "A shotgun firing right: one white frame of a wide ragged flash cone with pellet streaks leaving it, an orange fire cone that hollows into tongue tips, brass sparks arcing down, and a heavy steel-grey smoke cloud that rolls forward, lifts and breaks apart into separate lobes that hollow away.",
+"tags": [
+"scifi",
+"ballistics",
+"muzzle-flash",
+"shotgun",
+"gun",
+"one-shot"
+],
+"size": [
+72,
+44
+],
+"pivot": [
+3,
+25
+],
+"frames": 15,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "scifi/teleport-beam",
+"category": "scifi",
+"name": "Teleport beam",
+"description": "Sci-fi teleport arrival: an emitter ring opens overhead and drops a scanline column onto bracketed floor marks, the column widens into a striped scan field that prints the body from the head down in horizontal bands, the body flashes white once with a horizontal flare, then tears into sideways-glitching slices while square bits lift off, hollow and fade.",
+"tags": [
+"scifi",
+"teleport",
+"buff",
+"spawn"
+],
+"size": [
+48,
+72
+],
+"pivot": [
+24,
+66
+],
+"frames": 13,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "scifi/warp-jump",
+"category": "scifi",
+"name": "Warp jump",
+"description": "A figure warps out: it stretches into a tall line of light that lifts off the floor, collapses to a point at chest height and pops in one white star inside a ring that runs out and breaks into arcs, while motes scatter and the floor ring it stood in fades.",
+"tags": [
+"scifi",
+"teleport",
+"warp",
+"one-shot"
+],
+"size": [
+64,
+96
+],
+"pivot": [
+32,
+88
+],
+"frames": 13,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "shadow/curse",
+"category": "shadow",
+"name": "Curse",
+"description": "A dark curse pool opens at the target's feet, a scowling skull-wraith tears up out of it and flashes white above the head, hangs there pouring curse drops back into the pool while dark orbs circle, then sinks into the target, hollowing into crescents as the pool breaks up and motes rise.",
+"tags": [
+"spell",
+"dark",
+"curse",
+"one-shot",
+"flagship"
+],
+"size": [
+96,
+112
+],
+"pivot": [
+48,
+66
+],
+"frames": 28,
+"frame_ms": 80,
+"loop": false
+},
+{
+"id": "shadow/dark-mist",
+"category": "shadow",
+"name": "Dark mist",
+"description": "Seamless low creeping mist of violet-black that tiles on x: a flat, wispy layer darkest at the ground, with translucent upper edges, tendrils that creep forward along the ground and curl up at their tips, and pairs of pale eyes that open in the mist, drift, blink and close, with one pair flaring wide once per loop.",
+"tags": [
+"shadow",
+"dark",
+"fog",
+"mist",
+"ambient",
+"loop",
+"tile"
+],
+"size": [
+128,
+52
+],
+"pivot": [
+0,
+50
+],
+"frames": 36,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "shadow/doom-mark",
+"category": "shadow",
+"name": "Doom mark",
+"description": "Seamless doom debuff loop: a violet skull mark bobbing over the target, its eyes glaring red and flaring pale on the beat as the jaw drops and a broken shadow ring pulses out, while shadow drips swell, let go and fall in dashes.",
+"tags": [
+"shadow",
+"status",
+"debuff",
+"curse",
+"skull",
+"loop"
+],
+"size": [
+44,
+67
+],
+"pivot": [
+22,
+24
+],
+"frames": 20,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "shadow/hex-sigil",
+"category": "shadow",
+"name": "Hex sigil",
+"description": "A curse sigil draws itself over a target in thin violet strokes (ring, inverted triangle, three runes, thorns, a central eye), flares white-lilac for one frame, then burns away along its strokes from three corners, shedding embers that drift up and cool.",
+"tags": [
+"shadow",
+"dark",
+"curse",
+"sigil",
+"debuff",
+"one-shot"
+],
+"size": [
+64,
+66
+],
+"pivot": [
+32,
+36
+],
+"frames": 22,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "shadow/shadow-bolt",
+"category": "shadow",
+"name": "Shadow bolt",
+"description": "A writhing violet-black smoke bolt with a magenta-white core flies right trailing curling tendrils that pinch off; on impact a magenta flash and a splash of dark tendrils and curling smoke that sink and dissolve into motes.",
+"tags": [
+"shadow",
+"dark",
+"projectile",
+"impact",
+"one-shot"
+],
+"size": [
+112,
+56
+],
+"pivot": [
+86,
+30
+],
+"frames": 19,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "shadow/shadow-burst",
+"category": "shadow",
+"name": "Shadow burst",
+"description": "A dark explosion: an inverted flash of a jagged black star with a violet rim, then black tendrils that whip out, curl and are pulled back while the core hollows into broken arcs and dark motes drift off.",
+"tags": [
+"shadow",
+"dark",
+"explosion",
+"burst",
+"one-shot"
+],
+"size": [
+112,
+108
+],
+"pivot": [
+56,
+54
+],
+"frames": 14,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "shadow/shadow-cast",
+"category": "shadow",
+"name": "Shadow cast",
+"description": "Violet-black smoke tendrils curl inward, lit magenta by a dark orb gathering at the hand, which pinches and releases on one inverted flash (black core in a white rim and star), then the rim rings out into dashes as smoke wisps peel away curling and cursed motes rise and fade.",
+"tags": [
+"cast",
+"charge",
+"dark",
+"shadow",
+"one-shot"
+],
+"size": [
+64,
+64
+],
+"pivot": [
+32,
+36
+],
+"frames": 13,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "shadow/shadow-spikes",
+"category": "shadow",
+"name": "Shadow spikes",
+"description": "A dark pool runs along the ground and black spikes burst up from it in a staggered line, each with a violet lit edge and a pale lilac glint as it breaks the surface, then crumble from the tip into falling chunks and dust while the pool dries away.",
+"tags": [
+"shadow",
+"dark",
+"spikes",
+"ground",
+"one-shot"
+],
+"size": [
+136,
+64
+],
+"pivot": [
+68,
+56
+],
+"frames": 22,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "shadow/shadow-step",
+"category": "shadow",
+"name": "Shadow step",
+"description": "A shadow teleport: a hooded shadow figure melts into a puddle, a smear of dark wisps races along the ground, and it shoots up again out of a puddle at the far side with a lilac rim before peeling away into wisps.",
+"tags": [
+"shadow",
+"dark",
+"teleport",
+"blink",
+"one-shot"
+],
+"size": [
+96,
+60
+],
+"pivot": [
+48,
+50
+],
+"frames": 22,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "shadow/shadow-tendrils",
+"category": "shadow",
+"name": "Shadow tendrils",
+"description": "A shadow pool spreads and five glossy liquid-shadow tentacles erupt, curl in and clench over a point above it with one magenta-white flash, then let go, unwind and sink back tip first as crescents and dashes while smoke peels off and the pool hollows into a ragged ring.",
+"tags": [
+"shadow",
+"impact",
+"hit",
+"ground",
+"one-shot"
+],
+"size": [
+64,
+56
+],
+"pivot": [
+32,
+46
+],
+"frames": 21,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "shadow/soul-drain",
+"category": "shadow",
+"name": "Soul drain",
+"description": "Pale teardrop souls are torn out of a target and stream left on wavy staggered paths into a small dark vortex at the caster, which flares once when the biggest lands, then closes into crescents and dashes while the target's wisps hollow out.",
+"tags": [
+"shadow",
+"beam",
+"dark",
+"channel",
+"one-shot"
+],
+"size": [
+96,
+48
+],
+"pivot": [
+0,
+0
+],
+"frames": 23,
+"frame_ms": 65,
+"loop": false
+},
+{
+"id": "shadow/void-implosion",
+"category": "shadow",
+"name": "Void implosion",
+"description": "Violet arms and debris spiral into a black core with a sickly rim, it holds, pops on one white frame, and wisps and curse motes drift off.",
+"tags": [
+"impact",
+"dark",
+"one-shot",
+"flagship"
+],
+"size": [
+96,
+96
+],
+"pivot": [
+48,
+48
+],
+"frames": 21,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "shadow/void-rift",
+"category": "shadow",
+"name": "Void rift",
+"description": "Seamless loop of a vertical tear in space: a black slit with a deep violet lip and ragged violet edges that flutter and lick outward, zigzag cracks running on from its ends, motes sucked in as stretching streaks, and once per loop a gasp that flares the rims pale.",
+"tags": [
+"shadow",
+"dark",
+"void",
+"rift",
+"loop"
+],
+"size": [
+64,
+94
+],
+"pivot": [
+32,
+47
+],
+"frames": 24,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "smoke/chimney-smoke",
+"category": "smoke",
+"name": "Chimney smoke",
+"description": "A seamless chimney smoke loop: a thin plume rises from a point, swells and drifts sideways on a lazy S-curve, its puffs hollowing into crescents and specks; once a loop a bigger puff coughs out and curls off on its own.",
+"tags": [
+"smoke",
+"loop",
+"environment"
+],
+"size": [
+61,
+64
+],
+"pivot": [
+12,
+61
+],
+"frames": 24,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "smoke/dash-dust",
+"category": "smoke",
+"name": "Dash dust",
+"description": "A dash/skid dust: billows kick back and up from the start foot, a low dust streak and speed lines trail along the ground, and a smaller spray curls forward at the skid end; they hollow into crescents and dashes while grit falls.",
+"tags": [
+"smoke",
+"movement",
+"dust",
+"ground",
+"one-shot"
+],
+"size": [
+68,
+32
+],
+"pivot": [
+24,
+28
+],
+"frames": 13,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "smoke/dust-puff",
+"category": "smoke",
+"name": "Dust puff",
+"description": "A landing dust puff: soft scalloped billows roll out along the ground and rise, thin into crescents and round puffs; grit flicks out low.",
+"tags": [
+"smoke",
+"dust",
+"ground",
+"landing",
+"one-shot"
+],
+"size": [
+72,
+40
+],
+"pivot": [
+36,
+33
+],
+"frames": 14,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "smoke/landing-dust",
+"category": "smoke",
+"name": "Landing dust",
+"description": "Dust shoots out sideways from under a landing figure in two low, unequal plumes whose heads curl up and back, then settle into crescents and specks while grit lands and a skid streak lingers.",
+"tags": [
+"smoke",
+"dust",
+"ground",
+"landing",
+"one-shot"
+],
+"size": [
+88,
+46
+],
+"pivot": [
+44,
+40
+],
+"frames": 12,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "smoke/smoke-bomb",
+"category": "smoke",
+"name": "Smoke bomb",
+"description": "A ninja smoke bomb: a pellet lands and pops white, a low wide cloud of six shaded grey-violet lobes billows out, churns, and thins from the inside into crescents, wisps and curls over a lingering ground haze.",
+"tags": [
+"smoke",
+"impact",
+"hit"
+],
+"size": [
+64,
+56
+],
+"pivot": [
+32,
+50
+],
+"frames": 21,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "smoke/smoke-screen",
+"category": "smoke",
+"name": "Smoke screen",
+"description": "A smoke grenade pops and fills a wide area: big grey lobes roll out along the ground into a dense low bank that churns, then slowly clears from the middle out into crescents and wisps while a ground haze lingers.",
+"tags": [
+"smoke",
+"grenade",
+"cloud",
+"one-shot"
+],
+"size": [
+168,
+84
+],
+"pivot": [
+84,
+80
+],
+"frames": 22,
+"frame_ms": 80,
+"loop": false
+},
+{
+"id": "smoke/soot-burst",
+"category": "smoke",
+"name": "Soot burst",
+"description": "A cartoon backfire: a jagged white-hot bang throws a fat black cauliflower puff of soot that drifts off, hollows into crescents and breaks up, while ember specks sparkle out, twinkle and cool to red.",
+"tags": [
+"smoke",
+"soot",
+"fire",
+"cartoon",
+"one-shot"
+],
+"size": [
+74,
+62
+],
+"pivot": [
+19,
+33
+],
+"frames": 13,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "smoke/steam-vent",
+"category": "smoke",
+"name": "Steam vent",
+"description": "A hissing steam vent loop: soft shaded puffs rise from a small glowing floor crack, lean, swell and hollow into crescents and wisps; once a loop a tall jet hisses up and throws droplets that arc back down.",
+"tags": [
+"smoke",
+"loop",
+"environment"
+],
+"size": [
+48,
+72
+],
+"pivot": [
+14,
+68
+],
+"frames": 30,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "status/berserk",
+"category": "status",
+"name": "Berserk",
+"description": "A seamless berserk status loop: a jagged blood-red vein outline round the figure throbs with a heartbeat pulse that climbs to the head, heat strands rise and angry zigzag sparks crack off, and an anger mark pops on the strong beat.",
+"tags": [
+"status",
+"buff",
+"berserk",
+"rage",
+"loop"
+],
+"size": [
+56,
+64
+],
+"pivot": [
+28,
+61
+],
+"frames": 16,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "status/bleeding",
+"category": "status",
+"name": "Bleeding",
+"description": "Seamless bleeding status loop on an implied body: three wounds bead and swell drops that stretch into teardrops, snap free and fall as streaks, splat into small crowns on an implied ground line and spread into puddle marks that fade, near marks larger and brighter; once per loop the rib wound spurts a short arc of droplets.",
+"tags": [
+"status",
+"bleed",
+"blood",
+"liquid",
+"loop"
+],
+"size": [
+40,
+56
+],
+"pivot": [
+20,
+49
+],
+"frames": 20,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "status/blessed",
+"category": "status",
+"name": "Blessed",
+"description": "Seamless blessed/holy-buff status loop: a soft golden halo bobs above an empty character footprint with a glint travelling round its thick near arc, small four-point light motes drift up off the shoulders and flanks and dwindle as they cool, and once per loop a sparkle opens on the halo and flares white before a fainter echo glints on the far rim.",
+"tags": [
+"status",
+"holy",
+"buff",
+"loop",
+"halo"
+],
+"size": [
+48,
+64
+],
+"pivot": [
+24,
+58
+],
+"frames": 16,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "status/burning-aura",
+"category": "status",
+"name": "Burning aura",
+"description": "Seamless burning status loop: shaded flame tongues around an empty character footprint that pinch off into rising wisps which hollow and cool to violet, an ember stream on varied periods, a faint heat ring at the feet; in the lit tier a firelit smoke plume that the tongue tears feed.",
+"tags": [
+"status",
+"fire",
+"burning",
+"loop",
+"flagship"
+],
+"size": [
+48,
+64
+],
+"pivot": [
+24,
+54
+],
+"frames": 12,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "status/charm-hearts",
+"category": "status",
+"name": "Charm hearts",
+"description": "Seamless charmed status loop: four chunky shaded hearts bob and rock round a tilted orbit over the head, big and bright in front, small and dark behind the crown, with a sparkle trail and one pulse-and-glint beat that puffs out rising heart motes.",
+"tags": [
+"status",
+"loop",
+"ui",
+"charm",
+"hearts"
+],
+"size": [
+40,
+40
+],
+"pivot": [
+20,
+23
+],
+"frames": 20,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "status/confused",
+"category": "status",
+"name": "Confused",
+"description": "A seamless confused-status loop: a wobbling dizzy spiral spins over the head while gold question marks pop in, bob and shrink away on staggered beats.",
+"tags": [
+"status",
+"debuff",
+"confused",
+"loop"
+],
+"size": [
+50,
+52
+],
+"pivot": [
+25,
+48
+],
+"frames": 16,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "status/electrified",
+"category": "status",
+"name": "Electrified",
+"description": "Seamless shocked status loop: jagged 2 px-cored arcs crawl and flicker over a character's outline, one big arc snaps across the body per loop and leaves a short afterimage, and sparks spit off and fall.",
+"tags": [
+"lightning",
+"status",
+"loop"
+],
+"size": [
+48,
+56
+],
+"pivot": [
+24,
+47
+],
+"frames": 14,
+"frame_ms": 65,
+"loop": true
+},
+{
+"id": "status/frozen-chill",
+"category": "status",
+"name": "Frozen chill",
+"description": "Seamless chilled/slowed status loop: faceted ice crystals crusting the feet that glint in turn, designed snowflakes drifting down on their own sway, one cold breath puff per loop that hollows into a crescent, and a faint lacy frost patch on the floor.",
+"tags": [
+"ice",
+"status",
+"loop"
+],
+"size": [
+40,
+48
+],
+"pivot": [
+20,
+42
+],
+"frames": 14,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "status/haste",
+"category": "status",
+"name": "Haste",
+"description": "A seamless haste status loop around a character facing right: a cyan wind shell hugs its back, two tilted wind bands wrap its front and trail off behind as they rise, bold speed streaks peel off and a speed ring chases round its feet; once a loop the shell tears away as a pale crescent that stretches into dashes.",
+"tags": [
+"status",
+"buff",
+"haste",
+"speed",
+"wind",
+"loop"
+],
+"size": [
+72,
+52
+],
+"pivot": [
+48,
+47
+],
+"frames": 16,
+"frame_ms": 60,
+"loop": true
+},
+{
+"id": "status/petrified",
+"category": "status",
+"name": "Petrified",
+"description": "A petrify overlay for any character: stone collars close round it from the feet up in seamed grey plates, set with one white frame of cracks, snapping chips and a dust skirt at the feet, hold, then crumble from the top down into falling chunks and grit.",
+"tags": [
+"status",
+"stone",
+"petrify",
+"debuff",
+"one-shot"
+],
+"size": [
+72,
+54
+],
+"pivot": [
+36,
+48
+],
+"frames": 17,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "status/poisoned",
+"category": "status",
+"name": "Poisoned",
+"description": "Seamless poison status loop wrapping an empty character footprint: two tall toxic vapour tongues rise from a lumpy ooze ring up each flank, joined by a darker belt behind the body; bubbles ride up the tongues and pop, drips splat on a soaked stain; once per loop a big bubble bursts with a splash and a tongue tip swells into a skull wisp that tears off and dissolves.",
+"tags": [
+"status",
+"poison",
+"toxic",
+"aura",
+"loop",
+"flagship"
+],
+"size": [
+64,
+80
+],
+"pivot": [
+32,
+72
+],
+"frames": 18,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "status/power-up-aura",
+"category": "status",
+"name": "Power-up aura",
+"description": "Seamless powered-up status loop: golden energy flames licking up from a ground ellipse and tearing off into teardrops, darker thin wisps behind the body and bright ones in front, a segmented ground ring that pulses in pieces, rising motes, and once per loop a ring of light sweeping feet to head that pops into four sparkles.",
+"tags": [
+"status",
+"buff",
+"loop"
+],
+"size": [
+56,
+56
+],
+"pivot": [
+28,
+50
+],
+"frames": 14,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "status/silenced",
+"category": "status",
+"name": "Silenced",
+"description": "Seamless loop: a speech bubble struck through by a red bar floats over the target with a soft bob and lean, tries to speak in dots, then the bar stamps down and broken rings fade out from the glyph.",
+"tags": [
+"status",
+"silence",
+"debuff",
+"ui",
+"loop"
+],
+"size": [
+52,
+46
+],
+"pivot": [
+26,
+22
+],
+"frames": 16,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "status/sleep",
+"category": "status",
+"name": "Sleep",
+"description": "Seamless asleep status loop: chunky shaded Z glyphs drift up and right on uneven sways, grow, tilt and hollow away, with one sleep-bubble beat per loop that inflates, pops and throws droplets.",
+"tags": [
+"status",
+"loop",
+"ui",
+"sleep",
+"zzz"
+],
+"size": [
+40,
+48
+],
+"pivot": [
+12,
+46
+],
+"frames": 30,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "status/slowed",
+"category": "status",
+"name": "Slowed",
+"description": "Seamless slowed status loop on an empty character footprint: heavy grey-teal swirl bands drag round the feet and shins, downward chevrons sink slowly along the flanks and dwindle, two clock motes orbit at the waist with ticking hands, and once per loop a big chevron stamps down so the swirl squashes flat on a pale frame and a slow broken ripple rolls out.",
+"tags": [
+"status",
+"slow",
+"time",
+"loop",
+"debuff"
+],
+"size": [
+48,
+56
+],
+"pivot": [
+24,
+50
+],
+"frames": 16,
+"frame_ms": 80,
+"loop": true
+},
+{
+"id": "status/soaked",
+"category": "status",
+"name": "Soaked",
+"description": "Seamless soaked/wet status loop on an empty character footprint: beads swell at the hair, hands and hem, pinch off and fall as teardrops that splat with their own ripples, runnels slide down the flanks, a small pool at the feet glints with a slow ripple ring, and once per loop a big drop from the hair lands with a white crown of beads.",
+"tags": [
+"status",
+"water",
+"wet",
+"loop",
+"debuff"
+],
+"size": [
+48,
+56
+],
+"pivot": [
+24,
+50
+],
+"frames": 16,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "status/stun-stars",
+"category": "status",
+"name": "Stun stars",
+"description": "Seamless dazed status loop: four bevelled five-point stars tumble round a tight tilted orbit over the head, big and pale in front, small and cooled behind, on a clean orbit ring whose comet trails cool to violet behind a head gap, with one sparkle beat per loop.",
+"tags": [
+"status",
+"stun",
+"dazed",
+"stars",
+"loop",
+"ui"
+],
+"size": [
+48,
+32
+],
+"pivot": [
+24,
+16
+],
+"frames": 16,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "status/target-mark",
+"category": "status",
+"name": "Target mark",
+"description": "Seamless target reticle loop: a red ring of arcs and inward chevrons that turn against each other and tighten over the target, lock with a pale snap and a pulse ring, then ease back out, framed by square corner brackets.",
+"tags": [
+"status",
+"ui",
+"target",
+"reticle",
+"loop"
+],
+"size": [
+68,
+68
+],
+"pivot": [
+34,
+34
+],
+"frames": 16,
+"frame_ms": 60,
+"loop": true
+},
+{
+"id": "ui/buff-arrow",
+"category": "ui",
+"name": "Buff arrow",
+"description": "Gold upward chevrons snap up one after another and stack, a pale shine climbs through the stack with one white flash and kicks sparkles off the wing tips, then the chevrons drift up and dissolve from the bottom into dashes and specks.",
+"tags": [
+"ui",
+"buff",
+"arrow",
+"status",
+"one-shot"
+],
+"size": [
+40,
+48
+],
+"pivot": [
+20,
+42
+],
+"frames": 13,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "ui/chest-open",
+"category": "ui",
+"name": "Chest open",
+"description": "An overlay for a chest sprite: a slit of light cracks along the lid seam, bursts into a white gap and a fan of swaying rays pouring upward, coins of light spin out and arc away while sparkles blink in the fan, then the rays rise apart as dashes and the gap goes out.",
+"tags": [
+"ui",
+"chest",
+"loot",
+"light",
+"one-shot"
+],
+"size": [
+72,
+80
+],
+"pivot": [
+36,
+58
+],
+"frames": 18,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "ui/click-ripple",
+"category": "ui",
+"name": "Click ripple",
+"description": "A crisp UI click: a pale press, one white frame of a ringed cross, then the ring runs out and breaks into arcs, dashes and specks while four ticks race ahead and the centre dot winks out.",
+"tags": [
+"ui",
+"click",
+"ring",
+"one-shot"
+],
+"size": [
+37,
+37
+],
+"pivot": [
+18,
+18
+],
+"frames": 8,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "ui/coin-pickup",
+"category": "ui",
+"name": "Coin pickup",
+"description": "A gold glint winks, one white four-point star peak over a gold X, a held pale star inside a broken ring, then four arm wedges tear free and thin to dashes as the ring breaks into cooling arcs, distinct twinkles pop on their own beats and specks drift down.",
+"tags": [
+"ui",
+"pickup",
+"coin",
+"sparkle",
+"one-shot"
+],
+"size": [
+32,
+32
+],
+"pivot": [
+16,
+16
+],
+"frames": 10,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "ui/debuff-arrow",
+"category": "ui",
+"name": "Debuff arrow",
+"description": "Wide purple downward chevrons fade in high, drop and land heavily into a stack, sag with drooping wings and a dull flicker, then melt from the top as drips run off their tips; no white anywhere, the dull opposite of the buff arrow.",
+"tags": [
+"ui",
+"debuff",
+"arrow",
+"status",
+"one-shot"
+],
+"size": [
+44,
+60
+],
+"pivot": [
+22,
+47
+],
+"frames": 13,
+"frame_ms": 80,
+"loop": false
+},
+{
+"id": "ui/gem-pickup",
+"category": "ui",
+"name": "Gem pickup",
+"description": "A faceted green gem pops and hops, a shine sweeps its facets, it flashes white once with a star twinkle on its shoulder, then sparkle chips rise in a little fountain and fall away as the twinkle thins out.",
+"tags": [
+"ui",
+"pickup",
+"gem",
+"sparkle",
+"one-shot"
+],
+"size": [
+40,
+48
+],
+"pivot": [
+20,
+32
+],
+"frames": 15,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "ui/heal-plus",
+"category": "ui",
+"name": "Heal plus",
+"description": "Green plus signs leave a point on staggered beats, float up swaying and grow in steps, the hero plus flashing a white core once, then hollow to outlines and shrink away while a soft flat ring opens and breaks into dashes.",
+"tags": [
+"ui",
+"heal",
+"plus",
+"buff",
+"one-shot"
+],
+"size": [
+46,
+48
+],
+"pivot": [
+23,
+38
+],
+"frames": 13,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "ui/heart-pickup",
+"category": "ui",
+"name": "Heart pickup",
+"description": "A chunky heart squashes, pops up and bursts in one white frame; a pink ring breaks into dashes while tiny heart and plus motes rise and cool.",
+"tags": [
+"ui",
+"pickup",
+"holy",
+"heart",
+"one-shot"
+],
+"size": [
+32,
+40
+],
+"pivot": [
+16,
+27
+],
+"frames": 10,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "ui/level-up",
+"category": "ui",
+"name": "Level up",
+"description": "Floor glint, a gold ring sweeping feet to crown with rising light streaks, one white crown flash, then climbing chevrons, twinkling glints and a lingering floor ring.",
+"tags": [
+"ui",
+"level-up",
+"buff",
+"celebration",
+"one-shot"
+],
+"size": [
+64,
+96
+],
+"pivot": [
+32,
+88
+],
+"frames": 20,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "ui/mana-pickup",
+"category": "ui",
+"name": "Mana pickup",
+"description": "A shaded blue orb swells and bursts into motes that swing out, spiral back inward faster and faster, and pop in one white spoked flash whose spokes fly off as dashes while small glints rise.",
+"tags": [
+"ui",
+"pickup",
+"mana",
+"magic",
+"one-shot"
+],
+"size": [
+44,
+44
+],
+"pivot": [
+22,
+22
+],
+"frames": 13,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "ui/star-burst-pickup",
+"category": "ui",
+"name": "Star-burst pickup",
+"description": "A gold five-point star squashes, stretches and spins edge-on, flashes one white four-point frame, then sprays tumbling mini stars that arc down and cool while a broken ring of gold dashes expands.",
+"tags": [
+"ui",
+"pickup",
+"one-shot"
+],
+"size": [
+40,
+40
+],
+"pivot": [
+20,
+26
+],
+"frames": 13,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "ui/treasure-glint",
+"category": "ui",
+"name": "Treasure glint",
+"description": "Looping pickup glint: a crisp leaning four-point hero star grows to one white beat that fires needles and a broken ring burst, then contracts, hollows into a crescent and snaps into dashes, while three different twinkles pop on staggered beats.",
+"tags": [
+"ui",
+"loop",
+"pickup"
+],
+"size": [
+48,
+48
+],
+"pivot": [
+24,
+24
+],
+"frames": 16,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "water/bubble-burst",
+"category": "water",
+"name": "Bubble burst",
+"description": "Four wobbling water bubbles swell; the largest pops on one white frame into droplet wedges and a foam ring, the others pop in turn with droplets that arc and fall, and the foam ring breaks into dashes.",
+"tags": [
+"water",
+"impact",
+"hit",
+"airborne",
+"one-shot"
+],
+"size": [
+48,
+48
+],
+"pivot": [
+24,
+24
+],
+"frames": 12,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "water/bubble-shield",
+"category": "water",
+"name": "Bubble shield",
+"description": "Seamless bubble shield status loop: a wobbling water bubble standing around the figure, a pale lit rim and a sliding specular streak, a grounded base ellipse split behind and in front of the figure, small bubbles rising inside, and once per loop a bubble popping against the top that dimples the shell.",
+"tags": [
+"water",
+"loop",
+"status",
+"shield",
+"buff"
+],
+"size": [
+70,
+76
+],
+"pivot": [
+35,
+70
+],
+"frames": 16,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "water/drip-splash",
+"category": "water",
+"name": "Drip splash",
+"description": "A single drop falls and lands: a white splat frame, a tiny five-tined crown whose outer tines bead off as two droplets that arc out and land, the crown slumping into a floor ring that spreads, breaks into dashes and fades.",
+"tags": [
+"water",
+"one-shot",
+"drip",
+"liquid",
+"ground"
+],
+"size": [
+54,
+48
+],
+"pivot": [
+27,
+40
+],
+"frames": 20,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "water/ripple",
+"category": "water",
+"name": "Ripple",
+"description": "Seamless water ripple loop: a drop falls into still water, splashes a tiny crown and jet whose bead falls back off-centre, and elliptical rings spread from the drip point with pale highlights on their crests, cooling, breaking into dashes and fading at the edge.",
+"tags": [
+"water",
+"loop",
+"ambient",
+"ripple",
+"liquid"
+],
+"size": [
+96,
+52
+],
+"pivot": [
+48,
+30
+],
+"frames": 24,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "water/tidal-wave",
+"category": "water",
+"name": "Tidal wave",
+"description": "A swell rises, curls a foam-lipped wave that rolls right and crashes on one white foam frame, then breaks into spray and a spreading puddle whose foam line drains away.",
+"tags": [
+"impact",
+"water",
+"liquid",
+"ground",
+"one-shot"
+],
+"size": [
+96,
+56
+],
+"pivot": [
+48,
+47
+],
+"frames": 20,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "water/water-cast",
+"category": "water",
+"name": "Water cast",
+"description": "Droplets and a ribbon of water spiral into a wobbling orb at the hand, it swells and compresses, bursts on one white frame into thick water spikes and a spray ring that tears into a heavy crown and then a bead outline, while fat droplets arc out, fall and thin to specks.",
+"tags": [
+"cast",
+"charge",
+"water",
+"one-shot"
+],
+"size": [
+64,
+64
+],
+"pivot": [
+32,
+28
+],
+"frames": 13,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "water/water-geyser",
+"category": "water",
+"name": "Water geyser",
+"description": "A wet patch bubbles, then a wavering water column blasts up under a churning foam crown that bursts white on the peak, sprays droplets, collapses top-down as a curtain of falling drops and splashes, and leaves a pool that drains into a broken ring.",
+"tags": [
+"water",
+"impact",
+"liquid",
+"ground",
+"eruption",
+"one-shot"
+],
+"size": [
+48,
+88
+],
+"pivot": [
+24,
+80
+],
+"frames": 21,
+"frame_ms": 65,
+"loop": false
+},
+{
+"id": "water/water-jet",
+"category": "water",
+"name": "Water jet",
+"description": "A pressurised water stream blasts forward behind a bulbous foam-fronted head that bursts in one white frame into a fan of droplets; the stream holds with pressure pulses running along it and a spitting, frayed end, then the source cuts off and it thins, sags and breaks into falling droplets.",
+"tags": [
+"water",
+"jet",
+"stream",
+"spray",
+"one-shot"
+],
+"size": [
+136,
+62
+],
+"pivot": [
+8,
+20
+],
+"frames": 20,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "water/water-splash",
+"category": "water",
+"name": "Water splash",
+"description": "A drop hits the water: a ragged crown cup flares on one white frame, tears open around a rising central jet, flings droplets that arc and splat, and the puddle ring spreads, breaks into dashes and fades.",
+"tags": [
+"impact",
+"water",
+"liquid",
+"ground",
+"one-shot"
+],
+"size": [
+112,
+80
+],
+"pivot": [
+56,
+66
+],
+"frames": 22,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "water/water-whip",
+"category": "water",
+"name": "Water whip",
+"description": "A tendril of water climbs from the hand, curls overhead and lashes forward in a whip wave; its tip snaps into a white star of spray and a crown of droplets, then the body breaks into beads that fall as rain and splat on the ground.",
+"tags": [
+"water",
+"one-shot",
+"attack",
+"whip",
+"liquid"
+],
+"size": [
+148,
+100
+],
+"pivot": [
+18,
+67
+],
+"frames": 18,
+"frame_ms": 70,
+"loop": false
+},
+{
+"id": "water/whirlpool",
+"category": "water",
+"name": "Whirlpool",
+"description": "Seamless ground whirlpool loop: ragged spiral arms with lit foam crests and deep shadow sides rotate inward round a dark eye, foam flecks are flung off the rim and pulled back, and once per loop a near-side crest rears up and splashes.",
+"tags": [
+"water",
+"loop",
+"ambient",
+"ground"
+],
+"size": [
+72,
+48
+],
+"pivot": [
+36,
+25
+],
+"frames": 20,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "wind/air-burst",
+"category": "wind",
+"name": "Air burst",
+"description": "A forward blast of compressed air: a soft white pop at the muzzle, a cone of crescent pressure fronts that spread, cool and break into dashes, speed streaks along the cone, and floor dust kicked up and swept forward before it settles.",
+"tags": [
+"wind",
+"one-shot",
+"air",
+"push",
+"knockback"
+],
+"size": [
+112,
+74
+],
+"pivot": [
+8,
+44
+],
+"frames": 17,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "wind/sonic-boom",
+"category": "wind",
+"name": "Sonic boom",
+"description": "A sonic boom tearing past left to right: a pale bead of compressed air snaps open into a white-edged shock cone with a bell of vapour and an upright vapour ring, then the arms sweep wider and break into dashes while the vapour hollows into drifting puffs.",
+"tags": [
+"wind",
+"shockwave",
+"air",
+"one-shot"
+],
+"size": [
+128,
+96
+],
+"pivot": [
+44,
+48
+],
+"frames": 16,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "wind/tornado",
+"category": "wind",
+"name": "Tornado",
+"description": "Seamless tornado loop: a tall solid grey-white funnel lit on one side, twisting diagonal striations scrolling round it, a ragged collar on top and a narrow kinked foot, wisps peeling off its edges, rocks and a plank orbiting in front of and behind it, a wide whirling dust skirt, and once per loop a dust surge climbing the funnel.",
+"tags": [
+"wind",
+"loop",
+"tornado",
+"hazard"
+],
+"size": [
+84,
+112
+],
+"pivot": [
+42,
+102
+],
+"frames": 16,
+"frame_ms": 70,
+"loop": true
+},
+{
+"id": "wind/updraft",
+"category": "wind",
+"name": "Updraft",
+"description": "Seamless updraft loop: air lines rise out of a floor vent as swaying, fanning streamlines that cool and break into dashes as they climb, autumn leaves spiral and tumble up the column, and once per loop the vent coughs out two curling wisps and a fast line.",
+"tags": [
+"wind",
+"loop",
+"ambient",
+"hazard",
+"vent"
+],
+"size": [
+56,
+80
+],
+"pivot": [
+28,
+74
+],
+"frames": 16,
+"frame_ms": 75,
+"loop": true
+},
+{
+"id": "wind/vacuum-pull",
+"category": "wind",
+"name": "Vacuum pull",
+"description": "A vacuum draws everything in: thick spiral arms and air lines rush inward from the first frame, a broken ring tightens round the point, dust skids in along the floor and debris is dragged in tumbling, then a small white implosion pop kicks out a heavy broken ring that widens, thins into dashes and fades as a few specks fall.",
+"tags": [
+"wind",
+"one-shot",
+"pull",
+"implosion",
+"air"
+],
+"size": [
+112,
+90
+],
+"pivot": [
+56,
+49
+],
+"frames": 17,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "wind/whirlwind",
+"category": "wind",
+"name": "Whirlwind",
+"description": "Seamless whirlwind loop: a swaying funnel of pale grey-green crescent bands sliding around it, near arcs pale and thick over deep thin far arcs, orbiting leaves and pebbles, a whirling tan dust skirt, and once per loop a leaf flung out.",
+"tags": [
+"wind",
+"loop",
+"ambient"
+],
+"size": [
+48,
+72
+],
+"pivot": [
+24,
+68
+],
+"frames": 14,
+"frame_ms": 65,
+"loop": true
+},
+{
+"id": "wind/wind-blade",
+"category": "wind",
+"name": "Wind blade",
+"description": "A thrown crescent of compressed air: a thick pale-green blade with two fading echo crescents and leaves sucked along in its wake, one white flash of the blade with a thin cut line through the target, then the blade splits into two curling halves that break into dashes while a puff of air rings out.",
+"tags": [
+"wind",
+"projectile",
+"impact",
+"hit"
+],
+"size": [
+96,
+44
+],
+"pivot": [
+0,
+22
+],
+"frames": 16,
+"frame_ms": 60,
+"loop": false
+},
+{
+"id": "wind/wind-gust",
+"category": "wind",
+"name": "Wind gust",
+"description": "A one-shot horizontal gust: a broad white-teal ribbon unrolls into a C-curl in a soft bloom with two smaller ribbons on offset beats, holds, hollows to its upper face and breaks into dashes, leaving a dotted afterimage of its path while torn leaves tumble through and outlive the air.",
+"tags": [
+"wind",
+"air",
+"gust",
+"slash",
+"one-shot",
+"nature"
+],
+"size": [
+96,
+48
+],
+"pivot": [
+48,
+24
+],
+"frames": 13,
+"frame_ms": 70,
+"loop": false
+}
+]
+}

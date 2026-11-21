@@ -125,7 +125,26 @@ claude plugin install spritecast@spritecast
   보여 주고, 불탄 나무는 서 있던 면 그대로 반쯤 탄 나무, 다 탄 나무로 바뀌어요.
 - **빛은 하나, 손으로 칠한 음영은 없음.** 28개 모두 3D 가이드처럼 오른쪽 위에서 빛을 받아요. 아래는 모든 소품의 모든 면이에요.
 
+<details><summary>게임 풀밭 위의 소품 스프라이트 28개</summary>
+
 ![게임 풀밭 위의 소품 스프라이트 28개: 나무, 반쯤 탄 나무, 다 탄 나무, 덤불, 그루터기, 바위, 버섯의 네 면, 모두 오른쪽 위에서 빛을 받음](docs/rain-girl-props.png)
+
+</details>
+
+- **콤보.** 같은 세트의 Mixamo 동작 두 개(내려치기, 돌려 베기)를 리그에 옮기고, 도끼질을 원호를 그리는 칼 베기로 바꾸고, 두 번째가
+  첫 번째의 마지막 자세에서 시작하게 이었어요(`motion.py`). 네 방향 픽셀 아트로 그렸고, 물은 소녀 키의 두 배 거리에서 서서히 사라져요.
+  내려치는 중에 한 번 더 누르면 돌려 베기가 이어지고, 닿는 범위만 한 고리가 소녀를 감싸요.
+- **이펙트.** 맞을 때, 불이 꺼질 때, 날아오는 불덩이와 막힐 때, 아이템을 먹을 때, 돌려 베기의 고리는
+  [PVFX Foundry](https://nerijs.itch.io/pvfx-foundry)(CC0)의 이펙트예요. 이제 SpriteCast에 253개가 같이 들어 있고, `fxpack.py`로 찾아서
+  우리 스프라이트 크기와 색으로 내보낼 수 있어요. 소녀를 감싸는 고리는 가운데에서 잘라 먼 쪽은 몸 뒤, 가까운 쪽은 몸 앞에 그려요.
+
+![가까이 본 우비소녀의 여행: 내려치기와 물 고리가 퍼지는 돌려 베기, 불꽃 몬스터에 터지는 물, 날아오는 불덩이, 물약과 하트를 먹는 장면](docs/fx-in-game.gif)
+
+<details><summary>SpriteCast에 같이 들어 있는 이펙트 253개 중 32개</summary>
+
+![SpriteCast에 같이 들어 있는 이펙트 253개 중 32개: 물보라, 타격, 불, 폭발, 얼음, 번개, 신성, 그림자, 비전, 자연, 바람, 칼 궤적, 날아가는 불덩이, 아이템](docs/fx-pack.png)
+
+</details>
 
 - **팔레트도 하나.** 다 만든 뒤 소품과 풀밭 타일을 48색 팔레트 하나로 맞췄어요(755색에서). 나무의 초록과 덤불의 초록이 같은 초록이에요.
 - **3D는 게임 안에서도 쓰여요.** 땅의 그림자는 각 소품의 모델에서 구웠고([방법](#light-shadow-wind)), 소녀는 소품 그늘에 들어가면 어두워져요 - 발, 허리, 머리가
@@ -186,7 +205,11 @@ Tripo의 네발 동물 리그는 걸음이 어색해요(등뼈가 없고, 어깨
 안 돼요 - 늘어진 건 가까운 다리를 따라 움직여요). 그리기 전에 렌더를 확인하세요: 다리 넷, 머리는 앞, 꼬리는 뒤. Tripo 모델에 다리가
 하나 더 생기면 다시 만들거나 Meshy(`"modeler": "meshy"`)로 만들어요.
 
+<details><summary>노란 비옷을 입은 치즈 고양이의 8방향 걷기</summary>
+
 ![노란 비옷을 입은 치즈 고양이의 8방향 걷기](docs/animal-walk.gif)
+
+</details>
 
 고양이는 [`examples/tabby_cat`](examples/tabby_cat)에 있어요. 여자아이와 같은 노란 비옷을 입은 치즈 고양이예요(디자인, 턴어라운드, 사양,
 스트립, 그림자, 시트). Tripo 30크레딧, 다시 그리기와 디자인 시도까지 그리기 약 $2.5가 들었어요. 프레임은 렌더와 0.76-0.97로
@@ -211,7 +234,11 @@ Tripo의 네발 동물 리그는 걸음이 어색해요(등뼈가 없고, 어깨
 (`"hold": {"kind": "watergun", "hand": "left"}`) 걷기, 서 있는 자세, 모든 동작에서 들고 있어요.
 아래는 왼손에 든 물총이에요. 위가 3D 가이드, 아래가 그린 프레임이에요.
 
+<details><summary>왼손에 든 물총</summary>
+
 ![왼손에 든 물총: 서쪽 걷기, 동쪽 걷기, 달리기 - 위는 3D 가이드, 아래는 그린 프레임](docs/carry-left-hand.ko.gif)
+
+</details>
 
 - **그 손에 그대로 있어요.** 한 손에 물건을 든 캐릭터는 좌우가 같지 않아요. 그래서 다른 프레임을 뒤집어 만드는 일이 전혀 없어요.
   뒤집으면 물건이 반대 손으로 가니까요. (`"mirror": "never"`를 적으면 안대나 한쪽 소매처럼 좌우가 다른 캐릭터에도 똑같이 적용돼요.)
@@ -243,7 +270,11 @@ Tripo의 네발 동물 리그는 걸음이 어색해요(등뼈가 없고, 어깨
 캐릭터와 별도의 스프라이트로 나와서 몸 위에 겹쳐요. **무료이고 아무것도 다시 그리지 않아요.** 3D 리그가 우산 끝이 매 순간 어디
 있는지 알고 있어서, 그 길에서 이펙트를 계산해요. 이미 그려둔 베기에도 그림을 건드리지 않고 붙일 수 있어요.
 
+<details><summary>우비소녀의 우산 베기에 여덟 가지 이펙트</summary>
+
 ![우비소녀의 우산 베기에 여덟 가지 이펙트: plain, wind, water, fire, leaves, petals, snow, sparkle](docs/effects.gif)
+
+</details>
 
 - **실제 동작을 따라가요.** 이미지 모델에 베기를 시키면 호 하나를 지어내 반복하고, 기성 이펙트는 모든 휘두름에 같은 모양을
   붙여요. 여기서는 띠와 조각이 이 캐릭터의 우산이 이 동작에서 실제로 지나간 길에서 나오고, 8방향 각각에서 본 모습으로
@@ -264,6 +295,10 @@ Tripo의 네발 동물 리그는 걸음이 어색해요(등뼈가 없고, 어깨
 
 ![같은 베기의 96 px 픽셀 아트판, 물과 불](docs/effects-pixel.gif)
 
+픽셀 아트 콤보 - 우비소녀의 내려치기와 돌려 베기를 네 방향으로, 물과 돌려 베기의 고리까지(`motion.py`, `fxpack.py`):
+
+![우비소녀의 콤보를 네 방향 픽셀 아트로: 내려치기, 이어서 물 소용돌이와 몸을 감싸는 고리, 바닥 고리가 퍼지는 돌려 베기](docs/combo-pixel.gif)
+
 **솔직히:** 그린 게 아니라 계산한 것이라 손그림 같은 맛보다는 깔끔한 쪽이에요. 길은 손에 든 물건의 것이라
 동작에 쥔 물건이 있어야 해요. 우산 베기에서만 만들어 봤어요.
 
@@ -274,7 +309,11 @@ Tripo의 네발 동물 리그는 걸음이 어색해요(등뼈가 없고, 어깨
 "frames": 4}`처럼 적어요. 아래는 전부 그린 그림이에요. 우산을 들고 걷다가, 자세를 낮추고(리그에서 나온 3프레임), 물 이펙트와 함께
 휘두르고, 다시 일어나서(4프레임) 걸어요.
 
+<details><summary>우산을 들고 걷다가 자세를 낮추고, 물과 김을 튀기며 휘두르고, 다시 일어나 걷는 우비소녀</summary>
+
 ![우산을 들고 걷다가 자세를 낮추고, 물과 김을 튀기며 휘두르고, 다시 일어나 걷는 우비소녀](docs/loop-2d.gif)
+
+</details>
 
 - **어떻게.** 리그가 두 동작을 동시에 재생하면서 한쪽에서 다른 쪽으로 부드럽게 넘어가요. `"slash:end"`는 공격의 첫 자세 대신 마지막
   자세에서 시작해요.
@@ -290,7 +329,11 @@ Tripo의 네발 동물 리그는 걸음이 어색해요(등뼈가 없고, 어깨
 
 ### 픽셀아트 (아케이드 크기)
 
+<details><summary>비 오는 소녀가 다섯 방향으로 눈덩이를 던지고, 눈덩이가 아이소메트릭 바닥 위로 각자 방향으로 날아가는 모습</summary>
+
 ![비 오는 소녀가 다섯 방향으로 눈덩이를 던지고, 눈덩이가 아이소메트릭 바닥 위로 각자 방향으로 날아가는 모습](docs/pixel-throw.gif)
+
+</details>
 
 픽셀로 그린 게임(벨트스크롤, 격투, 아케이드 플랫포머)에는 같은 캐릭터를 진짜 픽셀아트로 만들어요. 키 약 100px, 픽셀 하나에 색
 하나, 40색쯤의 팔레트, 어두운 외곽선, 번짐 없음, 프레임마다 3D 그림자. 일러스트 프레임을 줄인 게 아니에요. 순서가 반대예요.
@@ -311,6 +354,8 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
   있어요. 공, 날아가는 모양, 4프레임 터지는 효과도 같이 나와요. 위 그림은 그 데이터를 그대로 재생한 거예요.
 - **Mixamo 애니메이션 아무거나.** `addclip.py hero.json Throw.fbx throw`가 FBX 클립을 캐릭터 리그에 옮겨요. 무료예요. 위의
   던지기도 그렇게 넣었어요.
+- **이어지는 콤보.** `motion.py`가 게임처럼 공격과 공격을 이어요. 다음 공격이 앞 공격이 끝난 자세에서 시작하고, 휘두르는 순간은 그대로예요.
+  옮겨 온 동작의 뜬 발을 땅에 붙이고, 도끼질을 원호를 그리는 칼 베기로 바꿔요. 리그에서 하니 무료예요.
 - **스스로 검토해요.** 프레임마다 렌더와 비교해요(자세, 쥔 물건). `--redraw`는 표시된 시트를 다시 그리고 더 나은 쪽을 남겨요.
   던지기 40프레임은 한 번 다시 그린 뒤 전부 통과했어요.
 - **마지막은 픽셀 에디터로.** 픽셀아트는 규칙만으로 다 되지 않아요. `pixeledit.py hero.json`을 실행하면 모든 프레임이 브라우저에
@@ -320,11 +365,19 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
   이어서 재생되는 동작들은 하나로 열어, 루프 전체를 재생하며 튀는 곳을 고칠 수 있어요:
   `pixeledit.py hero.json --join walk,ready,slash,recover --facing south-east`.
 
+<details><summary>픽셀 에디터</summary>
+
 ![픽셀 에디터: 격자 위의 프레임, 흐리게 보이는 앞 프레임, 도구들, AI와 손이 각각 얼마나 했는지](docs/pixel-edit.png)
+
+</details>
 
 그 프레임을 그릴 때 본 3D 렌더를 옆에(단축키 `3`) 또는 아래에 흐리게 띄울 수 있어요. 애매한 픽셀이 원래 뭐였는지 보고 고쳐요.
 
+<details><summary>픽셀 에디터</summary>
+
 ![픽셀 에디터: 왼쪽에 옆에서 본 64px 캐릭터(눈덩이 던지기), 오른쪽에 같은 프레임의 3D 렌더](docs/pixel-edit-character.png)
+
+</details>
 
 손이 얼마나 가는지: 거의 안 가요. 던지기 40프레임은 AI 그리기 약 6분, AI 누끼 2분이 걸렸어요. 손으로 한 건 매직 지우개뿐이에요.
 남은 흰색을 클릭 한 번씩, 40프레임 중 10프레임에서 지웠어요(131픽셀, 스프라이트의 0.15%). 얼굴은 손대지 않았어요. 파이프라인이 만든 그대로예요. 이 숫자는 만들
@@ -342,7 +395,11 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 - **에디터가 3D의 위치를 보여줘요** (단축키 `4`). 손에 든 물건은 빨강, 몸의 윤곽은 파랑으로 그리는 프레임 위에 겹쳐요. 우산을 너무
   길게 그렸거나 각도가 틀리면 바로 보여요.
 
+<details><summary>픽셀 에디터</summary>
+
 ![픽셀 에디터: 걷기 프레임 위에 3D 우산이 빨강으로, 3D 몸의 윤곽이 파랑으로 겹쳐 있고, 그린 우산이 빨간 3D 우산과 겹쳐 있음](docs/pixel-edit-shapes.png)
+
+</details>
 
 **색 수.** 한 세트는 약 40색으로 나와요. `--colours 16`은 최대 16색으로 줄이고(최소 8), `--palette`는 정해진
 팔레트에서 가장 가까운 색을 픽셀마다 골라요. 스킬에 들어 있는 15개는 이름으로 쓰고(`--palette pico8`, 목록은 `--palette list`),
@@ -351,12 +408,20 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 유지되고, 8색에서는 비슷한 색이 합쳐져요(남색 다리가 검정이 돼요). 팔레트에 캐릭터 색과 가까운 색이 없으면 그 색은 바뀌니까,
 결과를 보고 정하세요.
 
+<details><summary>같은 스프라이트 세 개</summary>
+
 ![같은 스프라이트 세 개: 기본 43색, --colours 32·16·8, 16색 PICO-8 팔레트](docs/pixel-colours.ko.png)
+
+</details>
 
 들어 있는 팔레트를 같은 스프라이트 두 개에 입힌 모습이에요. 노란 우비는 팔레트에 노랑이 있어야 해요(`c64`, `gameboy`, `slso8`,
 `sweetie16`에는 없어요).
 
+<details><summary>우비소녀와 라멘 수레를 15개 팔레트로</summary>
+
 ![우비소녀와 라멘 수레를 15개 팔레트로: aap64, apollo, c64, cga, db16, db32, endesga32, endesga64, gameboy, nes, pico8, resurrect64, slso8, sweetie16, zx](docs/pixel-palettes.png)
+
+</details>
 
 *팔레트는 만든 분들의 것이에요: AAP-64(Adigun A. Polack), Apollo(AdamCYounis), DawnBringer 16/32(DawnBringer), Endesga 32/64(ENDESGA),
 Resurrect 64(Kerrie Lake), SLSO8(Luis Miguel Maldonado), Sweetie 16(GrafxKid). [Lospec](https://lospec.com/palette-list)에서 가져왔어요.*
@@ -366,13 +431,21 @@ Resurrect 64(Kerrie Lake), SLSO8(Luis Miguel Maldonado), Sweetie 16(GrafxKid). [
 방법으로 해 봤어요). `--px 32`라고 하면 64로 그린 뒤 그 세트를 줄여서 32px 세트를 만들어요. 무료이고 동작과 프레임은 같지만 얼굴은
 더 거칠어요. 잘 나오는 건 64예요.
 
+<details><summary>작은 캐릭터가 8방향으로 걷고 던지는 64px 세트와, 그걸 줄여 만든 32px 세트</summary>
+
 ![작은 캐릭터가 8방향으로 걷고 던지는 64px 세트와, 그걸 줄여 만든 32px 세트](docs/pixel-small.gif)
+
+</details>
 
 두 세트 모두 [`examples/rain_chibi`](examples/rain_chibi)에 있어요: 비옷 소녀에서 그린 3등신 디자인, 턴어라운드, 사양 파일,
 `pixel64/`(8방향 걷기와 던지기, 128프레임, 프레임마다 그림자. 손으로 고친 픽셀은 없어요), 그리고 거기서 만든
 `pixel32/`. 던지기는 Mixamo 클립을 `addclip.py --clear-head 55`로 얹은 거예요. 클립과 리그는 저장소에 넣지 않았어요.
 
+<details><summary>같은 작은 캐릭터의 다섯 가지</summary>
+
 ![같은 작은 캐릭터의 다섯 가지: 64px로 그린 것, 그걸 줄여 만든 32px 세트, 이미지 모델에 32px를 직접 요청한 세 가지](docs/pixel-sizes.ko.png)
+
+</details>
 
 **왜 32px를 직접 요청하지 않나요?** 이미지 모델(GPT)은 64 아래의 작은 픽셀아트를 잘 못 그려요. "픽셀" 크기를 제멋대로 잡아서(8px 칸을
 부탁하면 7.4~10.8px로 그렸어요), 칸이 32개뿐이면 한 칸만 어긋나도 눈 하나가 사라져요. 위 그림에서 맨 윗줄이 64로 그린 것이고, 빨간
@@ -383,7 +456,11 @@ Resurrect 64(Kerrie Lake), SLSO8(Luis Miguel Maldonado), Sweetie 16(GrafxKid). [
 
 ### 픽셀아트 소품: 어떤 물건이든, 어느 방향이든
 
+<details><summary>라멘 포장마차의 3D 모델 네 방향과, 같은 네 방향의 픽셀아트 스프라이트</summary>
+
 ![라멘 포장마차의 3D 모델 네 방향과, 같은 네 방향의 픽셀아트 스프라이트](docs/pixel-props.ko.png)
+
+</details>
 
 캐릭터와 같은 순서를 물건에 써요. 3D 가이드를 픽셀화하고, 이미지 모델이 같은 격자 위에 픽셀아트로 다시 그리고, 그 그림을 격자대로
 다시 읽어서 가이드 크기에 맞춰요. 각도는 카메라가 정하니까, 네 방향으로 돌린 물건은 한 물건의 네 스프라이트가 돼요. 같은 지붕,
@@ -424,7 +501,11 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # 방향�
   픽셀 아트는 실제보다 조금 더 과장해야 해서, **픽셀 스프라이트는 소품이든 캐릭터든 기본이 1.5**예요(가장 진한 곳이 56% 대신 71%).
   밝은 바닥에서 무거워 보이면 1을, 아주 어두운 땅이면 2를 쓰세요. 빛 편집기에 슬라이더가 있어요.
 
+<details><summary>같은 나무와 우비 소녀를 그림자 세기 1, 1.5, 2로 놓은 모습</summary>
+
 ![같은 나무와 우비 소녀를 그림자 세기 1, 1.5, 2로 놓은 모습: 어둡고 비 오는 풀밭에서 1은 그림자가 거의 묻혀 둘 다 떠 보이고 1.5에서는 땅에 서 있어요. 밝은 바닥에서는 1도 또렷하고 2는 무거워요](docs/shadow-strength.gif)
+
+</details>
 
 - **실내에서는 조명을 원하는 곳에.** `--lamp -1,2.4,-0.2 --lamp-size 0.03` (소품 발밑에서 미터 단위로 오른쪽, 위, 보는 사람 쪽;
   조명 자체의 크기) - 그림자는 조명 반대쪽으로, 조명이 낮을수록 길게, 맨전구는 또렷하게 큰 갓은 부드럽게, 바닥에 퍼지는 빛만큼
@@ -434,7 +515,11 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # 방향�
   `"see_through": [{"colour": "#c8955a", "open": 0.35}]`로 그 색 부분이 빛을 그만큼 통과시키게 해요. 라탄 공작 의자
   ([`examples/rattan_peacock_chair`](examples/rattan_peacock_chair))를 조명 여섯 가지 아래에서:
 
+<details><summary>라탄 공작 의자 픽셀 아트를 해, 흐린 날, 맨전구, 앞과 뒤의 조명, 높은 큰 조명 아래 오크 마루에 둔 모습</summary>
+
 ![라탄 공작 의자 픽셀 아트를 해, 흐린 날, 맨전구, 앞과 뒤의 조명, 높은 큰 조명 아래 오크 마루에 둔 모습 - 그림자는 3D 모델에서 구웠고 짜임으로 빛이 새요](docs/indoor-shadows.png)
+
+</details>
 
 - **광원을 직접 옮겨 보기**: `lightedit.py PROP.json`을 실행하면 내 컴퓨터에서 페이지가 열려요. 바닥을 끌어 광원을 옮기고, 휠로
   높이를, 슬라이더로 크기를 바꾸면 그림자와 바닥에 퍼지는 빛이 바로 다시 그려져요. 저장하면 네 면을 그 빛으로 굽고 사양에 남겨요.
@@ -444,7 +529,11 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # 방향�
 
 ![광원 편집기가 돌아가는 모습: 타일 바닥의 라탄 의자 둘레로 픽셀 플로어 램프를 한 바퀴 끌면 의자 그림자가 램프 반대쪽으로 돌아가며 길어졌다 짧아지고, 바닥의 램프 빛도 함께 움직이며, 램프가 의자 뒤와 앞을 지나가요](docs/light-editor.gif)
 
+<details><summary>광원 편집기에서 픽셀 플로어 램프를 라탄 의자 둘레로 옮긴 모습</summary>
+
 ![광원 편집기에서 픽셀 플로어 램프를 라탄 의자 둘레로 옮긴 모습: 오른쪽 앞(그림자는 왼쪽 뒤로), 왼쪽 뒤(그림자는 오른쪽 앞으로), 매끈한 빛](docs/own-lamp.png)
+
+</details>
 
 - **바람에 흔들리기도 3D 모델에서** (사양에 `"sway": "leaves"`, 또는 `propshade.py PROP.json --sway leaves`; 무료): 수관은 한 장이 아니라
   가지들이에요. 잎 픽셀마다 그 자리에 보이는 모델의 점을 찾고, 그 점들을 3D 위치로 묶어서(앞 가지와 뒤 가지가 따로) 뭉치를 만들어요.
@@ -462,7 +551,11 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # 방향�
   물어볼 수 있는 `shade()` / `cover()`가 들어 있어요(Phaser 3.90과 Godot 4.7에서 열어 확인했어요. Unity와 Aseprite는 아직 캐릭터만
   돼요). 작은 것도 흔들려요: 버섯은 갓이 까딱거려요(`"sway": "caps"`, [`examples/forest_mushrooms`](examples/forest_mushrooms)).
 
+<details><summary>Phaser로 내보낸 픽셀 아트 나무 둘과 버섯 세 무더기가 풀밭에 있는 장면</summary>
+
 ![Phaser로 내보낸 픽셀 아트 나무 둘과 버섯 세 무더기가 풀밭에 있는 장면: 구운 그림자, 돌풍에 흔들리는 나뭇잎, 걸어가다 나무 그늘에서 어두워지는 우비소녀, 무릎 높이로 날아가는 공(하나는 줄기에 막히고 하나는 나뭇잎 아래로 지나감), 끝에는 모델이 알려 주는 막히는 곳 - 빨강은 걸을 수 없는 곳, 파랑은 날아가는 것이 막히는 곳](docs/prop-scene.gif)
+
+</details>
 
 ### 그리기 건너뛰기: 3D 렌더를 그대로 프레임으로
 
@@ -471,9 +564,17 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # 방향�
 동물은 모델 `"model_glb"`) 이미지 모델을 아예 안 써요. 그러면 캐릭터 하나에 턴어라운드와 3D(Tripo 75크레딧, 동물 30)만 들고,
 확인은 두 번, `3d`가 끝나면 바로 완성이에요. 대신 선명도가 떨어져요: 그린 선이 없고, 얼굴이 단순하고, 모델 텍스처가 그대로라 털과 주름이 흐려요.
 
+<details><summary>같은 여자아이와 고양이</summary>
+
 ![같은 여자아이와 고양이: 3D 렌더만 vs 그린 프레임](docs/render-vs-drawn.ko.gif)
 
+</details>
+
+<details><summary>스트립 실제 픽셀로 확대</summary>
+
 ![스트립 실제 픽셀로 확대: 3D만 vs 그림](docs/render-vs-drawn-zoom.ko.png)
+
+</details>
 
 ## 앉기
 
@@ -485,7 +586,11 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # 방향�
 높이, 그림자가 들어 있어요. 소품에 앉히려면 `seat.py`가 좌석 위에 앉히고, 캐릭터를 가리는 **앞 조각**(팔걸이, 장의자 등받이, 벤치
 등받이)을 둘의 3D 높이로 계산해요. 칠할 필요가 없어요.
 
+<details><summary>비 오는 소녀가 열 가지 좌석에 앉은 모습</summary>
+
 ![비 오는 소녀가 열 가지 좌석에 앉은 모습: 네 방향 안락의자, Tripo 안락의자, 식탁 의자 앞뒤, 장의자, 곡선 벤치 앞뒤](docs/seats.png)
+
+</details>
 
 좌석 높이와 방향을 찾고, 무릎이 좌석 앞 모서리에 오도록 엉덩이 위치를 정해요. 조금 어긋나 보이면 다듬기 페이지(아래)에서 끌어서
 옮기면 돼요. 놓는 순간 그 자리에서 앞 조각을 다시 계산해요.
@@ -553,7 +658,11 @@ SpriteCast는 모델이 잘못 읽기 어려운 가이드를 줘요(잘못 읽�
 | ![](examples/reading_armchair/preview.png) | ![](examples/potted_monstera/preview.png) | ![](examples/arcade_cabinet/preview.png) |
 | `reading_armchair`: 블록 9개(좌석, 등받이, 팔걸이, 다리) | `potted_monstera`: 화분, 그리고 식물은 덩어리 하나로 | `arcade_cabinet`: 정면이 왼쪽 아래를 향함 |
 
+<details><summary>네 방향과 탑다운</summary>
+
 ![네 방향과 탑다운](docs/views.png)
+
+</details>
 `armchair_four_ways`: `views: [0, 90, 180, 270]`. 두 번째 방향부터는 첫 그림을 레퍼런스로 그려서 같은 의자로 이어져요.
 `arcade_cabinet_topdown`: `camera: "topdown"`. `reading_armchair_tripo`: 같은 안락의자를 Tripo 모델로(아래).
 
@@ -561,7 +670,11 @@ SpriteCast는 모델이 잘못 읽기 어려운 가이드를 줘요(잘못 읽�
 
 ## 더 정교하게: 3D 모델을 먼저 (Tripo)
 
+<details><summary>블록 가이드와 Tripo 모델 가이드 비교</summary>
+
 ![블록 가이드와 Tripo 모델 가이드 비교](docs/tripo.png)
+
+</details>
 
 배치와 크기가 중요하면 블록으로 충분해요. 디테일(곡선 팔걸이, 가늘어지는 다리, 단추, 조각)을 더 살리고 싶으면
 [Tripo](https://www.tripo3d.ai)로 설명에서 진짜 3D 모델을 먼저 만들어요. 그 모델을 블록이 정한 높이로 키우되 모델 자신의 비율은 그대로 두고 가이드로
@@ -576,7 +689,11 @@ $PYTHON skills/spritecast/scripts/isoprop.py render armchair.json         # 그�
 
 ## 포즈 잡은 인물 (설명만으로)
 
+<details><summary>마네킹 가이드와 네 방향 인물 두 명</summary>
+
 ![마네킹 가이드와 네 방향 인물 두 명](docs/characters.png)
+
+</details>
 
 서 있는 인물도 같은 방식이에요. Claude가 실제 키의 마네킹을 세워서 방향마다(4 또는 8방향) 렌더하면, 이미지 모델이 설명대로 옷을 입혀
 그려요. 첫 방향을 먼저 그리고 나머지는 그 그림을 따라 그려서 같은 사람으로 이어져요.
@@ -638,14 +755,22 @@ $PYTHON skills/spritecast/scripts/isoprop.py render armchair.json         # 그�
 
 </details>
 
+<details><summary>블록 그림자와 그림 그림자 비교</summary>
+
 ![블록 그림자와 그림 그림자 비교](docs/shadows.png)
+
+</details>
 
 **걷는 캐릭터의 그림자는 빛이 떨어지는 대로예요** (0.20부터): 자세를 잡은 3D 몸을 해의 원반 16방향과 하늘 48방향으로 땅에 눌러 찍고, 방향마다 가린
 만큼을 더해요. [소품의 구운 그림자](#light-shadow-wind)와 같은 계산이에요. 그래서 발이 닿은 곳과 몸 아래는 진하고 먼 가장자리는 옅으며,
 프레임마다 자세에 따라 달라져요. 그림자 띠는 character.json의 `shadow_alpha`(0.56)로 표시하고, 픽셀 세트는 다섯 단계로 나와요.
 사양에 `"shadow": "flat"`을 넣으면 이전의 한 가지 농도 그림자가 나와요.
 
+<details><summary>우비소녀가 걷고, 달리고, 뛰는 모습과 그림자</summary>
+
 ![우비소녀가 걷고, 달리고, 뛰는 모습과 그림자 - 왼쪽은 이전: 한 가지 농도의 또렷한 모양, 오른쪽은 지금: 발밑은 진하고 가장자리는 부드럽고 옅음](docs/character-shadow.png)
+
+</details>
 
 ## 카메라
 
@@ -885,4 +1010,4 @@ OpenAI는 키로 이미지 모델을 쓰기 전에 조직 인증(platform.openai
   [엔진에 넣는 법](#엔진에-넣는-법) 참고.
 
 ## 라이선스
-MIT - 코드와 예시(그림, 스트립, 비옷 소녀의 리그 모델까지) 모두요. 동봉한 three.js(`skills/spritecast/scripts/vendor/three`)도 MIT이고 © three.js authors예요.
+MIT - 코드와 예시(그림, 스트립, 비옷 소녀의 리그 모델까지) 모두요. 동봉한 three.js(`skills/spritecast/scripts/vendor/three`)도 MIT이고 © three.js authors예요. `skills/spritecast/effects/pvfx`의 이펙트는 Pixel VFX Studio의 PVFX Foundry이고 CC0 1.0이에요(같은 곳의 LICENSE.txt).

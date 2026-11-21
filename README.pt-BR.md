@@ -127,7 +127,26 @@ fogo com a água do guarda-chuva antes que a floresta queime. A menina e todos o
 - **Uma luz só, nenhuma sombra pintada à mão.** Os 28 recebem luz do alto à direita, como seus guias 3D. Abaixo, cada lado de cada
   objeto:
 
+<details><summary>os 28 sprites na grama do jogo</summary>
+
 ![os 28 sprites na grama do jogo: quatro lados de uma árvore, uma árvore meio queimada, uma árvore queimada, um arbusto, um toco, uma pedra e cogumelos, todos iluminados do alto à direita](docs/rain-girl-props.png)
+
+</details>
+
+- **O combo.** Dois movimentos do Mixamo de uma mesma série - um corte para baixo e um revés giratório - levados para o rig dela, o golpe de
+  machado transformado num corte de espada em arco, o segundo começando na última pose do primeiro (`motion.py`), desenhados em pixel art em
+  quatro direções, com água que some ao dobro da altura dela. Aperte de novo durante o corte e vem o revés: um anel em volta dela tão largo quanto o alcance.
+- **Os efeitos.** Acertos, fogos apagados, bolas de fogo voando e batendo na cobertura, itens pegos e os anéis do revés são efeitos do
+  [PVFX Foundry](https://nerijs.itch.io/pvfx-foundry) (CC0), que agora vem com o SpriteCast: 253, e o `fxpack.py` para achar um e exportá-lo no
+  tamanho e nas cores dos seus sprites. Um anel em volta dela é cortado no meio: a metade de trás atrás dela, a da frente na frente.
+
+![Rain Girl de perto: o corte para baixo e o revés giratório com o anel de água, água estourando nos monstros de fogo, as bolas de fogo voando, uma poção e um coração pegos](docs/fx-in-game.gif)
+
+<details><summary>32 dos 253 efeitos que vêm com o SpriteCast</summary>
+
+![32 dos 253 efeitos que vêm com o SpriteCast: respingos, acertos, fogo, explosões, gelo, raios, sagrado, sombra, arcano, natureza, vento, rastros de espada, uma bola de fogo voando, itens](docs/fx-pack.png)
+
+</details>
 
 - **Uma paleta só.** No fim os objetos e o bloco de grama foram passados para uma paleta de 48 cores (de 755): o verde de uma árvore
   e o de um arbusto são o mesmo verde.
@@ -194,7 +213,11 @@ O turnaround é desenhado com o animal sobre as quatro patas, cada pata separada
 capa ou um cachecol - tudo o que fica pendurado se move com a pata mais próxima). Confira os renders antes de desenhar: quatro patas, a cabeça para a frente, a cauda
 para trás. Se o modelo da Tripo ganhar uma pata a mais, gere de novo ou use a Meshy (`"modeler": "meshy"`).
 
+<details><summary>um gato laranja rajado com capa de chuva amarela andando em 8 direções</summary>
+
 ![um gato laranja rajado com capa de chuva amarela andando em 8 direções](docs/animal-walk.gif)
+
+</details>
 
 O gato está em [`examples/tabby_cat`](examples/tabby_cat): um gato laranja rajado com uma capinha de chuva amarela (a da garota), o design dele,
 o turnaround, o spec, as strips, as sombras e a folha - 30 créditos Tripo e cerca de $2.5 de desenho, contando redesenhos e tentativas de design. Seus
@@ -221,7 +244,11 @@ Esses frames são listados para você olhar; mantenha ou redesenhe.
 `"hold": {"kind": "watergun", "hand": "left"}` - e o personagem fica com o objeto durante a caminhada, as poses paradas e todas as ações.
 Abaixo, uma pistola d'água na mão esquerda: o guia 3D em cima, os frames desenhados embaixo.
 
+<details><summary>uma pistola d'água carregada na mão esquerda</summary>
+
 ![uma pistola d'água carregada na mão esquerda: andando para oeste, andando para leste e correndo, o guia 3D acima dos frames desenhados](docs/carry-left-hand.pt-BR.gif)
+
+</details>
 
 - **Ele fica naquela mão.** Um personagem com algo numa mão não é igual dos dois lados, então nenhum frame é feito
   espelhando outro - espelhado, o objeto trocaria de mão. (`"mirror": "never"` pede o mesmo para qualquer personagem que não seja
@@ -257,7 +284,11 @@ você recebe o efeito como um sprite próprio, sobreposto ao corpo. **É grátis
 ponta do guarda-chuva em cada momento, então o efeito é calculado a partir dessa trajetória. Um golpe que você já tem ganha um sem mexer nos
 frames dele.
 
+<details><summary>o golpe com guarda-chuva da garota da chuva com oito efeitos</summary>
+
 ![o golpe com guarda-chuva da garota da chuva com oito efeitos: plain, wind, water, fire, leaves, petals, snow, sparkle](docs/effects.gif)
+
+</details>
 
 - **Ele segue o movimento real.** Um modelo de imagem a quem se pede um golpe inventa um arco e o repete; um efeito pronto é uma forma colada
   em todo golpe. Aqui a faixa e os pedaços saem da trajetória que o guarda-chuva deste personagem faz nesta ação, vista de cada uma
@@ -279,6 +310,10 @@ frames dele.
 
 ![o mesmo golpe em pixel art de 96 px, com água e com fogo](docs/effects-pixel.gif)
 
+Um combo em pixel art - o corte para baixo e o revés giratório da Rain Girl em quatro direções, com a água e o anel do revés (`motion.py`, `fxpack.py`):
+
+![O combo da Rain Girl em pixel art em quatro direções: o corte para baixo e depois o revés giratório com a espiral de água, um anel em volta dela e outro no chão](docs/combo-pixel.gif)
+
 **Sinceramente:** estes são calculados, não pintados, então são limpos em vez de desenhados à mão. A trajetória
 é a do objeto segurado, então uma ação precisa de algo na mão. Feito e conferido só no golpe com guarda-chuva.
 
@@ -289,7 +324,11 @@ O rig 3D faz os frames intermediários (vocês pediram): `{"name": "ready", "bet
 `{"name": "recover", "between": ["slash:end", "walk"], "frames": 4}`. Abaixo, tudo desenhado: ela anda com o guarda-chuva, desce para
 a postura (3 frames do rig), golpeia com o efeito de água, volta a subir (mais 4) e segue andando.
 
+<details><summary>a garota da chuva andando com o guarda-chuva, descendo para uma postur…</summary>
+
 ![a garota da chuva andando com o guarda-chuva, descendo para uma postura, brandindo-o com um respingo de água e névoa, voltando a subir e seguindo andando](docs/loop-2d.gif)
+
+</details>
 
 - **Como.** O rig toca as duas animações ao mesmo tempo, cada uma parada num momento, e vai de uma para a outra, suavizando a entrada e
   a saída. `"slash:end"` começa da última pose de um ataque em vez da primeira.
@@ -305,7 +344,11 @@ a postura (3 frames do rig), golpeia com o efeito de água, volta a subir (mais 
 
 ### Pixel art (tamanho de fliperama)
 
+<details><summary>cinco direções da garota da chuva arremessando uma bola de neve, cada …</summary>
+
 ![cinco direções da garota da chuva arremessando uma bola de neve, cada bola voando para o seu lado sobre um chão isométrico](docs/pixel-throw.gif)
+
+</details>
 
 Para um jogo desenhado em pixels - um beat 'em up, um jogo de luta, um plataforma de fliperama - o mesmo personagem como pixel art de verdade, com cerca de 100 px
 de altura: uma cor por pixel, uma paleta de umas 40, um contorno escuro, sem desfoque, e a sombra 3D de cada frame. Não é um redimensionamento dos
@@ -327,6 +370,8 @@ Cerca de $0.075 por folha: uma caminhada nas oito direções são 18 folhas (cer
   o projétil - e você recebe a bola, seu formato em voo e uma explosão de 4 frames. A imagem acima são esses dados reproduzidos.
 - **Qualquer animação do Mixamo.** `addclip.py hero.json Throw.fbx throw` leva um clipe FBX para o rig do personagem, de graça. O arremesso
   acima entrou assim.
+- **Combos que se encadeiam.** `motion.py` liga um ataque ao seguinte como os jogos fazem: o segundo começa na pose em que o primeiro
+  termina, sem mexer no golpe; também põe de volta no chão os pés de um clipe importado e transforma um golpe de machado num corte de espada em arco. Grátis, no rig.
 - **Ele se revisa.** Cada frame é comparado com seu render (a pose, o objeto segurado); `--redraw` desenha de novo as folhas marcadas
   e fica com o melhor desenho. Os 40 frames do arremesso passaram todos depois de um redesenho.
 - **Depois, um editor de pixel para o finzinho.** Nem toda pixel art sai por regra. `pixeledit.py hero.json` abre todos os frames
@@ -336,12 +381,20 @@ Cerca de $0.075 por folha: uma caminhada nas oito direções são 18 folhas (cer
   Animações que tocam uma depois da outra podem ser abertas como uma só, para ver o loop inteiro e corrigir onde pula:
   `pixeledit.py hero.json --join walk,ready,slash,recover --facing south-east`.
 
+<details><summary>o editor de pixel</summary>
+
 ![o editor de pixel: um frame numa grade, o frame anterior mostrado bem fraco, as ferramentas, e quanto foi feito pela IA e à mão](docs/pixel-edit.png)
+
+</details>
 
 E o render 3D a partir do qual o frame foi desenhado pode ser mostrado ao lado (tecla `3`) ou fraco por baixo - assim você vê o que um pixel
 duvidoso deveria ser antes de mexer nele:
 
+<details><summary>o editor de pixel com um personagem de 64 px prestes a arremessar uma …</summary>
+
 ![o editor de pixel com um personagem de 64 px prestes a arremessar uma bola de neve, visto de lado, à esquerda, e o render 3D do mesmo frame à direita](docs/pixel-edit-character.png)
+
+</details>
 
 Quanto sobra para a mão: muito pouco. Nos 40 frames do arremesso, cerca de 6 minutos de desenho por IA e 2 de recorte por IA; depois o único
 trabalho manual foi a borracha mágica - um clique em cada pontinho de branco que sobrou, em 10 dos 40 frames (131 pixels, 0.15 % dos
@@ -359,7 +412,11 @@ dois frames da caminhada o guarda-chuva está desenhado um pouco fora do ângulo
 - **O editor mostra onde o 3D tem as coisas** (tecla `4`): o objeto segurado em vermelho e o contorno do corpo em azul, sobre o frame que você
   está desenhando - então um guarda-chuva desenhado comprido demais ou no ângulo errado é visto na hora.
 
+<details><summary>o editor de pixel com o guarda-chuva 3D em vermelho e o contorno do co…</summary>
+
 ![o editor de pixel com o guarda-chuva 3D em vermelho e o contorno do corpo 3D em azul sobre um frame da caminhada: o guarda-chuva desenhado fica sobre o vermelho](docs/pixel-edit-shapes.png)
+
+</details>
 
 **Quantas cores.** Um conjunto sai com umas 40 cores. `--colours 16` limita a no máximo 16 (8 é o mínimo), e
 `--palette` dá a cada pixel a cor mais próxima numa paleta definida: uma das 15 que vêm com a skill, pelo nome
@@ -368,12 +425,20 @@ dois frames da caminhada o guarda-chuva está desenhado um pouco fora do ângulo
 outra paleta. Props aceitam as mesmas duas opções. Até 16 o personagem se sai bem; com 8 cores próximas se fundem (as pernas azul-marinho dela
 ficam pretas), e uma paleta sem nada perto de uma das cores dela vai mudar essa cor - olhe o resultado antes de ficar com ele.
 
+<details><summary>os mesmos três sprites com as 43 cores padrão, com --colours 32, 16 e …</summary>
+
 ![os mesmos três sprites com as 43 cores padrão, com --colours 32, 16 e 8, e na paleta PICO-8 de 16 cores](docs/pixel-colours.pt-BR.png)
+
+</details>
 
 As paletas que vêm junto, nos mesmos dois sprites - uma capa amarela precisa de um amarelo na paleta (`c64`, `gameboy`,
 `slso8` e `sweetie16` não têm):
 
+<details><summary>a garota da chuva e o carrinho de lámen em cada uma das 15 paletas</summary>
+
 ![a garota da chuva e o carrinho de lámen em cada uma das 15 paletas: aap64, apollo, c64, cga, db16, db32, endesga32, endesga64, gameboy, nes, pico8, resurrect64, slso8, sweetie16, zx](docs/pixel-palettes.png)
+
+</details>
 
 *As paletas são de seus autores: AAP-64 por Adigun A. Polack, Apollo por AdamCYounis, DawnBringer 16/32 por DawnBringer, Endesga 32/64
 por ENDESGA, Resurrect 64 por Kerrie Lake, SLSO8 por Luis Miguel Maldonado, Sweetie 16 por GrafxKid - tiradas do
@@ -384,13 +449,21 @@ cabeças de altura, com seu próprio modelo 3D - e sai com cerca de 70 px. Abaix
 poucos quadradinhos (32 px foi tentado de quatro jeitos). `--px 32` desenha em 64 e faz o conjunto de 32 a partir dele, de graça - o mesmo movimento e frames, com
 rostos mais grosseiros. 64 é o que sai bem.
 
+<details><summary>o personagem pequeno andando e arremessando em oito direções em 64 px,…</summary>
+
 ![o personagem pequeno andando e arremessando em oito direções em 64 px, e o conjunto de 32 px feito a partir dele](docs/pixel-small.gif)
+
+</details>
 
 Os dois conjuntos estão em [`examples/rain_chibi`](examples/rain_chibi): o design de três cabeças desenhado a partir da garota da chuva, seu turnaround, o
 spec, `pixel64/` (caminhada e arremesso em oito direções, 128 frames, cada um com sua sombra; nenhum pixel foi tocado à mão) e `pixel32/` feito a partir dele. O arremesso dela é um clipe do Mixamo aplicado com `addclip.py --clear-head 55`; o clipe e o
 rig não estão no repositório.
 
+<details><summary>o mesmo personagem pequeno de cinco jeitos</summary>
+
 ![o mesmo personagem pequeno de cinco jeitos: desenhado em 64 px, um conjunto de 32 px feito a partir dele, e três jeitos de pedir 32 px ao modelo de imagem](docs/pixel-sizes.pt-BR.png)
+
+</details>
 
 **Por que não pedir 32 px?** O modelo de imagem (GPT) não faz pixel art pequena bem abaixo de 64. Ele desenha seus "pixels" num tamanho
 próprio - quando pedimos quadrados de 8 px ele desenhou de 7.4 a 10.8 - e com 32 quadrados, um quadrado fora do lugar é um olho a menos. Acima: a fileira de cima
@@ -402,7 +475,11 @@ golpe com guarda-chuva como strips, suas sombras, a bola de neve com seu formato
 
 ### Props em pixel art: qualquer objeto, qualquer lado
 
+<details><summary>um carrinho de lámen de rua como modelo 3D visto de quatro lados, e os…</summary>
+
 ![um carrinho de lámen de rua como modelo 3D visto de quatro lados, e os mesmos quatro lados como sprites em pixel art](docs/pixel-props.pt-BR.png)
+
+</details>
 
 Do mesmo jeito que um personagem, só que para uma coisa: o guia 3D dela é pixelizado, o modelo de imagem o redesenha como pixel art na mesma grade,
 e o desenho é lido de volta nessa grade e levado ao tamanho do guia. O ângulo é o da câmera, então uma coisa virada de quatro jeitos são
@@ -445,7 +522,11 @@ luminária no chão e o vento nas folhas são calculados a partir dele: grátis,
   1.5 por padrão**, objetos e personagens (71 % no ponto mais escuro em vez de 56 %). Em um piso claro onde isso pesar, peça 1; em
   chão muito escuro, 2. O editor de luz tem um controle deslizante para isso.
 
+<details><summary>a mesma árvore e a menina da chuva com as sombras em força 1, 1.5 e 2</summary>
+
 ![a mesma árvore e a menina da chuva com as sombras em força 1, 1.5 e 2: na grama escura e chuvosa a sombra em 1 quase some e os dois parecem flutuar, em 1.5 eles ficam de pé no chão; em um piso claro 1 já aparece bem e 2 pesa demais](docs/shadow-strength.gif)
+
+</details>
 
 - **Em ambientes internos, uma luminária onde você quiser.** `--lamp -1,2.4,-0.2 --lamp-size 0.03` (metros a partir do pé do objeto:
   para a direita, para cima, na direção de quem olha; o tamanho da própria luminária) - a sombra cai para longe dela, mais longa
@@ -457,7 +538,11 @@ luminária no chão e o vento nas folhas são calculados a partir dele: grátis,
   `"see_through": [{"colour": "#c8955a", "open": 0.35}]` deixa passar essa parte da luz pelo que tem essa cor. Uma cadeira pavão
   de rattan ([`examples/rattan_peacock_chair`](examples/rattan_peacock_chair)) sob seis luzes:
 
+<details><summary>uma cadeira pavão de rattan em pixel art sob o sol, num dia nublado, s…</summary>
+
 ![uma cadeira pavão de rattan em pixel art sob o sol, num dia nublado, sob uma lâmpada nua, uma luz na frente e atrás e uma luz grande no alto, num piso de carvalho iluminado por cada um - cada sombra assada do modelo 3D, o trançado deixando a luz passar](docs/indoor-shadows.png)
+
+</details>
 
 - **Mova a luz você mesmo**: `lightedit.py PROP.json` abre uma página no seu computador: arraste a luminária pelo chão, suba com a
   roda do mouse, mude o tamanho - a sombra e a luz da luminária no chão são redesenhadas na hora; Salvar assa todos os lados com ela e guarda no spec.
@@ -467,7 +552,11 @@ luminária no chão e o vento nas folhas são calculados a partir dele: grátis,
 
 ![o editor de luz em ação: um abajur de chão em pixel art arrastado dando a volta inteira numa cadeira de rattan sobre um piso de ladrilhos - a sombra da cadeira gira para o lado oposto ao abajur, mais longa e mais curta, a luz do abajur no chão vai junto, e o abajur passa por trás e pela frente da cadeira](docs/light-editor.gif)
 
+<details><summary>um abajur de chão em pixel art movido em volta da cadeira de rattan no…</summary>
+
 ![um abajur de chão em pixel art movido em volta da cadeira de rattan no editor: na frente à direita, atrás à esquerda, e no modo suave](docs/own-lamp.png)
+
+</details>
 
 - **O vento, também do modelo 3D** (`"sway": "leaves"` no spec, ou `propshade.py PROP.json --sway leaves`; grátis): uma copa são
   galhos, não uma folha só. Cada pixel de folha pega o ponto do modelo que ele mostra, os pontos são agrupados pelo lugar em 3D - os
@@ -488,7 +577,11 @@ luminária no chão e o vento nas folhas são calculados a partir dele: grátis,
   no Godot 4.7; Unity e Aseprite, por enquanto só para personagens). Coisa pequena também balança: os cogumelos acenam com o chapéu
   (`"sway": "caps"`, [`examples/forest_mushrooms`](examples/forest_mushrooms)).
 
+<details><summary>duas árvores em pixel art e três grupos de cogumelos exportados para o…</summary>
+
 ![duas árvores em pixel art e três grupos de cogumelos exportados para o Phaser, na grama: as sombras assadas, as copas balançando quando passa uma rajada, a menina da capa de chuva andando e escurecendo na sombra de uma árvore, bolas voando na altura do joelho (uma detida por um tronco, outra passando sob a copa) e, no fim, o que o modelo diz que atrapalha: vermelho onde não se pode pisar, azul o que detém algo no ar](docs/prop-scene.gif)
+
+</details>
 
 ### Pulando o desenho: os renders 3D como frames
 
@@ -498,9 +591,17 @@ os frames, com as mesmas sombras 3D e âncoras. O modelo de imagem desenha só o
 (75 créditos Tripo, um animal 30) - dois OKs, pronto assim que o `3d` termina. A contrapartida é a nitidez: sem traços desenhados, um rosto mais simples,
 a textura do modelo como veio (pelos e dobras mais borrados).
 
+<details><summary>a mesma garota e o mesmo gato andando</summary>
+
 ![a mesma garota e o mesmo gato andando: só os renders 3D contra os frames desenhados](docs/render-vs-drawn.pt-BR.gif)
 
+</details>
+
+<details><summary>close nos próprios pixels das strips</summary>
+
 ![close nos próprios pixels das strips: só 3D contra desenhado](docs/render-vs-drawn-zoom.pt-BR.png)
+
+</details>
 
 ## Sentar
 
@@ -513,7 +614,11 @@ senta sobre nada - a cadeira do seu jogo vai embaixo dela. O `character.json` ga
 seus props, o `seat.py` a posiciona no assento dele e calcula a **peça da frente para ela** (um braço de poltrona, o encosto de um banco de igreja, o
 encosto de um banco) a partir das alturas 3D dos dois - sem pintar nada:
 
+<details><summary>A garota da chuva sentada em dez assentos</summary>
+
 ![A garota da chuva sentada em dez assentos: uma poltrona de quatro lados, a poltrona da Tripo, uma cadeira de jantar dos dois lados, um banco de igreja, um banco curvo dos dois lados](docs/seats.png)
+
+</details>
 
 Ele encontra a altura do assento e para que lado ele está virado, e a senta para trás até os joelhos chegarem à borda do assento. Se ela ficar um pouco fora do lugar,
 arraste-a na página de retoque (abaixo): ao soltar, a peça da frente é calculada de novo a partir dali.
@@ -583,7 +688,11 @@ Todos em [`examples/`](examples), cada um com seu spec e os arquivos que gerou (
 | ![](examples/reading_armchair/preview.png) | ![](examples/potted_monstera/preview.png) | ![](examples/arcade_cabinet/preview.png) |
 | `reading_armchair`: 9 blocos: assento, encosto, braços, pernas | `potted_monstera`: um vaso, e a planta dada como um único volume | `arcade_cabinet`: a frente virada para baixo e para a esquerda |
 
+<details><summary>quatro direções e uma vista top-down</summary>
+
 ![quatro direções e uma vista top-down](docs/views.png)
+
+</details>
 `armchair_four_ways`: `views: [0, 90, 180, 270]`. As vistas seguintes são desenhadas com a primeira como referência, então continua sendo a mesma
 poltrona. `arcade_cabinet_topdown`: `camera: "topdown"`. `reading_armchair_tripo`: a mesma poltrona a partir de um modelo da Tripo (abaixo).
 
@@ -591,7 +700,11 @@ Os modelos 3D dos exemplos (`reading_armchair_tripo`, e as malhas e rigs dos per
 
 ## Mais detalhes: primeiro um modelo 3D (Tripo)
 
+<details><summary>blocos vs um modelo da Tripo como guia</summary>
+
 ![blocos vs um modelo da Tripo como guia](docs/tripo.png)
+
+</details>
 
 Blocos bastam quando o que importa é onde as coisas ficam e qual o tamanho delas. Para mais detalhes (braços curvos, pernas afuniladas, botões,
 entalhes), deixe a [Tripo](https://www.tripo3d.ai) fazer primeiro um modelo 3D de verdade a partir da descrição. Ele é feito com a altura que os blocos dizem e
@@ -608,7 +721,11 @@ Precisa de `TRIPO_API_KEY`. Os blocos ficam no spec como `blocks_draft`.
 
 ## Personagens posados (a partir de uma descrição)
 
+<details><summary>um guia de manequim e dois personagens em quatro direções</summary>
+
 ![um guia de manequim e dois personagens em quatro direções](docs/characters.png)
+
+</details>
 
 Um NPC que só fica parado não precisa de ilustração nem de rig: ele funciona como um prop. O Claude posiciona um manequim liso na altura real da pessoa e o renderiza em cada direção (4 ou
 8). O modelo de imagem o veste como você descrever. A primeira direção é desenhada primeiro e as outras seguem ela, para continuar sendo a mesma pessoa.
@@ -663,14 +780,22 @@ encontraria: do lado oposto à luz, nunca na frente dele. Figuras posadas e cois
 
 </details>
 
+<details><summary>sombras a partir dos blocos e a partir do desenho</summary>
+
 ![sombras a partir dos blocos e a partir do desenho](docs/shadows.png)
+
+</details>
 
 **A sombra de um personagem andando é a luz como ela cai** (desde 0.20): o corpo 3D na pose é pressionado contra o chão em 16 direções do disco do sol
 e 48 do céu, e soma-se o que cada uma esconde: a mesma conta da [sombra assada de um objeto](#light-shadow-wind). Por isso ela é
 profunda onde os pés pisam e sob o corpo e pálida na borda distante, e muda com a pose de cada quadro. As tiras são mostradas com o
 `shadow_alpha` do character.json (0,56); os sets em pixel art a recebem em cinco degraus. `"shadow": "flat"` no spec mantém a forma dura de antes.
 
+<details><summary>a menina da capa de chuva andando, correndo e pulando sobre a sombra</summary>
+
 ![a menina da capa de chuva andando, correndo e pulando sobre a sombra: à esquerda, como era, uma forma dura de uma só intensidade; à direita, como a luz cai, profunda sob os pés e suave e pálida na borda](docs/character-shadow.png)
+
+</details>
 
 ## Câmeras
 
@@ -916,4 +1041,4 @@ O feedback decide o que vem a seguir, e o que mudou por causa dele é marcado no
   [Colocando na sua engine](#colocando-na-sua-engine) para Phaser, Godot e Unity.
 
 ## Licença
-MIT - o código e os exemplos (imagens, strips e o modelo com rig da garota da chuva, igualmente). O three.js (incluído em `skills/spritecast/scripts/vendor/three`) é MIT, © autores do three.js.
+MIT - o código e os exemplos (imagens, strips e o modelo com rig da garota da chuva, igualmente). O three.js (incluído em `skills/spritecast/scripts/vendor/three`) é MIT, © autores do three.js. Os efeitos em `skills/spritecast/effects/pvfx` são o PVFX Foundry da Pixel VFX Studio, CC0 1.0 (o LICENSE.txt dele ali).

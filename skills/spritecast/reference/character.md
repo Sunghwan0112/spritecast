@@ -253,6 +253,46 @@ the attack stance is awkward - can we make the frames between? we have the 3D mo
 - Checked on the rain girl, south-east, drawn and as pixel art (walk with the umbrella, 3 down, the slash, 4 back up). Not checked:
   `pack`'s frame rate for it (it takes the walk's).
 
+## Moves that join: `motion.py` - free, on the rig, nothing drawn
+A combo is moves played one after another; how each joins the next is what the player feels. All five commands write a copy of the
+rig (`rig/rig-<tag>.glb`) and print the spec's `"rig_glb"` line; render and LOOK after each (`charpipe.py render --only ...`).
+- **`ground SPEC clip ...`** - the lower foot on the ground in every frame. A Mixamo clip carried onto a child's rig by `addclip.py` stood
+  8-15 cm in the air and bobbed up through the swing.
+- **`plant SPEC clip ...`** - the feet held where the clip's first frame has them; the hips' turn (up to 98 degrees in Mixamo's sword
+  slashes) goes into the spine, so all above the waist moves as before. For a swing whose legs jump from stance to stance (the user:
+  "the legs change too abruptly from pose to pose").
+- **`link SPEC A@time B@t0-t1 NAME [--blend 0.4]`** - B started from the pose A is in at that time; the difference to B's own pose fades
+  out over the blend, inside B's wind-up, so B's stroke is B's own. The way games join moves (inertialization). Better than `"between"`
+  for attacks: in-between poses made a swing float, and cost frames. Link B from the time A's LAST DRAWN frame shows (`"t1"` of A's
+  action), not the end of A's clip.
+- **`blade SPEC clip --stroke t0-t1 [--bend 0.55] [--lag 0.9] [--max-turn 100]`** - an axe's chop made a sword's cut (the user, of Mixamo's
+  "Standing Melee Attack Downward": "made for an axe - a bit unnatural for a sword"). The forward bend cut to `--bend` of itself (46 ->
+  25 degrees; the thighs turned back so the feet stay); the wrist turned so the blade runs on from the arm through the stroke - at the
+  hit the axe's blade pointed BEHIND her - and, with `--lag`, trails the hand early in the stroke and catches up at the hit: its tip on
+  an arc round the shoulder (the user: "swing it more in an arc" - the tip 0.66-0.69 from the shoulder all through, its path 16 % longer).
+- **`join SPEC NAME clip:t0:t1 ...`** - clips as one, to render a whole combo at 24 a second (`"frames"`: seconds x 24) and look at the
+  joins: eight frames a move showed the user a stutter, not the motion.
+- **What looks right**: real motion capture. Moves made here from key poses (an image model's poses on a colour-coded mannequin, fitted
+  to the rig) and a clip played backwards read stiff beside a Mixamo move (the user: "only the backhand looks natural"). Ask for Mixamo
+  moves of ONE set (one actor: "Standing Melee Attack Downward / Horizontal / Backhand / 360", "... Combo Attack Ver. 1-3"): they start
+  and end in the same stance, and link with nothing to see. A sword-and-shield set swings the free arm as if it held a shield.
+- **A combo from Mixamo, step by step** (how the rain girl's downward cut -> backhand was made; each step free but the last):
+  1. On mixamo.com, two moves of one set - `Standing Melee Attack Downward`, `Standing Melee Attack Backhand` - FBX, 30 fps. Keep the
+     files out of any public repository.
+  2. Onto the rig, one clip each: `addclip.py CHAR.json "Standing Melee Attack Downward.fbx" downward` (and `backhand`); give the spec
+     the `"rig_glb"` each prints, so the next works on it.
+  3. Feet on the ground: `motion.py ground CHAR.json downward backhand`.
+  4. A sword, not an axe (if it was made for one): `motion.py blade CHAR.json downward --stroke 0.75-1.25` - the stroke from when the
+     hand is fastest; then `ground` again (the bend changed).
+  5. Decide what each action shows (`"t0"`, `"t1"`, `"frames"`: the downward cut 0.35-1.40 s, 8 frames), then link the next one from
+     the LAST frame shown: `motion.py link CHAR.json downward@1.40 backhand@0.3-2.0 backhand_after --blend 0.4`, and `ground` it.
+  6. Look at it whole: `motion.py join CHAR.json combo downward:0:1.40 backhand_after:0:1.40`, an action `{"name": "combo", "clip":
+     "combo", "t0": 0, "t1": 2.79, "frames": 67}`, `charpipe.py render --only combo`, and the frames played at 24 a second.
+  7. The actions with `"hold"` and `"trail": "water"`, `charpipe.py render --only downward,backhand_after`, then `pixelart.py` - the
+     paid step: say the cost it prints and wait for a yes. ~$0.65 a facing for each 8-frame move held out this far (a sheet a frame).
+- The held thing points along the hand bone as the renderer holds it (the action's `"grip"`, or the kind's default).
+- Never put a Mixamo file - or a rig with its motion in it - in a public repository: the moves may be used, not handed on.
+
 ## Seeing animations joined: `loop`
 `charpipe.py loop SPEC --only walk,ready,slash,recover --facing south-east` (free) plays the finished frames of those animations one
 after another as one GIF - `out/loop-<facing>.gif`, each frame with its 3D shadow and, for an action with `"trail"`, its effect - to see
@@ -305,6 +345,11 @@ action that is already drawn gets its effect with `render --only slash` and `pac
   after): the drawing holds one pose for all of them, and cells only after it had the water down at her feet while the drawn umbrella
   was still up - a fast swing's tip had gone on two thirds of a frame. Around it, the water is at most a third away, and behind the
   tip as often as ahead. A swing so fast that this still shows: an in-between frame there (`between`) is the real fix.
+- **How far the water shows: `"trail_reach"`** in the action (1 by default; Rain Girl's combo 2 - the user: "twice as far"). The drops a
+  swing throws fly on and on; in the pixel set they fade out with the distance from the figure, gone by 1.15 x reach of its height
+  from its middle - never cut in a straight line at the frame's edge (the user saw the squares). The render's frame grows with it
+  (1024 px x reach; 768 before for an action with a trail), and `render` says when a trail still runs off it. A game that packs the
+  water's cells in one long row should lay them in a grid: at reach 2 a row was 9168 px, past the 8192 a phone draws.
   `character.json`: `"trail": {<facing>: {"file", "frame", "offset", "frames", "per_frame"}}` in the action - the cell
   size, its top-left from the body frame's top-left, how many cells, and how many of them to each body frame. `export.py` carries it
   into every engine as a third sprite.

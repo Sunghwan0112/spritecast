@@ -62,6 +62,7 @@ if _idle.exists():
 ALL = list(CP.DIRS)          # the spec's facings: all eight, or the four diagonals with "facings": 4
 DIRS = [x for x in (A.dirs.split(',') if A.dirs else ALL) if x in ALL]; CLIPS = A.clips.split(',')
 Z = 1024 // (H * 4 // 3); CWp, CHp = 384 // Z, 1024 // Z; FOOT = CHp - CHp // 12            # a body sheet's cell in sprite pixels
+CWP, CHP = 1024 // Z, 1536 // Z; FOOTP = CHP - CHP // 12                                     # ... and a portrait sheet's one cell (a frame too tall for the other)
 CH_ = 32          # the margin a sprite is given on its canvas, px
 NCOL = 24
 FACE_DETAIL = not A.no_face_detail
@@ -234,20 +235,47 @@ def held_words(clip, dr, idx):
              "over her other shoulder; the image model drew her arm up at the shoulder holding it).\n" if yes else '')
             + behind + (f"In cell{'s' if len(no) > 1 else ''} {', '.join(no)} the hands are EMPTY: the {k} has been let go - draw nothing in or near the hands there.\n" if no else ''))
 
+def trail_faded(clip, dr, i, f, per):
+    """a swing's water, faded out with the distance from the figure: the drops it throws fly on and on, and ran off the render's frame
+    at whatever size, cut in a straight line (the user saw the squares). Full near the figure, gone by FADE_TO of its height from its
+    middle - or a little inside the frame's nearest edge, if that comes first."""
+    im = Image.open(f).convert('RGBA'); a = np.asarray(im).astype(np.float32)
+    bp = d / f'render/{clip}-{dr}-{i // per}.png'
+    if not bp.exists() or not a[..., 3].any(): return f
+    m = np.asarray(Image.open(bp).convert('RGBA'))[..., 3] > 0
+    if not m.any(): return f
+    ys, xs = np.nonzero(m); cy, cx, h = (ys.min() + ys.max()) / 2, (xs.min() + xs.max()) / 2, ys.max() - ys.min()
+    k_ = float(s['actions'].get(clip, {}).get('trail_reach', 1) or 1)          # ("trail_reach": how far the water shows, times the default - the user: "twice as far")
+    edge = min(cx, cy, im.width - cx, im.height - cy) - 4; r1, r2 = min(FADE_FROM * k_ * h, 0.7 * edge), min(FADE_TO * k_ * h, edge)
+    yy, xx = np.mgrid[:im.height, :im.width]; r = np.hypot(yy - cy, xx - cx); k = np.clip((r2 - r) / max(1.0, r2 - r1), 0, 1)
+    a[..., 3] *= k * k * (3 - 2 * k)
+    out_ = W / 'trail-faded' / f.name; out_.parent.mkdir(exist_ok=True); Image.fromarray(a.round().astype(np.uint8)).save(out_); return out_
+FADE_FROM, FADE_TO = 0.75, 1.15
+
 def per_sheet(clip, dr):
     """frames to a sheet: four 48-px cells (at 96 px) - or three, or two, wider ones where a frame is too wide for that (a side view's
-    stride, something held)"""
+    stride, something held) - or one, the whole sheet's width, for a long thing swung out at arm's length (a sword's arc)"""
     w = max(bbox(ren(clip, dr, i)[1])[3] - bbox(ren(clip, dr, i)[1])[2] for i in range(nframes(clip)))
-    return next((p for p in (4, 3, 2) if w <= 1536 // p // Z - 2), None)
+    h = max(bbox(ren(clip, dr, i)[1])[1] - bbox(ren(clip, dr, i)[1])[0] for i in range(nframes(clip)))
+    if h > FOOT - 1: return 1 if w <= CWP - 2 and h <= FOOTP - 1 else None      # a frame too tall for a landscape cell: one to a sheet, the tall ones on a portrait sheet
+    return next((p for p in (4, 3, 2, 1) if w <= 1536 // p // Z - 2), None)
+
+def portrait(clip, dr, g):
+    """a sheet of one frame drawn standing up (1024x1536) - the frame is too tall for a landscape cell: an umbrella held straight up over the head"""
+    if per_sheet(clip, dr) != 1: return False
+    y0, y1, _, _ = bbox(ren(clip, dr, g)[1]); return y1 - y0 > FOOT - 1
+
+def sheet_size(clip, dr, g): return '1024x1536' if portrait(clip, dr, g) else '1536x1024'
 
 def body_sheet(clip, dr, g):
     per = per_sheet(clip, dr)
     if per is None: return None
-    CWp = 1536 // per // Z
+    tall = portrait(clip, dr, g); SW_, SH_ = (1024 // Z, CHP) if tall else (1536 // Z, CHp); FOOT = FOOTP if tall else globals()['FOOT']
+    CWp = SW_ // per
     idx = list(range(g * per, min(g * per + per, nframes(clip)))); fr = [ren(clip, dr, i) for i in idx]
     bbs = [bbox(m) for _, m, _ in fr]           # each frame in the middle of its cell, its feet on the cell's ground line (where it belongs comes back from the render)
     if any(x1 - x0 > CWp - 2 or y1 - y0 > FOOT - 1 for y0, y1, x0, x1 in bbs): return None            # (something held that reaches far: a sheet's cell is too narrow for it)
-    sh = np.full((CHp, 1536 // Z, 3), 1.0, np.float32)
+    sh = np.full((SH_, SW_, 3), 1.0, np.float32)
     for n, ((rgb, m, _), (y0, y1, x0, x1)) in enumerate(zip(fr, bbs)):
         m = m[y0:y1, x0:x1]; x, y = (CWp - (x1 - x0)) // 2, FOOT - (y1 - y0); sh[y:y + m.shape[0], n * CWp + x:n * CWp + x + m.shape[1]][m] = rgb[y0:y1, x0:x1][m]
         # a held thing gets a dark line round it in the GUIDE: a white snowball on the white paper was not there for GPT to see
@@ -257,7 +285,7 @@ def body_sheet(clip, dr, g):
             hm_ = (P.down(seen_, H)[1] >= 0.5)[y0:y1, x0:x1]
             if hm_.shape == m.shape and hm_.any():
                 ring = ndi.binary_dilation(hm_, np.ones((3, 3))) & ~hm_ & ~(m & ~hm_); cell = sh[y:y + m.shape[0], n * CWp + x:n * CWp + x + m.shape[1]]; cell[ring] = (0.25, 0.25, 0.3)
-    Image.fromarray((sh * 255).round().astype(np.uint8)).resize((1536, CHp * Z), Image.NEAREST).save(W / f'{clip}-{dr}-{g}-{H}-in.png')
+    Image.fromarray((sh * 255).round().astype(np.uint8)).resize((SW_ * Z, SH_ * Z), Image.NEAREST).save(W / f'{clip}-{dr}-{g}-{H}-in.png')
     words = s['actions'].get(clip, {}).get('words', 'walking')
     (W / f'{clip}-{dr}-{g}-{H}-prompt.txt').write_text(
         f"Image 1 is a SHEET of {len(idx)} frames of one {words} animation, side by side, read left to right: a 3D render of one person seen from a game "
@@ -393,12 +421,14 @@ def main():
     sheets = []; paid = []
     for c, dr in todo:
         per = per_sheet(c, dr)
-        if per is None: print(f'  {c}-{dr}: a frame is too wide even for two to a sheet (something long held?) - left out'); continue
+        if per is None: print(f'  {c}-{dr}: a frame is too wide even for a sheet of its own (something long held?) - left out'); continue
         for g in range(-(-nframes(c) // per)):
             idx = body_sheet(c, dr, g); name = f'{c}-{dr}-{g}'
+            if idx is None:          # (a frame too tall or too wide for its cell - an umbrella straight up, or held out at arm's length: no guide, no prompt; it ran on into the draw and stopped there)
+                print(f'  {name}: a frame does not fit its cell (something long held, straight up or far out?) - left out: render that moment a little earlier or later'); continue
             sheets.append((c, dr, g, idx))
             if A.again == name: (W / f'{name}-{H}-out.png').unlink(missing_ok=True)
-            if not (W / f'{name}-{H}-out.png').exists(): paid.append((name, '1536x1024'))
+            if not (W / f'{name}-{H}-out.png').exists(): paid.append((name, sheet_size(c, dr, g)))
     print(f'{len(sheets)} sheets; to draw: {len(paid)}' + (f' (about ${len(paid) * PRICE:.2f}): ' + ', '.join(n for n, _ in paid) if paid else ''))
     if paid and not A.yes:
         print('nothing spent - run again with --yes')
@@ -681,6 +711,7 @@ def main():
         nt_ = max([int(f_.name.split('-')[-2]) + 1 for f_ in (d / 'render').glob(f'{c}-{dr}-*-t.png')] or [0]); tx_ = max(1, -(-nt_ // len(fr)))   # ("frames_x": that many effect cells to each frame of the figure)
         tf_ = [d / f'render/{c}-{dr}-{i}-t.png' for i in range(len(fr) * tx_)]
         if not any(f_.exists() for f_ in tf_): continue
+        tf_ = [trail_faded(c, dr, i_, f_, tx_) if f_.exists() else f_ for i_, f_ in enumerate(tf_)]
         e_ = P.effect_strip([f_ if f_.exists() else None for f_ in tf_], hh)
         if e_ is None: continue
         (out / 'trails').mkdir(exist_ok=True); e_[0].save(out / 'trails' / f'{c}-{dr}.png')

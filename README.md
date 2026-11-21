@@ -125,7 +125,26 @@ water before the forest burns. The girl and every prop in it came out of SpriteC
   The game shows each prop from one side at random; a tree that burns goes half-burnt, then burnt, from the side it stood.
 - **One light, no shading by hand.** All 28 are lit from the upper right, as their 3D guides were. Below, every side of every prop:
 
+<details><summary>the 28 prop sprites on the game's grass</summary>
+
 ![the 28 prop sprites on the game's grass: four sides each of a tree, a half-burnt tree, a burnt tree, a bush, a stump, a rock and mushrooms, all lit from the upper right](docs/rain-girl-props.png)
+
+</details>
+
+- **The combo.** Two Mixamo moves of one set - a downward cut, a spinning backhand - carried onto her rig, the axe's chop made a
+  sword's cut on an arc, the second started from the first's last pose (`motion.py`), drawn as pixel art in four facings, with water
+  that fades out at twice her height. Press again during the cut and the backhand follows: a ring round her as wide as it reaches.
+- **The effects.** Hits, fires put out, fireballs in flight and on cover, pickups and the backhand's rings are effects from
+  [PVFX Foundry](https://nerijs.itch.io/pvfx-foundry) (CC0), which now comes with SpriteCast: 253 of them, `fxpack.py` to find one and
+  write it out at your sprites' size and in their colours. A ring round her is cut at its middle - the far half behind her, the near half in front.
+
+![Rain Girl up close: the downward cut and the spinning backhand with its water ring, water bursting on the fire monsters, their fireballs flying, a potion and a heart picked up](docs/fx-in-game.gif)
+
+<details><summary>32 of the 253 effects that come with SpriteCast</summary>
+
+![32 of the 253 effects that come with SpriteCast: water splashes, hits, fire, explosions, ice, lightning, holy, shadow, arcane, nature, wind, sword trails, a fireball in flight, pickups](docs/fx-pack.png)
+
+</details>
 
 - **One palette.** Afterwards the props and the grass tile were put on one 48-colour palette (from 755), so a tree's greens and a
   bush's are the same greens.
@@ -192,7 +211,11 @@ The turnaround is drawn on all four legs, each leg clear of the others, the tail
 cape or a scarf - anything hanging moves with the nearest leg). Check the renders before drawing: four legs, the head forward, the tail
 behind. If Tripo's model grows an extra leg, make it again or use Meshy (`"modeler": "meshy"`).
 
+<details><summary>an orange tabby in a yellow raincoat walking in 8 facings</summary>
+
 ![an orange tabby in a yellow raincoat walking in 8 facings](docs/animal-walk.gif)
+
+</details>
 
 The cat is in [`examples/tabby_cat`](examples/tabby_cat): an orange tabby in a little yellow raincoat (the girl's), its design,
 turnaround, spec, strips, shadows and sheet - 30 Tripo credits and about $2.5 of drawing, redraws and design tries included. Its
@@ -219,7 +242,11 @@ Those frames are listed for you to look at; keep them or redraw them.
 `"hold": {"kind": "watergun", "hand": "left"}` - and the character has it through the walk, the standing views and every action.
 Below, a water pistol in the left hand: the 3D guide above, the drawn frames under it.
 
+<details><summary>a water pistol carried in the left hand</summary>
+
 ![a water pistol carried in the left hand: walking west, walking east and running, the 3D guide above the drawn frames](docs/carry-left-hand.gif)
+
+</details>
 
 - **It stays in that hand.** A character with a thing in one hand is not the same on both sides, so no frame is ever made by
   flipping another - flipped, the thing would change hands. (`"mirror": "never"` asks for the same for any character that is not
@@ -255,7 +282,11 @@ you get the effect as a sprite of its own, laid over the body. **It is free and 
 umbrella's tip is at every moment, so the effect is worked out from that path. A slash you already have gets one without touching
 its frames.
 
+<details><summary>the rain girl's umbrella slash with eight effects</summary>
+
 ![the rain girl's umbrella slash with eight effects: plain, wind, water, fire, leaves, petals, snow, sparkle](docs/effects.gif)
+
+</details>
 
 - **It follows the real motion.** An image model asked for a slash invents one arc and repeats it; a stock effect is one shape pasted
   on every swing. Here the band and the pieces come off the path this character's umbrella takes in this action, seen from each
@@ -277,6 +308,10 @@ its frames.
 
 ![the same slash as 96-px pixel art, with water and with fire](docs/effects-pixel.gif)
 
+A combo in pixel art - Rain Girl's downward cut and spinning backhand in four facings, with their water and the backhand's ring (`motion.py`, `fxpack.py`):
+
+![Rain Girl's combo as pixel art in four facings: the downward cut, then the spinning backhand with its water spiral, a ring swept round her and a ring on the ground](docs/combo-pixel.gif)
+
 **Honestly:** these are worked out, not painted, so they are clean rather than hand-drawn. The path
 is the held thing's, so an action needs something in the hand. Made and looked at on the umbrella slash only.
 
@@ -287,7 +322,11 @@ The 3D rig makes the frames between (you asked): `{"name": "ready", "between": [
 `{"name": "recover", "between": ["slash:end", "walk"], "frames": 4}`. Below, all drawn: she walks with her umbrella, goes down into
 the stance (3 frames from the rig), swings with the water effect, comes back up (4 more) and walks on.
 
+<details><summary>the rain girl walking with her umbrella, going down into a stance, swi…</summary>
+
 ![the rain girl walking with her umbrella, going down into a stance, swinging it with a splash of water and mist, coming back up and walking on](docs/loop-2d.gif)
+
+</details>
 
 - **How.** The rig plays both animations at once, each stopped at one moment, and goes from the one to the other, easing in and
   out. `"slash:end"` starts from an attack's last pose instead of its first.
@@ -303,7 +342,11 @@ the stance (3 frames from the rig), swings with the water effect, comes back up 
 
 ### Pixel art (arcade size)
 
+<details><summary>five facings of the rain girl throwing a snowball, each ball flying it…</summary>
+
 ![five facings of the rain girl throwing a snowball, each ball flying its own way over an isometric floor](docs/pixel-throw.gif)
+
+</details>
 
 For a game drawn in pixels - a belt-scroller, a fighter, an arcade platformer - the same character as real pixel art, about 100 px
 tall: one colour a pixel, a palette of about 40, a dark outline, no blur, and each frame's 3D shadow. Not a resize of the painted
@@ -325,6 +368,8 @@ About $0.075 a sheet: a walk in all eight facings is 18 sheets (about $1.35); th
   the projectile - and you get the ball, its flight shape and a 4-frame burst. The picture above is that data played back.
 - **Any Mixamo animation.** `addclip.py hero.json Throw.fbx throw` carries an FBX clip onto the character's rig, free. The throw
   above came in that way.
+- **Combos that join.** `motion.py` links one attack to the next the way games do - the second starts from the pose the first ends in, its
+  stroke untouched - puts carried feet back on the ground, and turns an axe chop into a sword cut on an arc. Free, on the rig.
 - **It reviews itself.** Every frame is checked against its render (the pose, the held thing); `--redraw` draws the marked sheets
   again and keeps the better drawing. The throw's 40 frames all passed after one redraw.
 - **Then a pixel editor for the last bit.** Pixel art is not all to be had by rule. `pixeledit.py hero.json` opens every frame in
@@ -334,12 +379,20 @@ About $0.075 a sheet: a walk in all eight facings is 18 sheets (about $1.35); th
   Animations played one after another can be opened as one, to play the whole loop and fix it where it jumps:
   `pixeledit.py hero.json --join walk,ready,slash,recover --facing south-east`.
 
+<details><summary>the pixel editor</summary>
+
 ![the pixel editor: a frame on a grid, the frame before shown faint, the tools, and how much was done by AI and by hand](docs/pixel-edit.png)
+
+</details>
 
 And the 3D render the frame was drawn from can be shown beside it (key `3`) or faint under it - so you can see what a doubtful
 pixel is meant to be before you touch it:
 
+<details><summary>the pixel editor with a 64 px character about to throw a snowball, see…</summary>
+
 ![the pixel editor with a 64 px character about to throw a snowball, seen from the side, on the left and the 3D render of the same frame on the right](docs/pixel-edit-character.png)
+
+</details>
 
 How much is left to the hand: very little. For the 40 throw frames, about 6 minutes of AI drawing and 2 of AI cut-out; then the only
 hand work was the magic eraser - a click on each speck of left-over white, in 10 of the 40 frames (131 pixels, 0.15 % of the
@@ -357,7 +410,11 @@ the umbrella is drawn a little off the 3D one's angle and length.
 - **The editor shows where the 3D has things** (key `4`): the held thing in red and the body's outline in blue, over the frame you
   are drawing - so an umbrella drawn too long or at the wrong angle is seen at once.
 
+<details><summary>the pixel editor with the 3D umbrella laid in red and the 3D body's ou…</summary>
+
 ![the pixel editor with the 3D umbrella laid in red and the 3D body's outline in blue over a walk frame: the drawn umbrella lies on the red one](docs/pixel-edit-shapes.png)
+
+</details>
 
 **How many colours.** A set comes out with about 40 colours. `--colours 16` gives it 16 at most (8 is the least), and
 `--palette` gives every pixel its nearest colour in a set palette: one of the 15 that come with the skill, by name
@@ -366,12 +423,20 @@ the umbrella is drawn a little off the 3D one's angle and length.
 another palette. Props take the same two options. Down to 16 the character holds up well; at 8 close colours merge (her navy legs
 go black), and a palette with nothing near one of her colours will change that colour - look at the result before you keep it.
 
+<details><summary>the same three sprites with the default 43 colours, with --colours 32,…</summary>
+
 ![the same three sprites with the default 43 colours, with --colours 32, 16 and 8, and in the 16-colour PICO-8 palette](docs/pixel-colours.png)
+
+</details>
 
 The palettes that come with it, on the same two sprites - a yellow coat needs a yellow in the palette (`c64`, `gameboy`,
 `slso8` and `sweetie16` have none):
 
+<details><summary>the rain girl and the ramen cart in each of the 15 palettes</summary>
+
 ![the rain girl and the ramen cart in each of the 15 palettes: aap64, apollo, c64, cga, db16, db32, endesga32, endesga64, gameboy, nes, pico8, resurrect64, slso8, sweetie16, zx](docs/pixel-palettes.png)
+
+</details>
 
 *The palettes are their authors': AAP-64 by Adigun A. Polack, Apollo by AdamCYounis, DawnBringer 16/32 by DawnBringer, Endesga 32/64
 by ENDESGA, Resurrect 64 by Kerrie Lake, SLSO8 by Luis Miguel Maldonado, Sweetie 16 by GrafxKid - taken from
@@ -382,13 +447,21 @@ heads tall, with its own 3D model - and comes out about 70 px. Under that, the i
 few squares (32 px was tried four ways). `--px 32` draws at 64 and makes the 32 set from it, free - the same motion and frames, with
 rougher faces. 64 is the one that comes out well.
 
+<details><summary>the small character walking and throwing in eight facings at 64 px, an…</summary>
+
 ![the small character walking and throwing in eight facings at 64 px, and the 32-px set made from it](docs/pixel-small.gif)
+
+</details>
 
 Both sets are in [`examples/rain_chibi`](examples/rain_chibi): the three-heads design drawn from the rain girl, its turnaround, the
 spec, `pixel64/` (walk and throw in eight facings, 128 frames, each with its shadow; no pixel was touched by hand) and `pixel32/` made from it. Her throw is a Mixamo clip put on with `addclip.py --clear-head 55`; the clip and the
 rig are not in the repo.
 
+<details><summary>the same small character five ways</summary>
+
 ![the same small character five ways: drawn at 64 px, a 32-px set made from it, and three ways of asking the image model for 32 px](docs/pixel-sizes.png)
+
+</details>
 
 **Why not ask for 32 px?** The image model (GPT) does not do small pixel art well under 64. It draws its "pixels" at a size of its
 own - asked for 8-px squares it drew anything from 7.4 to 10.8 - and at 32 squares one square off is an eye gone. Above: the top row
@@ -400,7 +473,11 @@ umbrella slash as strips, their shadows, the snowball with its flight shape and 
 
 ### Pixel-art props: any object, any side
 
+<details><summary>a ramen street cart as a 3D model from four sides, and the same four s…</summary>
+
 ![a ramen street cart as a 3D model from four sides, and the same four sides as pixel-art sprites](docs/pixel-props.png)
+
+</details>
 
 The same way round as a character, for a thing: its 3D guide is pixelized, the image model redraws it as pixel art on the same grid,
 and the drawing is read back on that grid and brought to the guide's size. The angle is the camera's, so a thing turned four ways is
@@ -443,7 +520,11 @@ on the floor and the wind in its leaves are worked out from it - free, on your c
   and characters alike (71 % at its deepest instead of 56 %). On a light floor where that looks heavy ask for 1; on very dark ground, 2.
   The light editor has a slider for it.
 
+<details><summary>the same tree and the rain girl with their shadows at strength 1, 1.5 …</summary>
+
 ![the same tree and the rain girl with their shadows at strength 1, 1.5 and 2: on dark rainy grass the shadow at 1 is nearly lost and both seem to float, at 1.5 they stand on the ground; on a pale floor 1 is already clear and 2 is heavy](docs/shadow-strength.gif)
+
+</details>
 
 - **Indoors, a lamp where you put it.** `--lamp -1,2.4,-0.2 --lamp-size 0.03` (metres from the prop's foot: right, up, towards the
   viewer; the lamp's own size) - the shadow falls away from it, longer the lower it hangs, sharp from a bare bulb and soft from a big
@@ -453,7 +534,11 @@ on the floor and the wind in its leaves are worked out from it - free, on your c
   a net) are painted on a model, not cut: `"see_through": [{"colour": "#c8955a", "open": 0.35}]` lets the parts of that colour pass
   that share of the light. A rattan peacock chair ([`examples/rattan_peacock_chair`](examples/rattan_peacock_chair)) under six lights:
 
+<details><summary>a rattan peacock chair as pixel art under the sun, on a grey day, unde…</summary>
+
 ![a rattan peacock chair as pixel art under the sun, on a grey day, under a bare bulb, a lamp in front and behind it, and a big light above, on an oak floor lit by each - each shadow baked from its 3D model, the weave letting light through](docs/indoor-shadows.png)
+
+</details>
 
 - **Move the light yourself**: `lightedit.py PROP.json` opens a page on your computer: drag the lamp across the floor, lift it with
   the wheel, size it - the shadow and the lamp's light on the floor are redrawn as you go; Save bakes every side with it and keeps it in the spec.
@@ -463,7 +548,11 @@ on the floor and the wind in its leaves are worked out from it - free, on your c
 
 ![the light editor at work: a pixel floor lamp dragged all the way round a rattan chair on a tiled floor - the chair's shadow swinging round to the side away from the lamp, longer and shorter, the lamp's light on the floor going with it, the lamp passing behind the chair and in front of it](docs/light-editor.gif)
 
+<details><summary>a pixel-art floor lamp moved round the rattan chair in the light editor</summary>
+
 ![a pixel-art floor lamp moved round the rattan chair in the light editor: in front of it on the right (the shadow falls back left), behind it on the left (the shadow falls forward right), and with the smooth look](docs/own-lamp.png)
+
+</details>
 
 - **The wind in it, from its 3D model** (`"sway": "leaves"` in the spec, or `propshade.py PROP.json --sway leaves`; free): a crown is
   boughs, not one sheet. Each leaf pixel takes the model's point it shows, the points are grouped by where they are in 3D - the near
@@ -484,7 +573,11 @@ on the floor and the wind in its leaves are worked out from it - free, on your c
   Aseprite are for characters only so far). A small thing sways too: mushrooms nod at the cap (`"sway": "caps"`,
   [`examples/forest_mushrooms`](examples/forest_mushrooms)).
 
+<details><summary>two pixel-art trees and three patches of mushrooms exported to Phaser,…</summary>
+
 ![two pixel-art trees and three patches of mushrooms exported to Phaser, on grass: their baked shadows, the crowns swaying as a gust passes, the rain girl walking through and darkening in a tree's shade, balls flying knee-high - one stopped by a trunk, one passing under the crown - and at the end what the model says is in the way: red where a walker cannot stand, blue what stops a thing in the air](docs/prop-scene.gif)
+
+</details>
 
 ### Skipping the drawing: the 3D renders as the frames
 
@@ -494,9 +587,17 @@ the frames, with the same 3D shadows and anchors. The image model draws only the
 (75 Tripo credits, an animal 30) - two OKs, done as soon as `3d` is. The trade-off is sharpness: no drawn lines, a simpler face,
 the model's texture as it came (blurrier fur and folds).
 
+<details><summary>the same girl and cat walking</summary>
+
 ![the same girl and cat walking: the 3D renders alone against the drawn frames](docs/render-vs-drawn.gif)
 
+</details>
+
+<details><summary>close-up at the strips' own pixels</summary>
+
 ![close-up at the strips' own pixels: 3D only against drawn](docs/render-vs-drawn-zoom.png)
+
+</details>
 
 ## Sitting
 
@@ -509,7 +610,11 @@ sits on nothing - your game's chair goes under her. `character.json` gets a `sit
 your props, `seat.py` places her on its seat and works out the prop's **front piece for her** (an armrest, a pew's back, a bench's
 backrest) from both of their 3D heights - no painting:
 
+<details><summary>The rain girl seated on ten seats</summary>
+
 ![The rain girl seated on ten seats: an armchair from four sides, the Tripo armchair, a dining chair from both sides, a pew, a curved bench from both sides](docs/seats.png)
+
+</details>
 
 It finds the seat's height and which way it faces, and sits her back until her knees reach the seat's edge. If she sits a little off,
 drag her on the touch-up page (below): letting go works the front piece out again from there.
@@ -579,7 +684,11 @@ All in [`examples/`](examples), each with its spec and the files it produced (th
 | ![](examples/reading_armchair/preview.png) | ![](examples/potted_monstera/preview.png) | ![](examples/arcade_cabinet/preview.png) |
 | `reading_armchair`: 9 blocks: seat, back, arms, legs | `potted_monstera`: a pot, and the plant given as one volume | `arcade_cabinet`: its front faces down-left |
 
+<details><summary>four facings and a top-down view</summary>
+
 ![four facings and a top-down view](docs/views.png)
+
+</details>
 `armchair_four_ways`: `views: [0, 90, 180, 270]`. The later views are drawn with the first one as a reference, so it stays the same
 chair. `arcade_cabinet_topdown`: `camera: "topdown"`. `reading_armchair_tripo`: the same armchair from a Tripo model (below).
 
@@ -587,7 +696,11 @@ The examples' 3D models (`reading_armchair_tripo`, and the walking characters' m
 
 ## More detail: a 3D model first (Tripo)
 
+<details><summary>blocks vs a Tripo model as the guide</summary>
+
 ![blocks vs a Tripo model as the guide](docs/tripo.png)
+
+</details>
 
 Blocks are enough when what matters is where things stand and how big they are. For more detail (curved arms, tapered legs, buttons,
 carving), let [Tripo](https://www.tripo3d.ai) make a real 3D model from the description first. It is made as tall as the blocks say and
@@ -604,7 +717,11 @@ Needs `TRIPO_API_KEY`. The blocks stay in the spec as `blocks_draft`.
 
 ## Posed characters (from a description)
 
+<details><summary>a mannequin guide and two characters in four facings</summary>
+
 ![a mannequin guide and two characters in four facings](docs/characters.png)
+
+</details>
 
 An NPC that only stands needs no illustration and no rig: it works like a prop. Claude poses a plain mannequin at the person's real height and renders it in each facing (4 or
 8). The image model dresses it as you describe. The first facing is drawn first and the others follow it, so it stays the same person.
@@ -659,14 +776,22 @@ shadow, and walking characters cast their 3D body's own (above). Choose with `"s
 
 </details>
 
+<details><summary>shadows from the blocks and from the drawing</summary>
+
 ![shadows from the blocks and from the drawing](docs/shadows.png)
+
+</details>
 
 **A walking character's shadow is light as it falls** (since 0.20): the posed 3D body is pressed onto the ground along 16 directions across the sun's disc and 48
 across the sky, and what each hides is added up - the same sum as [a prop's baked shadow](#light-shadow-wind). So it is deep where
 the feet stand and under the body and pale at its far edge, and it changes with every frame's pose. The strips are shown at
 character.json's `shadow_alpha` (0.56); pixel sets get the shadow in five steps. `"shadow": "flat"` in the spec keeps the one hard shape of before.
 
+<details><summary>the rain girl walking, running and jumping over her shadow</summary>
+
 ![the rain girl walking, running and jumping over her shadow - left, as it was: one hard shape at one strength; right, as light falls: deep under the feet, soft and pale at its edge](docs/character-shadow.png)
+
+</details>
 
 ## Cameras
 
@@ -912,4 +1037,4 @@ Feedback decides what comes next, and what changed because of it is marked in th
   [Putting it in your engine](#putting-it-in-your-engine) for Phaser, Godot and Unity.
 
 ## License
-MIT - the code and the examples (pictures, strips and the rain girl's rigged model alike). three.js (bundled in `skills/spritecast/scripts/vendor/three`) is MIT, © three.js authors.
+MIT - the code and the examples (pictures, strips and the rain girl's rigged model alike). three.js (bundled in `skills/spritecast/scripts/vendor/three`) is MIT, © three.js authors. The effects in `skills/spritecast/effects/pvfx` are PVFX Foundry by Pixel VFX Studio, CC0 1.0 (its LICENSE.txt there).

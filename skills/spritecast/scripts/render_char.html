@@ -356,9 +356,16 @@ window.frames = (clipName, dir, n, t0, t1, head, up = 0, wide = 1, shadows = fal
   const act = mixer.clipAction(clip); act.play();
   const out = []; let x0 = null, z0 = null;
   window.trailShots = [];
+  // THE MIXER WRITES A BONE ONLY WHEN ITS VALUE CHANGED since it last wrote it (three's PropertyMixer). What is done to the pose after
+  // it - the shoulders raised, the head lifted, the fingers curled - is then never undone where a bone holds still: a swing with a
+  // trail is posed 200 times to trace its path first, and an arm the clip keeps still was raised 200 times over - frame one showed it
+  // straight up. So the pose as the mixer left it is put back before every new one.
+  let animated = null;
   const pose = (t) => {
+    if (animated) for (const [b, q, p] of animated) { b.quaternion.copy(q); b.position.copy(p); }
     if (hips && x0 === null) { mixer.setTime(t0); x0 = hips.position.x; z0 = hips.position.z; }
     mixer.setTime(t);
+    animated = Object.values(bones).map((b) => [b, b.quaternion.clone(), b.position.clone()]);
     if (hips) { hips.position.x = x0; hips.position.z = z0; }      // the walk stays on the spot
     curlFingers();
     root.updateMatrixWorld(true); shoulders(up, wide); root.updateMatrixWorld(true); headUp(head); root.updateMatrixWorld(true);
@@ -603,6 +610,7 @@ window.setHold = (kind, o = {}) => {
 // fingers and the thumb lie round the handle can only be seen from near (charpipe.py lays them out as render/hand-<name>.png).
 window.handShots = (clipName, t, yaws, pitch = 20, view = 0.16) => {
   if (!held) return [];
+  const before = Object.values(bones).map((b) => [b, b.quaternion.clone(), b.position.clone()]);      // (put back after: the mixer does not write a bone whose value it thinks it set already - the arms stayed out in the next frame)
   mixer.stopAllAction(); for (const b of Object.values(bones)) if (b.userData.restQ) b.quaternion.copy(b.userData.restQ);   // the pose the model was made in: the arms out from the body, so the hand can be seen from every side
   root.rotation.y = 0; curlFingers(); root.updateMatrixWorld(true);
   const c = held.getWorldPosition(new THREE.Vector3()), keep = [cam.left, cam.right, cam.top, cam.bottom], out = [];
@@ -612,7 +620,7 @@ window.handShots = (clipName, t, yaws, pitch = 20, view = 0.16) => {
     cam.position.set(c.x + 5 * Math.cos(p) * Math.sin(y), c.y + 5 * Math.sin(p), c.z + 5 * Math.cos(p) * Math.cos(y)); cam.lookAt(c); cam.updateProjectionMatrix();
     renderer.render(scene, cam); out.push(renderer.domElement.toDataURL('image/png'));
   }
-  held.visible = true; [cam.left, cam.right, cam.top, cam.bottom] = keep; aim(); return out;
+  held.visible = true; [cam.left, cam.right, cam.top, cam.bottom] = keep; for (const [b, q, p] of before) { b.quaternion.copy(q); b.position.copy(p); } root.updateMatrixWorld(true); aim(); return out;
 };
 window.clearHold = () => { if (held && held.parent) held.parent.remove(held); if (held && heldCurl) openFingers(); held = null; heldCurl = null; };
 // ---- seated -------------------------------------------------------------------------------------------------------------------------

@@ -123,7 +123,24 @@ claude plugin install spritecast@spritecast
   变成半烧焦,再变成烧焦。
 - **一个光源,不手工上阴影。** 28 张都像它们的 3D 引导图一样从右上方受光。下面是每个道具的每一面:
 
+<details><summary>游戏草地上的 28 张道具精灵图</summary>
+
 ![游戏草地上的 28 张道具精灵图:树、半烧焦的树、烧焦的树、灌木、树桩、岩石和蘑菇各四面,全部从右上方受光](docs/rain-girl-props.png)
+
+</details>
+
+- **连招。** 把同一套 Mixamo 动作中的两个(下劈和回旋斩)套到骨骼上,把斧头劈砍改成走弧线的剑斩,并让第二招从第一招的最后姿势开始
+  (`motion.py`)。画成四个方向的像素画,水在她身高两倍的距离处渐渐消失。下劈时再按一次,回旋斩就接上,一个和攻击范围一样大的环绕住她。
+- **特效。** 命中、火被扑灭、飞来的火球和被挡住、拾取道具以及回旋斩的环,都是 [PVFX Foundry](https://nerijs.itch.io/pvfx-foundry)(CC0)的特效。
+  SpriteCast 现在附带其中 253 个,用 `fxpack.py` 查找并按精灵的尺寸和颜色导出。环绕她的环从中间切开:远的一半画在身体后面,近的一半画在前面。
+
+![近看雨女孩:下劈和带水环的回旋斩、在火焰怪物身上溅开的水、飞来的火球、拾取药水瓶和爱心](docs/fx-in-game.gif)
+
+<details><summary>SpriteCast 附带的 253 个特效中的 32 个</summary>
+
+![SpriteCast 附带的 253 个特效中的 32 个:水花、命中、火、爆炸、冰、闪电、神圣、暗影、奥术、自然、风、剑痕、飞行的火球、道具](docs/fx-pack.png)
+
+</details>
 
 - **一个调色板。** 最后把道具和草地贴图统一到一个 48 色调色板(原本 755 色),树的绿和灌木的绿是同一种绿。
 - **3D 在游戏里继续发挥作用。** 地面上的阴影由每个道具的模型烘焙([方法](#light-shadow-wind)),女孩走进道具的阴影会变暗 —— 脚、腰、头各按它和太阳之间挡着的东西。火球在哪里被掩体挡住,来自每个道具自己的模型:在火球的高度(0.55 m)切开,按当前显示的那一面
@@ -187,7 +204,11 @@ Tripo 给四足动物的骨骼绑定走起来很糟（没有脊椎，肩膀挂�
 斗篷或围巾，任何垂下来的东西都会跟着最近的那条腿动）。绘制前先检查渲染图：四条腿、头朝前、尾巴
 在后。如果 Tripo 的模型多长出一条腿，就重新生成，或者用 Meshy（`"modeler": "meshy"`）。
 
+<details><summary>一只穿黄色雨衣的橘色虎斑猫朝 8 个方向行走</summary>
+
 ![一只穿黄色雨衣的橘色虎斑猫朝 8 个方向行走](docs/animal-walk.gif)
+
+</details>
 
 这只猫在 [`examples/tabby_cat`](examples/tabby_cat) 里：一只穿着黄色小雨衣（那个女孩的）的橘色虎斑猫，包括它的设计、
 转面图、spec、帧条、阴影和整张图。花了 30 Tripo 积分和约 $2.5 的绘制费用，包括重画和设计尝试。它的
@@ -214,7 +235,11 @@ hurt 和 turn），每个动作都像行走一样在 8 个朝向上渲染、绘�
 `"hold": {"kind": "watergun", "hand": "left"}`，角色在行走、站立图和每个动作中都会拿着它。
 下面是左手拿着水枪：上面是 3D 引导图，下面是绘制出的帧。
 
+<details><summary>左手拿着水枪</summary>
+
 ![左手拿着水枪：向西走、向东走和跑，3D 引导图在绘制帧的上方](docs/carry-left-hand.zh-CN.gif)
+
+</details>
 
 - **它一直在那只手里。** 一只手拿着东西的角色左右并不对称，所以任何帧都不会通过
   翻转另一帧得到，翻转的话东西就换手了。（`"mirror": "never"` 让任何不
@@ -250,7 +275,11 @@ hurt 和 turn），每个动作都像行走一样在 8 个朝向上渲染、绘�
 伞尖在每个时刻的位置，所以特效由这条轨迹计算得出。已有的挥砍也能加上特效，不用改动
 它的帧。
 
+<details><summary>雨中女孩的雨伞挥砍，带八种特效</summary>
+
 ![雨中女孩的雨伞挥砍，带八种特效：plain、wind、water、fire、leaves、petals、snow、sparkle](docs/effects.gif)
+
+</details>
 
 - **它跟随真实的动作。** 让图像模型画挥砍，它会编一条弧线然后反复用；现成的特效是同一个形状贴在
   每次挥动上。这里的光带和碎片来自这个角色的雨伞在这个动作中走过的轨迹，从 8 个朝向
@@ -272,6 +301,10 @@ hurt 和 turn），每个动作都像行走一样在 8 个朝向上渲染、绘�
 
 ![同一个挥砍的 96 px 像素画版本，分别带水和火](docs/effects-pixel.gif)
 
+像素画连招 - 雨女孩的下劈和回旋斩,四个方向,连同水和回旋斩的环(`motion.py`、`fxpack.py`):
+
+![雨女孩的连招,四个方向的像素画:下劈,接着带水漩涡、环绕身体的环和地面扩散的环的回旋斩](docs/combo-pixel.gif)
+
 **老实说：** 这些是计算出来的，不是画出来的，所以它们干净而非手绘感。轨迹
 是手持物的，所以动作需要手里有东西。目前只在雨伞挥砍上制作和检查过。
 
@@ -282,7 +315,11 @@ hurt 和 turn），每个动作都像行走一样在 8 个朝向上渲染、绘�
 `{"name": "recover", "between": ["slash:end", "walk"], "frames": 4}`。下面全部是绘制的：她拿着雨伞走，下沉进入
 架势（骨骼生成 3 帧），带着水特效挥动，再起身（另外 4 帧），继续走。
 
+<details><summary>雨中女孩拿着雨伞走，下沉进入架势，挥动雨伞溅出水花和水雾，起身后继续走</summary>
+
 ![雨中女孩拿着雨伞走，下沉进入架势，挥动雨伞溅出水花和水雾，起身后继续走](docs/loop-2d.gif)
+
+</details>
 
 - **原理。** 骨骼同时播放两段动画，各自停在某一时刻，然后从一个过渡到另一个，带缓入
   缓出。`"slash:end"` 从攻击的最后一个姿势而不是第一个开始。
@@ -298,7 +335,11 @@ hurt 和 turn），每个动作都像行走一样在 8 个朝向上渲染、绘�
 
 ### 像素画（街机尺寸）
 
+<details><summary>雨中女孩朝五个朝向扔雪球，每个雪球在等距地面上沿各自的方向飞出</summary>
+
 ![雨中女孩朝五个朝向扔雪球，每个雪球在等距地面上沿各自的方向飞出](docs/pixel-throw.gif)
+
+</details>
 
 对于用像素绘制的游戏，比如清版动作、格斗、街机平台跳跃，同一个角色可以做成真正的像素画，高约 100 px：
 每个像素一种颜色，调色板约 40 色，深色描边，没有模糊，并带有每帧的 3D 阴影。不是把绘制好的
@@ -320,6 +361,8 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
   投射物；你还会得到雪球、它的飞行形状和 4 帧的碎裂效果。上面的图就是回放这些数据的结果。
 - **任意 Mixamo 动画。** `addclip.py hero.json Throw.fbx throw` 把 FBX 片段套到角色的骨骼上，免费。上面的投掷
   就是这样加进来的。
+- **连贯的连招。** `motion.py` 像游戏那样把一次攻击接到下一次：下一招从上一招结束的姿势开始，挥击本身不变。
+  它还把套来的动作中悬空的脚放回地面，把斧头劈砍改成走弧线的剑斩。在骨骼上完成，免费。
 - **它会自我审查。** 每一帧都会与它的渲染图对照（姿势、手持物）；`--redraw` 重画被标记的图，
   保留更好的那张。投掷的 40 帧在一次重画后全部通过。
 - **最后一点交给像素编辑器。** 像素画不能全靠规则得到。`pixeledit.py hero.json` 在
@@ -329,12 +372,20 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
   连续播放的几段动画可以合在一起打开，播放整个循环，哪里跳就在哪里修：
   `pixeledit.py hero.json --join walk,ready,slash,recover --facing south-east`。
 
+<details><summary>像素编辑器</summary>
+
 ![像素编辑器：网格上的一帧，前一帧淡淡地显示，工具栏，以及 AI 和手工各完成了多少](docs/pixel-edit.png)
+
+</details>
 
 还可以把这一帧所依据的 3D 渲染图显示在旁边（按键 `3`），或者淡淡地垫在下面，这样在动手之前就能看出一个
 拿不准的像素本来应该是什么：
 
+<details><summary>像素编辑器中，一个 64 px 的角色正要扔雪球，从侧面看，在左边</summary>
+
 ![像素编辑器中，一个 64 px 的角色正要扔雪球，从侧面看，在左边；右边是同一帧的 3D 渲染图](docs/pixel-edit-character.png)
+
+</details>
 
 留给手工的有多少：很少。40 帧投掷，AI 绘制约 6 分钟，AI 抠图约 2 分钟；之后唯一的
 手工是魔术橡皮擦：在 40 帧中的 10 帧里，对每个残留白点点一下（131 个像素，占
@@ -350,7 +401,11 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 - **编辑器会显示 3D 中东西的位置**（按键 `4`）：手持物显示为红色，身体轮廓显示为蓝色，叠在你
   正在画的帧上，所以画得太长或角度不对的雨伞一眼就能看出来。
 
+<details><summary>像素编辑器中，3D 雨伞以红色、3D 身体轮廓以蓝色叠在一帧行走上</summary>
+
 ![像素编辑器中，3D 雨伞以红色、3D 身体轮廓以蓝色叠在一帧行走上：画出的雨伞与红色的那把重合](docs/pixel-edit-shapes.png)
+
+</details>
 
 **多少种颜色。** 一套默认约 40 色。`--colours 16` 把它限制在最多 16 色（最少 8 色），
 `--palette` 把每个像素换成指定调色板中最接近的颜色：可以是技能自带的 15 个调色板之一，按名称指定
@@ -359,12 +414,20 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 另一个调色板读取同一批绘制。道具也支持这两个选项。降到 16 色时角色仍然很好；到 8 色时相近的颜色会合并（她的藏青色腿
 变成黑色），而调色板中如果没有与她某种颜色接近的颜色，那种颜色就会变掉，保留之前先看看结果。
 
+<details><summary>同样的三个精灵图，分别为默认 43 色、--colours 32、16 和 8，以及 16 色的 PICO-8 调色板</summary>
+
 ![同样的三个精灵图，分别为默认 43 色、--colours 32、16 和 8，以及 16 色的 PICO-8 调色板](docs/pixel-colours.zh-CN.png)
+
+</details>
 
 自带的调色板，用同样的两个精灵图展示。黄色外套需要调色板里有黄色（`c64`、`gameboy`、
 `slso8` 和 `sweetie16` 没有）：
 
+<details><summary>雨中女孩和拉面车在 15 个调色板中的效果</summary>
+
 ![雨中女孩和拉面车在 15 个调色板中的效果：aap64、apollo、c64、cga、db16、db32、endesga32、endesga64、gameboy、nes、pico8、resurrect64、slso8、sweetie16、zx](docs/pixel-palettes.png)
+
+</details>
 
 *调色板归各自的作者所有：AAP-64 by Adigun A. Polack、Apollo by AdamCYounis、DawnBringer 16/32 by DawnBringer、Endesga 32/64
 by ENDESGA、Resurrect 64 by Kerrie Lake、SLSO8 by Luis Miguel Maldonado、Sweetie 16 by GrafxKid，取自
@@ -375,13 +438,21 @@ by ENDESGA、Resurrect 64 by Kerrie Lake、SLSO8 by Luis Miguel Maldonado、Swee
 少的格子（32 px 试了四种方式）。`--px 32` 以 64 绘制，再从中免费生成 32 的一套，动作和帧相同，
 脸更粗糙。64 是效果好的那个。
 
+<details><summary>小个子角色在 64 px 下朝八个朝向行走和投掷，以及由它生成的 32 px 一套</summary>
+
 ![小个子角色在 64 px 下朝八个朝向行走和投掷，以及由它生成的 32 px 一套](docs/pixel-small.gif)
+
+</details>
 
 两套都在 [`examples/rain_chibi`](examples/rain_chibi) 里：根据雨中女孩画的三头身设计、它的转面图、
 spec、`pixel64/`（八个朝向的行走和投掷，128 帧，每帧带阴影；没有任何像素经过手工修改），以及由它生成的 `pixel32/`。她的投掷是用 `addclip.py --clear-head 55` 套上的 Mixamo 片段；片段和
 骨骼不在仓库里。
 
+<details><summary>同一个小个子角色的五种做法</summary>
+
 ![同一个小个子角色的五种做法：以 64 px 绘制、由它生成的 32 px 一套，以及三种直接让图像模型画 32 px 的方式](docs/pixel-sizes.zh-CN.png)
+
+</details>
 
 **为什么不直接要 32 px？** 图像模型（GPT）在 64 以下画不好小像素画。它按自己的尺寸
 画"像素"，要求 8 px 的格子，它画出来的从 7.4 到 10.8 都有，而在 32 格里差一格就是少一只眼睛。上图：最上面一行
@@ -393,7 +464,11 @@ spec、`pixel64/`（八个朝向的行走和投掷，128 帧，每帧带阴影�
 
 ### 像素画道具：任何物体，任何一面
 
+<details><summary>一辆拉面小摊车的 3D 模型的四个面，以及同样四个面的像素画精灵图</summary>
+
 ![一辆拉面小摊车的 3D 模型的四个面，以及同样四个面的像素画精灵图](docs/pixel-props.zh-CN.png)
+
+</details>
 
 对物体的做法与角色相同：它的 3D 引导图被像素化，图像模型在同一网格上把它重绘成像素画，
 然后按那个网格读回这张画，并调整到引导图的大小。角度就是相机的角度，所以一个物体转四个方向就是
@@ -433,7 +508,11 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # ~$0.08 a
   稍微夸张一点,所以**像素精灵默认是 1.5**,道具和角色都一样(最深处从 56% 变为 71%)。浅色地板上显得太重就用 1,
   地面很暗就用 2。光照编辑器里有对应的滑块。
 
+<details><summary>同一棵树和雨衣女孩,阴影强度分别为 1、1.5 和 2</summary>
+
 ![同一棵树和雨衣女孩,阴影强度分别为 1、1.5 和 2:在昏暗下雨的草地上,1 的阴影几乎看不见,两者像浮着,1.5 时站在地上;在浅色地板上 1 已经清楚,2 显得太重](docs/shadow-strength.gif)
+
+</details>
 
 - **室内:灯放在你想放的地方。** `--lamp -1,2.4,-0.2 --lamp-size 0.03`(从道具脚下算起的米数:向右、向上、朝向观看者;灯本身的
   大小)—— 阴影背着灯落下,灯越低越长,裸灯泡清晰、大灯罩柔和,并随灯光在地面上的衰减变淡。灯光在地面上的光斑也一并输出 —— `light-<面>.png`:灯正下方最亮,
@@ -442,7 +521,11 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # ~$0.08 a
   树叶、网)在模型上只是画上去的,并没有镂空:`"see_through": [{"colour": "#c8955a", "open": 0.35}]` 让这个颜色的部分透过相应
   比例的光。一把藤编孔雀椅([`examples/rattan_peacock_chair`](examples/rattan_peacock_chair))在六种光下:
 
+<details><summary>藤编孔雀椅的像素画,分别在太阳、阴天、裸灯泡、前后两处灯和高处的大灯下(橡木地板随灯光明暗) —— 阴影由 3D 模型烘焙,藤编处透光</summary>
+
 ![藤编孔雀椅的像素画,分别在太阳、阴天、裸灯泡、前后两处灯和高处的大灯下(橡木地板随灯光明暗) —— 阴影由 3D 模型烘焙,藤编处透光](docs/indoor-shadows.png)
+
+</details>
 
 - **自己移动光源**: `lightedit.py PROP.json` 会在你的电脑上打开一个页面:在地面上拖动灯,用滚轮调高度,用滑块调大小 ——
   阴影和灯光在地面上的光斑随即重画;保存后每个面都按这盏灯烘焙,并写进 spec。
@@ -451,7 +534,11 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # ~$0.08 a
 
 ![光源编辑器运行中:把像素落地灯绕着瓷砖地面上的藤椅拖一整圈 —— 椅子的阴影转到背对灯的一侧,时长时短,灯在地面上的光也跟着移动,灯从椅子后面和前面经过](docs/light-editor.gif)
 
+<details><summary>在光源编辑器里把像素落地灯绕着藤椅移动</summary>
+
 ![在光源编辑器里把像素落地灯绕着藤椅移动:右前方、左后方,以及平滑效果](docs/own-lamp.png)
+
+</details>
 
 - **风中的摇动也来自 3D 模型**(在 spec 里写 `"sway": "leaves"`,或 `propshade.py PROP.json --sway leaves`;免费):树冠不是一整片,而是
   一根根枝条。每个叶子像素取它所显示的模型上的点,这些点按 3D 位置分组(前面的枝和后面的枝分开),每一团整体移动,形状不变,
@@ -468,7 +555,11 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # ~$0.08 a
   `shade()` / `cover()`(已在 Phaser 3.90 和 Godot 4.7 中打开检查;Unity 和 Aseprite 目前只支持角色)。小东西也会摇:蘑菇的菌盖会点头
   (`"sway": "caps"`,[`examples/forest_mushrooms`](examples/forest_mushrooms))。
 
+<details><summary>导出到 Phaser 的两棵像素风的树和三处蘑菇在草地上</summary>
+
 ![导出到 Phaser 的两棵像素风的树和三处蘑菇在草地上:烘焙的阴影、阵风中摇动的树冠、走过树荫时变暗的雨衣女孩、在膝盖高度飞行的球(一个被树干挡住,一个从树冠下穿过),最后显示模型给出的挡路范围 —— 红色是走不进去的地方,蓝色是挡住飞行物的地方](docs/prop-scene.gif)
+
+</details>
 
 ### 跳过绘制：直接用 3D 渲染作为帧
 
@@ -478,9 +569,17 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # ~$0.08 a
 （75 Tripo 积分，动物 30），两次确认，`3d` 一完成就做完了。代价是清晰度：没有画出来的线条，脸更简单，
 模型的贴图保持原样（毛发和褶皱更模糊）。
 
+<details><summary>同样的女孩和猫在行走</summary>
+
 ![同样的女孩和猫在行走：只用 3D 渲染图对比绘制的帧](docs/render-vs-drawn.zh-CN.gif)
 
+</details>
+
+<details><summary>按帧条原始像素放大</summary>
+
 ![按帧条原始像素放大：只用 3D 对比绘制](docs/render-vs-drawn-zoom.zh-CN.png)
+
+</details>
 
 ## 坐姿
 
@@ -493,7 +592,11 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # ~$0.08 a
 某个道具上，`seat.py` 会把她放在它的座面上，并根据两者的 3D 高度算出道具**挡在她前面的部分**（扶手、长椅的靠背、长凳的
 靠背），不需要手绘：
 
+<details><summary>雨中女孩坐在十个座位上</summary>
+
 ![雨中女孩坐在十个座位上：四个方向的扶手椅、Tripo 扶手椅、两个方向的餐椅、教堂长椅、两个方向的弧形长凳](docs/seats.png)
+
+</details>
 
 它会找出座面的高度和朝向，让她往后坐，直到膝盖到达座面边缘。如果坐得有点偏，
 就在修饰页面上拖动她（见下文）：松手后会从那个位置重新计算前景部分。
@@ -563,7 +666,11 @@ SpriteCast 给模型一张难以看错的引导图（万一看错了，会告诉
 | ![](examples/reading_armchair/preview.png) | ![](examples/potted_monstera/preview.png) | ![](examples/arcade_cabinet/preview.png) |
 | `reading_armchair`：9 个方块：座面、靠背、扶手、腿 | `potted_monstera`：一个花盆，植物作为一个整体体积给出 | `arcade_cabinet`：正面朝左下 |
 
+<details><summary>四个朝向和一个俯视图</summary>
+
 ![四个朝向和一个俯视图](docs/views.png)
+
+</details>
 `armchair_four_ways`：`views: [0, 90, 180, 270]`。后面的视图以第一个为参考来画，所以始终是同一把
 椅子。`arcade_cabinet_topdown`：`camera: "topdown"`。`reading_armchair_tripo`：同一把扶手椅，用 Tripo 模型（见下文）。
 
@@ -571,7 +678,11 @@ SpriteCast 给模型一张难以看错的引导图（万一看错了，会告诉
 
 ## 更多细节：先做 3D 模型（Tripo）
 
+<details><summary>方块与 Tripo 模型作为引导图的对比</summary>
+
 ![方块与 Tripo 模型作为引导图的对比](docs/tripo.png)
+
+</details>
 
 当重要的只是东西放在哪、有多大时，方块就够了。想要更多细节（弯曲的扶手、收窄的腿、纽扣、
 雕花），就先让 [Tripo](https://www.tripo3d.ai) 根据描述生成一个真正的 3D 模型。它的高度按方块给定的来做，
@@ -588,7 +699,11 @@ $PYTHON skills/spritecast/scripts/isoprop.py render armchair.json         # then
 
 ## 摆姿势的角色（根据描述）
 
+<details><summary>一个人偶引导图和两个四个朝向的角色</summary>
+
 ![一个人偶引导图和两个四个朝向的角色](docs/characters.png)
+
+</details>
 
 只是站着的 NPC 不需要插画，也不需要骨骼：它的做法和道具一样。Claude 按这个人的真实身高摆一个素体人偶，在每个朝向上渲染（4 或
 8 个）。图像模型按你的描述给它穿上衣服。先画第一个朝向，其他朝向以它为准，所以始终是同一个人。
@@ -643,14 +758,22 @@ $PYTHON skills/spritecast/scripts/isoprop.py render armchair.json         # then
 
 </details>
 
+<details><summary>来自方块的阴影与来自绘制的阴影</summary>
+
 ![来自方块的阴影与来自绘制的阴影](docs/shadows.png)
+
+</details>
 
 **行走角色的阴影,就是光落下来的样子**(自 0.20 起):把摆好姿势的 3D 身体沿太阳圆盘的 16 个方向和天空的 48 个方向压到地面上,
 再把每个方向挡住的部分加起来 —— 和[道具烘焙阴影](#light-shadow-wind)是同一种算法。所以脚下和身体下方最深,远处边缘最淡,
 并随每一帧的姿势变化。阴影帧条按 character.json 的 `shadow_alpha`(0.56)显示;像素套图分五级。
 在 spec 里写 `"shadow": "flat"` 可保留以前那种单一浓度的硬边阴影。
 
+<details><summary>雨衣女孩走、跑、跳时和她的阴影 —— 左</summary>
+
 ![雨衣女孩走、跑、跳时和她的阴影 —— 左:以前,一种浓度的硬边形状;右:现在,脚下最深,边缘柔和而淡](docs/character-shadow.png)
+
+</details>
 
 ## 相机
 
@@ -896,4 +1019,4 @@ Organization）：在第一次绘制前做一次即可。请在启动 Claude Cod
   [放进你的引擎](#放进你的引擎)。
 
 ## 许可证
-MIT：代码和示例（图片、帧条以及雨中女孩的骨骼模型都包括在内）。three.js（内置于 `skills/spritecast/scripts/vendor/three`）是 MIT，© three.js authors.
+MIT：代码和示例（图片、帧条以及雨中女孩的骨骼模型都包括在内）。three.js（内置于 `skills/spritecast/scripts/vendor/three`）是 MIT，© three.js authors. `skills/spritecast/effects/pvfx` 中的特效是 Pixel VFX Studio 的 PVFX Foundry，CC0 1.0（见该处的 LICENSE.txt）。
