@@ -310,7 +310,7 @@ sus fotogramas.
 
 ![El combo de dos golpes de la niña de la lluvia en pixel art de 96 px, con agua y con fuego: la estela del golpe y los anillos del pack de efectos (fxpack --set water-swing, fire-swing)](docs/combo-water-fire.gif)
 
-Un combo en pixel art - el tajo hacia abajo y el revés giratorio de Rain Girl en cuatro direcciones, con su agua y el anillo del revés (`motion.py`, `fxpack.py`):
+Un combo en pixel art - el tajo hacia abajo y el revés giratorio de Rain Girl en cuatro direcciones, con su agua y el anillo del revés (`motion.py`, `fxpack.py`). Los dos movimientos son de Mixamo y los descargas tú - cuáles y cómo, más abajo en "Hacer tú mismo el combo de Rain Girl":
 
 ![El combo de Rain Girl en pixel art en cuatro direcciones: el tajo hacia abajo y luego el revés giratorio con su espiral de agua, un anillo a su alrededor y otro en el suelo](docs/combo-pixel.gif)
 
@@ -372,6 +372,31 @@ Unos $0.075 por hoja: una caminata en las ocho orientaciones son 18 hojas (unos 
   de arriba entró así.
 - **Combos que enlazan.** `motion.py` une un ataque con el siguiente como lo hacen los juegos: el segundo empieza en la pose en que acaba el
   primero, sin tocar el golpe; además devuelve al suelo los pies de un clip importado y convierte un hachazo en un tajo de espada en arco. Gratis, sobre el rig - [la receta, de Mixamo al juego](skills/spritecast/reference/character.md).
+- **Hacer tú mismo el combo de Rain Girl - SpriteCast no trae movimientos.** Los movimientos son de Mixamo, y
+  Mixamo deja usarlos, no repartirlos, así que los descargas tú (gratis, con una cuenta de Adobe).
+  1. En [mixamo.com](https://www.mixamo.com), Animations: busca **Standing Melee Attack Downward** y **Standing Melee Attack Backhand**
+     - dos movimientos del mismo conjunto, así que empiezan y acaban en la misma guardia. Descarga cada uno: Format **FBX Binary
+     (.fbx)**, Frames per Second **30**, Skin **Without Skin** (con piel también vale), Keyframe Reduction **none**.
+  2. Pon los dos archivos junto al spec de tu personaje y pide: *"Aplica el preset rain-girl-combo."* - `motion.py preset hero.json
+     rain-girl-combo` lleva los dos movimientos al rig de tu personaje, hace los mismos cambios con los mismos números y pone las dos
+     acciones en el spec. El preset (`skills/spritecast/presets/rain-girl-combo.json`) guarda solo los cambios, nunca los movimientos.
+     Sin él, pide: *"Haz un combo con estos dos como el de Rain Girl: el tajo hacia abajo
+     y luego el revés, con agua."* Los movimientos de Mixamo tal como vienen no son lo que ves: se cambiaron en el rig (gratis), y
+     estos son los cambios que pides:
+     - **Los pies en el suelo** (`motion.py ground`): llevados a un rig de niña quedaban 8-15 cm en el aire.
+     - **El hachazo convertido en tajo de espada** (`motion.py blade downward --stroke 0.75-1.25`, bend 0.55, lag 0.9): el movimiento
+       hacia abajo estaba hecho para un hacha - ahora se inclina menos hacia delante y el paraguas sigue al brazo en un arco, la
+       punta va por detrás de la mano y la alcanza en el golpe.
+     - **El revés empieza en la última pose del tajo** (`motion.py link downward@1.40 backhand@0.3-2.0 --blend 0.4`): tal como viene,
+       el revés empieza de pie y la unión salta; ahora empieza donde acaba el tajo, con su golpe intacto.
+     - **Lo que se dibuja**: el tajo de 0.35 a 1.40 s y los primeros 1.40 s del revés, 8 fotogramas cada uno, el agua llegando el
+       doble de lejos (`"trail_reach": 2`).
+
+     Claude lo renderiza y te lo enseña antes del único paso de pago, el dibujo (unos $4.5 por los dos movimientos en cuatro direcciones).
+  3. Los anillos y las ondas a su alrededor: `fxpack.py export --set water-swing` (o `fire-swing`).
+
+  Cualquier par de ataques de un mismo conjunto de Mixamo funciona igual. No pongas nunca los FBX - ni un rig con su movimiento - en
+  un repositorio público. [La receta completa](skills/spritecast/reference/character.md).
 - **Se revisa a sí mismo.** Cada fotograma se compara con su render (la pose, el objeto en la mano); `--redraw` vuelve a dibujar las hojas marcadas
   y se queda con el mejor dibujo. Los 40 fotogramas del lanzamiento pasaron todos tras un redibujado.
 - **Y luego un editor de píxeles para el último detalle.** No todo el pixel art se consigue con reglas. `pixeledit.py hero.json` abre cada fotograma en

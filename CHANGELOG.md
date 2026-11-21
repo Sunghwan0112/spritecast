@@ -3,6 +3,16 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.24.0 — 2026-11-21
+
+- **Rain Girl's combo as a preset: `motion.py preset SPEC.json rain-girl-combo`** *(feedback: "keep only how much it changed, so others
+  get mine by taking that preset")*. `presets/rain-girl-combo.json` keeps what was done to Mixamo's two moves - the axe chop made a
+  sword cut (bend 0.55, lag 0.9, the stroke 0.75-1.25 s), the feet on the ground, the backhand started from the cut's pose at 1.40 s
+  (its 0.3-2.0 s, blended over 0.4 s) - and the two actions; never the moves themselves (Mixamo's may be used, not handed on). The
+  user downloads the two FBX files; the preset carries them on and makes the same changes. Built from scratch it matched the game's
+  rig within 3 mm. Missing a file, it says which to download from Mixamo and how.
+- The README says which Mixamo moves to download and with which settings, and that SpriteCast comes with no moves.
+
 ## 0.23.0 — 2026-11-21
 
 - **A swing's effects as a set: `fxpack.py export --set water-swing | fire-swing`** *(feedback: "the right one looks better - keep this

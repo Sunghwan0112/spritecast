@@ -295,7 +295,7 @@ Tripo의 네발 동물 리그는 걸음이 어색해요(등뼈가 없고, 어깨
 
 ![우비소녀의 2단 콤보(96px 픽셀아트)에 물과 불꽃: 휘두르기 효과와 효과 묶음의 고리(fxpack --set water-swing, fire-swing)](docs/combo-water-fire.gif)
 
-픽셀 아트 콤보 - 우비소녀의 내려치기와 돌려 베기를 네 방향으로, 물과 돌려 베기의 고리까지(`motion.py`, `fxpack.py`):
+픽셀 아트 콤보 - 우비소녀의 내려치기와 돌려 베기를 네 방향으로, 물과 돌려 베기의 고리까지(`motion.py`, `fxpack.py`). 두 동작은 Mixamo에서 직접 받아요 - 어떤 걸 어떻게 받는지는 아래 "우비소녀의 콤보를 직접 만들려면"에:
 
 ![우비소녀의 콤보를 네 방향 픽셀 아트로: 내려치기, 이어서 물 소용돌이와 몸을 감싸는 고리, 바닥 고리가 퍼지는 돌려 베기](docs/combo-pixel.gif)
 
@@ -356,6 +356,29 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
   던지기도 그렇게 넣었어요.
 - **이어지는 콤보.** `motion.py`가 게임처럼 공격과 공격을 이어요. 다음 공격이 앞 공격이 끝난 자세에서 시작하고, 휘두르는 순간은 그대로예요.
   옮겨 온 동작의 뜬 발을 땅에 붙이고, 도끼질을 원호를 그리는 칼 베기로 바꿔요. 리그에서 하니 무료예요 - [Mixamo부터 게임까지 레시피](skills/spritecast/reference/character.md).
+- **우비소녀의 콤보를 직접 만들려면 - SpriteCast에 동작은 들어 있지 않아요.** 동작은 Mixamo의 것이고,
+  Mixamo는 동작을 쓰는 건 허락해도 남에게 나눠 주는 건 허락하지 않아서, 직접 받아야 해요(Adobe 계정으로 무료).
+  1. [mixamo.com](https://www.mixamo.com)의 Animations에서 **Standing Melee Attack Downward**와 **Standing Melee Attack Backhand**를
+     찾아요. 같은 세트의 두 동작이라 같은 자세로 시작하고 끝나요. 각각 Format **FBX Binary (.fbx)**, Frames per Second **30**,
+     Skin **Without Skin**(With Skin도 돼요), Keyframe Reduction **none**으로 받아요.
+  2. 두 파일을 캐릭터 스펙 옆에 두고 *"rain-girl-combo 프리셋 적용해 줘"*라고 하면 돼요. `motion.py preset hero.json rain-girl-combo`가
+     두 동작을 캐릭터 리그에 옮기고, 아래의 다듬기를 같은 값으로 똑같이 한 뒤, 두 동작을 스펙에 넣어요. 프리셋
+     (`skills/spritecast/presets/rain-girl-combo.json`)에는 바꾼 정도만 들어 있고, 동작 자체는 들어 있지 않아요. 프리셋 없이 하려면 이렇게 말해요: *"이 두 개로 우비소녀처럼 콤보 만들어 줘. 내려치기 다음에 돌려 베기, 물 효과로."*
+     Mixamo 동작을 받은 그대로 쓴 게 아니에요. 리그에서 아래처럼 다듬었고(무료), 이 다듬기까지 해 달라고 하면 돼요.
+     - **발을 땅에** (`motion.py ground`): 아이 체형 리그에 옮기면 발이 8~15cm 떠 있었어요.
+     - **도끼질을 칼 베기로** (`motion.py blade downward --stroke 0.75-1.25`, bend 0.55, lag 0.9): 내려치기는 도끼용으로 만든
+       동작이라, 앞으로 숙이는 걸 줄이고 우산이 팔에서 이어져 원호를 그리게 했어요. 우산 끝이 손보다 늦게 따라오다가 치는
+       순간 따라잡아요.
+     - **돌려 베기를 내려치기의 마지막 자세에서 시작** (`motion.py link downward@1.40 backhand@0.3-2.0 --blend 0.4`): 받은
+       그대로는 돌려 베기가 서 있는 자세에서 시작해서 이음새가 튀었어요. 이제 내려치기가 끝난 자세에서 시작하고, 휘두르는
+       부분은 원래 그대로예요.
+     - **그리는 구간**: 내려치기 0.35~1.40초, 돌려 베기 처음 1.40초, 각각 8프레임. 물은 두 배 멀리(`"trail_reach": 2`).
+
+     Claude가 렌더해서, 비용이 드는 단계(그리기, 두 동작 네 방향에 약 $4.5) 전에 보여 줘요.
+  3. 주변의 고리와 물결: `fxpack.py export --set water-swing`(불꽃은 `fire-swing`).
+
+  같은 Mixamo 세트의 공격 두 개라면 어떤 것이든 똑같이 돼요. FBX 파일이나 그 동작이 들어간 리그는 공개 저장소에 절대 올리지
+  마세요. [전체 레시피](skills/spritecast/reference/character.md).
 - **스스로 검토해요.** 프레임마다 렌더와 비교해요(자세, 쥔 물건). `--redraw`는 표시된 시트를 다시 그리고 더 나은 쪽을 남겨요.
   던지기 40프레임은 한 번 다시 그린 뒤 전부 통과했어요.
 - **마지막은 픽셀 에디터로.** 픽셀아트는 규칙만으로 다 되지 않아요. `pixeledit.py hero.json`을 실행하면 모든 프레임이 브라우저에

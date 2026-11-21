@@ -310,7 +310,7 @@ frames dele.
 
 ![O combo de dois golpes da menina da chuva em pixel art de 96 px, com água e com fogo: o rastro do golpe e os anéis do pacote de efeitos (fxpack --set water-swing, fire-swing)](docs/combo-water-fire.gif)
 
-Um combo em pixel art - o corte para baixo e o revés giratório da Rain Girl em quatro direções, com a água e o anel do revés (`motion.py`, `fxpack.py`):
+Um combo em pixel art - o corte para baixo e o revés giratório da Rain Girl em quatro direções, com a água e o anel do revés (`motion.py`, `fxpack.py`). Os dois movimentos são do Mixamo e você mesmo os baixa - quais e como, mais abaixo em "Fazer você mesmo o combo da Rain Girl":
 
 ![O combo da Rain Girl em pixel art em quatro direções: o corte para baixo e depois o revés giratório com a espiral de água, um anel em volta dela e outro no chão](docs/combo-pixel.gif)
 
@@ -372,6 +372,31 @@ Cerca de $0.075 por folha: uma caminhada nas oito direções são 18 folhas (cer
   acima entrou assim.
 - **Combos que se encadeiam.** `motion.py` liga um ataque ao seguinte como os jogos fazem: o segundo começa na pose em que o primeiro
   termina, sem mexer no golpe; também põe de volta no chão os pés de um clipe importado e transforma um golpe de machado num corte de espada em arco. Grátis, no rig - [a receita, do Mixamo ao jogo](skills/spritecast/reference/character.md).
+- **Fazer você mesmo o combo da Rain Girl - o SpriteCast não vem com movimentos.** Os movimentos são do Mixamo,
+  e o Mixamo deixa usá-los, não repassá-los, então você mesmo os baixa (grátis, com uma conta Adobe).
+  1. Em [mixamo.com](https://www.mixamo.com), Animations: procure **Standing Melee Attack Downward** e **Standing Melee Attack
+     Backhand** - dois movimentos do mesmo conjunto, então começam e terminam na mesma postura. Baixe cada um: Format **FBX Binary
+     (.fbx)**, Frames per Second **30**, Skin **Without Skin** (com pele também serve), Keyframe Reduction **none**.
+  2. Coloque os dois arquivos ao lado do spec do seu personagem e peça: *"Aplique o preset rain-girl-combo."* - `motion.py preset
+     hero.json rain-girl-combo` leva os dois movimentos para o rig do seu personagem, faz as mesmas mudanças com os mesmos números e
+     põe as duas ações no spec. O preset (`skills/spritecast/presets/rain-girl-combo.json`) guarda só as mudanças, nunca os movimentos.
+     Sem ele, peça: *"Faça um combo com estes dois como o da Rain Girl: o corte
+     para baixo e depois o revés, com água."* Os movimentos do Mixamo como vêm não são o que você vê: foram mudados no rig (grátis),
+     e estas são as mudanças que você pede:
+     - **Os pés no chão** (`motion.py ground`): levados para um rig de criança, ficavam 8-15 cm no ar.
+     - **A machadada virou um corte de espada** (`motion.py blade downward --stroke 0.75-1.25`, bend 0.55, lag 0.9): o movimento para
+       baixo foi feito para um machado - agora ela se inclina menos para a frente e o guarda-chuva segue o braço num arco, a ponta
+       atrás da mão, alcançando-a no golpe.
+     - **O revés começa na última pose do corte** (`motion.py link downward@1.40 backhand@0.3-2.0 --blend 0.4`): como vem, o revés
+       começa em pé e a junção salta; agora começa onde o corte termina, com o próprio golpe intacto.
+     - **O que é desenhado**: o corte de 0.35 a 1.40 s e os primeiros 1.40 s do revés, 8 quadros cada, a água indo duas vezes mais
+       longe (`"trail_reach": 2`).
+
+     O Claude renderiza e mostra antes da única etapa paga, o desenho (cerca de $4.5 pelos dois movimentos em quatro direções).
+  3. Os anéis e as ondas em volta dela: `fxpack.py export --set water-swing` (ou `fire-swing`).
+
+  Quaisquer dois ataques do mesmo conjunto do Mixamo funcionam igual. Nunca coloque os FBX - nem um rig com o movimento deles - num
+  repositório público. [A receita completa](skills/spritecast/reference/character.md).
 - **Ele se revisa.** Cada frame é comparado com seu render (a pose, o objeto segurado); `--redraw` desenha de novo as folhas marcadas
   e fica com o melhor desenho. Os 40 frames do arremesso passaram todos depois de um redesenho.
 - **Depois, um editor de pixel para o finzinho.** Nem toda pixel art sai por regra. `pixeledit.py hero.json` abre todos os frames

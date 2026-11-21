@@ -1,0 +1,24 @@
+{
+ "name": "rain-girl-combo",
+ "what": "Rain Girl's two-hit combo: a downward cut, then a spinning backhand started from its last pose - Mixamo's two moves as they were changed for her. Only the changes are kept here: the moves themselves are Mixamo's, downloaded by whoever uses this (Mixamo's moves may be used, not handed on).",
+ "needs": [
+  {"clip": "backhand", "mixamo": "Standing Melee Attack Backhand", "file": "Standing Melee Attack Backhand.fbx"},
+  {"clip": "downward", "mixamo": "Standing Melee Attack Downward", "file": "Standing Melee Attack Downward.fbx"}
+ ],
+ "download": "mixamo.com (free, an Adobe account) > Animations > search the name > Download: Format FBX Binary (.fbx), Skin Without Skin, Frames per Second 30, Keyframe Reduction none",
+ "steps": [
+  {"op": "blade", "clip": "downward", "stroke": [0.75, 1.25], "bend": 0.55, "lag": 0.9, "max_turn": 100, "why": "made for an axe: less forward bend, the umbrella running on from the arm on an arc, its tip trailing the hand and catching up at the hit"},
+  {"op": "ground", "clips": ["downward"], "why": "carried onto a child's rig the feet stood 8-15 cm in the air"},
+  {"op": "link", "a": "downward", "ta": 1.40, "b": "backhand", "t0": 0.3, "t1": 2.0, "name": "bh_from_dw", "blend": 0.4, "why": "as it comes the backhand starts from standing and the join jumps: started from the cut's last drawn pose, its own swing untouched"},
+  {"op": "ground", "clips": ["bh_from_dw"]}
+ ],
+ "actions": [
+  {"name": "downward", "loop": false, "clip": "downward", "t0": 0.35, "t1": 1.4, "frames": 8, "trail": "water", "trail_reach": 2,
+   "words": "a downward sword cut with what is held in the right hand: raised over the head, cut down in an arc to the lower left"},
+  {"name": "backhand", "loop": false, "clip": "bh_from_dw", "t0": 0, "t1": 1.4, "frames": 8, "trail": "water", "trail_reach": 2,
+   "words": "a spinning backhand sword cut with what is held in the right hand, straight on from a downward cut"}
+ ],
+ "hold": {"kind": "umbrella", "length": 0.75},
+ "effects": "fxpack.py export --set water-swing (or fire-swing, with \"trail\": \"fire\")",
+ "game": "a press during the cut queues the backhand, which starts the moment the cut ends; the cut long and narrow ahead (155 px, 42 degrees each side, frames 4-6), the backhand short and all round (118 px, frames 4-7)"
+}

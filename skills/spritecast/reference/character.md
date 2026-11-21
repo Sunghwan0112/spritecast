@@ -276,9 +276,17 @@ rig (`rig/rig-<tag>.glb`) and print the spec's `"rig_glb"` line; render and LOOK
   to the rig) and a clip played backwards read stiff beside a Mixamo move (the user: "only the backhand looks natural"). Ask for Mixamo
   moves of ONE set (one actor: "Standing Melee Attack Downward / Horizontal / Backhand / 360", "... Combo Attack Ver. 1-3"): they start
   and end in the same stance, and link with nothing to see. A sword-and-shield set swings the free arm as if it held a shield.
+- **The same combo in one command: `motion.py preset SPEC.json rain-girl-combo [--fbx DIR]`** (free) - `presets/rain-girl-combo.json`
+  keeps only what was done to Mixamo's moves (the steps below, their numbers, the two actions and what the game does with them),
+  never the moves: the user downloads the two FBX files (steps 1), the preset carries them on and makes the same changes. Built from
+  scratch on the rain girl's rig it matched the game's rig within 3 mm. Missing a file, it says which to download and how. A new
+  preset is the same file for other moves: `needs` (the Mixamo name and file), `steps` (`blade`/`ground`/`plant`/`link`, as
+  `run_steps` reads them), `actions`.
 - **A combo from Mixamo, step by step** (how the rain girl's downward cut -> backhand was made; each step free but the last):
-  1. On mixamo.com, two moves of one set - `Standing Melee Attack Downward`, `Standing Melee Attack Backhand` - FBX, 30 fps. Keep the
-     files out of any public repository.
+  1. On mixamo.com (free, an Adobe account), Animations: two moves of one set - `Standing Melee Attack Downward`, `Standing Melee
+     Attack Backhand` - each downloaded as Format FBX Binary (.fbx), Frames per Second 30, Skin Without Skin (with works too), Keyframe
+     Reduction none. **SpriteCast comes with no moves** - the user downloads them (Mixamo's may be used, not handed on); say so plainly
+     (the user: "they'll think it's a preset"). Keep the files out of any public repository.
   2. Onto the rig, one clip each: `addclip.py CHAR.json "Standing Melee Attack Downward.fbx" downward` (and `backhand`); give the spec
      the `"rig_glb"` each prints, so the next works on it.
   3. Feet on the ground: `motion.py ground CHAR.json downward backhand`.

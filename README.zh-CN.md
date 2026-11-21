@@ -301,7 +301,7 @@ hurt 和 turn），每个动作都像行走一样在 8 个朝向上渲染、绘�
 
 ![雨衣女孩的两段连击(96 像素像素画),水与火:挥动轨迹与特效包的光环(fxpack --set water-swing, fire-swing)](docs/combo-water-fire.gif)
 
-像素画连招 - 雨女孩的下劈和回旋斩,四个方向,连同水和回旋斩的环(`motion.py`、`fxpack.py`):
+像素画连招 - 雨女孩的下劈和回旋斩,四个方向,连同水和回旋斩的环(`motion.py`、`fxpack.py`)。两个动作来自 Mixamo,需要自己下载 - 下载哪个、怎么下载,见下面的「自己做出雨女孩的连招」:
 
 ![雨女孩的连招,四个方向的像素画:下劈,接着带水漩涡、环绕身体的环和地面扩散的环的回旋斩](docs/combo-pixel.gif)
 
@@ -363,6 +363,27 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
   就是这样加进来的。
 - **连贯的连招。** `motion.py` 像游戏那样把一次攻击接到下一次：下一招从上一招结束的姿势开始，挥击本身不变。
   它还把套来的动作中悬空的脚放回地面，把斧头劈砍改成走弧线的剑斩。在骨骼上完成，免费 - [从 Mixamo 到游戏的流程](skills/spritecast/reference/character.md)。
+- **自己做出雨女孩的连招 - SpriteCast 不附带动作。** 动作来自 Mixamo,Mixamo 允许使用但不允许转发,所以要自己下载
+  (用 Adobe 账号,免费)。
+  1. 在 [mixamo.com](https://www.mixamo.com) 的 Animations 里搜索 **Standing Melee Attack Downward** 和 **Standing Melee Attack
+     Backhand** - 同一套里的两个动作,所以起止都是同一个架势。分别下载:Format **FBX Binary (.fbx)**,Frames per Second **30**,
+     Skin **Without Skin**(With Skin 也可以),Keyframe Reduction **none**。
+  2. 把两个文件放在角色的 spec 旁边,说 *"应用 rain-girl-combo 预设"* 就行:`motion.py preset hero.json rain-girl-combo` 会把两个
+     动作移到你角色的骨架上,用同样的数值做下面这些调整,再把两个动作写进 spec。预设(`skills/spritecast/presets/rain-girl-combo.json`)
+     只保存改动,不含动作本身。不用预设的话,就这样说:*"用这两个像雨女孩那样做一个连招:先下劈,再回旋斩,带水的效果。"* 并不是直接用
+     Mixamo 下载下来的动作 - 在骨架上做了下面这些调整(免费),请求时连这些调整一起要,就能得到一样的结果:
+     - **脚落地** (`motion.py ground`):移到孩子体型的骨架上时,脚悬空了 8-15 厘米。
+     - **斧子的劈砍改成剑的斩击** (`motion.py blade downward --stroke 0.75-1.25`,bend 0.55,lag 0.9):下劈原本是为斧子做的动作,
+       现在减少了前倾,伞从手臂延伸出去划出弧线,伞尖先落后于手,在击中时追上。
+     - **回旋斩从下劈的最后姿势开始** (`motion.py link downward@1.40 backhand@0.3-2.0 --blend 0.4`):原样的回旋斩从站立姿势开始,
+       衔接处会跳;现在从下劈结束的姿势开始,挥击本身保持原样。
+     - **画哪一段**:下劈 0.35-1.40 秒,回旋斩的前 1.40 秒,各 8 帧,水飞到两倍远(`"trail_reach": 2`)。
+
+     Claude 会渲染出来,并在唯一收费的步骤(绘制,两个动作四个方向约 $4.5)之前先给你看。
+  3. 她周围的环和水波:`fxpack.py export --set water-swing`(火是 `fire-swing`)。
+
+  同一套 Mixamo 里的任意两个攻击都可以这样做。绝不要把 FBX 文件 - 或带有这些动作的骨架 - 放进公开仓库。
+  [完整步骤](skills/spritecast/reference/character.md)。
 - **它会自我审查。** 每一帧都会与它的渲染图对照（姿势、手持物）；`--redraw` 重画被标记的图，
   保留更好的那张。投掷的 40 帧在一次重画后全部通过。
 - **最后一点交给像素编辑器。** 像素画不能全靠规则得到。`pixeledit.py hero.json` 在

@@ -16,6 +16,11 @@
         and catches up at the hit - its tip on an arc round the shoulder
     python motion.py join SPEC.json NAME downward:0:2.26 bh:0:2.49 ...
         clips one after another as one (to render a whole combo smoothly, 24 a second, and look at the joins)
+    python motion.py preset SPEC.json rain-girl-combo [--fbx DIR]
+        a COMBO PRESET (presets/<name>.json): the Mixamo moves it names carried onto the character's rig from the FBX files the user
+        downloaded (in DIR, or beside the spec), then the same changes with the same numbers, and its actions put in the spec (each
+        keeping a "hold" the spec already gives it). A preset keeps only the changes - never the moves: Mixamo's may be used, not
+        handed on. Missing a file, it says which move to download and how
 
 The held thing points along the hand bone as the renderer holds it (the action's "grip", or the kind's default: an umbrella's
 [0, 0, -90] - along the hand's x). Never put a Mixamo file - or a rig with its motion in - in a public repository."""
@@ -218,7 +223,40 @@ def run_steps(base, steps, s, work):
     return cur
 
 
+def preset(spec, name, fbx_dir=''):
+    """a combo preset applied to a character: its moves carried on from the user's FBX files, its steps run, its actions in the spec"""
+    from addclip import retarget
+    pf = Path(name) if name.endswith('.json') else HERE.parent / 'presets' / f'{name}.json'
+    if not pf.exists(): sys.exit(f'motion preset: no preset "{name}" - there are: ' + ', '.join(p.stem for p in sorted((HERE.parent / 'presets').glob('*.json'))))
+    P = json.loads(pf.read_text()); s, d = CP.load(spec); sp = Path(spec).resolve()
+    glb = Path(s.get('rig_glb') or d / 'rig/rig.glb'); glb = glb if glb.is_absolute() else (sp.parent / glb if (sp.parent / glb).exists() else glb.resolve())
+    dirs = [Path(fbx_dir)] if fbx_dir else []; dirs += [sp.parent, Path.cwd()]; miss = []
+    found = {n['clip']: next((q / n['file'] for q in dirs if (q / n['file']).exists()), None) for n in P['needs']}
+    for n in P['needs']:
+        if not found[n['clip']]: miss.append(f'  - "{n["mixamo"]}" -> {n["file"]}')
+    if miss: sys.exit(f'motion preset {P["name"]}: download these from Mixamo first (they cannot come with SpriteCast):\n' + '\n'.join(miss) + f'\n  how: {P["download"]}\n  then put them beside the spec (or --fbx DIR)')
+    work = d / 'rig' / f'preset-{P["name"]}'; work.mkdir(parents=True, exist_ok=True); cur = glb
+    for n in P['needs']:          # (each move onto the rig the last one left)
+        r = retarget(cur, found[n['clip']].resolve(), head_down=s['head_up']); nxt = work / f'clip-{n["clip"]}.glb'; write_clip(cur, nxt, n['clip'], r); cur = nxt
+        print(f'motion: preset {P["name"]}: "{n["mixamo"]}" carried on as "{n["clip"]}" ({r["duration"]:.2f} s)')
+    final = run_steps(cur, P['steps'], s, work); out = d / 'rig' / f'rig-{P["name"]}.glb'; out.write_bytes(final.read_bytes())
+    raw = json.loads(sp.read_text()); raw['rig_glb'] = str(out.resolve().relative_to(sp.parent)) if out.resolve().is_relative_to(sp.parent) else str(out)
+    acts = raw.setdefault('actions', [])
+    for a in P['actions']:
+        a = dict(a); old = next((x for x in acts if isinstance(x, dict) and x.get('name') == a['name']), None)
+        a['hold'] = (old or {}).get('hold') or dict(P.get('hold', {}))
+        if old: acts[acts.index(old)] = a
+        else: acts.append(a)
+    sp.write_text(json.dumps(raw, indent=1, ensure_ascii=False) + '\n')
+    print(f'motion: preset {P["name"]}: {out}  - the spec\'s "rig_glb" and actions {", ".join(a["name"] for a in P["actions"])} written')
+    print(f'  next (free): charpipe.py render {spec} --only {",".join(a["name"] for a in P["actions"])} - LOOK; then pixelart.py (paid: it says the cost first)')
+    if P.get('effects'): print(f'  effects round it: {P["effects"]}')
+
+
 def main(argv):
+    if len(argv) >= 3 and argv[0] == 'preset':
+        rest = argv[3:]; fb = rest[rest.index('--fbx') + 1] if '--fbx' in rest else ''
+        return preset(argv[1], argv[2], fb)
     if len(argv) < 3 or argv[0] not in ('ground', 'plant', 'link', 'blade', 'join'): sys.exit(__doc__)
     cmd, spec = argv[0], argv[1]; s, d = CP.load(spec); glb = Path(s.get('rig_glb') or d / 'rig/rig.glb')
     if not glb.is_absolute(): glb = (Path(spec).resolve().parent / glb) if not glb.exists() else glb.resolve()

@@ -308,7 +308,7 @@ its frames.
 
 ![Rain Girl's two-hit combo as 96-px pixel art, with water and with fire: the swing's own trail and the effects pack's rings (fxpack --set water-swing, fire-swing)](docs/combo-water-fire.gif)
 
-A combo in pixel art - Rain Girl's downward cut and spinning backhand in four facings, with their water and the backhand's ring (`motion.py`, `fxpack.py`):
+A combo in pixel art - Rain Girl's downward cut and spinning backhand in four facings, with their water and the backhand's ring (`motion.py`, `fxpack.py`). The two moves are Mixamo's, downloaded yourself - which ones and how, under "Making Rain Girl's combo yourself" below:
 
 ![Rain Girl's combo as pixel art in four facings: the downward cut, then the spinning backhand with its water spiral, a ring swept round her and a ring on the ground](docs/combo-pixel.gif)
 
@@ -370,6 +370,31 @@ About $0.075 a sheet: a walk in all eight facings is 18 sheets (about $1.35); th
   above came in that way.
 - **Combos that join.** `motion.py` links one attack to the next the way games do - the second starts from the pose the first ends in, its
   stroke untouched - puts carried feet back on the ground, and turns an axe chop into a sword cut on an arc. Free, on the rig - [the recipe, Mixamo to the game](skills/spritecast/reference/character.md).
+- **Making Rain Girl's combo yourself - the moves don't come with SpriteCast, only the changes.** The moves are Mixamo's, and Mixamo lets
+  them be used, not handed on, so you download them yourself (free, with an Adobe account).
+  1. On [mixamo.com](https://www.mixamo.com), Animations: search **Standing Melee Attack Downward** and **Standing Melee Attack
+     Backhand** - two moves of one set, so they start and end in the same stance. Download each: Format **FBX Binary (.fbx)**,
+     **30** frames per second, Skin **Without Skin** (with works too), Keyframe Reduction **none**.
+  2. Put the two files beside your character's spec and ask: *"Apply the rain-girl-combo preset."* - `motion.py preset hero.json
+     rain-girl-combo` carries both moves onto your character's rig and makes the same changes with the same numbers, then puts the two
+     actions in the spec. The preset (`skills/spritecast/presets/rain-girl-combo.json`) keeps only the changes, never the moves.
+     Without it, ask: *"Make a combo from these two like Rain Girl's: the downward cut, then
+     the backhand, with water."* Mixamo's moves as they come are not what you see - they were changed on the rig (free), and these
+     are the changes you ask for:
+     - **Feet on the ground** (`motion.py ground`): carried onto a child's rig they stood 8-15 cm in the air.
+     - **The axe chop made a sword cut** (`motion.py blade downward --stroke 0.75-1.25`, bend 0.55, lag 0.9): the downward move was
+       made for an axe - less forward bend now, and the umbrella runs on from the arm on an arc, its tip trailing the hand and
+       catching up at the hit.
+     - **The backhand started from the cut's last pose** (`motion.py link downward@1.40 backhand@0.3-2.0 --blend 0.4`): as it
+       comes, the backhand starts from standing and the join jumps; now it starts where the cut ends, its own swing untouched.
+     - **What is drawn**: the cut from 0.35 to 1.40 s and the backhand's first 1.40 s, 8 frames each, the water reaching twice as
+       far (`"trail_reach": 2`).
+
+     Claude renders it and shows it to you before the one paid step, the drawing (about $4.5 for both moves in four facings).
+  3. The rings and the ripple round her: `fxpack.py export --set water-swing` (or `fire-swing`).
+
+  Any two attacks of one Mixamo set work the same way. Never put the FBX files - or a rig with their motion in it - in a public
+  repository. [The full recipe](skills/spritecast/reference/character.md).
 - **It reviews itself.** Every frame is checked against its render (the pose, the held thing); `--redraw` draws the marked sheets
   again and keeps the better drawing. The throw's 40 frames all passed after one redraw.
 - **Then a pixel editor for the last bit.** Pixel art is not all to be had by rule. `pixeledit.py hero.json` opens every frame in

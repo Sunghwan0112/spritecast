@@ -306,7 +306,7 @@ hurt、turn があります)、それぞれ歩行と同じように8方向でレ
 
 ![雨の少女の2段コンボ(96pxピクセルアート)、水と炎: 振りの軌跡とエフェクトパックのリング(fxpack --set water-swing, fire-swing)](docs/combo-water-fire.gif)
 
-ピクセルアートのコンボ - レインガールの振り下ろしと回転斬りを 4 方向で、水と回転斬りの輪まで(`motion.py`、`fxpack.py`):
+ピクセルアートのコンボ - レインガールの振り下ろしと回転斬りを 4 方向で、水と回転斬りの輪まで(`motion.py`、`fxpack.py`)。2 つの動きは Mixamo から自分でダウンロードします - どれをどうやって取るかは下の「レインガールのコンボを自分で作るには」に:
 
 ![レインガールのコンボを 4 方向のピクセルアートで: 振り下ろし、続いて水の渦と体を囲む輪、地面の輪が広がる回転斬り](docs/combo-pixel.gif)
 
@@ -368,6 +368,30 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
   そうして入れたものです。
 - **つながるコンボ。** `motion.py` がゲームのように攻撃と攻撃をつなぎます。次の攻撃は前の攻撃が終わった姿勢から始まり、振りの瞬間はそのままです。
   載せた動きの浮いた足を地面に戻し、斧の振り下ろしを弧を描く剣の斬りに変えます。リグ上で行うので無料です - [Mixamo からゲームまでのレシピ](skills/spritecast/reference/character.md)。
+- **レインガールのコンボを自分で作るには - SpriteCast に動きは入っていません。** 動きは Mixamo のもので、
+  Mixamo は使うことは許しても配ることは許していないため、自分でダウンロードします(Adobe アカウントで無料)。
+  1. [mixamo.com](https://www.mixamo.com) の Animations で **Standing Melee Attack Downward** と **Standing Melee Attack Backhand**
+     を探します。同じセットの 2 つの動きなので、同じ構えで始まり同じ構えで終わります。それぞれ Format **FBX Binary (.fbx)**、
+     Frames per Second **30**、Skin **Without Skin**(With Skin でも可)、Keyframe Reduction **none** でダウンロードします。
+  2. 2 つのファイルをキャラクターのスペックの横に置いて *「rain-girl-combo プリセットを適用して」* と頼めば OK です。`motion.py preset
+     hero.json rain-girl-combo` が 2 つの動きをキャラクターのリグに移し、下の調整を同じ値でそのまま行い、2 つのアクションをスペックに
+     入れます。プリセット(`skills/spritecast/presets/rain-girl-combo.json`)にあるのは変更の内容だけで、動きそのものは入っていません。
+     プリセットなしなら、こう頼みます: *「この 2 つでレインガールのようなコンボを作って。振り下ろしの
+     次に回転斬り、水のエフェクトで。」* Mixamo の動きをそのまま使ってはいません。リグの上で次のように手を加えていて(無料)、
+     この調整も頼めば同じになります。
+     - **足を地面に** (`motion.py ground`): 子どもの体型のリグに移すと足が 8〜15cm 浮いていました。
+     - **斧の振り下ろしを剣の斬りに** (`motion.py blade downward --stroke 0.75-1.25`、bend 0.55、lag 0.9): 振り下ろしは斧用の
+       動きなので、前かがみを減らし、傘が腕から続いて弧を描くようにしました。傘の先は手より遅れて付いてきて、当たる瞬間に
+       追いつきます。
+     - **回転斬りを振り下ろしの最後の姿勢から始める** (`motion.py link downward@1.40 backhand@0.3-2.0 --blend 0.4`): そのままでは
+       回転斬りが立った姿勢から始まり、つなぎ目が跳びました。今は振り下ろしが終わった姿勢から始まり、振りそのものは元のままです。
+     - **描く区間**: 振り下ろしは 0.35〜1.40 秒、回転斬りは最初の 1.40 秒、それぞれ 8 フレーム。水は 2 倍遠くまで(`"trail_reach": 2`)。
+
+     Claude がレンダリングして、有料の工程(描画。2 つの動き 4 方向で約 $4.5)の前に見せてくれます。
+  3. まわりの輪と波紋: `fxpack.py export --set water-swing`(炎なら `fire-swing`)。
+
+  同じ Mixamo セットの攻撃 2 つなら、どれでも同じようにできます。FBX ファイルや、その動きが入ったリグは公開リポジトリに絶対に
+  置かないでください。[詳しいレシピ](skills/spritecast/reference/character.md)。
 - **自分でレビューする。** 各フレームをレンダーと照合します (ポーズ、持つ物)。`--redraw` で印の付いたシートを
   描き直し、良い方の絵を残します。投げの40フレームは1回の描き直しですべて合格しました。
 - **最後の仕上げにピクセルエディター。** ピクセルアートはすべてをルールで得られるわけではありません。`pixeledit.py hero.json` で全フレームを
