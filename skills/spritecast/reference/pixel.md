@@ -19,7 +19,7 @@ plan: `walk-south-east-1`), `--partial` put together what is drawn already, to l
 
 **Always show the plan first** (the run without `--yes`): it lists the sheets and the cost (~$0.075 a sheet). Then one facing of one
 animation as the sample, shown to the user, before the rest. A walk is 2 sheets a facing (4 frames a sheet), 3 for a side view
-(a wide stride: 3 frames a sheet); an action with something held, or with the arms wide, is 4 (2 frames a sheet). All eight facings
+(a wide stride: 3 frames a sheet); an action with something held, or with the arms wide, is 4 (2 frames a sheet). A long thing swung out at arm's length gets a sheet a frame (Rain Girl's downward cut: 8 a facing). None of it is chosen: `per_sheet` in `pixelart.py` measures each facing's widest and tallest render and puts as many on a sheet as fit - tell the user so when they ask why one action costs more than another, and that nothing is drawn by hand frame by frame. All eight facings
 of a walk: 18 sheets, about $1.35. The answers are kept in `<character>/pixel/`: a second run pays only for what is missing, and
 everything after the drawing (reading, sizing, cleaning, packing) is free to run again.
 

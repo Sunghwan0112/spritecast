@@ -363,6 +363,8 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 ```
 About $0.075 a sheet: a walk in all eight facings is 18 sheets (about $1.35); the throw above, five facings, was 14.
 
+**How many frames go on a sheet is worked out, not chosen:** `pixelart.py` measures the renders and fits as many as have room - four for a walk, two when something is held, one for a long swing (so an attack costs more than a walk); the plan shows it before anything is spent. Everything after the drawing is automatic; you never draw a frame, only fix a few pixels.
+
 - **Things held and thrown.** `"hold": {"kind": "snowball", "until": "auto"}` puts it in the hand and lets it go when the hand
   moves fastest. `pixel.json` then says which frame, where in the frame, which way and how fast - enough for your engine to spawn
   the projectile - and you get the ball, its flight shape and a 4-frame burst. The picture above is that data played back.

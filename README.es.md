@@ -365,6 +365,8 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 ```
 Unos $0.075 por hoja: una caminata en las ocho orientaciones son 18 hojas (unos $1.35); el lanzamiento de arriba, cinco orientaciones, fueron 14.
 
+**Cuántos fotogramas van en una hoja se calcula solo:** `pixelart.py` mide los renders y pone los que caben - cuatro en una caminata, dos si lleva algo, uno en un golpe largo (por eso un ataque cuesta más que una caminata); el plan lo muestra antes de gastar nada. Todo lo que viene después es automático: no dibujas fotogramas, solo arreglas unos píxeles.
+
 - **Cosas que se sostienen y se lanzan.** `"hold": {"kind": "snowball", "until": "auto"}` lo pone en la mano y lo suelta cuando la mano
   se mueve más rápido. `pixel.json` dice entonces en qué fotograma, en qué punto del fotograma, en qué dirección y a qué velocidad (suficiente para que tu motor genere
   el proyectil), y recibes la bola, su forma en vuelo y un estallido de 4 fotogramas. La imagen de arriba son esos datos reproducidos.

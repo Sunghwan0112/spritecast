@@ -365,6 +365,8 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 ```
 Cerca de $0.075 por folha: uma caminhada nas oito direções são 18 folhas (cerca de $1.35); o arremesso acima, cinco direções, foram 14.
 
+**Quantos quadros vão numa folha é calculado sozinho:** o `pixelart.py` mede os renders e põe quantos couberem - quatro numa caminhada, dois se segura algo, um num golpe longo (por isso um ataque custa mais que uma caminhada); o plano mostra antes de gastar qualquer coisa. Tudo depois do desenho é automático: você não desenha quadros, só corrige alguns pixels.
+
 - **Coisas seguradas e arremessadas.** `"hold": {"kind": "snowball", "until": "auto"}` coloca o objeto na mão e o solta quando a mão
   se move mais rápido. O `pixel.json` então diz em qual frame, onde no frame, para que lado e a que velocidade - o bastante para sua engine criar
   o projétil - e você recebe a bola, seu formato em voo e uma explosão de 4 frames. A imagem acima são esses dados reproduzidos.
