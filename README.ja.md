@@ -90,21 +90,6 @@ claude plugin install spritecast@spritecast
 イラストの見た目で描き直させます。描いた絵はすべてレンダーに合わせて戻し、照合します。別のポーズで描かれたフレームは
 フラグが立ち、描き直せます。無理に押し込んで合わせることはしません。プロップも同じ仕組みで、リグの代わりに実寸のブロックを使います。
 
-**その結果得られるもの:**
-- **アングルとサイズが正しい。** 例にある硬いプロップは、ガイドとの輪郭の重なりが 95–99 % です。わざとゆるく描いた植物は
-  87 %、服を着た人物は 69–88 % (服や髪が素のマネキンからはみ出すため)。歩くキャラクターはフレームごとに
-  スコアを出します (後述)。カメラと縮尺が固定なので、別々の時に作ったプロップも1つの床に揃います。
-- **自然に見える影。** すべてのプロップで光源を1つ共有するので、影はすべて同じ方向に落ちます。硬いプロップは3D
-  ガイドそのものの影を落とします。ポーズ付きの人物や植物は、絵そのものの形 (フード、髪、葉) の影を、3Dモデルが決めた
-  位置に落とすので、足や鉢の底が立っている場所から影が始まります。歩くキャラクターは3Dの体そのものの影を
-  フレームごとに落とします。塗っただけのぼかしでも、角ばったマネキンでもありません。
-- **自分でチェックする。** 描いた後、結果をガイドと比較します。モデルが別のアングルで描いていたら、押し込んで
-  合わせることはせず警告を出し、Claude が描き直す前に修正案を提示します。
-- **あなたのゲームの視点とスタイル。** 2:1 アイソメトリック、真のアイソメトリック、3/4 トップダウン、正面、または任意のアングル。1つの
-  物の4方向すべて。同梱の `cozy` スタイル、または自分の画像1枚。
-- **光がそろう。** どのガイドも画面に固定した同じ太陽で照らし、画像モデルはそのレンダーの上に描きます。物の明暗は3Dの形から来て、
-  どの小物のどの面も同じ側から光を受けます。手で塗った陰影はありません([ゲームで見る](#作ったゲーム-rain-girl))。
-
 ## 作ったゲーム: Rain Girl
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="docs/rain-girl-play.gif" alt="Rain Girl: 黄色いレインコートの少女と、ピクセルアートの木・岩・茂み、赤・緑・紫の炎モンスターと燃える地面" width="100%"></a></p>
@@ -145,13 +130,7 @@ claude plugin install spritecast@spritecast
 
 </details>
 
-- **パレットもひとつ。** 仕上げに小物と草地タイルを48色のパレットひとつにそろえました(755色から)。木の緑と茂みの緑が同じ緑です。
-- **3Dはゲームの中でも働く。** 地面の影は各小物のモデルから焼いたもの([方法](#light-shadow-wind))。少女は小物の陰に入ると暗くなります - 足、腰、頭がそれぞれ
-  太陽との間にあるものの分だけ。火の玉がどこで遮蔽物に止まるかは、各小物のモデルを火の玉の高さ(0.55m)で切り、見えている面に合わせて
-  決めています。幹は止め、その上の葉は止めず、キノコは低すぎます。
-- **風もモデルから。** 葉を3Dモデル上の位置でかたまりに分け、かたまりごとに1pxずつ動かします。だから木は枝ごとにゆれます -
-  そのラウンドの風の向きに、突風ではもっと強く([方法](#light-shadow-wind))。
-- **小物ひとつの費用:** モデルに Tripo 約20クレジット、4面の描画に約 $0.3。
+- さらに - ひとつのパレット、木陰で暗くなる少女、火の玉を止める遮蔽、風、小物ひとつの費用: [制作記](docs/guide/rain-girl.md) (英語)。
 
 ## 歩くキャラクター
 
@@ -178,25 +157,7 @@ $PYTHON skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # the
 キャラクター1体あたりの費用: 約 $2.2 (OpenAI。`"mirror": true` なら ~$1.5) と Tripo 75 クレジット (~$0.75。動物は 30)。または
 リグ付きの GLB を自分で用意すれば (`"rig_glb"`)、`render` まで飛ばせます。
 
-<details>
-<summary><b>もっと詳しく: プレビュー動画、Meshy、リグ付きのサンプルキャラクター</b></summary>
-
-`preview` は `walk-all.mp4` も作ります (全方向が同時に歩く動画、ffmpeg 使用)。頭が大きくなったり小さくなったりするのや、
-フレームが飛ぶのを見つけるにはこれが一番早い方法です。Tripo は横向きや色なしのモデルを返すことがありますが、どちらも自動で直します。
-`"modeler": "meshy"` (と `MESHY_API_KEY`) にすると、代わりに [Meshy](https://www.meshy.ai) がモデルを作ります (~30 Meshy クレジット)。リグは
-引き続き Tripo のものです。
-
-その他のオプション (複数の衣装、足裏でのアンカー) と得られた知見:
-[reference/character.md](skills/spritecast/reference/character.md)。上の少女は
-[`examples/rain_girl`](examples/rain_girl) にあります: イラスト、ターンアラウンド、スペック、ストリップ、影、`character.json`、シート。
-Tripo だけで作りました: 描画代約 $1.7 と Tripo 85 クレジット。リグ付きモデルも置いてあります (`rig.glb`。歩き、
-走り、ジャンプ、斬りを含み、リポジトリの他の部分と同じく MIT)。なのでキーも支払いもなしで3D側の全体を試せます: フォルダをコピーし、
-スペックに `"draw": false` を加えて `charpipe.py render rain_girl.json`、続けて `finish` を実行してください。ストリップ、影、アンカーが
-3Dモデルそのものから作られます。彼女のスペックは `"notes"` の使い道も示しています: 3Dレンダーではレインコートの両脇と
-腕の内側に暗い筋がありましたが、`notes` の1行 ("no dark line, stripe or seam on it anywhere... leave them out") で
-すべてのフレームから消えました。モデルの欠点を3Dではなく描画で直したわけです。
-
-</details>
+その他のオプション (複数の衣装、プレビュー動画、Meshy、リグ付きの例のキャラクター): [docs/guide/characters.md](docs/guide/characters.md#walking-characters) (英語)。
 
 ### 四足の動物
 
@@ -306,7 +267,7 @@ hurt、turn があります)、それぞれ歩行と同じように8方向でレ
 
 ![雨の少女の2段コンボ(96pxピクセルアート)、水と炎: 振りの軌跡とエフェクトパックのリング(fxpack --set water-swing, fire-swing)](docs/combo-water-fire.gif)
 
-ピクセルアートのコンボ - レインガールの振り下ろしと回転斬りを 4 方向で、水と回転斬りの輪まで(`motion.py`、`fxpack.py`)。2 つの動きは Mixamo から自分でダウンロードします - どれをどうやって取るかは下の「レインガールのコンボを自分で作るには」に:
+ピクセルアートのコンボ - レインガールの振り下ろしと回転斬りを 4 方向で、水と回転斬りの輪まで(`motion.py`、`fxpack.py`)。2 つの動きは Mixamo から自分でダウンロードします - どれをどうやって取るかは下の「レインガールのコンボのプリセット」に:
 
 ![レインガールのコンボを 4 方向のピクセルアートで: 振り下ろし、続いて水の渦と体を囲む輪、地面の輪が広がる回転斬り](docs/combo-pixel.gif)
 
@@ -370,30 +331,7 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
   そうして入れたものです。
 - **つながるコンボ。** `motion.py` がゲームのように攻撃と攻撃をつなぎます。次の攻撃は前の攻撃が終わった姿勢から始まり、振りの瞬間はそのままです。
   載せた動きの浮いた足を地面に戻し、斧の振り下ろしを弧を描く剣の斬りに変えます。リグ上で行うので無料です - [Mixamo からゲームまでのレシピ](skills/spritecast/reference/character.md)。
-- **レインガールのコンボを自分で作るには - SpriteCast に動きは入っていません。** 動きは Mixamo のもので、
-  Mixamo は使うことは許しても配ることは許していないため、自分でダウンロードします(Adobe アカウントで無料)。
-  1. [mixamo.com](https://www.mixamo.com) の Animations で **Standing Melee Attack Downward** と **Standing Melee Attack Backhand**
-     を探します。同じセットの 2 つの動きなので、同じ構えで始まり同じ構えで終わります。それぞれ Format **FBX Binary (.fbx)**、
-     Frames per Second **30**、Skin **Without Skin**(With Skin でも可)、Keyframe Reduction **none** でダウンロードします。
-  2. 2 つのファイルをキャラクターのスペックの横に置いて *「rain-girl-combo プリセットを適用して」* と頼めば OK です。`motion.py preset
-     hero.json rain-girl-combo` が 2 つの動きをキャラクターのリグに移し、下の調整を同じ値でそのまま行い、2 つのアクションをスペックに
-     入れます。プリセット(`skills/spritecast/presets/rain-girl-combo.json`)にあるのは変更の内容だけで、動きそのものは入っていません。
-     プリセットなしなら、こう頼みます: *「この 2 つでレインガールのようなコンボを作って。振り下ろしの
-     次に回転斬り、水のエフェクトで。」* Mixamo の動きをそのまま使ってはいません。リグの上で次のように手を加えていて(無料)、
-     この調整も頼めば同じになります。
-     - **足を地面に** (`motion.py ground`): 子どもの体型のリグに移すと足が 8〜15cm 浮いていました。
-     - **斧の振り下ろしを剣の斬りに** (`motion.py blade downward --stroke 0.75-1.25`、bend 0.55、lag 0.9): 振り下ろしは斧用の
-       動きなので、前かがみを減らし、傘が腕から続いて弧を描くようにしました。傘の先は手より遅れて付いてきて、当たる瞬間に
-       追いつきます。
-     - **回転斬りを振り下ろしの最後の姿勢から始める** (`motion.py link downward@1.40 backhand@0.3-2.0 --blend 0.4`): そのままでは
-       回転斬りが立った姿勢から始まり、つなぎ目が跳びました。今は振り下ろしが終わった姿勢から始まり、振りそのものは元のままです。
-     - **描く区間**: 振り下ろしは 0.35〜1.40 秒、回転斬りは最初の 1.40 秒、それぞれ 8 フレーム。水は 2 倍遠くまで(`"trail_reach": 2`)。
-
-     Claude がレンダリングして、有料の工程(描画。2 つの動き 4 方向で約 $4.5)の前に見せてくれます。
-  3. まわりの輪と波紋: `fxpack.py export --set water-swing`(炎なら `fire-swing`)。
-
-  同じ Mixamo セットの攻撃 2 つなら、どれでも同じようにできます。FBX ファイルや、その動きが入ったリグは公開リポジトリに絶対に
-  置かないでください。[詳しいレシピ](skills/spritecast/reference/character.md)。
+- **レインガールのコンボのプリセット。** 2 つの動きは Mixamo のもので、自分でダウンロードします (無料、Adobe アカウント): [Standing Melee Attack Downward](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Downward&type=Motion%2CMotionPack) と [Standing Melee Attack Backhand](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Backhand&type=Motion%2CMotionPack) - FBX Binary、30 fps、Without Skin、キーフレーム削減なし。`motion.py preset hero.json rain-girl-combo` が同じ変更を同じ値で加え、2 つのアクションをスペックに入れます。プリセットにあるのは変更だけで、動きそのものはありません - [何を変えたか](docs/guide/pixel-art.md#pixel-art-arcade-size) (英語)。
 - **自分でレビューする。** 各フレームをレンダーと照合します (ポーズ、持つ物)。`--redraw` で印の付いたシートを
   描き直し、良い方の絵を残します。投げの40フレームは1回の描き直しですべて合格しました。
 - **最後の仕上げにピクセルエディター。** ピクセルアートはすべてをルールで得られるわけではありません。`pixeledit.py hero.json` で全フレームを
@@ -429,7 +367,6 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 1,196 ピクセル (2.3 %)、絵を描かない人がエディターで数分で行いました。早く終わった理由で、ピクセルアートで一番大事なこと: 1フレームずつではなく、23フレームを続けて再生しながら見ることです。直すとは、
 フレームが変わるときにピクセルが大きく変わる部分をなくすことです。直していないもの: 歩行の2フレームで、傘が3Dの傘の角度と長さから
 少しずれて描かれています。
-
 
 - **エディターは3Dで物がどこにあるかを表示します** (キー `4`): 持つ物を赤で、体の輪郭を青で、描いている
   フレームの上に重ねます。なので長すぎたり角度が違ったりする傘はすぐに分かります。
@@ -813,66 +750,11 @@ $PYTHON skills/spritecast/scripts/isoprop.py render armchair.json         # then
 
 ## カメラ
 
-| `camera` | 見下ろし角 | 用途 |
-|---|---|---|
-| `"iso-2:1"` (デフォルト) | 30°、45°回転 | ほとんどのアイソメトリックゲーム。床タイルの幅が高さの2倍 |
-| `"isometric"` | 35.26°、45°回転 | 真のアイソメトリック (軸の間が120°) |
-| `"topdown"` | 50°、正対 | 3/4 トップダウン RPG |
-| `"front"` | 12°、正対 | 横スクロール |
-| `{"pitch": 40, "yaw": 30}` | 任意 | 自分で決める角度 |
-
-`"light": "left"` で光と影を左右反転します。
-
-歩くキャラクターは `camera` ではなく `"pitch"` だけを取ります: 30 (デフォルト、2:1)、35.26 (真のアイソメトリック)、50 (3/4 トップダウン)、12 (正面)。
-8方向は45°間隔です。`camera` はプロップとポーズ付き人物に使います。
+2:1 アイソメトリック (既定、30° 見下ろし)、真のアイソメトリック、3/4 トップダウン、正面、または `{"pitch": 40, "yaw": 30}` で好きな角度 - [表](docs/guide/props.md#cameras) (英語)。
 
 ## エンジンに組み込む
 
-**Godot、Unity、Phaser、Aseprite 用の出来合いのファイル。** `export.py <name>/out` (無料) で `out/export/` を書き出します:
-
-| | 得られるもの | 使い方 |
-|---|---|---|
-| `godot/` | Shadow、Body、Effect を持つシーンと小さなスクリプト | フォルダを Godot 4 プロジェクトに入れる。`play("walk", "south-east")` |
-| `unity/` | ストリップとエディタースクリプト | `Assets/` にコピー。アニメーションごとのプレハブとクリップが自動で作られる。`GetComponent<Animator>().Play("walk_south_east")` |
-| `phaser/` | Phaser 3 用の ES モジュール | `preload(this, base)`、`create(this)`、`add(this, x, y).play('walk', 'south-east')` |
-| `aseprite/` | アクションごとに1つの `.aseprite` | 方向ごとのタグ、レイヤー `shadow`、`body`、`effect`、足元を示すスライス |
-
-キャラクターは置いた場所 (両足の間の点) に立ち、影は体と歩調を合わせ、振りのエフェクトは
-その上に再生されます。どれも実際に開いて確認しました: Godot 4.7、Unity 6000.3、Phaser 3.90、Aseprite。ピクセルのセットはまだエクスポートできません。
-
-自分でやる場合、数値はすべて JSON に入っています:
-
-`sprite.json` はプロップが地面に接する位置を教えてくれます:
-
-```json
-"sprite": { "file": "sprite.png", "size": [299, 357], "anchor": [0.4993, 0.9966], "anchor_px": [149.3, 355.8] },
-"shadow": { "file": "shadow.png", "offset_px": [-66, 116] },
-"px_per_m": 256
-```
-
-- **anchor**: 地面上の設置面の手前の角 (正対の視点では手前の辺の中央)。その点を
-  プロップが立つタイルに置きます。
-- **shadow**: `shadow.png` をスプライトの左上の角から `offset_px` の位置に、不透明度約 30 % で、すべてのスプライトの下に描きます。
-- **scale**: すべて1メートルあたり `px_per_m` ピクセルで描かれています。タイルが 1 m で幅 `T` px の 2:1 マップなら、
-  `T / 1.414 / px_per_m` で拡大縮小します。
-
-| エンジン | 方法 |
-|---|---|
-| Phaser | `this.add.image(x, y, 'armchair').setOrigin(anchor[0], anchor[1])` |
-| Godot 4 | `Sprite2D`: `centered = false`、`offset = -anchor_px` |
-| Unity | Sprite Editor → Pivot: Custom、`(anchor[0], 1 - anchor[1])` |
-
-**歩くキャラクター。** `character.json` には `frame` (px 単位の `[w, h]`)、`anchor` (両足の間、フレームに対する割合)、
-`fps` が入っています。各 `walk-<facing>.png` は8フレームを横に並べたストリップで、各 `idle-<facing>.png` は1フレームです。ある方向の
-影 `i` (`shadows.walk[facing][i]`) は、フレーム `i` の左上の角から `offset` の位置に、約 30 % ですべての下に描きます。
-`px_per_m` はありません: キャラクターを立たせたい高さにフレームを拡大縮小してください。Phaser で `rain_girl` の数値を使うと:
-
-```js
-this.load.spritesheet('girl-se', 'walk-south-east.png', { frameWidth: 165, frameHeight: 256 });
-this.anims.create({ key: 'walk-se', frames: this.anims.generateFrameNumbers('girl-se'), frameRate: 6.76, repeat: -1 });
-this.add.sprite(x, y, 'girl-se').setOrigin(0.4926, 0.8839).play('walk-se');
-```
-完全なフォーマット: [reference/character.md](skills/spritecast/reference/character.md#output-nameout)。
+`export.py <name>/out` (無料) が **Godot 4、Unity、Phaser 3、Aseprite** 用のファイルをそのまま作ります: 体、影、振りのエフェクトが名前で再生されます (`play("walk", "south-east")`)。プロップは影、光、風、当たり判定ごと Phaser と Godot へ。`sprite.json` / `character.json` の数値を自分で読んでも構いません。**[docs/guide/engines.md](docs/guide/engines.md)** (英語) - 仕組み、よくあるエラー、何をどこへ送るかも。
 
 ## インストール
 
@@ -945,78 +827,18 @@ Organization)。最初の描画の前に一度済ませてください。キー�
 
 </details>
 
-## 仕組み
-
-| ステップ | 内容 | 費用 |
-|---|---|---|
-| spec | Claude が `<name>.json` を書く: 設置面、メートル単位のブロック、完成品の説明文 | 無料 |
-| `render` | ヘッドレス Chrome 上の three.js: ガイド、その影、モデルへの入力 | 無料 |
-| `draw` | OpenAI Images (デフォルトは `gpt-image-2.5-sunburst`): ガイドをあなたのスタイルで描き直す | ~$0.07 |
-| `finish` | マゼンタをソフトに抜き、ガイドのボックスに合わせて戻し、影を焼き込み、アンカーを測る | 無料 |
-| `preview` | 1 m の床グリッド上のスプライト | 無料 |
-
-ステップは自分で実行することもできます:
-`$PYTHON skills/spritecast/scripts/isoprop.py render|draw|finish|preview examples/reading_armchair.json` (`$PYTHON` については
-[インストール](#インストール) を参照)。`draw` は `--yes` を付けるまで
-費用を表示するだけです。スペックの形式は [reference/spec.md](skills/spritecast/reference/spec.md) にあります。良いガイドのコツは
-[reference/tips.md](skills/spritecast/reference/tips.md) にあります。
-
-## うまくいかないとき
-
-| 問題 | 対処 |
-|---|---|
-| `No module named ...` | `python3 skills/spritecast/scripts/doctor.py` が表示する `PYTHON=` でスクリプトを実行する (準備ができていないと出たら先に `--fix`。Claude が代わりにやります) |
-| ブラウザがない | Chrome を入れる、または `doctor.py --fix --browser` (Playwright の Chromium、~150 MB) |
-| `this Python cannot make a venv` | Debian/Ubuntu: `sudo apt install python3-venv`、または別の Python を使う (python.org、conda) |
-| `draw: set OPENAI_API_KEY` | プラグインの設定 (`/plugin` → SpriteCast) でキーを入れるか、環境変数に設定し (上記)、Claude Code を再起動する |
-| `HTTP 401` / `403` | キーが間違っているか、OpenAI が画像モデルを許可する前に組織の認証を求めている (platform.openai.com → Settings → Organization) |
-| `finish: WARNING - the drawing does not follow the guide` | モデルが別のアングルや形で描いた: このカメラから何が見えるかを説明文に書き、ガイドを確認し、`--again` で描き直す。ガイドからはみ出すことのある植物などのゆるい形には `"loose": true` を設定する |
-| 絵に余計な物が加わった | あってはいけないものを説明文に書いて (「no rug, no logos」)、描き直す |
-| 形がおかしい | ブロックを直す: 絵はガイドに従います |
-
-## 送信するものと取得するもの
-
-<details>
-<summary><b>何をどこに送り、何をダウンロードするか</b></summary>
-
-以下のステップを除き、すべてあなたのコンピューター上で動きます。有料のステップはどれも先に費用を表示して OK を待ちます。
-
-| いつ | 送信先 | 内容 |
-|---|---|---|
-| `draw` | OpenAI (`api.openai.com`) | ガイド画像、スタイル画像、説明文、そしてあなたの `OPENAI_API_KEY` |
-| キャラクター: `turnaround`、`draw` | OpenAI | イラスト、ターンアラウンド、3Dレンダー、同じキー |
-| キャラクター: `3d` | Tripo (`openapi.tripo3d.ai`) | ターンアラウンドの4ビュー、あなたの `TRIPO_API_KEY`。モデル、そのリグと歩行が返ってくる |
-| `model` (プロップ、任意) | Tripo | 説明文 |
-| キャラクター、`"modeler": "meshy"` (任意) | Meshy (`api.meshy.ai`) | 4ビュー、あなたの `MESHY_API_KEY` |
-
-キーは環境からのみ読み取られ、それぞれのサービスにのみ送られ、ファイルに書かれたり表示されたりすることはありません。ダウンロードするもの:
-
-| 何 | 取得元 | いつ |
-|---|---|---|
-| numpy, pillow, scipy, playwright, onnxruntime | PyPI から専用の venv へ (`~/.cache/spritecast/venv`) | `doctor.py --fix`、1回 |
-| Chromium (~150 MB) | Playwright のサーバー | Chrome も Edge もない場合のみ、しかも許可した後だけ |
-| 切り抜きモデル BiRefNet lite (224 MB、MIT)、または `SPRITECAST_KEY_MODEL=general` でフル版 (973 MB) | [rembg の GitHub リリース](https://github.com/danielgatis/rembg/releases/tag/v0.0.0)、md5 を確認 | キャラクター、最初の `finish` |
-| MediaPipe Face Landmarker (3.7 MB、Apache-2.0)。`mediapipe` 自体は別途 `pip install` | Google (`storage.googleapis.com/mediapipe-models`) | `facecheck` (任意) のみ、初回 |
-
-レンダーはあなたのコンピューター上のヘッドレスブラウザで動き、インターネットからは何も読み込みません: three.js は同梱されています
-(`skills/spritecast/scripts/vendor/three/`、MIT)。
-
-</details>
+描画 (OpenAI) と 3D モデル (Tripo、選べば Meshy) 以外はすべて自分のコンピューターで動きます。有料の手順は費用を示して OK を待ちます。[何をどこへ送り、何を取得するか](docs/guide/engines.md#what-it-sends-and-fetches) (英語)。
 
 ## ロードマップ
 
 次に予定しているもの、おおよそこの順番です (日付はなし。フィードバック次第で変わります):
-- **座面に合わせたポーズと乗り物** (座ること自体は完成。「座る」参照): どの椅子にも同じ座りポーズではなく、座面ごとに合わせたポーズ (深いソファにもたれる、乗り物の足置きに
-  足を乗せる)、そしてカートや乗り物に乗るキャラクター。
-- **回転する物**: 乗り物やアトラクションを多くの角度で回転させ、8方向の間で飛ぶのではなくなめらかに回るようにする。
-- **夜バージョン**: 光を出すもの (窓、電球、ネオン) のマスク。暗くなった後にエンジンでその部分だけを光らせられるように。
-- **通り抜けられるプロップを自動で**: 手前パーツを3Dガイドから計算する (今はタッチアップページで手で塗っています)。
-- **アクションと持つ物の追加**: 走る、跳ぶ、斬るは実装済みで、任意の Mixamo クリップを追加できます (投げ、雪玉を放すもの)。次は持つ物の追加 (剣、杖) と待機時の呼吸。
-- **小さなスプライト**: 96 px のピクセルアートと、小さくデザインしたキャラクター向けの 64 px は実装済み (「ピクセルアート」参照)。32 px のセットは
-  64 から作ります。次: 普通のデザインから小さなデザインを1ステップで作ること、そして手直し不要な 32 px の顔。
-- **エンジン向けエクスポート**: Godot、Unity、Phaser、Aseprite のファイルは実装済み (「エンジンに組み込む」参照)。次: ピクセルのセット。
-- **エフェクト**: 振りの水、炎、葉などは実装済み (「振りに付くエフェクト」参照)。次: 持つ物なしのエフェクト (キック、
-  足音のしぶき)、そして塗りの破片。
+- **座面に合わせた姿勢、乗り物**: 座面ごとの姿勢、カートや乗り物に乗るキャラクター。
+- **回転する物体**: 8 方向の間で飛ばずになめらかに回る乗り物。
+- **夜バージョン**: 光る部分 (窓、電球、ネオン) のマスク。
+- **通り抜けられるプロップを自動で**: 前景パーツを 3D ガイドから算出 (今は手直しページで塗ります)。
+- **持てる物を増やす** (剣、杖) と、持ち物のないエフェクト (キック、足元の水しぶき)。
+- **小さなスプライト**: 通常のデザインから小さなデザインを一度に、手直し不要の 32px の顔。
+- **ピクセルセットのエンジン書き出し。**
 
 各バージョンで何が変わったかは [CHANGELOG.md](CHANGELOG.md) を参照してください。
 
@@ -1047,6 +869,7 @@ Organization)。最初の描画の前に一度済ませてください。キー�
   歩行、影は3Dから来ます。自分の絵をスタイルとして渡すこともできますし、`"draw": false` にして歩く
   キャラクターのフレームを画像モデルに描かせないこともできます: 3Dレンダーがそのままフレームになります。ターンアラウンドは描きますが、自分のリグ付きモデルを持ち込めばそれも不要です
   ([描画を省く](#描画を省く-3dレンダーをそのままフレームに))。
+- **ピクセルアートを1フレームずつ描くのですか?** いいえ。画像モデルが 3D レンダーをもとに描き、後処理は自動です。1シートに何フレーム入れるかもレンダーの大きさから計算されます。残るのはピクセルエディターでフレームあたり数ピクセルです。
 - **できないことは?** 歩くキャラクターは正面向きでまっすぐ立ったイラストから始めます。ピクセルアートは 96 px と、小さく
   デザインしたキャラクター向けの 64 px で使えます。32 px のセットは 64 から作り、顔は粗くなります
   ([ロードマップ](#ロードマップ))。ポーズ付きの1枚絵 (手を振る、指差す、持つ…) は説明文だけで作れます。ラグのような大きく平たい物は、トップダウンで描いて床に斜めに貼る方が向いています

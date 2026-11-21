@@ -279,8 +279,8 @@ rig (`rig/rig-<tag>.glb`) and print the spec's `"rig_glb"` line; render and LOOK
 - **The same combo in one command: `motion.py preset SPEC.json rain-girl-combo [--fbx DIR]`** (free) - `presets/rain-girl-combo.json`
   keeps only what was done to Mixamo's moves (the steps below, their numbers, the two actions and what the game does with them),
   never the moves: the user downloads the two FBX files (steps 1), the preset carries them on and makes the same changes. Built from
-  scratch on the rain girl's rig it matched the game's rig within 3 mm. Missing a file, it says which to download and how. A new
-  preset is the same file for other moves: `needs` (the Mixamo name and file), `steps` (`blade`/`ground`/`plant`/`link`, as
+  scratch on the rain girl's rig it matched the game's rig within 3 mm. Missing a file, it says which to download and how, with each move's link (`url` in `needs`: a Mixamo search for it - the user clicks, sees it play, downloads). A new
+  preset is the same file for other moves: `needs` (the Mixamo name, file and `url`), `steps` (`blade`/`ground`/`plant`/`link`, as
   `run_steps` reads them), `actions`.
 - **A combo from Mixamo, step by step** (how the rain girl's downward cut -> backhand was made; each step free but the last):
   1. On mixamo.com (free, an Adobe account), Animations: two moves of one set - `Standing Melee Attack Downward`, `Standing Melee

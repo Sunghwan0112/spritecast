@@ -90,22 +90,6 @@ Así que SpriteCast nunca se lo pide. **El 3D hace el movimiento; el modelo de i
 de tu ilustración. Después, cada dibujo se ajusta de nuevo sobre su render y se compara con él: un fotograma dibujado en otra pose se marca y se puede
 volver a dibujar, nunca se fuerza para que encaje. Los props funcionan igual, con bloques a tamaño real en lugar del rig.
 
-**Lo que obtienes de eso:**
-- **El ángulo y el tamaño son correctos.** Los props sólidos de los ejemplos caen sobre su guía con un 95–99 % de solapamiento de contorno; la planta,
-  dibujada suelta a propósito, con un 87 %, y las figuras vestidas con un 69–88 % (la ropa y el pelo sobresalen del maniquí liso). Los personajes
-  que caminan se puntúan fotograma a fotograma (más abajo). La cámara y la escala son fijas, así que los props hechos en momentos distintos encajan en un mismo suelo.
-- **Sombras que se ven bien.** Una sola luz compartida por todos los props, así que todas las sombras caen hacia el mismo lado. Los props sólidos proyectan la
-  propia sombra de la guía 3D. Las figuras en pose y las plantas proyectan una sombra con la forma del propio dibujo (la capucha, el pelo, las hojas), colocada por
-  el modelo 3D, de modo que un pie o la base de una maceta empiezan su sombra donde se apoyan. Los personajes que caminan proyectan la propia sombra de su cuerpo 3D,
-  fotograma a fotograma. No una mancha pintada, no un maniquí de bloques.
-- **Se revisa a sí mismo.** Después de dibujar, el resultado se compara con su guía. Si el modelo dibujó otro ángulo, no se fuerza nada para
-  que encaje: recibes un aviso, y Claude sugiere una corrección antes de volver a dibujar.
-- **La vista de tu juego y tu estilo.** Isométrico 2:1, isométrico real, cenital 3/4, frontal o cualquier ángulo; las cuatro orientaciones de un
-  objeto; el estilo `cozy` incluido o una imagen tuya.
-- **Una luz que concuerda.** Cada guía se ilumina con el mismo sol, fijo a la pantalla, y el modelo de imagen dibuja encima de ese
-  render: las luces y sombras de un objeto salen de su forma 3D, igual en cada lado de cada objeto. Nada se sombrea a mano
-  ([en un juego](#hecho-con-spritecast-rain-girl)).
-
 ## Hecho con SpriteCast: Rain Girl
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="docs/rain-girl-play.gif" alt="Rain Girl: una niña con impermeable amarillo entre árboles, rocas y arbustos en pixel art, con monstruos de fuego rojos, verdes y morados y suelo en llamas" width="100%"></a></p>
@@ -148,14 +132,7 @@ fuego con el agua de su paraguas antes de que arda el bosque. La niña y todos l
 
 </details>
 
-- **Una sola paleta.** Al final los objetos y la baldosa de hierba se pasaron a una paleta de 48 colores (desde 755): el verde de
-  un árbol y el de un arbusto son el mismo verde.
-- **El 3D sigue trabajando en el juego.** Las sombras en el suelo salen horneadas del modelo de cada objeto ([cómo](#light-shadow-wind)), y la niña se oscurece a la sombra de un
-  objeto: sus pies, su cintura y su cabeza, cada uno según lo que hay entre ellos y el sol. Dónde se rompe una bola de fuego contra una cobertura sale del propio modelo de cada objeto,
-  cortado a la altura de la bola (0,55 m), para el lado que se ve: un tronco la para, la copa de arriba no, una seta es demasiado baja.
-- **El viento también sale del modelo.** Las hojas se agrupan según dónde están en el modelo 3D y cada grupo se mueve entero, un
-  píxel cada vez: las copas se mecen rama a rama, con el viento de la ronda y más fuerte en una ráfaga ([cómo](#light-shadow-wind)).
-- **Lo que cuesta un objeto:** unos 20 créditos de Tripo por el modelo y unos $0,3 por dibujar sus cuatro lados.
+- Más - una sola paleta, la niña oscureciéndose a la sombra de los árboles, la cobertura que para una bola de fuego, el viento, lo que costó un objeto: [cómo se hizo](docs/guide/rain-girl.md) (en inglés).
 
 ## Personajes que caminan
 
@@ -182,25 +159,7 @@ O `"facings": 4`: solo las cuatro diagonales, más o menos la mitad del dibujo; 
 Coste por personaje: unos $2.2 (OpenAI; ~$1.5 con `"mirror": true`) y 75 créditos de Tripo (~$0.75; un animal 30). O trae tu
 propio GLB con rig (`"rig_glb"`) y salta directamente a `render`.
 
-<details>
-<summary><b>Más: el vídeo de vista previa, Meshy, y el personaje de ejemplo con su rig</b></summary>
-
-`preview` también genera `walk-all.mp4` (todas las orientaciones caminando a la vez, con ffmpeg): la forma más rápida de ver una cabeza que crece y
-encoge o un fotograma que salta. Tripo a veces devuelve un modelo girado de lado o sin color; ambas cosas se corrigen solas.
-`"modeler": "meshy"` (y `MESHY_API_KEY`) hace que [Meshy](https://www.meshy.ai) cree el modelo en su lugar (~30 créditos de Meshy); el rig
-sigue siendo de Tripo.
-
-Más opciones (varios atuendos, anclaje en las suelas) y lecciones aprendidas:
-[reference/character.md](skills/spritecast/reference/character.md). La chica de arriba está en
-[`examples/rain_girl`](examples/rain_girl): su ilustración, turnaround, spec, tiras, sombras, `character.json` y la hoja.
-Se hizo solo con Tripo: unos $1.7 de dibujo y 85 créditos de Tripo. Su modelo con rig también está ahí (`rig.glb`, con su caminata,
-carrera, salto y tajo, MIT como el resto del repo), así que puedes probar toda la parte 3D sin claves y sin pagar nada: copia la carpeta,
-añade `"draw": false` a la spec y ejecuta `charpipe.py render rain_girl.json` y luego `finish`; las tiras, sombras y anclas salen
-del propio modelo 3D. Su spec también muestra para qué sirve `"notes"`: el render 3D tenía rayas oscuras por los costados del impermeable y
-por dentro de los brazos, y una línea en `notes` ("no dark line, stripe or seam on it anywhere... leave them out") hizo que desaparecieran de
-todos los fotogramas: un defecto del modelo corregido en el dibujo, no en el 3D.
-
-</details>
+Más opciones (varios atuendos, el vídeo de vista previa, Meshy, el personaje de ejemplo con su esqueleto): [docs/guide/characters.md](docs/guide/characters.md#walking-characters) (en inglés).
 
 ### Animales de cuatro patas
 
@@ -310,7 +269,7 @@ sus fotogramas.
 
 ![El combo de dos golpes de la niña de la lluvia en pixel art de 96 px, con agua y con fuego: la estela del golpe y los anillos del pack de efectos (fxpack --set water-swing, fire-swing)](docs/combo-water-fire.gif)
 
-Un combo en pixel art - el tajo hacia abajo y el revés giratorio de Rain Girl en cuatro direcciones, con su agua y el anillo del revés (`motion.py`, `fxpack.py`). Los dos movimientos son de Mixamo y los descargas tú - cuáles y cómo, más abajo en "Hacer tú mismo el combo de Rain Girl":
+Un combo en pixel art - el tajo hacia abajo y el revés giratorio de Rain Girl en cuatro direcciones, con su agua y el anillo del revés (`motion.py`, `fxpack.py`). Los dos movimientos son de Mixamo y los descargas tú - cuáles y cómo, más abajo en "El combo de Rain Girl como preset":
 
 ![El combo de Rain Girl en pixel art en cuatro direcciones: el tajo hacia abajo y luego el revés giratorio con su espiral de agua, un anillo a su alrededor y otro en el suelo](docs/combo-pixel.gif)
 
@@ -374,31 +333,7 @@ Unos $0.075 por hoja: una caminata en las ocho orientaciones son 18 hojas (unos 
   de arriba entró así.
 - **Combos que enlazan.** `motion.py` une un ataque con el siguiente como lo hacen los juegos: el segundo empieza en la pose en que acaba el
   primero, sin tocar el golpe; además devuelve al suelo los pies de un clip importado y convierte un hachazo en un tajo de espada en arco. Gratis, sobre el rig - [la receta, de Mixamo al juego](skills/spritecast/reference/character.md).
-- **Hacer tú mismo el combo de Rain Girl - SpriteCast no trae movimientos.** Los movimientos son de Mixamo, y
-  Mixamo deja usarlos, no repartirlos, así que los descargas tú (gratis, con una cuenta de Adobe).
-  1. En [mixamo.com](https://www.mixamo.com), Animations: busca **Standing Melee Attack Downward** y **Standing Melee Attack Backhand**
-     - dos movimientos del mismo conjunto, así que empiezan y acaban en la misma guardia. Descarga cada uno: Format **FBX Binary
-     (.fbx)**, Frames per Second **30**, Skin **Without Skin** (con piel también vale), Keyframe Reduction **none**.
-  2. Pon los dos archivos junto al spec de tu personaje y pide: *"Aplica el preset rain-girl-combo."* - `motion.py preset hero.json
-     rain-girl-combo` lleva los dos movimientos al rig de tu personaje, hace los mismos cambios con los mismos números y pone las dos
-     acciones en el spec. El preset (`skills/spritecast/presets/rain-girl-combo.json`) guarda solo los cambios, nunca los movimientos.
-     Sin él, pide: *"Haz un combo con estos dos como el de Rain Girl: el tajo hacia abajo
-     y luego el revés, con agua."* Los movimientos de Mixamo tal como vienen no son lo que ves: se cambiaron en el rig (gratis), y
-     estos son los cambios que pides:
-     - **Los pies en el suelo** (`motion.py ground`): llevados a un rig de niña quedaban 8-15 cm en el aire.
-     - **El hachazo convertido en tajo de espada** (`motion.py blade downward --stroke 0.75-1.25`, bend 0.55, lag 0.9): el movimiento
-       hacia abajo estaba hecho para un hacha - ahora se inclina menos hacia delante y el paraguas sigue al brazo en un arco, la
-       punta va por detrás de la mano y la alcanza en el golpe.
-     - **El revés empieza en la última pose del tajo** (`motion.py link downward@1.40 backhand@0.3-2.0 --blend 0.4`): tal como viene,
-       el revés empieza de pie y la unión salta; ahora empieza donde acaba el tajo, con su golpe intacto.
-     - **Lo que se dibuja**: el tajo de 0.35 a 1.40 s y los primeros 1.40 s del revés, 8 fotogramas cada uno, el agua llegando el
-       doble de lejos (`"trail_reach": 2`).
-
-     Claude lo renderiza y te lo enseña antes del único paso de pago, el dibujo (unos $4.5 por los dos movimientos en cuatro direcciones).
-  3. Los anillos y las ondas a su alrededor: `fxpack.py export --set water-swing` (o `fire-swing`).
-
-  Cualquier par de ataques de un mismo conjunto de Mixamo funciona igual. No pongas nunca los FBX - ni un rig con su movimiento - en
-  un repositorio público. [La receta completa](skills/spritecast/reference/character.md).
+- **El combo de Rain Girl como preset.** Los dos movimientos son de Mixamo y los descargas tú (gratis, con una cuenta de Adobe): [Standing Melee Attack Downward](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Downward&type=Motion%2CMotionPack) y [Standing Melee Attack Backhand](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Backhand&type=Motion%2CMotionPack) - FBX Binary, 30 fps, Without Skin, sin reducción de fotogramas clave. `motion.py preset hero.json rain-girl-combo` les hace los mismos cambios con los mismos números y pone las dos acciones en la especificación. El preset guarda solo los cambios, nunca los movimientos - [qué se cambió](docs/guide/pixel-art.md#pixel-art-arcade-size) (en inglés).
 - **Se revisa a sí mismo.** Cada fotograma se compara con su render (la pose, el objeto en la mano); `--redraw` vuelve a dibujar las hojas marcadas
   y se queda con el mejor dibujo. Los 40 fotogramas del lanzamiento pasaron todos tras un redibujado.
 - **Y luego un editor de píxeles para el último detalle.** No todo el pixel art se consigue con reglas. `pixeledit.py hero.json` abre cada fotograma en
@@ -434,7 +369,6 @@ unidas, 23 fotogramas. Solo se retocó a mano el paraguas: la punta y el borde i
 borraron unas pocas motas blancas sobrantes. En total, 1,196 píxeles de 51,442 (2.3 %), por alguien que no dibuja, en unos minutos. Lo que lo hizo rápido, y lo que más importa en pixel art: ver los 23 fotogramas seguidos, en reproducción, no uno por uno; corregir es
 lograr que ninguna parte cambie mucho de píxeles de un fotograma al siguiente. Sin corregir: en dos
 fotogramas de la caminata el paraguas está dibujado con un ángulo y una longitud algo distintos de los del 3D.
-
 
 - **El editor muestra dónde tiene las cosas el 3D** (tecla `4`): el objeto en la mano en rojo y el contorno del cuerpo en azul, sobre el fotograma que
   estás dibujando, así un paraguas dibujado demasiado largo o con el ángulo equivocado se ve al instante.
@@ -827,66 +761,11 @@ profunda donde pisan los pies y bajo el cuerpo y pálida en su borde lejano, y c
 
 ## Cámaras
 
-| `camera` | mira hacia abajo | para |
-|---|---|---|
-| `"iso-2:1"` (por defecto) | 30°, girada 45° | la mayoría de juegos isométricos; baldosas del suelo el doble de anchas que de altas |
-| `"isometric"` | 35.26°, girada 45° | isométrico real (120° entre los ejes) |
-| `"topdown"` | 50°, de frente | RPG con vista cenital 3/4 |
-| `"front"` | 12°, de frente | juegos de scroll lateral |
-| `{"pitch": 40, "yaw": 30}` | cualquiera | tu propio ángulo |
-
-`"light": "left"` refleja la luz y la sombra.
-
-Los personajes que caminan aceptan solo `"pitch"`, no `camera`: 30 (por defecto, 2:1), 35.26 (isométrico real), 50 (cenital 3/4), 12 (frontal);
-sus 8 orientaciones están separadas 45°. `camera` es para props y figuras en pose.
+Isométrico 2:1 (por defecto, 30° hacia abajo), isométrico real, cenital 3/4, frontal, o `{"pitch": 40, "yaw": 30}` para tu propio ángulo - [la tabla](docs/guide/props.md#cameras) (en inglés).
 
 ## Llevarlo a tu motor
 
-**Archivos listos para Godot, Unity, Phaser y Aseprite.** `export.py <name>/out` (gratis) escribe `out/export/`:
-
-| | lo que recibes | cómo lo usas |
-|---|---|---|
-| `godot/` | una escena con Shadow, Body y Effect, y un pequeño script | suelta la carpeta en un proyecto de Godot 4; `play("walk", "south-east")` |
-| `unity/` | las tiras y un script de editor | cópialo en `Assets/`; un prefab y un clip por animación se generan solos; `GetComponent<Animator>().Play("walk_south_east")` |
-| `phaser/` | un módulo ES para Phaser 3 | `preload(this, base)`, `create(this)`, `add(this, x, y).play('walk', 'south-east')` |
-| `aseprite/` | un `.aseprite` por acción | una etiqueta por orientación, capas `shadow`, `body`, `effect`, un slice que marca los pies |
-
-El personaje se queda donde lo pones (el punto entre los pies), la sombra sigue el paso del cuerpo, y el efecto de un golpe
-se reproduce por encima. Cada uno se abrió para comprobarlo: Godot 4.7, Unity 6000.3, Phaser 3.90 y Aseprite. Los juegos en píxeles aún no se exportan.
-
-Para hacerlo tú mismo, todos los números están en el JSON:
-
-`sprite.json` te dice dónde toca el suelo el prop:
-
-```json
-"sprite": { "file": "sprite.png", "size": [299, 357], "anchor": [0.4993, 0.9966], "anchor_px": [149.3, 355.8] },
-"shadow": { "file": "shadow.png", "offset_px": [-66, 116] },
-"px_per_m": 256
-```
-
-- **anchor**: la esquina delantera de la huella en el suelo (el centro de su borde delantero en las vistas de frente). Pon ese punto sobre
-  la baldosa donde está el prop.
-- **shadow**: dibuja `shadow.png` en `offset_px` desde la esquina superior izquierda del sprite, con un 30 % de opacidad aproximadamente, debajo de todos los sprites.
-- **scale**: todo se dibuja a `px_per_m` píxeles por metro. Para un mapa 2:1 cuyas baldosas miden 1 m y `T` px de ancho, escala por
-  `T / 1.414 / px_per_m`.
-
-| motor | cómo |
-|---|---|
-| Phaser | `this.add.image(x, y, 'armchair').setOrigin(anchor[0], anchor[1])` |
-| Godot 4 | `Sprite2D`: `centered = false`, `offset = -anchor_px` |
-| Unity | Sprite Editor → Pivot: Custom, `(anchor[0], 1 - anchor[1])` |
-
-**Personajes que caminan.** `character.json` da `frame` (`[w, h]` en px), `anchor` (entre los pies, como fracción del fotograma)
-y `fps`. Cada `walk-<facing>.png` es una tira de 8 fotogramas uno al lado del otro, y cada `idle-<facing>.png` un fotograma. La sombra `i` de una
-orientación, `shadows.walk[facing][i]`, se dibuja en su `offset` desde la esquina superior izquierda del fotograma `i`, con un 30 % aproximadamente, debajo de todo.
-No hay `px_per_m`: escala los fotogramas a la altura que quieras que tenga tu personaje. En Phaser, con los números de `rain_girl`:
-
-```js
-this.load.spritesheet('girl-se', 'walk-south-east.png', { frameWidth: 165, frameHeight: 256 });
-this.anims.create({ key: 'walk-se', frames: this.anims.generateFrameNumbers('girl-se'), frameRate: 6.76, repeat: -1 });
-this.add.sprite(x, y, 'girl-se').setOrigin(0.4926, 0.8839).play('walk-se');
-```
-El formato completo: [reference/character.md](skills/spritecast/reference/character.md#output-nameout).
+`export.py <name>/out` (gratis) escribe archivos listos para **Godot 4, Unity, Phaser 3 y Aseprite**: el cuerpo, su sombra y el efecto del golpe, reproducidos por nombre (`play("walk", "south-east")`). Los objetos se exportan a Phaser y Godot con su sombra, luz, viento y colisión. O lee tú mismo los números de `sprite.json` / `character.json`. **[docs/guide/engines.md](docs/guide/engines.md)** (en inglés) - también cómo funciona paso a paso, soluciones a errores comunes y qué se envía adónde.
 
 ## Instalación
 
@@ -959,78 +838,18 @@ tras reiniciar. Los personajes que caminan también necesitan `TRIPO_API_KEY`, d
 
 </details>
 
-## Cómo funciona
-
-| paso | qué | coste |
-|---|---|---|
-| spec | Claude escribe `<name>.json`: huella, bloques en metros, una descripción del objeto terminado | gratis |
-| `render` | three.js en Chrome headless: la guía, su sombra y la entrada del modelo | gratis |
-| `draw` | OpenAI Images (`gpt-image-2.5-sunburst` por defecto): la guía redibujada en tu estilo | ~$0.07 |
-| `finish` | magenta eliminado con suavidad, ajustado de nuevo a la caja de la guía, sombra horneada, ancla medida | gratis |
-| `preview` | el sprite sobre una cuadrícula de suelo de 1 m | gratis |
-
-También puedes ejecutar los pasos tú mismo:
-`$PYTHON skills/spritecast/scripts/isoprop.py render|draw|finish|preview examples/reading_armchair.json` (`$PYTHON`: ver
-[Instalación](#instalación)). `draw` solo imprime el coste
-hasta que añades `--yes`. El formato de la spec está en [reference/spec.md](skills/spritecast/reference/spec.md). Los consejos para buenas guías están en
-[reference/tips.md](skills/spritecast/reference/tips.md).
-
-## Si algo falla
-
-| problema | solución |
-|---|---|
-| `No module named ...` | ejecuta el script con el `PYTHON=` que imprime `python3 skills/spritecast/scripts/doctor.py` (primero `--fix` si dice que no está listo; Claude lo hace por ti) |
-| no hay navegador | instala Chrome, o `doctor.py --fix --browser` (el Chromium de Playwright, ~150 MB) |
-| `this Python cannot make a venv` | Debian/Ubuntu: `sudo apt install python3-venv`, o usa otro Python (python.org, conda) |
-| `draw: set OPENAI_API_KEY` | pon la clave en los ajustes del plugin (`/plugin` → SpriteCast), o configúrala en el entorno (arriba), y reinicia Claude Code |
-| `HTTP 401` / `403` | la clave está mal, o OpenAI quiere que verifiques tu organización antes de permitir los modelos de imagen (platform.openai.com → Settings → Organization) |
-| `finish: WARNING - the drawing does not follow the guide` | el modelo dibujó otro ángulo u otra forma: haz que la descripción diga lo que se ve desde esta cámara, revisa la guía, vuelve a dibujar con `--again`. Para plantas y otras formas sueltas que pueden sobresalir de su guía, pon `"loose": true` |
-| el dibujo añadió cosas | di en la descripción lo que NO debe aparecer ("no rug, no logos"), y vuelve a dibujar |
-| la forma no está bien | corrige los bloques: el dibujo sigue a la guía |
-
-## Qué envía y qué descarga
-
-<details>
-<summary><b>Qué se envía a dónde, y qué se descarga</b></summary>
-
-Todo se ejecuta en tu ordenador excepto los pasos de abajo. Cada paso de pago imprime antes su coste y espera tu OK.
-
-| cuándo | se envía a | qué |
-|---|---|---|
-| `draw` | OpenAI (`api.openai.com`) | la imagen de la guía, tu imagen de estilo y la descripción en texto, con tu `OPENAI_API_KEY` |
-| personajes: `turnaround`, `draw` | OpenAI | la ilustración, el turnaround y los renders 3D, con la misma clave |
-| personajes: `3d` | Tripo (`openapi.tripo3d.ai`) | las cuatro vistas del turnaround, con tu `TRIPO_API_KEY`; vuelven el modelo, su rig y su caminata |
-| `model` (props, opcional) | Tripo | la descripción en texto |
-| personajes, `"modeler": "meshy"` (opcional) | Meshy (`api.meshy.ai`) | las cuatro vistas, con tu `MESHY_API_KEY` |
-
-Las claves se leen solo de tu entorno, se envían solo a su propio servicio, y nunca se escriben en un archivo ni se imprimen. Lo que se descarga:
-
-| qué | de dónde | cuándo |
-|---|---|---|
-| numpy, pillow, scipy, playwright, onnxruntime | PyPI, en su propio venv (`~/.cache/spritecast/venv`) | `doctor.py --fix`, una vez |
-| Chromium (~150 MB) | los servidores de Playwright | solo si no hay Chrome ni Edge, y solo después de que digas que sí |
-| el modelo de recorte, BiRefNet lite (224 MB, MIT), o el completo (973 MB) con `SPRITECAST_KEY_MODEL=general` | [la release de GitHub de rembg](https://github.com/danielgatis/rembg/releases/tag/v0.0.0), con su md5 comprobado | personajes, el primer `finish` |
-| MediaPipe Face Landmarker (3.7 MB, Apache-2.0); `mediapipe` en sí es un `pip install` aparte | Google (`storage.googleapis.com/mediapipe-models`) | solo `facecheck` (opcional), la primera vez |
-
-Los renders se ejecutan en un navegador headless en tu ordenador sin cargar nada de internet: three.js va incluido
-(`skills/spritecast/scripts/vendor/three/`, MIT).
-
-</details>
+Todo se ejecuta en tu ordenador salvo el dibujo (OpenAI) y los modelos 3D (Tripo, o Meshy si lo eliges); cada paso de pago muestra su coste y espera tu OK. [Qué se envía adónde y qué se descarga](docs/guide/engines.md#what-it-sends-and-fetches) (en inglés).
 
 ## Hoja de ruta
 
 Lo que está previsto a continuación, más o menos en este orden (sin fechas: cambia según los comentarios):
-- **Poses adaptadas al asiento, y montar** (sentarse en sí ya está hecho, ver Sentarse): una pose con la forma de cada asiento (recostada en un sofá profundo, los pies
-  en el reposapiés de una atracción) en lugar de una sola pose sentada para todas las sillas, y personajes montados en carritos y vehículos.
-- **Objetos que giran**: un vehículo o una atracción rotados por muchos ángulos, para que giren con suavidad en lugar de saltar entre 8 orientaciones.
-- **Versiones nocturnas**: una máscara de lo que da luz (ventanas, bombillas, neón), para que tu motor pueda iluminar solo esas partes de noche.
-- **Props que se atraviesan, automáticos**: la pieza delantera calculada a partir de la guía 3D (hoy se pinta a mano en la página de retoque).
-- **Más acciones y cosas que sostener**: correr, saltar y dar tajos ya están, y se puede añadir cualquier clip de Mixamo (un lanzamiento, con una bola de nieve que se suelta); lo siguiente, más objetos en la mano (una espada, un bastón) y una respiración en reposo.
-- **Sprites pequeños**: el pixel art a 96 px, y a 64 px para un personaje diseñado pequeño, ya está (ver Pixel art); un juego de 32 px se genera a partir del
-  de 64. Lo siguiente: crear el diseño pequeño a partir del normal en un solo paso, y una cara a 32 px que no necesite retoque a mano.
-- **Exportación a motores**: los archivos para Godot, Unity, Phaser y Aseprite ya están (ver Llevarlo a tu motor). Lo siguiente: los juegos en píxeles.
-- **Efectos**: el agua, el fuego, las hojas y más de un golpe ya están (ver Efectos en un golpe). Lo siguiente: efectos sin objeto en la mano (una patada, la
-  salpicadura de un paso), y piezas pintadas.
+- **Poses ajustadas a cada asiento, y montar**: una pose por asiento, y personajes en carros y vehículos.
+- **Objetos que giran**: un vehículo que gira suave en vez de saltar entre 8 orientaciones.
+- **Versiones nocturnas**: una máscara de lo que da luz (ventanas, bombillas, neón).
+- **Objetos atravesables, automáticos**: la pieza delantera calculada desde la guía 3D (hoy se pinta en la página de retoque).
+- **Más cosas que sostener** (una espada, un bastón) y efectos sin objeto (una patada, el chapoteo de un paso).
+- **Sprites pequeños**: el diseño pequeño desde el normal en un paso, y una cara a 32 px sin retoque.
+- **Exportación a motores para los sets de píxeles.**
 
 Consulta [CHANGELOG.md](CHANGELOG.md) para ver qué cambió en cada versión.
 
@@ -1061,6 +880,7 @@ Los comentarios deciden lo que viene después, y lo que cambió gracias a ellos 
   caminata y las sombras salen del 3D. Puedes dar tu propio arte como estilo, o poner `"draw": false` para que ningún modelo de imagen dibuje los fotogramas
   de un personaje que camina: los renders 3D son los fotogramas. El turnaround se sigue dibujando, a menos que traigas tu propio modelo con rig
   ([Sin dibujo](#sin-dibujo-los-renders-3d-como-fotogramas)).
+- **¿Tengo que dibujar el pixel art fotograma a fotograma?** No. El modelo de imagen dibuja a partir de los renders 3D y la limpieza es automática; cuántos fotogramas van en una hoja también se calcula por el tamaño de los renders. Lo que queda son unos pocos píxeles por fotograma en el editor de píxeles.
 - **¿Qué no hace?** Los personajes que caminan parten de una ilustración de frente, erguidos. El pixel art funciona a 96 px, y a 64 px para un personaje
   diseñado pequeño; un juego de 32 px se genera a partir del de 64, con caras más toscas
   ([Hoja de ruta](#hoja-de-ruta)). Las imágenes sueltas en pose (saludar, señalar, sostener...) solo necesitan una descripción. Las cosas grandes y planas como las alfombras quedan mejor dibujadas en vista cenital y sesgadas sobre el suelo

@@ -90,22 +90,6 @@ claude plugin install spritecast@spritecast
 그리기만** 해요. 그린 그림은 전부 렌더 위에 다시 맞추고 렌더와 비교해요. 다른 자세로 그린 프레임은 억지로 맞추지 않고 표시해서
 다시 그릴 수 있어요. 소품도 같은 방식이고, 리그 대신 실제 크기의 블록을 써요.
 
-**그래서 좋은 점:**
-- **각도와 크기가 맞아요.** 단단한 소품 예시는 가이드와 윤곽이 95–99% 겹쳐요. 일부러 잎을 자유롭게 그린 화분은 87%, 옷 입은
-  인물은 69–88%예요(옷과 머리카락이 맨 마네킹 밖으로 나가요). 걷는 캐릭터는 프레임마다 점수를 매겨요(아래). 카메라와 축척이 고정이라
-  다른 때에 만든 소품도 한 바닥에 맞아요.
-- **그림자가 자연스러워요.** 모든 소품이 빛 하나를 함께 써서 그림자가 같은 방향으로 떨어져요. 단단한 소품은 3D 가이드의 그림자를
-  그대로 받아요. 포즈 잡은 인물과 식물은 그림 모양 그대로의 그림자(모자, 머리카락, 잎)를 받는데, 위치는 3D 모델이 정해서 발과 화분
-  바닥이 선 자리에서 그림자가 시작해요. 걷는 캐릭터는 프레임마다 3D 몸의 그림자를 받아요. 대충 칠한 그림자도, 각진 마네킹 그림자도
-  아니에요.
-- **스스로 검사해요.** 그린 뒤 가이드와 비교해서, 모델이 다른 각도로 그렸으면 억지로 늘리거나 줄이지 않아요. 대신 경고를 띄우고, Claude가
-  고칠 방법을 제안한 뒤 다시 그릴지 물어봐요.
-- **내 게임 시점, 내 그림체.** 2:1 아이소메트릭, 정아이소메트릭, 3/4 탑다운, 정면, 아무 각도. 한 물건의 네 방향. 기본 `cozy` 스타일이나
-  내 그림 한 장.
-- **빛이 어긋나지 않아요.** 모든 가이드가 화면에 고정된 같은 해를 받고, 이미지 모델은 그 렌더 위에 그려요. 그래서 물체의 밝은 면과
-  어두운 면이 3D 모양에서 나오고, 모든 소품의 모든 면이 같은 쪽에서 빛을 받아요. 손으로 칠한 음영은 없어요
-  ([게임에서 보기](#만든-게임-우비소녀의-여행)).
-
 ## 만든 게임: 우비소녀의 여행
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="docs/rain-girl-play.gif" alt="우비소녀의 여행: 노란 우비 소녀와 픽셀 아트 나무, 바위, 덤불, 빨강·초록·보라 불꽃 몬스터와 타는 땅" width="100%"></a></p>
@@ -146,13 +130,7 @@ claude plugin install spritecast@spritecast
 
 </details>
 
-- **팔레트도 하나.** 다 만든 뒤 소품과 풀밭 타일을 48색 팔레트 하나로 맞췄어요(755색에서). 나무의 초록과 덤불의 초록이 같은 초록이에요.
-- **3D는 게임 안에서도 쓰여요.** 땅의 그림자는 각 소품의 모델에서 구웠고([방법](#light-shadow-wind)), 소녀는 소품 그늘에 들어가면 어두워져요 - 발, 허리, 머리가
-  각자 해와의 사이에 무엇이 있는지만큼. 불꽃이 어디서 엄폐물에 막히는지는 각 소품의 모델을 불꽃 높이(0.55m)에서 잘라, 지금 보이는 면에
-  맞춰 정해요. 줄기는 막고, 그 위 나뭇잎은 안 막고, 버섯은 너무 낮아요.
-- **바람도 모델에서 나와요.** 나뭇잎을 3D 모델 위의 위치대로 뭉치로 나누고, 뭉치마다 통째로 1px씩 움직여요. 그래서 나무가 가지
-  단위로 흔들려요 - 라운드의 바람 쪽으로, 돌풍에는 더 세게([방법](#light-shadow-wind)).
-- **소품 하나의 비용:** 모델에 Tripo 약 20크레딧, 네 면 그리기에 약 $0.3.
+- 더 보기 - 팔레트 하나, 나무 그늘에서 어두워지는 소녀, 불덩이를 막는 엄폐, 바람, 소품 하나의 비용: [제작기](docs/guide/rain-girl.md) (영어).
 
 ## 걷는 캐릭터
 
@@ -177,23 +155,7 @@ $PYTHON skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # 그
 캐릭터 하나에 약 $2.2(OpenAI, `"mirror": true`면 약 $1.5), Tripo 75크레딧(약 $0.75, 동물은 30)이 들어요. 리그된 GLB가
 있으면(`"rig_glb"`) 바로 `render`부터 하면 돼요.
 
-<details>
-<summary><b>더 보기: 미리보기 영상, Meshy, 예시 캐릭터와 리그</b></summary>
-
-`preview`는 `walk-all.mp4`(8방향이 한꺼번에 걷는 영상, ffmpeg가 있으면)도 만들어요. 머리가 커졌다 작아지거나 프레임이 튀는 게 가장 빨리
-보여요. Tripo는 가끔 모델을 옆으로 돌려서, 또는 색 없이 보내는데 둘 다 자동으로 고쳐요. `"modeler": "meshy"`(와 `MESHY_API_KEY`)를
-주면 [Meshy](https://www.meshy.ai)가 모델을 만들고(약 30 Meshy 크레딧), 리그는 그대로 Tripo가 해요.
-
-다른 옵션(같은 사람의 여러 옷, 신발 바닥에 앵커 두기)과 요령은 [reference/character.md](skills/spritecast/reference/character.md)에
-있어요. 위 여자아이 예시는 [`examples/rain_girl`](examples/rain_girl)에 있어요(일러스트, 턴어라운드, 사양, 스트립, 그림자, `character.json`, 전체 시트).
-
-Tripo만으로 만들었고 그리기 약 $1.7, Tripo 85크레딧이 들었어요. 리그를 단 3D 모델(`rig.glb`, 걷기·달리기·점프·베기 포함, 저장소의 나머지처럼 MIT)도 있어서, 키도 비용도 없이 3D 쪽 전체를 해 볼 수
-있어요. 폴더를 복사해 사양에 `"draw": false`를 넣고 `charpipe.py render rain_girl.json`, 이어서 `finish`를 돌리면 3D 모델 그대로
-스트립, 그림자, 앵커가 나와요. 사양의 `"notes"` 쓰임새도 볼 수 있어요. 3D 렌더에는 비옷 옆선과 팔 안쪽에 검은 줄이 생겼는데,
-`notes`에 한 줄("어디에도 어두운 선, 줄, 솔기 없음... 빼라")을 넣었더니 모든 프레임에서 그 줄을 빼고 그렸어요. 모델의 결함을 3D가
-아니라 그리는 단계에서 고친 거예요.
-
-</details>
+더 많은 옵션(여러 옷차림, 미리보기 영상, Meshy, 뼈대가 든 예시 캐릭터): [docs/guide/characters.md](docs/guide/characters.md#walking-characters) (영어).
 
 ### 네발 동물
 
@@ -295,7 +257,7 @@ Tripo의 네발 동물 리그는 걸음이 어색해요(등뼈가 없고, 어깨
 
 ![우비소녀의 2단 콤보(96px 픽셀아트)에 물과 불꽃: 휘두르기 효과와 효과 묶음의 고리(fxpack --set water-swing, fire-swing)](docs/combo-water-fire.gif)
 
-픽셀 아트 콤보 - 우비소녀의 내려치기와 돌려 베기를 네 방향으로, 물과 돌려 베기의 고리까지(`motion.py`, `fxpack.py`). 두 동작은 Mixamo에서 직접 받아요 - 어떤 걸 어떻게 받는지는 아래 "우비소녀의 콤보를 직접 만들려면"에:
+픽셀 아트 콤보 - 우비소녀의 내려치기와 돌려 베기를 네 방향으로, 물과 돌려 베기의 고리까지(`motion.py`, `fxpack.py`). 두 동작은 Mixamo에서 직접 받아요 - 어떤 걸 어떻게 받는지는 아래 "우비소녀의 콤보 프리셋"에:
 
 ![우비소녀의 콤보를 네 방향 픽셀 아트로: 내려치기, 이어서 물 소용돌이와 몸을 감싸는 고리, 바닥 고리가 퍼지는 돌려 베기](docs/combo-pixel.gif)
 
@@ -358,29 +320,7 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
   던지기도 그렇게 넣었어요.
 - **이어지는 콤보.** `motion.py`가 게임처럼 공격과 공격을 이어요. 다음 공격이 앞 공격이 끝난 자세에서 시작하고, 휘두르는 순간은 그대로예요.
   옮겨 온 동작의 뜬 발을 땅에 붙이고, 도끼질을 원호를 그리는 칼 베기로 바꿔요. 리그에서 하니 무료예요 - [Mixamo부터 게임까지 레시피](skills/spritecast/reference/character.md).
-- **우비소녀의 콤보를 직접 만들려면 - SpriteCast에 동작은 들어 있지 않아요.** 동작은 Mixamo의 것이고,
-  Mixamo는 동작을 쓰는 건 허락해도 남에게 나눠 주는 건 허락하지 않아서, 직접 받아야 해요(Adobe 계정으로 무료).
-  1. [mixamo.com](https://www.mixamo.com)의 Animations에서 **Standing Melee Attack Downward**와 **Standing Melee Attack Backhand**를
-     찾아요. 같은 세트의 두 동작이라 같은 자세로 시작하고 끝나요. 각각 Format **FBX Binary (.fbx)**, Frames per Second **30**,
-     Skin **Without Skin**(With Skin도 돼요), Keyframe Reduction **none**으로 받아요.
-  2. 두 파일을 캐릭터 스펙 옆에 두고 *"rain-girl-combo 프리셋 적용해 줘"*라고 하면 돼요. `motion.py preset hero.json rain-girl-combo`가
-     두 동작을 캐릭터 리그에 옮기고, 아래의 다듬기를 같은 값으로 똑같이 한 뒤, 두 동작을 스펙에 넣어요. 프리셋
-     (`skills/spritecast/presets/rain-girl-combo.json`)에는 바꾼 정도만 들어 있고, 동작 자체는 들어 있지 않아요. 프리셋 없이 하려면 이렇게 말해요: *"이 두 개로 우비소녀처럼 콤보 만들어 줘. 내려치기 다음에 돌려 베기, 물 효과로."*
-     Mixamo 동작을 받은 그대로 쓴 게 아니에요. 리그에서 아래처럼 다듬었고(무료), 이 다듬기까지 해 달라고 하면 돼요.
-     - **발을 땅에** (`motion.py ground`): 아이 체형 리그에 옮기면 발이 8~15cm 떠 있었어요.
-     - **도끼질을 칼 베기로** (`motion.py blade downward --stroke 0.75-1.25`, bend 0.55, lag 0.9): 내려치기는 도끼용으로 만든
-       동작이라, 앞으로 숙이는 걸 줄이고 우산이 팔에서 이어져 원호를 그리게 했어요. 우산 끝이 손보다 늦게 따라오다가 치는
-       순간 따라잡아요.
-     - **돌려 베기를 내려치기의 마지막 자세에서 시작** (`motion.py link downward@1.40 backhand@0.3-2.0 --blend 0.4`): 받은
-       그대로는 돌려 베기가 서 있는 자세에서 시작해서 이음새가 튀었어요. 이제 내려치기가 끝난 자세에서 시작하고, 휘두르는
-       부분은 원래 그대로예요.
-     - **그리는 구간**: 내려치기 0.35~1.40초, 돌려 베기 처음 1.40초, 각각 8프레임. 물은 두 배 멀리(`"trail_reach": 2`).
-
-     Claude가 렌더해서, 비용이 드는 단계(그리기, 두 동작 네 방향에 약 $4.5) 전에 보여 줘요.
-  3. 주변의 고리와 물결: `fxpack.py export --set water-swing`(불꽃은 `fire-swing`).
-
-  같은 Mixamo 세트의 공격 두 개라면 어떤 것이든 똑같이 돼요. FBX 파일이나 그 동작이 들어간 리그는 공개 저장소에 절대 올리지
-  마세요. [전체 레시피](skills/spritecast/reference/character.md).
+- **우비소녀의 콤보 프리셋.** 두 동작은 Mixamo 것이라 직접 받아요(무료, Adobe 계정): [Standing Melee Attack Downward](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Downward&type=Motion%2CMotionPack)와 [Standing Melee Attack Backhand](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Backhand&type=Motion%2CMotionPack) - FBX Binary, 30 fps, Without Skin, 키프레임 줄이기 없음. `motion.py preset hero.json rain-girl-combo`가 같은 수정을 같은 값으로 하고 두 동작을 사양에 넣어요. 프리셋에는 수정한 내용만 있고 동작 자체는 없어요 - [무엇을 바꿨는지](docs/guide/pixel-art.md#pixel-art-arcade-size) (영어).
 - **스스로 검토해요.** 프레임마다 렌더와 비교해요(자세, 쥔 물건). `--redraw`는 표시된 시트를 다시 그리고 더 나은 쪽을 남겨요.
   던지기 40프레임은 한 번 다시 그린 뒤 전부 통과했어요.
 - **마지막은 픽셀 에디터로.** 픽셀아트는 규칙만으로 다 되지 않아요. `pixeledit.py hero.json`을 실행하면 모든 프레임이 브라우저에
@@ -415,7 +355,6 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 1,196픽셀(51,442픽셀 중 2.3%)이고, 그림을 그리지 않는 사람이 에디터에서 몇 분 만에 했어요. 빨리 끝난 이유이자 픽셀아트에서 가장 중요한 것: 프레임을 하나씩이 아니라 23프레임을 이어서 재생하며 보는 거예요. 고치는 건
 프레임이 넘어갈 때 픽셀이 크게 바뀌는 부분이 없게 하는 일이에요. 고치지 않은 것: 걷기 두 프레임에서 우산이 3D의
 각도와 길이에서 조금 벗어나 있어요.
-
 
 - **에디터가 3D의 위치를 보여줘요** (단축키 `4`). 손에 든 물건은 빨강, 몸의 윤곽은 파랑으로 그리는 프레임 위에 겹쳐요. 우산을 너무
   길게 그렸거나 각도가 틀리면 바로 보여요.
@@ -799,66 +738,11 @@ $PYTHON skills/spritecast/scripts/isoprop.py render armchair.json         # 그�
 
 ## 카메라
 
-| `camera` | 내려다보는 각도 | 어떤 게임에 |
-|---|---|---|
-| `"iso-2:1"` (기본) | 30°, 45° 회전 | 대부분의 아이소메트릭 게임. 바닥 타일이 가로 2 : 세로 1 |
-| `"isometric"` | 35.26°, 45° 회전 | 정아이소메트릭(세 축이 120°) |
-| `"topdown"` | 50°, 정면 | 3/4 탑다운 RPG |
-| `"front"` | 12°, 정면 | 횡스크롤 |
-| `{"pitch": 40, "yaw": 30}` | 아무 각도 | 직접 지정 |
-
-`"light": "left"`로 바꾸면 빛과 그림자가 반대쪽으로 가요.
-
-걷는 캐릭터는 `camera` 대신 `"pitch"`만 받아요: 30(기본, 2:1), 35.26(정아이소메트릭), 50(3/4 탑다운), 12(정면). 8방향은 45°
-간격이에요. `camera`는 소품과 포즈 잡은 인물에 써요.
+2:1 아이소메트릭(기본, 30° 내려다봄), 정 아이소메트릭, 3/4 탑다운, 정면, 또는 `{"pitch": 40, "yaw": 30}`처럼 원하는 각도 - [표](docs/guide/props.md#cameras) (영어).
 
 ## 엔진에 넣는 법
 
-**Godot, Unity, Phaser, Aseprite용 파일을 바로 만들어요.** `export.py <이름>/out`(무료)이 `out/export/`에 써요.
-
-| | 내용 | 쓰는 법 |
-|---|---|---|
-| `godot/` | Shadow, Body, Effect가 든 씬과 작은 스크립트 | 폴더를 Godot 4 프로젝트에 넣고 `play("walk", "south-east")` |
-| `unity/` | 스트립과 에디터 스크립트 | `Assets/`에 복사하면 프리팹과 애니메이션 클립이 저절로 만들어져요. `GetComponent<Animator>().Play("walk_south_east")` |
-| `phaser/` | Phaser 3용 ES 모듈 | `preload(this, base)`, `create(this)`, `add(this, x, y).play('walk', 'south-east')` |
-| `aseprite/` | 동작마다 `.aseprite` 한 개 | 방향별 태그, `shadow`·`body`·`effect` 레이어, 발 위치를 표시한 슬라이스 |
-
-캐릭터는 놓은 자리(두 발 사이)에 서고, 그림자는 몸과 같은 프레임으로 움직이고, 휘두를 때의 이펙트가 그 위에 재생돼요. 네 가지
-모두 실제로 열어 확인했어요(Godot 4.7, Unity 6000.3, Phaser 3.90, Aseprite). 픽셀 세트는 아직 내보내지 않아요.
-
-직접 넣으려면 필요한 숫자는 모두 JSON에 있어요.
-
-`sprite.json`에 소품이 땅에 닿는 지점이 적혀 있어요.
-
-```json
-"sprite": { "file": "sprite.png", "size": [299, 357], "anchor": [0.4993, 0.9966], "anchor_px": [149.3, 355.8] },
-"shadow": { "file": "shadow.png", "offset_px": [-66, 116] },
-"px_per_m": 256
-```
-
-- **anchor**: 바닥 차지 면적의 앞 모서리예요. 정면 시점에서는 앞쪽 변의 가운데예요. 이 점을 소품이 놓일 타일 위에 맞춰요.
-- **shadow**: `shadow.png`를 스프라이트 왼쪽 위 모서리에서 `offset_px`만큼 떨어진 곳에 놓아요. 불투명도는 30% 정도로, 모든
-  스프라이트 아래에 그려요.
-- **scale**: 모두 1m당 `px_per_m` 픽셀로 그려져 있어요. 타일이 1m이고 가로 `T`픽셀인 2:1 맵이면 `T / 1.414 / px_per_m` 배로
-  줄이면 돼요.
-
-| 엔진 | 방법 |
-|---|---|
-| Phaser | `this.add.image(x, y, 'armchair').setOrigin(anchor[0], anchor[1])` |
-| Godot 4 | `Sprite2D`: `centered = false`, `offset = -anchor_px` |
-| Unity | Sprite Editor → Pivot: Custom, `(anchor[0], 1 - anchor[1])` |
-
-**걷는 캐릭터.** `character.json`에 `frame`(`[w, h]` 픽셀), `anchor`(두 발 사이, 프레임에 대한 비율), `fps`가 있어요.
-`walk-<facing>.png`는 8프레임을 가로로 붙인 스트립이고, `idle-<facing>.png`는 한 프레임이에요. 한 방향의 `i`번째 그림자
-`shadows.walk[facing][i]`는 `i`번째 프레임의 왼쪽 위 모서리에서 `offset`만큼 떨어진 곳에, 30% 정도 불투명도로 모든 것 아래에
-그려요. `px_per_m`은 없어요: 캐릭터가 서 있을 키에 맞춰 프레임 크기를 조절하세요. Phaser에서 `rain_girl`의 수치로:
-
-```js
-this.load.spritesheet('girl-se', 'walk-south-east.png', { frameWidth: 165, frameHeight: 256 });
-this.anims.create({ key: 'walk-se', frames: this.anims.generateFrameNumbers('girl-se'), frameRate: 6.76, repeat: -1 });
-this.add.sprite(x, y, 'girl-se').setOrigin(0.4926, 0.8839).play('walk-se');
-```
-전체 형식은 [reference/character.md](skills/spritecast/reference/character.md#output-nameout)에 있어요.
+`export.py <name>/out`(무료)이 **Godot 4, Unity, Phaser 3, Aseprite**용 파일을 바로 만들어요: 몸, 그림자, 휘두를 때의 이펙트가 이름으로 재생돼요(`play("walk", "south-east")`). 소품은 그림자, 빛, 바람, 충돌과 함께 Phaser와 Godot로 나가요. `sprite.json` / `character.json`의 숫자를 직접 읽어도 돼요. **[docs/guide/engines.md](docs/guide/engines.md)** (영어) - 단계별 작동 방식, 자주 나는 오류, 무엇을 어디로 보내는지도 있어요.
 
 ## 설치
 
@@ -929,75 +813,18 @@ OpenAI는 키로 이미지 모델을 쓰기 전에 조직 인증(platform.openai
 
 </details>
 
-## 작동 방식
-
-| 단계 | 내용 | 비용 |
-|---|---|---|
-| 사양 | Claude가 `<name>.json`을 써요: 바닥 크기, 미터 단위 블록, 완성품 설명 | 무료 |
-| `render` | 헤드리스 Chrome에서 three.js로 가이드, 그림자, 모델 입력을 만들어요 | 무료 |
-| `draw` | OpenAI 이미지(기본 `gpt-image-2.5-sunburst`)가 가이드를 내 그림체로 다시 그려요 | 약 $0.07 |
-| `finish` | 배경을 부드럽게 빼고, 가이드 영역에 맞추고, 그림자를 굽고, 앵커를 재요 | 무료 |
-| `preview` | 1m 격자 바닥 위에 놓아 봐요 | 무료 |
-
-직접 실행할 수도 있어요: `$PYTHON skills/spritecast/scripts/isoprop.py render|draw|finish|preview examples/reading_armchair.json`
-(`$PYTHON`은 [설치](#설치) 참고). `draw`는 `--yes`를 붙이기 전까지 비용만 보여 줘요. 사양 형식은 [reference/spec.md](skills/spritecast/reference/spec.md), 좋은
-가이드를 짜는 요령은 [reference/tips.md](skills/spritecast/reference/tips.md)에 있어요.
-
-## 문제가 생기면
-
-| 문제 | 해결 |
-|---|---|
-| `No module named ...` | `python3 skills/spritecast/scripts/doctor.py`가 찍는 `PYTHON=`으로 스크립트를 돌려요(준비가 안 됐다고 나오면 먼저 `--fix`. Claude가 대신 해요) |
-| 브라우저 없음 | Chrome 설치, 또는 `doctor.py --fix --browser` (Playwright의 Chromium, ~150 MB) |
-| `this Python cannot make a venv` | Debian/Ubuntu: `sudo apt install python3-venv`, 또는 다른 Python(python.org, conda) |
-| `draw: set OPENAI_API_KEY` | 플러그인 설정(`/plugin` → SpriteCast)에 키를 넣거나 환경 변수로 설정하고(위) Claude Code를 다시 켜요 |
-| `HTTP 401` / `403` | 키가 틀렸거나, OpenAI가 이미지 모델을 쓰기 전에 조직 인증을 요구해요(platform.openai.com → Settings → Organization) |
-| `finish: WARNING - the drawing does not follow the guide` | 모델이 다른 각도나 모양으로 그렸어요. 이 카메라에서 보이는 모습을 설명에 적고, 가이드를 확인한 뒤 `--again`으로 다시 그려요. 식물처럼 가이드 밖으로 삐져나와도 되는 건 `"loose": true` |
-| 그림에 없던 게 추가됨 | 설명에 들어가면 안 되는 걸 적고("러그 없이, 로고 없이") 다시 그려요 |
-| 모양이 틀림 | 블록을 고쳐요. 그림은 가이드를 따라가요 |
-
-## 무엇을 보내고 받나요
-
-<details>
-<summary><b>어디로 무엇을 보내고, 무엇을 내려받나요</b></summary>
-
-아래 단계를 빼면 전부 내 컴퓨터에서 돌아가요. 돈이 드는 단계는 비용을 먼저 알려 주고 OK를 기다려요.
-
-| 언제 | 어디로 | 무엇을 |
-|---|---|---|
-| `draw` | OpenAI (`api.openai.com`) | 가이드 그림, 그림체 그림, 설명 글, 그리고 `OPENAI_API_KEY` |
-| 캐릭터: `turnaround`, `draw` | OpenAI | 일러스트, 턴어라운드, 3D 렌더, 같은 키 |
-| 캐릭터: `3d` | Tripo (`openapi.tripo3d.ai`) | 턴어라운드 네 면, `TRIPO_API_KEY`. 모델과 리그, 걷기가 돌아와요 |
-| `model` (소품, 선택) | Tripo | 설명 글 |
-| 캐릭터, `"modeler": "meshy"` (선택) | Meshy (`api.meshy.ai`) | 네 면, `MESHY_API_KEY` |
-
-키는 환경변수에서만 읽고, 각자 자기 서비스로만 보내고, 파일에 쓰거나 화면에 찍지 않아요. 내려받는 것:
-
-| 무엇 | 어디서 | 언제 |
-|---|---|---|
-| numpy, pillow, scipy, playwright, onnxruntime | PyPI, 전용 가상환경(`~/.cache/spritecast/venv`)으로 | `doctor.py --fix`, 한 번 |
-| Chromium (~150 MB) | Playwright 서버 | Chrome이나 Edge가 없을 때만, 물어본 뒤에 |
-| 오려내기 모델 BiRefNet lite (224 MB, MIT), `SPRITECAST_KEY_MODEL=general`이면 전체 모델 (973 MB) | [rembg의 GitHub 릴리스](https://github.com/danielgatis/rembg/releases/tag/v0.0.0), md5 확인 | 캐릭터, 첫 `finish` 때 |
-| 얼굴 랜드마크 모델 MediaPipe Face Landmarker (3.7 MB, Apache-2.0). `mediapipe`는 따로 `pip install` | Google (`storage.googleapis.com/mediapipe-models`) | `facecheck`(선택)만, 처음 한 번 |
-
-렌더는 내 컴퓨터의 헤드리스 브라우저에서 돌고 인터넷에서 아무것도 불러오지 않아요. three.js는 플러그인에 들어 있어요
-(`skills/spritecast/scripts/vendor/three/`, MIT).
-
-</details>
+그리기(OpenAI)와 3D 모델(Tripo, 원하면 Meshy)만 빼면 모두 내 컴퓨터에서 돌아가요. 돈이 드는 단계는 비용을 보여 주고 확인을 기다려요. [무엇을 어디로 보내고 무엇을 받는지](docs/guide/engines.md#what-it-sends-and-fetches) (영어).
 
 ## 로드맵
 
 다음에 할 일이에요. 대략 이 순서지만 날짜는 정하지 않았고, 피드백에 따라 바뀌어요.
-- **좌석에 맞춘 자세와 탑승** (앉기 자체는 이미 돼요. 위의 '앉기' 참고): 지금은 어느 의자든 같은 앉은 자세 하나를 쓰는데, 좌석마다 맞춘 자세(깊은 소파에 기대 앉기, 놀이기구 발판에 발 올리기)와 수레·탈것에 타기를 더해요.
-- **도는 물체**: 탈것이나 놀이기구를 여러 각도로 돌려서, 8방향 사이를 툭툭 끊기지 않고 부드럽게 돌아요.
-- **밤 버전**: 빛나는 부분(창문, 전구, 네온) 마스크. 엔진에서 밤에 그 부분만 켤 수 있어요.
-- **지나갈 수 있는 소품 자동화**: 앞 조각을 3D 가이드에서 자동으로 계산해요(지금은 다듬기 페이지에서 손으로 칠해요).
-- **동작과 쥘 물건 더하기**: 달리기, 점프, 베기는 들어갔고, Mixamo 클립은 아무거나 넣을 수 있어요(던지기, 손에서 놓는 눈덩이까지). 다음은 쥘 물건 더하기(칼, 지팡이)와 숨쉬는 대기 동작.
-- **작은 스프라이트**: 96px 픽셀아트와, 작게 디자인한 캐릭터의 64px는 들어갔어요(픽셀아트 참고). 32px 세트는 64에서 만들어요.
-  다음은 보통 디자인에서 작은 디자인을 한 번에 만드는 것과, 손을 안 대도 되는 32px 얼굴.
-- **엔진용 내보내기**: Godot, Unity, Phaser, Aseprite용 파일이 들어왔어요(엔진에 넣는 법 참고). 다음: 픽셀 세트.
-- **이펙트**: 휘두를 때의 물, 불, 낙엽 등이 들어왔어요(휘두를 때의 이펙트 참고). 다음: 쥔 물건 없는 동작의 이펙트(발차기, 발 디딜 때의
-  물 튀김), 그려 넣은 조각.
+- **의자에 맞춘 자세, 탈것**: 의자마다 맞춘 자세, 카트와 탈것에 탄 캐릭터.
+- **돌아가는 물체**: 8방향 사이를 튀지 않고 부드럽게 도는 탈것.
+- **밤 버전**: 빛나는 부분(창문, 전구, 네온) 마스크.
+- **지나갈 수 있는 소품, 자동으로**: 앞 조각을 3D 가이드에서 계산(지금은 다듬기 페이지에서 칠해요).
+- **더 많은 쥘 것**(검, 지팡이)과 쥔 물건 없는 이펙트(발차기, 발걸음의 물 튀김).
+- **작은 스프라이트**: 보통 디자인에서 작은 디자인을 한 번에, 손이 필요 없는 32px 얼굴.
+- **픽셀 세트용 엔진 내보내기.**
 
 버전마다 무엇이 바뀌었는지는 [CHANGELOG.md](CHANGELOG.md)에 있어요.
 
@@ -1028,6 +855,7 @@ OpenAI는 키로 이미지 모델을 쓰기 전에 조직 인증(platform.openai
   3D에서 나와요. 내 그림을 스타일로 줄 수도 있고, `"draw": false`로 걷는 캐릭터의 프레임을 이미지 모델 없이 3D 렌더로 쓸
   수도 있어요. 턴어라운드는 여전히 이미지 모델이 그려요(리깅된 모델을 직접 주면 빼고요)
   ([그리기 건너뛰기](#그리기-건너뛰기-3d-렌더를-그대로-프레임으로)).
+- **픽셀아트를 한 프레임씩 직접 그려야 하나요?** 아니요. 이미지 모델이 3D 렌더를 보고 그리고, 정리는 자동이에요. 시트 한 장에 몇 프레임을 넣을지도 렌더 크기로 계산돼요. 남는 건 픽셀 에디터에서 프레임마다 몇 픽셀 정도예요.
 - **못 하는 건 뭔가요?** 걷는 캐릭터는 정면을 보고 똑바로 선 일러스트에서 시작해요. 픽셀아트는 96px에서, 그리고 작게 디자인한 캐릭터는 64px에서 돼요.
   32px 세트는 64에서 줄여 만들고 얼굴이 더 거칠어요([로드맵](#로드맵)). 포즈 잡은 한 장짜리 인물(손 흔들기, 가리키기, 들기...)은 설명만 있으면 돼요. 러그처럼 크고 납작한 건 위에서 그려서 바닥에 기울여 붙이는 게 나아요
   ([요령](skills/spritecast/reference/tips.md)). 결과는 직접 보세요: 머리가 엉뚱한 쪽을 보는 건 윤곽 검사로 못 잡아요.

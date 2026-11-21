@@ -36,8 +36,8 @@ About $0.075 a sheet: a walk in all eight facings is 18 sheets (about $1.35); th
   stroke untouched - puts carried feet back on the ground, and turns an axe chop into a sword cut on an arc. Free, on the rig - [the recipe, Mixamo to the game](../../skills/spritecast/reference/character.md).
 - **Making Rain Girl's combo yourself - the moves don't come with SpriteCast, only the changes.** The moves are Mixamo's, and Mixamo lets
   them be used, not handed on, so you download them yourself (free, with an Adobe account).
-  1. On [mixamo.com](https://www.mixamo.com), Animations: search **Standing Melee Attack Downward** and **Standing Melee Attack
-     Backhand** - two moves of one set, so they start and end in the same stance. Download each: Format **FBX Binary (.fbx)**,
+  1. On [mixamo.com](https://www.mixamo.com), Animations: search **[Standing Melee Attack Downward](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Downward&type=Motion%2CMotionPack)** and **[Standing Melee Attack
+     Backhand](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Backhand&type=Motion%2CMotionPack)** - two moves of one set, so they start and end in the same stance. Download each: Format **FBX Binary (.fbx)**,
      **30** frames per second, Skin **Without Skin** (with works too), Keyframe Reduction **none**.
   2. Put the two files beside your character's spec and ask: *"Apply the rain-girl-combo preset."* - `motion.py preset hero.json
      rain-girl-combo` carries both moves onto your character's rig and makes the same changes with the same numbers, then puts the two

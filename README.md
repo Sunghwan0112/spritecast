@@ -323,9 +323,10 @@ About $0.075 a sheet: a walk in all eight facings is 18 sheets (about $1.35); th
   above came in that way.
 - **Combos that join.** `motion.py` links one attack to the next the way games do - the second starts from the pose the first ends in, its
   stroke untouched - puts carried feet back on the ground, and turns an axe chop into a sword cut on an arc. Free, on the rig - [the recipe, Mixamo to the game](skills/spritecast/reference/character.md).
-- **Rain Girl's combo as a preset.** The two moves are Mixamo's, downloaded yourself (free); `motion.py preset hero.json
-  rain-girl-combo` makes the same changes to them and puts the two actions in the spec. The preset keeps only the changes, never
-  the moves - [which moves, the download settings and what was changed](docs/guide/pixel-art.md#pixel-art-arcade-size).
+- **Rain Girl's combo as a preset.** The two moves are Mixamo's, downloaded yourself (free, with an Adobe account):
+  [Standing Melee Attack Downward](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Downward&type=Motion%2CMotionPack) and [Standing Melee Attack Backhand](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Backhand&type=Motion%2CMotionPack) - FBX Binary, 30 fps, Without Skin,
+  no keyframe reduction. `motion.py preset hero.json rain-girl-combo` makes the same changes to them and puts the two actions in
+  the spec. The preset keeps only the changes, never the moves - [what was changed](docs/guide/pixel-art.md#pixel-art-arcade-size).
 - **It reviews itself.** Every frame is checked against its render (the pose, the held thing); `--redraw` draws the marked sheets
   again and keeps the better drawing. The throw's 40 frames all passed after one redraw.
 - **Then a pixel editor for the last bit.** Pixel art is not all to be had by rule. `pixeledit.py hero.json` opens every frame in

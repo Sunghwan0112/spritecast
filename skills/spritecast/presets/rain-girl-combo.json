@@ -2,8 +2,8 @@
  "name": "rain-girl-combo",
  "what": "Rain Girl's two-hit combo: a downward cut, then a spinning backhand started from its last pose - Mixamo's two moves as they were changed for her. Only the changes are kept here: the moves themselves are Mixamo's, downloaded by whoever uses this (Mixamo's moves may be used, not handed on).",
  "needs": [
-  {"clip": "backhand", "mixamo": "Standing Melee Attack Backhand", "file": "Standing Melee Attack Backhand.fbx"},
-  {"clip": "downward", "mixamo": "Standing Melee Attack Downward", "file": "Standing Melee Attack Downward.fbx"}
+  {"clip": "backhand", "mixamo": "Standing Melee Attack Backhand", "file": "Standing Melee Attack Backhand.fbx", "url": "https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Backhand&type=Motion%2CMotionPack"},
+  {"clip": "downward", "mixamo": "Standing Melee Attack Downward", "file": "Standing Melee Attack Downward.fbx", "url": "https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Downward&type=Motion%2CMotionPack"}
  ],
  "download": "mixamo.com (free, an Adobe account) > Animations > search the name > Download: Format FBX Binary (.fbx), Skin Without Skin, Frames per Second 30, Keyframe Reduction none",
  "steps": [

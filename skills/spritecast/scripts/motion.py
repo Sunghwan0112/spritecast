@@ -233,7 +233,7 @@ def preset(spec, name, fbx_dir=''):
     dirs = [Path(fbx_dir)] if fbx_dir else []; dirs += [sp.parent, Path.cwd()]; miss = []
     found = {n['clip']: next((q / n['file'] for q in dirs if (q / n['file']).exists()), None) for n in P['needs']}
     for n in P['needs']:
-        if not found[n['clip']]: miss.append(f'  - "{n["mixamo"]}" -> {n["file"]}')
+        if not found[n['clip']]: miss.append(f'  - "{n["mixamo"]}" -> {n["file"]}' + (f'\n    {n["url"]}' if n.get('url') else ''))
     if miss: sys.exit(f'motion preset {P["name"]}: download these from Mixamo first (they cannot come with SpriteCast):\n' + '\n'.join(miss) + f'\n  how: {P["download"]}\n  then put them beside the spec (or --fbx DIR)')
     work = d / 'rig' / f'preset-{P["name"]}'; work.mkdir(parents=True, exist_ok=True); cur = glb
     for n in P['needs']:          # (each move onto the rig the last one left)

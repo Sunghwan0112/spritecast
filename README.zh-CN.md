@@ -90,21 +90,6 @@ claude plugin install spritecast@spritecast
 样子。每张画之后都会被贴合回它的渲染图并与之对照：画成别的姿势的帧会被标记出来，可以
 重画，绝不会被硬挤进去。道具也是同样的做法，只是用真实尺寸的方块代替骨骼。
 
-**这样做带来的好处：**
-- **角度和尺寸是对的。** 示例中的实体道具与引导图的轮廓重合度为 95–99 %；故意画得松散的植物
-  为 87 %，穿衣人物为 69–88 %（衣服和头发会超出素体人偶）。行走
-  角色逐帧打分（见下文）。相机和比例是固定的，所以不同时间做的道具能在同一块地面上对齐。
-- **阴影看起来是对的。** 所有道具共用一个光源，所以每个阴影都朝同一个方向。实体道具投射 3D
-  引导模型自己的阴影。摆姿势的人物和植物投射的阴影是画出来的形状（兜帽、头发、叶子），位置由
-  3D 模型决定，所以脚或花盆底部的阴影就从它站的地方开始。行走角色投射 3D 身体自己的阴影，
-  逐帧。不是画上去的一团，也不是方块人偶的影子。
-- **它会自我检查。** 画完之后，结果会与引导图比较。如果模型画成了别的角度，不会硬挤进去：
-  你会收到警告，Claude 会在重画前提出修改建议。
-- **你游戏的视角和你的风格。** 2:1 等距、真等距、3/4 俯视、正面或任意角度；一个物体的
-  全部四个朝向；自带的 `cozy` 风格，或你自己的一张图。
-- **光照一致。** 每个引导图都由固定在屏幕上的同一个太阳照亮,图像模型在那张渲染上作画:物体的明暗来自它的 3D 形状,每个道具的
-  每一面都从同一侧受光。没有手工涂的阴影([在游戏里看](#用它做的游戏rain-girl))。
-
 ## 用它做的游戏:Rain Girl
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="docs/rain-girl-play.gif" alt="Rain Girl:穿黄色雨衣的女孩,像素风的树、岩石、灌木,红、绿、紫色的火焰怪物和燃烧的地面" width="100%"></a></p>
@@ -142,11 +127,7 @@ claude plugin install spritecast@spritecast
 
 </details>
 
-- **一个调色板。** 最后把道具和草地贴图统一到一个 48 色调色板(原本 755 色),树的绿和灌木的绿是同一种绿。
-- **3D 在游戏里继续发挥作用。** 地面上的阴影由每个道具的模型烘焙([方法](#light-shadow-wind)),女孩走进道具的阴影会变暗 —— 脚、腰、头各按它和太阳之间挡着的东西。火球在哪里被掩体挡住,来自每个道具自己的模型:在火球的高度(0.55 m)切开,按当前显示的那一面
-  决定。树干挡得住,上面的树冠挡不住,蘑菇太矮。
-- **风也来自模型。** 叶子按它们在 3D 模型上的位置分成叶团,每个叶团整体移动,一次一个像素,所以树是一枝一枝地摇 —— 顺着这一回合的风,阵风时更猛([方法](#light-shadow-wind))。
-- **一个道具的花费:** 模型约 20 Tripo 积分,画四面约 $0.3。
+- 更多 —— 统一的调色板、走进树荫会变暗、挡住火球的掩体、风、一个道具的花费：[制作过程](docs/guide/rain-girl.md)（英文）。
 
 ## 行走角色
 
@@ -173,25 +154,7 @@ $PYTHON skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # the
 每个角色的费用：约 $2.2（OpenAI；用 `"mirror": true` 约 $1.5）和 75 Tripo 积分（约 $0.75；动物为 30）。或者带上你
 自己绑好骨骼的 GLB（`"rig_glb"`），直接跳到 `render`。
 
-<details>
-<summary><b>更多：预览视频、Meshy，以及带骨骼的示例角色</b></summary>
-
-`preview` 还会生成 `walk-all.mp4`（所有朝向同时行走，需要 ffmpeg）：这是发现头部忽大忽小
-或某帧跳动的最快方法。Tripo 有时返回的模型是侧着的或没有颜色；这两种情况都会自动修正。
-`"modeler": "meshy"`（以及 `MESHY_API_KEY`）改由 [Meshy](https://www.meshy.ai) 生成模型（约 30 Meshy 积分）；骨骼绑定
-仍然用 Tripo 的。
-
-更多选项（多套服装、以鞋底为锚点）和经验总结：
-[reference/character.md](skills/spritecast/reference/character.md)。上面的女孩在
-[`examples/rain_girl`](examples/rain_girl) 里：她的插画、转面图、spec、帧条、阴影、`character.json` 和整张图。
-她只用 Tripo 制作：约 $1.7 的绘制费用和 85 Tripo 积分。她绑好骨骼的模型也在那里（`rig.glb`，带行走、
-跑、跳和挥砍，与仓库其余部分一样是 MIT），所以你不需要任何密钥、不花一分钱就能试整个 3D 部分：复制这个文件夹，
-在 spec 里加上 `"draw": false`，运行 `charpipe.py render rain_girl.json`，然后 `finish`，帧条、阴影和锚点都
-直接来自 3D 模型。她的 spec 还展示了 `"notes"` 的用途：3D 渲染图中雨衣两侧和
-手臂内侧有深色条纹，在 `notes` 里加了一行（"no dark line, stripe or seam on it anywhere... leave them out"），就让每一帧
-都不再画出它们。模型的缺陷是在绘制中修好的，而不是在 3D 里。
-
-</details>
+更多选项（多套服装、预览视频、Meshy、带骨骼的示例角色）：[docs/guide/characters.md](docs/guide/characters.md#walking-characters)（英文）。
 
 ### 四足动物
 
@@ -301,7 +264,7 @@ hurt 和 turn），每个动作都像行走一样在 8 个朝向上渲染、绘�
 
 ![雨衣女孩的两段连击(96 像素像素画),水与火:挥动轨迹与特效包的光环(fxpack --set water-swing, fire-swing)](docs/combo-water-fire.gif)
 
-像素画连招 - 雨女孩的下劈和回旋斩,四个方向,连同水和回旋斩的环(`motion.py`、`fxpack.py`)。两个动作来自 Mixamo,需要自己下载 - 下载哪个、怎么下载,见下面的「自己做出雨女孩的连招」:
+像素画连招 - 雨女孩的下劈和回旋斩,四个方向,连同水和回旋斩的环(`motion.py`、`fxpack.py`)。两个动作来自 Mixamo,需要自己下载 - 下载哪个、怎么下载,见下面的「雨女孩连招预设」:
 
 ![雨女孩的连招,四个方向的像素画:下劈,接着带水漩涡、环绕身体的环和地面扩散的环的回旋斩](docs/combo-pixel.gif)
 
@@ -365,27 +328,7 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
   就是这样加进来的。
 - **连贯的连招。** `motion.py` 像游戏那样把一次攻击接到下一次：下一招从上一招结束的姿势开始，挥击本身不变。
   它还把套来的动作中悬空的脚放回地面，把斧头劈砍改成走弧线的剑斩。在骨骼上完成，免费 - [从 Mixamo 到游戏的流程](skills/spritecast/reference/character.md)。
-- **自己做出雨女孩的连招 - SpriteCast 不附带动作。** 动作来自 Mixamo,Mixamo 允许使用但不允许转发,所以要自己下载
-  (用 Adobe 账号,免费)。
-  1. 在 [mixamo.com](https://www.mixamo.com) 的 Animations 里搜索 **Standing Melee Attack Downward** 和 **Standing Melee Attack
-     Backhand** - 同一套里的两个动作,所以起止都是同一个架势。分别下载:Format **FBX Binary (.fbx)**,Frames per Second **30**,
-     Skin **Without Skin**(With Skin 也可以),Keyframe Reduction **none**。
-  2. 把两个文件放在角色的 spec 旁边,说 *"应用 rain-girl-combo 预设"* 就行:`motion.py preset hero.json rain-girl-combo` 会把两个
-     动作移到你角色的骨架上,用同样的数值做下面这些调整,再把两个动作写进 spec。预设(`skills/spritecast/presets/rain-girl-combo.json`)
-     只保存改动,不含动作本身。不用预设的话,就这样说:*"用这两个像雨女孩那样做一个连招:先下劈,再回旋斩,带水的效果。"* 并不是直接用
-     Mixamo 下载下来的动作 - 在骨架上做了下面这些调整(免费),请求时连这些调整一起要,就能得到一样的结果:
-     - **脚落地** (`motion.py ground`):移到孩子体型的骨架上时,脚悬空了 8-15 厘米。
-     - **斧子的劈砍改成剑的斩击** (`motion.py blade downward --stroke 0.75-1.25`,bend 0.55,lag 0.9):下劈原本是为斧子做的动作,
-       现在减少了前倾,伞从手臂延伸出去划出弧线,伞尖先落后于手,在击中时追上。
-     - **回旋斩从下劈的最后姿势开始** (`motion.py link downward@1.40 backhand@0.3-2.0 --blend 0.4`):原样的回旋斩从站立姿势开始,
-       衔接处会跳;现在从下劈结束的姿势开始,挥击本身保持原样。
-     - **画哪一段**:下劈 0.35-1.40 秒,回旋斩的前 1.40 秒,各 8 帧,水飞到两倍远(`"trail_reach": 2`)。
-
-     Claude 会渲染出来,并在唯一收费的步骤(绘制,两个动作四个方向约 $4.5)之前先给你看。
-  3. 她周围的环和水波:`fxpack.py export --set water-swing`(火是 `fire-swing`)。
-
-  同一套 Mixamo 里的任意两个攻击都可以这样做。绝不要把 FBX 文件 - 或带有这些动作的骨架 - 放进公开仓库。
-  [完整步骤](skills/spritecast/reference/character.md)。
+- **雨女孩连招预设。** 两个动作属于 Mixamo，需要自己下载（免费，Adobe 账号）：[Standing Melee Attack Downward](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Downward&type=Motion%2CMotionPack) 和 [Standing Melee Attack Backhand](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Backhand&type=Motion%2CMotionPack) —— FBX Binary、30 fps、Without Skin、不做关键帧精简。`motion.py preset hero.json rain-girl-combo` 用同样的数值做同样的修改，并把两个动作写进规格。预设里只有修改，没有动作本身 —— [改了什么](docs/guide/pixel-art.md#pixel-art-arcade-size)（英文）。
 - **它会自我审查。** 每一帧都会与它的渲染图对照（姿势、手持物）；`--redraw` 重画被标记的图，
   保留更好的那张。投掷的 40 帧在一次重画后全部通过。
 - **最后一点交给像素编辑器。** 像素画不能全靠规则得到。`pixeledit.py hero.json` 在
@@ -419,7 +362,6 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 四段动画连在一起，共 23 帧。手工修正的只有雨伞：让伞尖和伞边在帧与帧之间保持一致。角色本身没有修，只是擦掉了几个残留的白点。
 总共 51,442 个像素中改了 1,196 个（2.3 %），由一个不会画画的人在几分钟内完成。之所以快，也是像素画里最重要的一点：不是一帧一帧地看，而是把 23 帧连起来播放着看。修正就是让任何部分的像素在帧与帧之间都不会大幅变化。
 没修的：两帧行走中雨伞画得与 3D 雨伞的角度和长度略有偏差。
-
 
 - **编辑器会显示 3D 中东西的位置**（按键 `4`）：手持物显示为红色，身体轮廓显示为蓝色，叠在你
   正在画的帧上，所以画得太长或角度不对的雨伞一眼就能看出来。
@@ -800,66 +742,11 @@ $PYTHON skills/spritecast/scripts/isoprop.py render armchair.json         # then
 
 ## 相机
 
-| `camera` | 俯视角 | 适用于 |
-|---|---|---|
-| `"iso-2:1"`（默认） | 30°，旋转 45° | 大多数等距游戏；地砖宽是高的两倍 |
-| `"isometric"` | 35.26°，旋转 45° | 真等距（轴间夹角 120°） |
-| `"topdown"` | 50°，正对 | 3/4 俯视 RPG |
-| `"front"` | 12°，正对 | 横版卷轴 |
-| `{"pitch": 40, "yaw": 30}` | 任意 | 你自己的角度 |
-
-`"light": "left"` 会镜像光线和阴影。
-
-行走角色只用 `"pitch"`，不用 `camera`：30（默认，2:1）、35.26（真等距）、50（3/4 俯视）、12（正面）；
-它们的 8 个朝向相隔 45°。`camera` 用于道具和摆姿势的人物。
+2:1 等距（默认，俯视 30°）、真等距、3/4 俯视、正面，或用 `{"pitch": 40, "yaw": 30}` 指定任意角度 —— [表格](docs/guide/props.md#cameras)（英文）。
 
 ## 放进你的引擎
 
-**为 Godot、Unity、Phaser 和 Aseprite 准备好的文件。** `export.py <name>/out`（免费）会写出 `out/export/`：
-
-| | 你得到 | 怎么用 |
-|---|---|---|
-| `godot/` | 一个包含 Shadow、Body 和 Effect 的场景，以及一个小脚本 | 把文件夹放进 Godot 4 项目；`play("walk", "south-east")` |
-| `unity/` | 帧条和一个编辑器脚本 | 复制到 `Assets/`；每个动画的预制体和动画片段会自动生成；`GetComponent<Animator>().Play("walk_south_east")` |
-| `phaser/` | 一个 Phaser 3 的 ES 模块 | `preload(this, base)`、`create(this)`、`add(this, x, y).play('walk', 'south-east')` |
-| `aseprite/` | 每个动作一个 `.aseprite` | 每个朝向一个标签，图层 `shadow`、`body`、`effect`，一个标记脚部位置的切片 |
-
-角色站在你放置的位置（两脚之间的点），阴影与身体同步，挥动的特效
-在其上播放。每一种都打开检查过：Godot 4.7、Unity 6000.3、Phaser 3.90 和 Aseprite。像素套装暂时还不能导出。
-
-要自己处理的话，所有数值都在 JSON 里：
-
-`sprite.json` 告诉你道具在哪里接触地面：
-
-```json
-"sprite": { "file": "sprite.png", "size": [299, 357], "anchor": [0.4993, 0.9966], "anchor_px": [149.3, 355.8] },
-"shadow": { "file": "shadow.png", "offset_px": [-66, 116] },
-"px_per_m": 256
-```
-
-- **anchor**：占地在地面上的前角（在正对视角中是前边的中点）。把这个点放在
-  道具所在的地砖上。
-- **shadow**：在距精灵图左上角 `offset_px` 处绘制 `shadow.png`，不透明度约 30 %，放在所有精灵图下面。
-- **scale**：所有东西都按每米 `px_per_m` 像素绘制。对于地砖为 1 m、宽 `T` px 的 2:1 地图，按
-  `T / 1.414 / px_per_m` 缩放。
-
-| 引擎 | 做法 |
-|---|---|
-| Phaser | `this.add.image(x, y, 'armchair').setOrigin(anchor[0], anchor[1])` |
-| Godot 4 | `Sprite2D`：`centered = false`，`offset = -anchor_px` |
-| Unity | Sprite Editor → Pivot: Custom，`(anchor[0], 1 - anchor[1])` |
-
-**行走角色。** `character.json` 给出 `frame`（`[w, h]`，单位 px）、`anchor`（两脚之间，以帧的比例表示）
-和 `fps`。每个 `walk-<facing>.png` 是 8 帧并排的帧条，每个 `idle-<facing>.png` 是一帧。某个朝向的第 `i` 个阴影
-`shadows.walk[facing][i]` 绘制在距第 `i` 帧左上角 `offset` 处，不透明度约 30 %，放在所有东西下面。
-没有 `px_per_m`：把帧缩放到你希望角色站立的高度。在 Phaser 中，用 `rain_girl` 的数值：
-
-```js
-this.load.spritesheet('girl-se', 'walk-south-east.png', { frameWidth: 165, frameHeight: 256 });
-this.anims.create({ key: 'walk-se', frames: this.anims.generateFrameNumbers('girl-se'), frameRate: 6.76, repeat: -1 });
-this.add.sprite(x, y, 'girl-se').setOrigin(0.4926, 0.8839).play('walk-se');
-```
-完整格式：[reference/character.md](skills/spritecast/reference/character.md#output-nameout)。
+`export.py <name>/out`（免费）直接生成 **Godot 4、Unity、Phaser 3、Aseprite** 用的文件：身体、阴影和挥动特效按名字播放（`play("walk", "south-east")`）。道具连同阴影、光、风和碰撞导出到 Phaser 和 Godot。也可以自己读 `sprite.json` / `character.json` 里的数值。**[docs/guide/engines.md](docs/guide/engines.md)**（英文）—— 还有逐步的工作原理、常见错误和发送内容。
 
 ## 安装
 
@@ -932,78 +819,18 @@ Organization）：在第一次绘制前做一次即可。请在启动 Claude Cod
 
 </details>
 
-## 工作原理
-
-| 步骤 | 内容 | 费用 |
-|---|---|---|
-| spec | Claude 编写 `<name>.json`：占地、以米为单位的方块、对成品物体的描述 | 免费 |
-| `render` | 在无头 Chrome 中运行 three.js：引导图、它的阴影和模型的输入 | 免费 |
-| `draw` | OpenAI Images（默认 `gpt-image-2.5-sunburst`）：把引导图重绘成你的风格 | 约 $0.07 |
-| `finish` | 柔和地抠掉品红色背景，贴合回引导图的外框，烘焙阴影，测量锚点 | 免费 |
-| `preview` | 把精灵图放在 1 m 的地面网格上 | 免费 |
-
-你也可以自己运行这些步骤：
-`$PYTHON skills/spritecast/scripts/isoprop.py render|draw|finish|preview examples/reading_armchair.json`（`$PYTHON`：见
-[安装](#安装)）。在加上 `--yes` 之前，`draw` 只会
-打印费用。spec 格式见 [reference/spec.md](skills/spritecast/reference/spec.md)。做好引导图的技巧见
-[reference/tips.md](skills/spritecast/reference/tips.md)。
-
-## 出了问题时
-
-| 问题 | 解决办法 |
-|---|---|
-| `No module named ...` | 用 `python3 skills/spritecast/scripts/doctor.py` 打印的 `PYTHON=` 来运行脚本（如果它说没准备好，先运行 `--fix`；Claude 会替你做） |
-| 没有浏览器 | 安装 Chrome，或运行 `doctor.py --fix --browser`（Playwright 的 Chromium，约 150 MB） |
-| `this Python cannot make a venv` | Debian/Ubuntu：`sudo apt install python3-venv`，或使用别的 Python（python.org、conda） |
-| `draw: set OPENAI_API_KEY` | 在插件设置中填写密钥（`/plugin` → SpriteCast），或在环境变量中设置（见上文），然后重启 Claude Code |
-| `HTTP 401` / `403` | 密钥不对，或者 OpenAI 要求先验证你的组织才允许使用图像模型（platform.openai.com → Settings → Organization） |
-| `finish: WARNING - the drawing does not follow the guide` | 模型画成了别的角度或形状：在描述中写清从这个相机角度能看到什么，检查引导图，用 `--again` 重画。对于可能超出引导图的植物和其他松散形状，设置 `"loose": true` |
-| 绘制多出了东西 | 在描述中写明不能有什么（"no rug, no logos"），然后重画 |
-| 形状不对 | 修改方块：绘制会跟随引导图 |
-
-## 发送与下载的内容
-
-<details>
-<summary><b>什么被发送到哪里，以及下载了什么</b></summary>
-
-除了下面这些步骤，一切都在你的电脑上运行。每个付费步骤都会先打印费用并等你确认。
-
-| 时机 | 发送到 | 内容 |
-|---|---|---|
-| `draw` | OpenAI（`api.openai.com`） | 引导图、你的风格图片和文字描述，附带你的 `OPENAI_API_KEY` |
-| 角色：`turnaround`、`draw` | OpenAI | 插画、转面图和 3D 渲染图，附带同一个密钥 |
-| 角色：`3d` | Tripo（`openapi.tripo3d.ai`） | 转面图的四个视图，附带你的 `TRIPO_API_KEY`；返回模型、骨骼和行走 |
-| `model`（道具，可选） | Tripo | 文字描述 |
-| 角色，`"modeler": "meshy"`（可选） | Meshy（`api.meshy.ai`） | 四个视图，附带你的 `MESHY_API_KEY` |
-
-密钥只从你的环境中读取，只发送给各自的服务，绝不会写入文件或打印出来。下载的内容：
-
-| 什么 | 来源 | 时机 |
-|---|---|---|
-| numpy, pillow, scipy, playwright, onnxruntime | PyPI，装进它自己的 venv（`~/.cache/spritecast/venv`） | `doctor.py --fix`，一次 |
-| Chromium（约 150 MB） | Playwright 的服务器 | 仅在没有 Chrome 或 Edge 时，并且要你同意之后 |
-| 抠图模型 BiRefNet lite（224 MB，MIT），或用 `SPRITECAST_KEY_MODEL=general` 时的完整版（973 MB） | [rembg 的 GitHub release](https://github.com/danielgatis/rembg/releases/tag/v0.0.0)，校验 md5 | 角色，第一次 `finish` 时 |
-| MediaPipe Face Landmarker（3.7 MB，Apache-2.0）；`mediapipe` 本身需要单独 `pip install` | Google（`storage.googleapis.com/mediapipe-models`） | 仅 `facecheck`（可选），第一次 |
-
-渲染在你电脑上的无头浏览器中运行，不从互联网加载任何东西：three.js 是内置的
-（`skills/spritecast/scripts/vendor/three/`，MIT）。
-
-</details>
+除了绘制（OpenAI）和 3D 模型（Tripo，或选用的 Meshy），一切都在你的电脑上运行；每个付费步骤都会先显示费用并等你确认。[发送什么、下载什么](docs/guide/engines.md#what-it-sends-and-fetches)（英文）。
 
 ## 路线图
 
 接下来的计划，大致按这个顺序（没有日期，会根据反馈调整）：
-- **贴合座位的姿势，以及乘坐**（坐姿本身已经完成，见坐姿）：针对每个座位调整的姿势（在深沙发上往后靠，脚
-  踩在游乐设施的踏板上），而不是所有椅子都用同一个坐姿；以及角色乘坐推车和载具。
-- **转动的物体**：载具或游乐设施在多个角度上旋转，转动平滑，而不是在 8 个朝向之间跳变。
-- **夜间版本**：标出发光部分（窗户、灯泡、霓虹灯）的遮罩，让你的引擎在天黑后只点亮这些部分。
-- **可穿行的道具，自动化**：从 3D 引导图算出前景部分（目前是在修饰页面上手工涂绘）。
-- **更多动作和手持物**：跑、跳和挥砍已经有了，任何 Mixamo 片段都可以加进来（投掷，带一个会松手的雪球）；接下来是更多手持物（剑、法杖）和待机呼吸。
-- **小尺寸精灵图**：96 px 的像素画，以及专门设计成小个子角色的 64 px 像素画已经有了（见像素画）；32 px 的一套由
-  64 的生成。接下来：一步从普通设计生成小个子设计，以及不需要手工修的 32 px 脸。
-- **引擎导出**：Godot、Unity、Phaser 和 Aseprite 文件已经有了（见放进你的引擎）。接下来：像素套装。
-- **特效**：挥动时的水、火、树叶等已经有了（见挥动时的特效）。接下来：不需要手持物的特效（踢腿、
-  脚步溅起的水花），以及手绘的碎片。
+- **贴合座位的姿势与乘骑**：按座位调整的姿势，角色坐进推车和载具。
+- **旋转的物体**：载具平滑转动，而不是在 8 个朝向间跳变。
+- **夜间版本**：发光部分（窗户、灯泡、霓虹）的遮罩。
+- **可穿过的道具，自动化**：从 3D 引导算出前景部分（目前在修图页面手绘）。
+- **更多手持物**（剑、法杖）和不需要手持物的特效（踢腿、脚步溅水）。
+- **小尺寸精灵**：一步从普通设计做出小设计，32px 的脸无需手修。
+- **像素集的引擎导出。**
 
 每个版本改了什么，见 [CHANGELOG.md](CHANGELOG.md)。
 
@@ -1034,6 +861,7 @@ Organization）：在第一次绘制前做一次即可。请在启动 Claude Cod
   行走和阴影都来自 3D。你可以用自己的美术作为风格，或者设置 `"draw": false`，让图像模型不画行走
   角色的帧：3D 渲染图就是帧。转面图仍然要画，除非你带上自己绑好骨骼的模型
   （[跳过绘制](#跳过绘制直接用-3d-渲染作为帧)）。
+- **像素画要一帧一帧自己画吗？** 不用。图像模型照着 3D 渲染来画，后续处理是自动的；一张图放几帧也是按渲染大小算出来的。剩下的只是在像素编辑器里每帧改几个像素。
 - **它做不到什么？** 行走角色要从面朝前方、站直的插画开始。像素画适用于 96 px，以及专门设计成小个子的
   角色的 64 px；32 px 的一套由 64 的生成，脸更粗糙
   （[路线图](#路线图)）。摆姿势的单张图片（挥手、指向、拿着……）只需要描述。地毯这类又大又平的东西最好俯视绘制再斜贴到地面上
