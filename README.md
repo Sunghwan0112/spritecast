@@ -1,7 +1,5 @@
 <h1 align="center"><img src="docs/banner.gif" alt="SpriteCast" width="100%"></h1>
 
-<p align="center"><img src="docs/combo-water-fire.gif" alt="Rain Girl's two-hit combo as 96-px pixel art, with water and with fire: the swing's own trail and the effects pack's rings" width="100%"></p>
-
 <p align="center"><b>One illustration in. A game character out.</b><br>
 An isometric sprite generator for Claude Code: 8-direction walks, actions and pixel art<br>
 at your game's camera angle, with a 3D shadow under every frame - and the props to stand beside them.</p>
@@ -308,7 +306,7 @@ its frames.
   (a third of a frame before it, on it, a third after), so the water stays with the drawn umbrella instead of running ahead of it.
 - **In pixel art too**, at the sprite's size: solid things keep hard edges, mist stays see-through.
 
-![the same slash as 96-px pixel art, with water and with fire](docs/effects-pixel.gif)
+![Rain Girl's two-hit combo as 96-px pixel art, with water and with fire: the swing's own trail and the effects pack's rings (fxpack --set water-swing, fire-swing)](docs/combo-water-fire.gif)
 
 A combo in pixel art - Rain Girl's downward cut and spinning backhand in four facings, with their water and the backhand's ring (`motion.py`, `fxpack.py`):
 

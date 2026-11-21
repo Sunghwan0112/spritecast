@@ -1,7 +1,5 @@
 <h1 align="center"><img src="docs/banner.gif" alt="SpriteCast" width="100%"></h1>
 
-<p align="center"><img src="docs/combo-water-fire.gif" alt="우비소녀의 2단 콤보(96px 픽셀아트)에 물과 불꽃: 휘두르기 효과와 효과 묶음의 고리" width="100%"></p>
-
 <p align="center"><b>일러스트 한 장이 게임 캐릭터가 돼요.</b><br>
 Claude Code용 아이소메트릭 스프라이트 생성기: 8방향 걷기, 동작, 픽셀아트를<br>
 내 게임의 카메라 각도로, 프레임마다 3D 그림자와 함께 만들어요. 옆에 놓을 소품도요.</p>
@@ -295,7 +293,7 @@ Tripo의 네발 동물 리그는 걸음이 어색해요(등뼈가 없고, 어깨
   (⅓프레임 전, 그 순간, ⅓프레임 후) 나뉘어 있어서, 물이 그린 우산을 앞서가지 않고 따라가요.
 - **픽셀 아트에서도** 스프라이트 크기에 맞춰 나와요. 단단한 것은 가장자리가 또렷하고, 김은 반투명으로 남아요.
 
-![같은 베기의 96 px 픽셀 아트판, 물과 불](docs/effects-pixel.gif)
+![우비소녀의 2단 콤보(96px 픽셀아트)에 물과 불꽃: 휘두르기 효과와 효과 묶음의 고리(fxpack --set water-swing, fire-swing)](docs/combo-water-fire.gif)
 
 픽셀 아트 콤보 - 우비소녀의 내려치기와 돌려 베기를 네 방향으로, 물과 돌려 베기의 고리까지(`motion.py`, `fxpack.py`):
 
