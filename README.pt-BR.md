@@ -1,5 +1,7 @@
 <h1 align="center"><img src="docs/banner.gif" alt="SpriteCast" width="100%"></h1>
 
+<p align="center"><img src="docs/combo-water-fire.gif" alt="O combo de dois golpes da menina da chuva em pixel art de 96 px, com água e com fogo: o rastro do golpe e os anéis do pacote de efeitos" width="100%"></p>
+
 <p align="center"><b>Entra uma ilustração. Sai um personagem de jogo.</b><br>
 Um gerador de sprites isométricos para o Claude Code: caminhadas em 8 direções, ações e pixel art<br>
 no ângulo de câmera do seu jogo, com uma sombra 3D sob cada frame - e os props para ficar ao lado deles.</p>

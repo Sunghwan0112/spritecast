@@ -1,5 +1,7 @@
 <h1 align="center"><img src="docs/banner.gif" alt="SpriteCast" width="100%"></h1>
 
+<p align="center"><img src="docs/combo-water-fire.gif" alt="雨の少女の2段コンボ(96pxピクセルアート)、水と炎: 振りの軌跡とエフェクトパックのリング" width="100%"></p>
+
 <p align="center"><b>イラスト1枚を入れれば、ゲームキャラクターが出てくる。</b><br>
 Claude Code 用のアイソメトリック・スプライトジェネレーターです。8方向の歩行、アクション、ピクセルアートを<br>
 ゲームのカメラアングルで作り、すべてのフレームの下に3Dの影を付けます。その横に置くプロップも作れます。</p>

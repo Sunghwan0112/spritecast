@@ -3,6 +3,15 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.23.0 — 2026-11-21
+
+- **A swing's effects as a set: `fxpack.py export --set water-swing | fire-swing`** *(feedback: "the right one looks better - keep this
+  pairing, fire and water")*. What a swing round the character plays together, at 2x, with fx.json's `"sets"` saying when each starts
+  and on which layer: water - the shockwave ring and the water's ripple on the ground (the ripple 100 ms after, from its third cell),
+  the spin slash round her; fire - the pack's own flame ring (its flames stand up: the far half behind her, the near half in front) and
+  the spin slash as fire. `preview --set NAME` shows them as the set plays them.
+- **`fxpack.py --fire`**: an effect's lights and darks to a fire's colours. `--hue` turned the blue ring a washed-out pink.
+
 ## 0.22.2 — 2026-11-21
 
 - **Fixed: `pixelart.py --again NAME` without `--yes` deleted the drawn sheet** and drew nothing - asking what a redraw would cost lost

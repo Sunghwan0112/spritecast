@@ -1,5 +1,7 @@
 <h1 align="center"><img src="docs/banner.gif" alt="SpriteCast" width="100%"></h1>
 
+<p align="center"><img src="docs/combo-water-fire.gif" alt="우비소녀의 2단 콤보(96px 픽셀아트)에 물과 불꽃: 휘두르기 효과와 효과 묶음의 고리" width="100%"></p>
+
 <p align="center"><b>일러스트 한 장이 게임 캐릭터가 돼요.</b><br>
 Claude Code용 아이소메트릭 스프라이트 생성기: 8방향 걷기, 동작, 픽셀아트를<br>
 내 게임의 카메라 각도로, 프레임마다 3D 그림자와 함께 만들어요. 옆에 놓을 소품도요.</p>

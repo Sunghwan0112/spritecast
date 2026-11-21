@@ -1,5 +1,7 @@
 <h1 align="center"><img src="docs/banner.gif" alt="SpriteCast" width="100%"></h1>
 
+<p align="center"><img src="docs/combo-water-fire.gif" alt="雨衣女孩的两段连击(96 像素像素画),水与火:挥动轨迹与特效包的光环" width="100%"></p>
+
 <p align="center"><b>放进一张插画，得到一个游戏角色。</b><br>
 一个用于 Claude Code 的等距精灵图生成器：8 方向行走、动作和像素画，<br>
 都按你游戏的相机角度生成，每一帧下面都有 3D 阴影，还有能摆在旁边的道具。</p>

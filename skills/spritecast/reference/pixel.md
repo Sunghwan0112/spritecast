@@ -140,8 +140,18 @@ sheet, and an umbrella raised straight up over the head taller than a cell: such
 `index.json` lists them all with what each shows). Their strict tier: binary alpha, a limited palette - pixel art that sits with the sprites.
 CC0 1.0 for the sheets and manifests (`effects/pvfx/LICENSE.txt`, `THIRD_PARTY_NOTICES.txt`); the names and marks are not - say where one came from.
 - `fxpack.py list [--search q] [--category c]`, `preview ID ...` -> fx-preview.png, `export ID ... --out DIR [--as NAME] [--scale N]
-  [--palette CHAR.json|FILE|name] [--hue H]` -> `<DIR>/<name>.png` and `<DIR>/fx.json` (w, h, px, py, n, cols, ms, loop, src).
+  [--palette CHAR.json|FILE|name] [--hue H] [--fire]` -> `<DIR>/<name>.png` and `<DIR>/fx.json` (w, h, px, py, n, cols, ms, loop, src).
 - Whole scales only (`--scale 2` keeps a pixel a pixel): a ring drawn at 2x was as wide as the backhand it marked.
+- **A swing's set: `export --set water-swing | fire-swing --out DIR`** (`preview --set NAME` to look first) - the effects a swing round the
+  character plays together, the user's choice for Rain Girl's backhand ("the right one looks better - keep this pairing, fire and water"),
+  at 2x. `water-swing`: `impacts/shockwave-ring` on the ground from the swing's start, `water/ripple` on the ground 100 ms after it (from
+  its third cell: the first two are a drop falling), `melee/spin-slash` round her at the waist. `fire-swing`: `fire/flame-ring` (its
+  flames stand up: cut at its pivot's line, the far half behind her, the near half in front) and `melee/spin-slash` as fire. fx.json gets
+  `"sets": {name: [{"fx", "at", "layer": "ground" | "split", "y"}]}` - play each from the swing's start + `at` ms, its pivot `y` px above
+  her feet. The pack has no water ring (water/: splash, ripple, whirlpool, geyser) - the shockwave ring is blue and reads as water; the
+  ripple alone was a puddle at her feet, with the shockwave the user liked it best. It has no fire spin: the steel one made fire.
+- `--fire`: an effect's lights and darks to a fire's colours (ember red → orange → yellow → white-hot). `--hue` on the blue ring gave a
+  washed-out pink, not a flame (the user saw it).
 - `--palette CHAR.json`: every pixel to the nearest colour of the character's pixel set; `--hue`: the hues turned, lights and darks kept.
 - **In the game**: play the cells in order at `ms` from the pivot, once (or looping when `loop`). A thing in flight (`projectiles/*-flight`)
   is drawn going right: turn it the way it flies. A RING round a character (`melee/spin-slash`, at the waist) is cut at the pivot's line -

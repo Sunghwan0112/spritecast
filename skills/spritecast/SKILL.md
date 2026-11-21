@@ -191,7 +191,8 @@ second and look at the joins. A swing's water reaching further: `"trail_reach": 
 Foundry (CC0 1.0) come with SpriteCast (`effects/pvfx/`) - hits, splashes, fire, explosions, ice, lightning, smoke, sword trails, projectiles,
 pickups, status. `PYTHON fxpack.py list --search water`, `preview ID ...` (show the picture), `export ID --out assets/fx --as hit
 [--scale 2] [--palette CHAR.json] [--hue 210]` - a sheet and fx.json (cell, pivot, frames, ms) at the sprites' pixel size and, asked, in
-their colours. Offer it when a game wants hits, pickups or a finisher's flourish. A ring round a character is cut at its pivot's line:
+their colours. Offer it when a game wants hits, pickups or a finisher's flourish. A swing round the character: `export --set water-swing`
+(shockwave ring + ripple + spin) or `--set fire-swing` (flame ring + the spin as fire) - the pairing the user chose, with when and on which layer. A ring round a character is cut at its pivot's line:
 the far half behind, the near half in front. Say where an effect came from (the pack's licence: effects/pvfx/LICENSE.txt).
 
 **A prop as pixel art** (`PYTHON proppixel.py PROP.json`, reference/pixel.md "Props as pixel art"): the prop's guide pixelized and redrawn the same way, at the
