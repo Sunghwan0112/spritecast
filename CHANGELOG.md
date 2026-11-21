@@ -3,6 +3,11 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.22.2 — 2026-11-21
+
+- **Fixed: `pixelart.py --again NAME` without `--yes` deleted the drawn sheet** and drew nothing - asking what a redraw would cost lost
+  the sheet. The old sheet now stays until the new one is drawn (with `--yes`).
+
 ## 0.22.1 — 2026-11-20
 
 - **A speck that came apart from the figure goes** *(feedback: "the umbrella's tip pokes out at the upper left for a moment" in the README's

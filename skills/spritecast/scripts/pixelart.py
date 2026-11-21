@@ -431,8 +431,7 @@ def main():
             if idx is None:          # (a frame too tall or too wide for its cell - an umbrella straight up, or held out at arm's length: no guide, no prompt; it ran on into the draw and stopped there)
                 print(f'  {name}: a frame does not fit its cell (something long held, straight up or far out?) - left out: render that moment a little earlier or later'); continue
             sheets.append((c, dr, g, idx))
-            if A.again == name: (W / f'{name}-{H}-out.png').unlink(missing_ok=True)
-            if not (W / f'{name}-{H}-out.png').exists(): paid.append((name, sheet_size(c, dr, g)))
+            if (not (W / f'{name}-{H}-out.png').exists()) or A.again == name: paid.append((name, sheet_size(c, dr, g)))          # (--again: the drawn sheet is replaced only when the new one is paid for - without --yes it was deleted and nothing drawn)
     print(f'{len(sheets)} sheets; to draw: {len(paid)}' + (f' (about ${len(paid) * PRICE:.2f}): ' + ', '.join(n for n, _ in paid) if paid else ''))
     if paid and not A.yes:
         print('nothing spent - run again with --yes')
