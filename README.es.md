@@ -371,7 +371,7 @@ Unos $0.075 por hoja: una caminata en las ocho orientaciones son 18 hojas (unos 
 - **Cualquier animación de Mixamo.** `addclip.py hero.json Throw.fbx throw` lleva un clip FBX al rig del personaje, gratis. El lanzamiento
   de arriba entró así.
 - **Combos que enlazan.** `motion.py` une un ataque con el siguiente como lo hacen los juegos: el segundo empieza en la pose en que acaba el
-  primero, sin tocar el golpe; además devuelve al suelo los pies de un clip importado y convierte un hachazo en un tajo de espada en arco. Gratis, sobre el rig.
+  primero, sin tocar el golpe; además devuelve al suelo los pies de un clip importado y convierte un hachazo en un tajo de espada en arco. Gratis, sobre el rig - [la receta, de Mixamo al juego](skills/spritecast/reference/character.md).
 - **Se revisa a sí mismo.** Cada fotograma se compara con su render (la pose, el objeto en la mano); `--redraw` vuelve a dibujar las hojas marcadas
   y se queda con el mejor dibujo. Los 40 fotogramas del lanzamiento pasaron todos tras un redibujado.
 - **Y luego un editor de píxeles para el último detalle.** No todo el pixel art se consigue con reglas. `pixeledit.py hero.json` abre cada fotograma en

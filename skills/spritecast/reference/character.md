@@ -288,8 +288,19 @@ rig (`rig/rig-<tag>.glb`) and print the spec's `"rig_glb"` line; render and LOOK
      the LAST frame shown: `motion.py link CHAR.json downward@1.40 backhand@0.3-2.0 backhand_after --blend 0.4`, and `ground` it.
   6. Look at it whole: `motion.py join CHAR.json combo downward:0:1.40 backhand_after:0:1.40`, an action `{"name": "combo", "clip":
      "combo", "t0": 0, "t1": 2.79, "frames": 67}`, `charpipe.py render --only combo`, and the frames played at 24 a second.
-  7. The actions with `"hold"` and `"trail": "water"`, `charpipe.py render --only downward,backhand_after`, then `pixelart.py` - the
-     paid step: say the cost it prints and wait for a yes. ~$0.65 a facing for each 8-frame move held out this far (a sheet a frame).
+  7. The actions with `"hold"`, `"trail": "water"` (and `"trail_reach": 2` for water that carries), `charpipe.py render --only
+     downward,backhand_after`, then `pixelart.py` - the paid step: say the cost it prints and wait for a yes. ~$0.65 a facing for each
+     8-frame move held out this far (a sheet a frame); Rain Girl's two moves in four facings came to about $4.5.
+  8. By hand, free: `pixeledit.py CHAR.json` with "3D shapes over" - a held thing drawn white or missing shows as red where it should be.
+  9. Into the game - the set has ITS OWN frame size and feet (its bigger canvas): place it by its feet, not the walk's; lay the water's
+     cells in a grid (a 24-cell row at reach 2 was 9168 px, past what a phone draws); a move's FIRST water cell can sit where the tip was
+     a third of a frame before - off the umbrella (the user took it for the umbrella poking out): blank it if it floats free.
+  10. Playing it: a press during the first move queues the second, which starts the moment the first ends (from its last pose - step 5);
+     each move its own hit frames and reach (Rain Girl: the cut long and narrow ahead, 155 px, 42 degrees each side, frames 4-6; the
+     backhand short and all round, 118 px, frames 4-7, a monster thrown away from her). The finisher's flourish from `fxpack.py`:
+     `melee/spin-slash` and `impacts/shockwave-ring` at 2x - as wide as its reach - the ring round her cut at its middle, far half behind
+     her; `water/bubble-burst` where the water strikes (round: no way it points). Rain Girl's game.js (`MOVES`, `swing()`, `fx()`) is
+     the whole of it, in about 60 lines.
 - The held thing points along the hand bone as the renderer holds it (the action's `"grip"`, or the kind's default).
 - Never put a Mixamo file - or a rig with its motion in it - in a public repository: the moves may be used, not handed on.
 

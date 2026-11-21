@@ -362,7 +362,7 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 - **任意 Mixamo 动画。** `addclip.py hero.json Throw.fbx throw` 把 FBX 片段套到角色的骨骼上，免费。上面的投掷
   就是这样加进来的。
 - **连贯的连招。** `motion.py` 像游戏那样把一次攻击接到下一次：下一招从上一招结束的姿势开始，挥击本身不变。
-  它还把套来的动作中悬空的脚放回地面，把斧头劈砍改成走弧线的剑斩。在骨骼上完成，免费。
+  它还把套来的动作中悬空的脚放回地面，把斧头劈砍改成走弧线的剑斩。在骨骼上完成，免费 - [从 Mixamo 到游戏的流程](skills/spritecast/reference/character.md)。
 - **它会自我审查。** 每一帧都会与它的渲染图对照（姿势、手持物）；`--redraw` 重画被标记的图，
   保留更好的那张。投掷的 40 帧在一次重画后全部通过。
 - **最后一点交给像素编辑器。** 像素画不能全靠规则得到。`pixeledit.py hero.json` 在

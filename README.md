@@ -369,7 +369,7 @@ About $0.075 a sheet: a walk in all eight facings is 18 sheets (about $1.35); th
 - **Any Mixamo animation.** `addclip.py hero.json Throw.fbx throw` carries an FBX clip onto the character's rig, free. The throw
   above came in that way.
 - **Combos that join.** `motion.py` links one attack to the next the way games do - the second starts from the pose the first ends in, its
-  stroke untouched - puts carried feet back on the ground, and turns an axe chop into a sword cut on an arc. Free, on the rig.
+  stroke untouched - puts carried feet back on the ground, and turns an axe chop into a sword cut on an arc. Free, on the rig - [the recipe, Mixamo to the game](skills/spritecast/reference/character.md).
 - **It reviews itself.** Every frame is checked against its render (the pose, the held thing); `--redraw` draws the marked sheets
   again and keeps the better drawing. The throw's 40 frames all passed after one redraw.
 - **Then a pixel editor for the last bit.** Pixel art is not all to be had by rule. `pixeledit.py hero.json` opens every frame in

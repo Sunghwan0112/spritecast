@@ -371,7 +371,7 @@ Cerca de $0.075 por folha: uma caminhada nas oito direções são 18 folhas (cer
 - **Qualquer animação do Mixamo.** `addclip.py hero.json Throw.fbx throw` leva um clipe FBX para o rig do personagem, de graça. O arremesso
   acima entrou assim.
 - **Combos que se encadeiam.** `motion.py` liga um ataque ao seguinte como os jogos fazem: o segundo começa na pose em que o primeiro
-  termina, sem mexer no golpe; também põe de volta no chão os pés de um clipe importado e transforma um golpe de machado num corte de espada em arco. Grátis, no rig.
+  termina, sem mexer no golpe; também põe de volta no chão os pés de um clipe importado e transforma um golpe de machado num corte de espada em arco. Grátis, no rig - [a receita, do Mixamo ao jogo](skills/spritecast/reference/character.md).
 - **Ele se revisa.** Cada frame é comparado com seu render (a pose, o objeto segurado); `--redraw` desenha de novo as folhas marcadas
   e fica com o melhor desenho. Os 40 frames do arremesso passaram todos depois de um redesenho.
 - **Depois, um editor de pixel para o finzinho.** Nem toda pixel art sai por regra. `pixeledit.py hero.json` abre todos os frames

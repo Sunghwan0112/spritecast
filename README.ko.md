@@ -355,7 +355,7 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 - **Mixamo 애니메이션 아무거나.** `addclip.py hero.json Throw.fbx throw`가 FBX 클립을 캐릭터 리그에 옮겨요. 무료예요. 위의
   던지기도 그렇게 넣었어요.
 - **이어지는 콤보.** `motion.py`가 게임처럼 공격과 공격을 이어요. 다음 공격이 앞 공격이 끝난 자세에서 시작하고, 휘두르는 순간은 그대로예요.
-  옮겨 온 동작의 뜬 발을 땅에 붙이고, 도끼질을 원호를 그리는 칼 베기로 바꿔요. 리그에서 하니 무료예요.
+  옮겨 온 동작의 뜬 발을 땅에 붙이고, 도끼질을 원호를 그리는 칼 베기로 바꿔요. 리그에서 하니 무료예요 - [Mixamo부터 게임까지 레시피](skills/spritecast/reference/character.md).
 - **스스로 검토해요.** 프레임마다 렌더와 비교해요(자세, 쥔 물건). `--redraw`는 표시된 시트를 다시 그리고 더 나은 쪽을 남겨요.
   던지기 40프레임은 한 번 다시 그린 뒤 전부 통과했어요.
 - **마지막은 픽셀 에디터로.** 픽셀아트는 규칙만으로 다 되지 않아요. `pixeledit.py hero.json`을 실행하면 모든 프레임이 브라우저에
