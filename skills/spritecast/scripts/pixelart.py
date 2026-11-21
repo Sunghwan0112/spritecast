@@ -16,6 +16,9 @@
                             its nearest colour in it. Free, like --colours
         --held-as-drawn     leave a held thing's colours as GPT drew them (by default each part - an umbrella's handle, shaft, canopy, tip - takes
                             the same tones in every frame, from the hold's "color"/"handle"/"shaft"/"tip"; "shaft": "#5a3b22" makes it the handle's brown)
+        --keep-specks       keep a bit of the figure of 3 px or fewer that came apart from it (by default it goes: an umbrella's tip left as a
+                            speck off at a corner - or a pixel put in by hand in pixeledit.py left in the air when the frame was drawn again); for dust
+                            or sparks meant that small. Or "keep_specks": true in the spec
         --no-outline        leave the figure's rim as read (by default every rim pixel that is not dark takes the outline's colour: no gaps)
         --no-face-detail    in the face, a square takes its middle colour like everywhere else (by default a small thing - a glint, a brow, a mouth -
                             that fills a good third of a square wins it)
@@ -38,7 +41,7 @@ from PIL import Image
 from scipy import ndimage as ndi
 HERE = Path(__file__).resolve().parent; REPO = HERE
 ap = argparse.ArgumentParser(); ap.add_argument('spec', nargs='?'); ap.add_argument('--px', type=int, default=96); ap.add_argument('--clips', default='walk')
-ap.add_argument('--dirs', default=''); ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', default=''); ap.add_argument('--partial', action='store_true'); ap.add_argument('--no-face-detail', action='store_true'); ap.add_argument('--no-outline', action='store_true'); ap.add_argument('--redraw', action='store_true'); ap.add_argument('--cut', choices=['white', 'ai'], default=None); ap.add_argument('--colours', type=int, default=0); ap.add_argument('--palette', default=''); ap.add_argument('--held-as-drawn', action='store_true'); A = ap.parse_args()
+ap.add_argument('--dirs', default=''); ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', default=''); ap.add_argument('--partial', action='store_true'); ap.add_argument('--no-face-detail', action='store_true'); ap.add_argument('--no-outline', action='store_true'); ap.add_argument('--redraw', action='store_true'); ap.add_argument('--cut', choices=['white', 'ai'], default=None); ap.add_argument('--colours', type=int, default=0); ap.add_argument('--palette', default=''); ap.add_argument('--held-as-drawn', action='store_true'); ap.add_argument('--keep-specks', action='store_true'); A = ap.parse_args()
 if A.palette == 'list': sys.path.insert(0, str(Path(__file__).resolve().parent)); import pixelkit as P_; P_.show_palettes(); sys.exit()
 if not A.spec: ap.error('the character\'s spec (CHAR.json) is wanted')
 if A.colours and A.colours < 8: sys.exit('--colours: 8 at least (an outline, two tones of hair, of skin, of each cloth: under that the face goes)')
@@ -66,7 +69,7 @@ CWP, CHP = 1024 // Z, 1536 // Z; FOOTP = CHP - CHP // 12                        
 CH_ = 32          # the margin a sprite is given on its canvas, px
 NCOL = 24
 FACE_DETAIL = not A.no_face_detail
-HROWS = {}; SIZED = {}; HEADW = {}; PITCH = []; PITCHES = {}; GAPS = {}; EDGE = {}; FINAL = {}; HELDC = {}; REVIEW = {}; SPENT = [0.0]; BASES = {}; DRAWN = {}; EDITED = []; ASIDE = []
+HROWS = {}; SIZED = {}; HEADW = {}; PITCH = []; PITCHES = {}; GAPS = {}; EDGE = {}; FINAL = {}; HELDC = {}; REVIEW = {}; SPENT = [0.0]; BASES = {}; DRAWN = {}; EDITED = []; ASIDE = []; SPECKS = []
 TOUCH = json.loads((W / f'touch-{H}.json').read_text()) if (W / f'touch-{H}.json').exists() else {}
 # how long the machine took: every sheet's drawing and every frame's cut-out, timed when it is made (kept: a later run pays for neither)
 TIMES = json.loads((W / f'times-{H}.json').read_text()) if (W / f'times-{H}.json').exists() else {}; TIMES.setdefault('draw', {}); TIMES.setdefault('cut', {})
@@ -251,6 +254,7 @@ def trail_faded(clip, dr, i, f, per):
     a[..., 3] *= k * k * (3 - 2 * k)
     out_ = W / 'trail-faded' / f.name; out_.parent.mkdir(exist_ok=True); Image.fromarray(a.round().astype(np.uint8)).save(out_); return out_
 FADE_FROM, FADE_TO = 0.75, 1.15
+SPECK_MAX = 3          # (pixels: a stray bit of the figure this small, apart from it, goes - see STRAY SPECKS)
 
 def per_sheet(clip, dr):
     """frames to a sheet: four 48-px cells (at 96 px) - or three, or two, wider ones where a frame is too wide for that (a side view's
@@ -409,7 +413,7 @@ def read_body(clip, dr, g, idx):
 # --- putting it together ------------------------------------------------------------------------------------------------------------
 def main():
     for x_ in (GAPS, EDGE, FINAL, HELDC, HEADW, SIZED, PITCHES, BASES, DRAWN): x_.clear()
-    EDITED.clear(); ASIDE.clear(); T0 = time.time()
+    EDITED.clear(); ASIDE.clear(); SPECKS.clear(); T0 = time.time()
     todo = [(c, dr) for c in CLIPS for dr in DIRS]
     miss = [(c, dr) for c, dr in todo if not all((d / f'render/{c}-{dr}-{i}.png').exists() for i in range(nframes(c)))]
     if miss: sys.exit(f'no renders for {miss} - run `charpipe.py render` first')
@@ -616,6 +620,21 @@ def main():
                 if A.colours: r_, g_, b_ = ALLRGB[((ALLRGB.astype(int) - (r_, g_, b_)) ** 2).sum(1).argmin()]          # (a colour put in by hand is one of the set's too)
                 if 0 <= y_ < a_.shape[0] and 0 <= x_ < a_.shape[1]: a_[y_, x_] = (r_, g_, b_, 255)
             fr[n_] = Image.fromarray(a_); EDITED.append(f'{c}-{dr} {n_}')
+        # STRAY SPECKS: a thin end (an umbrella's tip, a sword's point, a strand of hair) made small can come apart from the figure - 1 to 3
+        # pixels on their own beside it, a speck off at a corner for a frame (the user saw one in Rain Girl's combo and took it for the
+        # umbrella poking out). And a pixel put in by hand in pixeledit.py stays where it was put when the frame is drawn again with the
+        # thing moved (an umbrella's tip painted over a white speck, the swing then made again: that was the one the user saw). After the
+        # hand's edits, then: whatever does not touch the figure (not even at a corner) and is SPECK_MAX pixels or fewer goes. Kept with
+        # --keep-specks or "keep_specks": true in the spec (dust, sparks, a thing let go that IS that small). Only the figure's strips: a
+        # swing's water and the shadows keep their drops.
+        if not (A.keep_specks or s.get('keep_specks')):
+            for n_, f_ in enumerate(fr):
+                a_ = np.asarray(f_).copy(); lab_, k_ = ndi.label(a_[..., 3] > 0, structure=np.ones((3, 3)))
+                if k_ < 2: continue
+                sz_ = ndi.sum(a_[..., 3] > 0, lab_, range(1, k_ + 1)); gone_ = [j_ + 1 for j_, z_ in enumerate(sz_) if z_ <= SPECK_MAX and z_ < sz_.max()]
+                if not gone_: continue
+                hand_ = {(x_, y_) for x_, y_, *_ in tj.get(str(n_), {}).get('set', [])}; ys_, xs_ = np.nonzero(np.isin(lab_, gone_))
+                a_[np.isin(lab_, gone_)] = 0; fr[n_] = Image.fromarray(a_); SPECKS.append((f'{c}-{dr} {n_}', len(xs_), sum((x_, y_) in hand_ for x_, y_ in zip(xs_.tolist(), ys_.tolist()))))
         box = None
         for f in fr: b = f.getbbox(); box = b if box is None else (min(box[0], b[0]), min(box[1], b[1]), max(box[2], b[2]), max(box[3], b[3]))
         strips[(c, dr)] = (fr, box)
@@ -650,6 +669,7 @@ def main():
     print('  white per frame (pixels; of them: paper made see-through, GPT\'s own white painted over, a real light part given the guide\'s colour):', GAPS)
     print('  head width per frame (px):', {k: [v[i] for i in sorted(v)] for k, v in HEADW.items()})
     print('  drawn at (x the render\'s size per frame, the correction made to the sheet, its squares in px):', SIZED, '- the character\'s scale', state['scale'])
+    if SPECKS: print(f'  stray specks taken off (apart from the figure, {SPECK_MAX} px or fewer): {sum(n for _, n, _ in SPECKS)} px in {len(SPECKS)} frames' + (f', {sum(h for *_, h in SPECKS)} of them put in by hand in pixeledit.py (on an older drawing of the frame?)' if any(h for *_, h in SPECKS) else '') + ' - --keep-specks if they were meant')
     if EDITED: print(f'  fixed by hand (pixeledit.py), laid on again: {len(EDITED)} frames')
     if ASIDE: print('  hand edits SET ASIDE - the frame was drawn anew since:', ', '.join(ASIDE), f'(still in {W}/touch-{H}.json)')
     if not strips: sys.exit('no animation is whole yet (a sheet left out above?)')

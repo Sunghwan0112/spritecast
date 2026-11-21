@@ -183,6 +183,11 @@ frame**, lit and shaded as the drawing had it. Free; by default; `--held-as-draw
 - **A swing's effect missing in some facings**: `pixelart.py` names the facings an action with `"trail"` has no effect in, and the free
   command that renders it (`charpipe.py render SPEC --only <action>`). (A pixel swing went into a game with its water in one facing of four.)
 
+- **A speck beside the figure** (a thin end made small - an umbrella's tip, a sword's point - left as 1-3 pixels on their own; or a pixel
+  put in by hand in `pixeledit.py`, left in the air when the frame was drawn again with the thing moved): taken off by `pixelart.py`, after
+  the hand's edits (it says how many, and how many were put in by hand). If the user says one was meant (dust, a spark, something that
+  small let go), run it again with `--keep-specks` or put `"keep_specks": true` in the spec.
+
 ## Fixing by hand: `pixeledit.py`
 
 Pixel art is not all to be had by rule: a patch of paper left where an arm crosses the body, a face that came out poorer in one

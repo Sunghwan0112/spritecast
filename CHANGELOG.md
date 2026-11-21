@@ -3,6 +3,16 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.22.1 — 2026-11-20
+
+- **A speck that came apart from the figure goes** *(feedback: "the umbrella's tip pokes out at the upper left for a moment" in the README's
+  combo)*: a thin end made small (an umbrella's tip, a sword's point, a strand of hair) could be left as 1-3 pixels on their own beside the
+  figure - and a pixel put in by hand in `pixeledit.py` stays where it was put when the frame is drawn again with the thing moved (grey
+  painted on the umbrella's tip over a white speck, the swing then made again: the one the user saw). `pixelart.py` now takes off, after
+  the hand's edits, whatever does not touch the figure, not even at a corner, and is 3 pixels or fewer, and says how many and how many of
+  them were put in by hand. Kept with `--keep-specks` or `"keep_specks": true` in the spec (dust, sparks meant that small). A swing's water
+  and the shadows keep their drops.
+
 ## 0.22.0 — 2026-11-20
 
 - **Attacks that join** *(feedback: a second swing for Rain Girl's combo - "the moves between the attacks look odd", "the legs change too
