@@ -39,15 +39,22 @@ cada fotograma es la misma persona, y de verdad camina.
 
 ![la misma escena: a la izquierda el juego antes - una baldosa de hierba cuadrada y un corazón y una poción de frente de un pack de iconos; a la derecha ahora - un prado 3D, y el corazón y la poción hechos con modelos 3D al ángulo del juego, con sus sombras](docs/one-angle.png)
 
-| | das | recibes | pagas |
+**Pruébalo gratis, sin clave.** Después, un personaje que camina cuesta unos **$3** y un objeto unos centavos; el suelo, las sombras 3D, las transparencias, las poses de criaturas, el viento y la exportación a Phaser y Godot no cuestan nada. Para dibujar necesitas una clave de OpenAI, y para modelos 3D una de Tripo (1 crédito de Tripo = $0.01).
+
+<details><summary>lo que cuesta cada cosa</summary>
+
+| | das | recibes | aprox. |
 |---|---|---|---|
-| **Un personaje que camina** | una ilustración | una caminata en 8 orientaciones, vistas en reposo, una sombra por fotograma | unos $2.2 + 75 créditos de Tripo |
-| **Más acciones** | un nombre (Tripo: rápido), o un FBX de Mixamo (más natural) | correr, saltar, dar un tajo, lanzar... en 8 orientaciones | unos 10 créditos de Tripo cada una (un FBX: nada) + el dibujo |
-| **Pixel art** | un personaje que camina | sprites en píxeles de unos 100 px de alto | unos $0.075 por hoja (una caminata, 8 orientaciones: ~$1.35) |
-| **Un animal** | una ilustración | una caminata a cuatro patas en 8 orientaciones | 30 créditos de Tripo + el dibujo |
-| **Sentado** | un personaje que camina | sentado en 8 orientaciones, colocado sobre tus props | unos $0.22 |
-| **Un prop, o un NPC en pose** | una descripción | un sprite, su sombra, su ancla | unos $0.07 (+ $0.08 por cada orientación más) |
-| **Un prop en pixel art** | una descripción | sprites en píxeles desde cada lado, a la escala del personaje en píxeles | unos 20 créditos de Tripo + $0.08 por lado |
+| **Un personaje que camina** | una ilustración | un paseo en 8 direcciones, vistas de pie, una sombra por fotograma | **$3** (dibujo $2.2 + Tripo $0.75) |
+| **Otra acción** | un nombre (Tripo: rápido) o un FBX de Mixamo (más natural) | correr, saltar, cortar, lanzar... en 8 direcciones | **$0.8-1.5** por acción (dibujo $0.7-1.4 + Tripo $0.10; un FBX: gratis) |
+| **Pixel art** | un personaje que camina | sprites de unos 100 px de alto | **$1.35** un paseo en 8 direcciones ($0.075 por hoja) |
+| **Un animal** | una ilustración | un paseo a cuatro patas en 8 direcciones | **$2.8** (dibujo $2.5 + Tripo $0.30) |
+| **Sentarse** | un personaje que camina | sentado en 8 direcciones, sobre tus objetos | **$0.22** |
+| **Un objeto o un NPC en pose** | una descripción | un sprite, su sombra, su ancla | **$0.07** (+ $0.08 por dirección extra) |
+| **Un objeto en pixel art** | una descripción | sprites desde cada lado, a la escala del personaje pixel | **$0.28** por un lado (Tripo $0.20 + $0.08 por lado) |
+| **Gratis** | - | el suelo (prado, camino, charcos), sombras 3D, transparencias, poses de criaturas, viento, exportar a Phaser/Godot, la prueba | **$0** |
+
+</details>
 
 Gratis y MIT. Pagas a OpenAI y a Tripo directamente; cada paso de pago muestra su coste y espera tu OK.
 

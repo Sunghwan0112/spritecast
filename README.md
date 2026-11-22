@@ -35,15 +35,22 @@ every frame is the same person, and she actually walks.
 
 ![the same scene: on the left the game before - a square grass tile and a front-on heart and potion from an icon pack; on the right now - a 3D meadow, and the heart and potion made from 3D models at the game's angle, with their shadows](docs/one-angle.png)
 
-| | you give | you get | you pay |
+**Try it free, with no key.** Then a walking character is about **$3**, a prop a few cents - and the ground, the 3D shadows, see-through things, creatures' poses, the wind and the export to Phaser and Godot cost nothing. You need an OpenAI key to draw, and a Tripo key for 3D models (1 Tripo credit = $0.01).
+
+<details><summary>what each one costs</summary>
+
+| | you give | you get | about |
 |---|---|---|---|
-| **A walking character** | one illustration | a walk in 8 facings, standing views, a shadow per frame | about $2.2 + 75 Tripo credits |
-| **More actions** | a name (Tripo: quick), or a Mixamo FBX (more natural) | run, jump, slash, throw... in 8 facings | about 10 Tripo credits each (an FBX: none) + the drawing |
-| **Pixel art** | a character that walks | pixel sprites about 100 px tall | about $0.075 a sheet (a walk, 8 facings: ~$1.35) |
-| **An animal** | one illustration | a four-legged walk in 8 facings | 30 Tripo credits + the drawing |
-| **Sitting** | a character that walks | seated in 8 facings, placed on your props | about $0.22 |
-| **A prop, or a posed NPC** | a description | a sprite, its shadow, its anchor | about $0.07 (+ $0.08 a further facing) |
-| **A pixel-art prop** | a description | pixel sprites from every side, at the pixel character's scale | about 20 Tripo credits + $0.08 a side |
+| **A walking character** | one illustration | a walk in 8 facings, standing views, a shadow per frame | **$3** (drawing $2.2 + Tripo $0.75) |
+| **Another action** | a name (Tripo: quick), or a Mixamo FBX (more natural) | run, jump, slash, throw... in 8 facings | **$0.8-1.5** an action (drawing $0.7-1.4 + Tripo $0.10; an FBX: free) |
+| **Pixel art** | a character that walks | pixel sprites about 100 px tall | **$1.35** a walk in 8 facings ($0.075 a sheet) |
+| **An animal** | one illustration | a four-legged walk in 8 facings | **$2.8** (drawing $2.5 + Tripo $0.30) |
+| **Sitting** | a character that walks | seated in 8 facings, placed on your props | **$0.22** |
+| **A prop, or a posed NPC** | a description | a sprite, its shadow, its anchor | **$0.07** (+ $0.08 a further facing) |
+| **A pixel-art prop** | a description | pixel sprites from every side, at the pixel character's scale | **$0.28** for one side (Tripo $0.20 + $0.08 a side) |
+| **Free** | - | the ground (meadow, path, puddles), 3D shadows, see-through, creatures' poses, wind, Phaser/Godot export, the try | **$0** |
+
+</details>
 
 Free and MIT. You pay OpenAI and Tripo directly; every paid step shows its cost and waits for your OK. `"facings": 4` draws only
 the four diagonals - about half the cost - and the character still walks in all eight directions.
