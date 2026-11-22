@@ -547,6 +547,7 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # 방향�
 - `ground.py terrain`: 3D 높이 지도로 만든 바닥의 완만한 굴곡이에요. 같은 태양으로 비춰서 바닥 위 모든 것에 덮어요.
 - `ground.py puddles`: 큰 것부터 거의 마른 것까지 웅덩이 다섯 개예요(한 모양이 줄어들어서 마를 때 자연스러워요). 얕게 파인 곳에 고인 어두운 물에 카메라 각도대로 하늘과 나무 그늘이 비치고, 젖은 테두리가 있어요.
 - `ground.py grass2d`: 3D 없이, 이음매 없는 풀 타일 하나의 풀잎을 같은 방식으로 흩뿌려요(1초).
+- **픽셀아트가 아니라면?** 스펙에 `"style": "smooth"`(`translucent.py` / `propanim.py`는 `--smooth`): 같은 땅, 반투명, 움직이는 생물을 끊김 없는 빛·색·알파와 부드러운 가장자리로 - 일러스트 게임용.
 
 <details><summary>풀 속의 발과 나무 밑동, 웅덩이</summary>
 

@@ -552,6 +552,7 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # ~$0.08 a
 - `ground.py terrain`：由 3D 高度图得到的地面起伏，用同一个太阳照亮，盖在地面上的一切之上。
 - `ground.py puddles`：从大到快干的五个水洼（同一个形状缩小，干得自然）——浅坑里的暗色水，按相机角度映出天空和树荫，还有湿边。
 - `ground.py grass2d`：不用 3D，把一张无缝草贴图的草叶用同样方式撒开（一秒）。
+- **不是像素画？** 在规格里写 `"style": "smooth"`（`translucent.py` / `propanim.py` 用 `--smooth`）：同样的地面、半透明和会动的生物，光、色、透明度连续，边缘柔和——适合插画风游戏。
 
 <details><summary>草里的脚和树根，水洼</summary>
 

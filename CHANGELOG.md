@@ -3,6 +3,15 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.26.0 — 2026-11-21
+
+- **Smooth versions of the new tools** *(feedback: "make smooth versions of everything")*, for a game drawn as illustration, not
+  pixel art. `ground.py`: `"style": "smooth"` - the meadow rendered at 3x and averaged, light and greens continuous, the palette's
+  colour without its steps, soft-edged front strips; terrain and puddles as gradients; grass2d unquantized. `translucent.py`:
+  `--smooth` / `"style": "smooth"` - alpha from thickness without steps (a little blurred), the edge alpha a soft gradient.
+  `propanim.py`: a smooth prop (finished with isoprop.py) or `--smooth` - the sheet is the poses' renders on magenta, the prop's own
+  sprite the style to copy; each cell cut out softly, put back where its render was, each sheet's scale matched to its renders (a sheet drawn 5 % bigger made the loop pop).
+
 ## 0.25.0 — 2026-11-21
 
 - **The ground: `ground.py meadow | terrain | puddles | grass2d`** *(feedback: "the grid should be iso and not show", "natural, like a

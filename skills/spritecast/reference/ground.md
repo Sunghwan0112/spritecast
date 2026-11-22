@@ -10,6 +10,12 @@ image model. Four commands on one small spec (`GROUND.json`, keys in `ground.py 
 | `puddles` | five puddles, big to nearly dry, one shape shrinking: a shallow hollow of water (see-through at the edge, deep in the middle, the sky and the trees' shade in it at the camera's angle, a wet rim) | 1 s |
 | `grass2d` | no 3D: the tufts of one seamless grass tile cut out and scattered by a Gaussian density (thick patches and thin, stretched 2:1 along the ground) - no repeat, no grid | 1 s |
 
+## Pixel or smooth
+`"style": "pixel"` (the default) - steps of light, the props' palette, a 1-px outline, no blur. `"style": "smooth"` for an illustrated
+game: rendered at 3x and averaged, the light and the greens continuous, the palette's colour without its steps (each channel's mean and
+spread moved to the palette-mapped one's), only a hint of an outline; the front strips with soft edges (alpha = how much of each pixel
+the plants cover, so they lie over the ground without a seam); `terrain` a smooth gradient; `puddles` every colour kept, their edges fading.
+
 ## What the user chose, and why (Rain Girl, 2026-11-21) - keep to it unless the user says otherwise
 - **No tile.** A tile laid square showed its square grid and seams (flipped copies do not match) - "the grid should be iso and not show".
   So the ground is ONE picture of the whole map (`meadow` or `grass2d`), never a repeated square.

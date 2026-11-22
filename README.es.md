@@ -571,6 +571,7 @@ El suelo sobre el que están tus sprites, con la misma cámara y la misma luz - 
 - `ground.py terrain`: las suaves subidas y bajadas del suelo según un mapa de alturas 3D, iluminadas por el mismo sol, sobre todo lo que hay en el suelo.
 - `ground.py puddles`: cinco charcos, de grande a casi seco (una forma que se encoge, para que se seque suave) - un hueco poco profundo de agua oscura con el cielo y la sombra de los árboles al ángulo de la cámara, y un borde mojado.
 - `ground.py grass2d`: sin 3D - las matas de una baldosa de hierba sin costuras recortadas y esparcidas igual (un segundo).
+- **¿No es pixel art?** `"style": "smooth"` en la especificación (y `--smooth` para `translucent.py` / `propanim.py`): el mismo suelo, transparencias y criaturas que se mueven con luz, color y alfa continuos, bordes suaves - para un juego ilustrado.
 
 <details><summary>sus pies y el pie de un árbol en la hierba; los charcos</summary>
 

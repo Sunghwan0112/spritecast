@@ -21,7 +21,9 @@ GROUND.json (every key but "name" may be left out):
   "path": {"points": [[x, y], ...] (screen px, along its middle), "half": 24 (px), "gravel": true, "earth": "dirt.png" (a tile; else a
            brown of its own)}: earth with two wheel ruts and 3D gravel, the plants kept off it and lower beside it,
   "terrain": {"amp": 0.35 (m), "seed": 5}, "puddles": {"sizes": [[65, 34], [59, 33], [48, 25], [32, 19], [19, 13]]},
-  "tile": "grass.png" (grass2d), "seed": 3
+  "tile": "grass.png" (grass2d), "seed": 3,
+  "style": "pixel" (default: steps of light, one palette, a 1-px outline, no blur) | "smooth" (for an illustrated game: rendered at 3x and
+           averaged, the light and the greens continuous, no palette; the front strips with soft edges; terrain and puddles as gradients)
 WIN=x,y,w,h in the environment renders a window only (a quick look), DEBUG=1 also writes what each pixel is (ground, plant, path, stone).
 reference/ground.md: what each one is for, how to use the front strips in an engine, what the user chose and why."""
 import glob, json, math, os, sys
@@ -95,7 +97,7 @@ def raster(P, faces, Hh, Ww):
 # --- meadow ----------------------------------------------------------------------------------------------------------------------------
 def meadow(s):
     import trimesh
-    W, H = s['size']; PPM = float(s['ppm']); PITCH = math.radians(s['pitch']); SS = 2; seed = int(s.get('seed', 3)); rng = np.random.default_rng(seed)
+    W, H = s['size']; PPM = float(s['ppm']); PITCH = math.radians(s['pitch']); SMOOTH = s.get('style') == 'smooth'; SS = 3 if SMOOTH else 2; seed = int(s.get('seed', 3)); rng = np.random.default_rng(seed)
     SUN = np.array(s['sun'], float); SUN /= np.linalg.norm(SUN); out = s['_out']
     DENS, FERNS, FLOWERS = float(s.get('density', 22)), float(s.get('ferns', 0.12)), float(s.get('flowers', 0.08)); PAL = palette_of(s)
     # THE PLANTS: each kind's models, stood on the ground at their height
@@ -108,7 +110,7 @@ def meadow(s):
             M, gn = sc.graph[node]; g = sc.geometry[gn]; v = trimesh.transform_points(g.vertices, M); mat = getattr(g.visual, 'material', None)
             tex = getattr(mat, 'baseColorTexture', None) if mat is not None else None
             if tex is not None and getattr(g.visual, 'uv', None) is not None:          # textured (a Tripo plant): blurred - a face takes its part's colour, not the grain (pixel art wants clusters)
-                t_ = ndimage.gaussian_filter(np.asarray(tex.convert('RGB').resize((256, 256), Image.BOX)).astype(float), (3, 3, 0)); lum = t_.mean(-1)
+                t_ = ndimage.gaussian_filter(np.asarray(tex.convert('RGB').resize((512, 512) if SMOOTH else (256, 256), Image.BOX)).astype(float), (1, 1, 0) if SMOOTH else (3, 3, 0)); lum = t_.mean(-1)          # (smooth: its texture nearly as it is)
                 if not it.get('keep_light'): t_ = t_ * (78.0 / max(1.0, lum[lum > 20].mean()))          # (every plant as light as the grass: a fern's lime brought down to it)
                 TEX.append(t_); parts.append((v, g.faces, ('tex', len(TEX) - 1, g.visual.uv)))
             else:
@@ -188,7 +190,9 @@ def meadow(s):
     lam = np.abs(nrm[f_] @ SUN); lam[C[f_, 0] == -2] = SUN[1]; q = np.c_[P3 @ ax * SR - lo[0] + 2, -(P3 @ ay) * SR - lo[1] + 2]; qi = np.clip(q.astype(int), 0, [shp[1] - 1, shp[0] - 1])
     lit = (P3 @ SUN) >= szf[qi[:, 1], qi[:, 0]] - 0.02; light = 0.32 + 0.68 * lam * lit
     col = np.zeros((len(f_), 3)); leaf = C[f_, 0] == -1; gnd = C[f_, 0] == -2; tex = C[f_, 0] == -3; own = C[f_, 0] >= 0
-    li = np.clip((light[leaf] - 0.32) / 0.68 * 0.85 + np.clip(P3[leaf, 1] / 0.25, 0, 1) * 0.2 - 0.08, 0, 1) * (len(GREENS) - 1); col[leaf] = GREENS[np.round(li).astype(int)]
+    li = np.clip((light[leaf] - 0.32) / 0.68 * 0.85 + np.clip(P3[leaf, 1] / 0.25, 0, 1) * 0.2 - 0.08, 0, 1) * (len(GREENS) - 1)
+    if SMOOTH: i0 = np.floor(li).clip(0, len(GREENS) - 2).astype(int); fr_ = (li - i0)[:, None]; col[leaf] = GREENS[i0] * (1 - fr_) + GREENS[i0 + 1] * fr_          # (smooth: between the greens)
+    else: col[leaf] = GREENS[np.round(li).astype(int)]
     col[gnd] = GROUND[None] * (0.7 + 0.25 * lit[gnd])[:, None]; col[own] = C[f_][own] * (0.62 + 0.38 * light[own, None])
     onpath = np.zeros(len(f_), bool)
     if path:          # THE EARTH: the tile (or a brown) by screen position, two wheel ruts darker, its edge darker under the grass, and a verge of trodden earth just outside
@@ -202,17 +206,19 @@ def meadow(s):
         uv = UV[F[f_[tex]]].mean(1); ti = TI[f_[tex]]; tc = np.zeros((tex.sum(), 3))
         for k in np.unique(ti):
             m = ti == k; t_ = TEX[k]; th_, tw_ = t_.shape[:2]; tc[m] = t_[np.clip((1 - uv[m, 1] % 1) * th_, 0, th_ - 1).astype(int), np.clip((uv[m, 0] % 1) * tw_, 0, tw_ - 1).astype(int)]
-        band = np.round(np.clip((light[tex] - 0.32) / 0.68 + np.clip(P3[tex, 1] / 0.25, 0, 1) * 0.3, 0, 1.2) * 3) / 3; col[tex] = tc * (0.75 + 0.75 * band)[:, None]
+        band = np.clip((light[tex] - 0.32) / 0.68 + np.clip(P3[tex, 1] / 0.25, 0, 1) * 0.3, 0, 1.2); band = band if SMOOTH else np.round(band * 3) / 3; col[tex] = tc * (0.75 + 0.75 * band)[:, None]
     img = np.zeros((HH, WW, 3)); img[seen] = col; PP = np.zeros((HH, WW), bool); PP[seen] = onpath
     if os.environ.get('DEBUG'):
         kk = np.zeros(len(f_), int); kk[gnd] = 1; kk[tex | leaf] = 2; kk[own] = 3; kk[gnd & onpath] = 4; dbg = np.zeros((HH, WW, 3), np.uint8)
         dbg[seen] = np.array([[0, 0, 0], [30, 40, 90], [40, 160, 40], [150, 150, 150], [150, 100, 50]])[kk]; Image.fromarray(dbg[SS // 2::SS, SS // 2::SS]).save(out / 'ground-debug.png')
     # DOWN TO THE GAME'S PIXELS (each pixel the block's middle: no blur), THE OUTLINE (a plant before another or the ground: one step darker)
-    small = img[SS // 2::SS, SS // 2::SS][:H, :W].copy(); pp = PP[SS // 2::SS, SS // 2::SS][:H, :W]
+    if SMOOTH:          # smooth: each pixel the block's average (no hard edges), the path where most of the block is path
+        small = img[:H * SS, :W * SS].reshape(H, SS, W, SS, 3).mean((1, 3)); pp = PP[:H * SS, :W * SS].reshape(H, SS, W, SS).mean((1, 3)) > 0.5
+    else: small = img[SS // 2::SS, SS // 2::SS][:H, :W].copy(); pp = PP[SS // 2::SS, SS // 2::SS][:H, :W]
     inst = np.full((HH, WW), -2); inst[seen] = I[f_]; inst = inst[SS // 2::SS, SS // 2::SS][:H, :W]
     dep = np.full((HH, WW), -9.0); dep[seen] = P3[:, 2] * math.cos(PITCH) + P3[:, 1] * math.sin(PITCH); dep = dep[SS // 2::SS, SS // 2::SS][:H, :W]; edge = np.zeros((H, W), bool)
     for dy, dx in ((1, 0), (0, 1), (0, -1)): edge |= (inst >= 0) & (np.roll(inst, (-dy, -dx), (0, 1)) != inst) & (np.roll(dep, (-dy, -dx), (0, 1)) < dep - 0.03)
-    small[edge] = small[edge] * 0.62
+    small[edge] = small[edge] * (0.9 if SMOOTH else 0.62)          # (smooth: only a hint of an outline)
     # TONE (the textured plants darker / less yellow: a rainy forest - the user chose 0.58 / 0.78 on the Rain Girl meadow), white flowers kept
     TK, TS = float(s.get('tone', 0.58)), float(s.get('saturation', 0.78))
     if tex.any() and (TK != 1 or TS != 1):
@@ -221,9 +227,14 @@ def meadow(s):
     if PAL is not None:
         meadow_pal = PAL[(PAL[:, 1] >= PAL[:, 0] - 4) | (PAL.mean(1) > 150)]; meadow_pal = meadow_pal if len(meadow_pal) >= 4 else PAL
         path_pal = np.vstack([PAL] + ([np.unique(np.asarray(Image.open(rel(s, path['earth'])).convert('RGB')).reshape(-1, 3), axis=0).astype(float) * k for k in (1, 0.8, 0.64)] if path and path.get('earth') else []))
-        small[~pp] = to_pal(small[~pp], meadow_pal)
-        if pp.any(): small[pp] = to_pal(small[pp], path_pal)
+        for sel, pal_ in ((~pp, meadow_pal), (pp, path_pal)):
+            if not sel.any(): continue
+            m_ = to_pal(small[sel], pal_)
+            if SMOOTH:          # smooth: the palette's colour without its steps - each channel's mean and spread moved to the palette-mapped one's
+                q_ = small[sel]; small[sel] = (q_ - q_.mean(0)) / (q_.std(0) + 1e-6) * m_.std(0) + m_.mean(0)
+            else: small[sel] = m_
         res = Image.fromarray(np.clip(small, 0, 255).astype(np.uint8))
+    elif SMOOTH: res = Image.fromarray(np.clip(small, 0, 255).astype(np.uint8))          # (smooth: its own colours, every one)
     else: res = Image.fromarray(np.clip(small, 0, 255).astype(np.uint8)).quantize(colors=24, method=Image.Quantize.MEDIANCUT, kmeans=2).convert('RGB')
     res.save(out / ('ground-window.png' if WIN else 'ground.png'), optimize=True)
     if WIN: return print(f'ground: {out / "ground-window.png"} (a window: no front strips)')
@@ -231,15 +242,22 @@ def meadow(s):
     # as a tree's is its foot's - an engine draws a strip over whoever stands behind those plants (reference/ground.md)
     fin = np.asarray(res.convert('RGB')); root = np.r_[pz * math.sin(PITCH) * PPM, -1]; R = np.where(inst >= 0, root[np.clip(inst, 0, len(px) - 1)], -1); yy = np.mgrid[0:H, 0:W][0]
     plant = (inst >= 0) & (yy <= R + 1) & ~pp; STEP = 3; strips = []; rows = []; aY = 0
+    if SMOOTH:          # (smooth: a strip's alpha is how much of each pixel's block its plants cover - soft edges)
+        instF = np.full((HH, WW), -1); instF[seen] = I[f_]; RF = np.where(instF >= 0, root[np.clip(instF, 0, len(px) - 1)], -1)[:H * SS, :W * SS]; yyF = (np.mgrid[0:H * SS, 0:W * SS][0] + 0.5) / SS
+        plantF = (instF[:H * SS, :W * SS] >= 0) & (yyF <= RF + 1) & ~PP[:H * SS, :W * SS]
     for k in range(0, H + 40, STEP):
-        m = plant & (R >= k) & (R < k + STEP)
+        if SMOOTH:
+            r0, r1 = max(0, k - 80), min(H, k + STEP + 2); mf = plantF[r0 * SS:r1 * SS] & (RF[r0 * SS:r1 * SS] >= k) & (RF[r0 * SS:r1 * SS] < k + STEP)
+            cov = np.zeros((H, W)); cov[r0:r1] = np.clip(mf.reshape(r1 - r0, SS, W, SS).mean((1, 3)) / 0.6, 0, 1); m = cov > 0.03          # (a pixel's colour is already the blade's mixed with what is behind: 60 % covered counts as whole, else thin blades over a foot looked washed out)
+        else: m = plant & (R >= k) & (R < k + STEP); cov = m.astype(float)
         if not m.any(): continue
         ys_, xs_ = np.nonzero(m); x0, y0, x1, y1 = xs_.min(), ys_.min(), xs_.max() + 1, ys_.max() + 1
-        t = np.zeros((y1 - y0, x1 - x0, 4), np.uint8); t[..., :3] = fin[y0:y1, x0:x1]; t[..., 3] = m[y0:y1, x0:x1] * 255
+        t = np.zeros((y1 - y0, x1 - x0, 4), np.uint8); t[..., :3] = fin[y0:y1, x0:x1]; t[..., 3] = (cov[y0:y1, x0:x1] * 255).round().astype(np.uint8)
         strips.append(t); rows.append([int(k + STEP), int(x0), int(y0), int(x1 - x0), int(y1 - y0), int(aY)]); aY += int(y1 - y0)
     atlas = np.zeros((max(1, aY), max([t.shape[1] for t in strips] or [1]), 4), np.uint8); a_ = 0
     for t in strips: atlas[a_:a_ + t.shape[0], :t.shape[1]] = t; a_ += t.shape[0]
-    Image.fromarray(atlas).quantize(colors=64, method=Image.Quantize.FASTOCTREE).save(out / 'ground-front.png', optimize=True)
+    atlas[atlas[..., 3] == 0] = 0          # (the colour under alpha 0 cleared: smooth's atlas went from 17 MB to 4)
+    (Image.fromarray(atlas) if SMOOTH else Image.fromarray(atlas).quantize(colors=64, method=Image.Quantize.FASTOCTREE)).save(out / 'ground-front.png', optimize=True)
     (out / 'ground-front.json').write_text(json.dumps({'what': 'the plants cut into strips by their roots: [depth (root y), x, y, w, h, y in ground-front.png]', 'strips': rows}))
     (out / 'ground-front.js').write_text('// the plants in front (ground.py): [depth (root y), x, y, w, h, y in ground-front.png]\nconst GROUNDFRONT = ' + json.dumps(rows) + ';\n')
     z = 2; pv = res.resize((W // 2 * z, H // 2 * z), Image.NEAREST) if W > 1200 else res.resize((W * z // 2 * 1, H * z // 2 * 1), Image.NEAREST); pv.save(out / 'preview.png')
@@ -257,8 +275,12 @@ def terrain(s):
     dz, dx = np.gradient(h, gz[:, 0], gx[0]); n = np.dstack([-dx, np.ones_like(h), -dz]); n /= np.linalg.norm(n, axis=-1, keepdims=True)
     f = (n @ SUN) / SUN[1]; f = f / np.median(f) + (rng.random((H // 2 + 1, W // 2 + 1))[y.astype(int) // 2, x.astype(int) // 2] - 0.5) * 0.02
     img = np.zeros((H, W, 4), np.uint8)
-    for lo_, hi_, c, al in [(-9, 0.93, (12, 20, 14), 0.20), (0.93, 0.97, (12, 20, 14), 0.10), (1.03, 1.07, (236, 240, 190), 0.06), (1.07, 9, (236, 240, 190), 0.12)]:
-        m = (f >= lo_) & (f < hi_); img[m, :3] = c; img[m, 3] = round(al * 255)
+    if s.get('style') == 'smooth':          # smooth: a gradient, no steps, no dither
+        f = (n @ SUN) / SUN[1]; f = f / np.median(f); dk = np.clip((1 - f) / 0.07, 0, 1) * 0.2; lt = np.clip((f - 1) / 0.07, 0, 1) * 0.12
+        img[..., :3] = np.where((dk > lt)[..., None], np.array([12, 20, 14]), np.array([236, 240, 190])); img[..., 3] = (np.maximum(dk, lt) * 255).round().astype(np.uint8)
+    else:
+        for lo_, hi_, c, al in [(-9, 0.93, (12, 20, 14), 0.20), (0.93, 0.97, (12, 20, 14), 0.10), (1.03, 1.07, (236, 240, 190), 0.06), (1.07, 9, (236, 240, 190), 0.12)]:
+            m = (f >= lo_) & (f < hi_); img[m, :3] = c; img[m, 3] = round(al * 255)
     Image.fromarray(img).save(s['_out'] / 'terrain.png', optimize=True)
     print(f"ground: {s['_out'] / 'terrain.png'} - the slopes lit by the sun, a third lit and a third shaded; lay it over the ground (and its path)")
 
@@ -281,6 +303,10 @@ def puddles(s):
         col[water] = col[water] * (0.82 + 0.3 * np.clip((dy[water] + 1) / 2, 0, 1))[:, None]
         a = np.zeros((H, W)); a[water] = 140 + 100 * np.clip(depth[water] / depth.max(), 0, 1) ** 0.7; wet = ring & (rng.random((H, W)) < 0.85); col[wet] = MUD * 0.7; a[wet] = 88
         img = np.zeros((H, W, 4), np.uint8); img[..., :3] = np.clip(col, 0, 255); img[..., 3] = a.astype(np.uint8)
+        if s.get('style') == 'smooth':          # smooth: every colour kept, the water's edge and the wet rim fading softly (no 1-px ragged ring)
+            col_s = ndimage.gaussian_filter(np.clip(col, 0, 255), (0.6, 0.6, 0)); aw = np.clip((1 - r) * max(ry, 1) / 1.5, 0, 1) * (140 + 100 * np.clip(depth / depth.max(), 0, 1) ** 0.7)
+            ar = np.clip(1 - (r - 1) / (3.2 / max(rx, 1)), 0, 1) * 88 * (r >= 1); col_s[r >= 1] = MUD * 0.7; img = np.dstack([col_s, np.maximum(aw, ar)]).round().clip(0, 255).astype(np.uint8)
+            Image.fromarray(img).save(s['_out'] / f'puddle-{j}.png', optimize=True); continue
         q = Image.fromarray(img).convert('RGB').quantize(colors=12, method=Image.Quantize.MEDIANCUT).convert('RGB')
         Image.fromarray(np.dstack([np.asarray(q), img[..., 3]])).save(s['_out'] / f'puddle-{j}.png', optimize=True)
     print(f"ground: {s['_out']}/puddle-0..{len(sizes) - 1}.png - water alpha over 128, the wet rim under 100 (read the water from the alpha)")
@@ -314,7 +340,7 @@ def grass2d(s):
         h, w = t.shape[:2]; X = int(X_ - w / 2); Y = int(Y_ - h + 2); xs, ys = max(0, X), max(0, Y); xe, ye = min(W, X + w), min(H, Y + h)
         if xe <= xs or ye <= ys: continue
         sub = t[ys - Y:ye - Y, xs - X:xe - X]; m = sub[..., 3] > 0; img[ys:ye, xs:xe][m] = sub[..., :3][m]
-    Image.fromarray(img.astype(np.uint8)).quantize(colors=20, method=Image.Quantize.MEDIANCUT, kmeans=2).save(s['_out'] / 'ground.png', optimize=True)
+    res = Image.fromarray(img.astype(np.uint8)); (res if s.get('style') == 'smooth' else res.quantize(colors=20, method=Image.Quantize.MEDIANCUT, kmeans=2)).save(s['_out'] / 'ground.png', optimize=True)
     print(f"ground: {s['_out'] / 'ground.png'} - {len(px)} tufts by a Gaussian density, no repeat")
 
 

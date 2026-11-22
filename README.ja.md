@@ -560,6 +560,7 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # ~$0.08 a
 - `ground.py terrain`: 3Dの高さマップによる地面のゆるやかな起伏。同じ太陽で照らし、地面の上のすべてに重ねます。
 - `ground.py puddles`: 大きいものからほとんど乾いたものまで5つの水たまり(1つの形が縮むので乾き方がなめらか)。浅いくぼみの暗い水に、カメラの角度で空と木陰が映り、濡れた縁があります。
 - `ground.py grass2d`: 3Dなしで、つなぎ目のない草タイル1枚の草を同じようにばらまきます(1秒)。
+- **ピクセルアートでなければ?** スペックに `"style": "smooth"`(`translucent.py` / `propanim.py` は `--smooth`): 同じ地面・半透明・動くクリーチャーを、連続した光・色・アルファと柔らかい輪郭で - イラスト調のゲームに。
 
 <details><summary>草の中の足と木の根元、水たまり</summary>
 

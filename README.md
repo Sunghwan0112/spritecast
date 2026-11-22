@@ -574,6 +574,7 @@ picture of the whole map: no tile, so no repeat and no grid.
 - `ground.py puddles`: five puddles, big to nearly dry (one shape shrinking, so drying is smooth) - a shallow hollow of dark water with
   the sky and the trees' shade in it at the camera's angle, and a wet rim.
 - `ground.py grass2d`: no 3D - one seamless grass tile's tufts cut out and scattered the same way (a second).
+- **Not pixel art?** `"style": "smooth"` in the spec (and `--smooth` for `translucent.py` / `propanim.py`): the same ground, see-through and moving creatures with continuous light, colour and alpha, soft edges - for an illustrated game.
 
 <details><summary>her feet and a tree's foot in the grass; the puddles</summary>
 
