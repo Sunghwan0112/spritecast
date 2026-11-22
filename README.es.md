@@ -35,6 +35,10 @@ Luego solo pide: *"Aquí está mi personaje (hero.png). Haz que camine en 8 dire
 Un modelo de imagen (el de OpenAI, con tu propia clave) hace el dibujo. El cuerpo, el movimiento, el ángulo y la sombra salen del 3D, así que
 cada fotograma es la misma persona, y de verdad camina.
 
+**Todo con el mismo ángulo.** Lo que hace que un juego isométrico parezca hecho por IA rara vez es un sprite malo: son cosas vistas desde cámaras distintas, una al lado de otra. Un personaje dibujado desde arriba, de pie sobre una baldosa cuadrada puesta plana, junto a un corazón y una poción de frente sacados de un pack de iconos. Dibuja todo con la misma vista iso y la misma luz - el personaje, los árboles y el suelo, y también el corazón y la poción que recoge, cada uno desde su propio modelo 3D con su sombra - y el juego deja de parecer un collage. (Lo que va pegado a la pantalla, como sus corazones arriba, puede quedar de frente: dibujado desde el mismo corazón 3D.)
+
+![la misma escena: a la izquierda el juego antes - una baldosa de hierba cuadrada y un corazón y una poción de frente de un pack de iconos; a la derecha ahora - un prado 3D, y el corazón y la poción hechos con modelos 3D al ángulo del juego, con sus sombras](docs/one-angle.png)
+
 | | das | recibes | pagas |
 |---|---|---|---|
 | **Un personaje que camina** | una ilustración | una caminata en 8 orientaciones, vistas en reposo, una sombra por fotograma | unos $2.2 + 75 créditos de Tripo |

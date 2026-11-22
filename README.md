@@ -31,6 +31,10 @@ Then just ask: *"Here's my character (hero.png). Make her walk in 8 directions."
 An image model (OpenAI's, with your own key) does the drawing. The body, the motion, the angle and the shadow come from 3D - so
 every frame is the same person, and she actually walks.
 
+**Everything at one angle.** What makes an isometric game look AI-made is rarely one bad sprite - it is things seen from different cameras side by side: a character drawn from above, standing on a square tile laid flat, beside a front-on heart and potion from an icon pack. Draw everything at the same iso view and in the same light - the character, the trees and the ground, and also the heart and the potion she picks up, each from its own 3D model with its shadow - and the game stops looking pasted together. (What sits on the screen, like her hearts at the top, can stay front-on - drawn from the same 3D heart.)
+
+![the same scene: on the left the game before - a square grass tile and a front-on heart and potion from an icon pack; on the right now - a 3D meadow, and the heart and potion made from 3D models at the game's angle, with their shadows](docs/one-angle.png)
+
 | | you give | you get | you pay |
 |---|---|---|---|
 | **A walking character** | one illustration | a walk in 8 facings, standing views, a shadow per frame | about $2.2 + 75 Tripo credits |
