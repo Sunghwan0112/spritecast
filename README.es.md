@@ -547,6 +547,39 @@ lámpara en el suelo y el viento en sus hojas se calculan a partir de él: grati
 
 </details>
 
+### Cosas que se transparentan y criaturas que se mueven
+
+Una llama, un fantasma, una gota de agua deberían dejar ver el suelo: más en una punta delgada que en lo grueso. Con `"translucent": "fire" | "ghost" | "water"` en la especificación de un objeto, el alfa de cada píxel sale de **lo grueso que es ahí su propio modelo 3D** (la luz pasando como por un medio), en unos pocos pasos fijos para que siga siendo pixel art; los ojos y la boca se mantienen. Un `"pulse"` hace que las partes finas se desvanezcan de vez en cuando durante una animación, así la llama ondula en vez de parpadear. Gratis.
+
+![un monstruo de fuego, un fantasma y una gota de agua tal como se dibujaron y con alfa según el grosor de su modelo 3D: las puntas de la llama, la cola y los brazos del fantasma y el borde del agua transparentes](docs/translucent.png)
+
+**Algo que se mueve sin esqueleto** (la cola de un fantasma, sus bracitos): `proprig.py` encuentra unos huesos en el propio modelo (una cadena a lo largo de la cola, los brazos donde salen del cuerpo) y renderiza un ciclo de poses con tu cámara (gratis; míralas primero); `propanim.py` las dibuja como pixel art **cuatro fotogramas por hoja**, para que coincidan (~$0.08 por hoja), y hornea el alfa pose a pose. Se exporta a Phaser y Godot como el viento en un árbol.
+
+<details><summary>el ciclo del fantasma: la cola ondula como la de un caracol, los brazos se mueven, las partes finas se desvanecen a ratos</summary>
+
+![el ciclo de 8 fotogramas del fantasma sobre la hierba](docs/creature-loop.gif)
+
+</details>
+
+### El suelo: un prado, un camino, charcos
+
+El suelo sobre el que están tus sprites, con la misma cámara y la misma luz - **gratis**, nada dibujado por un modelo de imagen: `ground.py meadow GROUND.json` planta un prado de **hierba, helechos, flores silvestres y trébol en 3D** (vienen con el skill: hechos con Tripo, MIT) según una densidad gaussiana - zonas espesas y ralas, no una alfombra uniforme - con un camino de tierra, dos rodadas y grava 3D, lo ilumina con el sol de los objetos (la sombra de cada planta sobre las otras) y lo convierte en pixel art **con la paleta de tus propios sprites**. Una sola imagen de todo el mapa: sin baldosa, así que sin repetición ni cuadrícula.
+
+![el mismo suelo de tres maneras: una baldosa cuadrada repetida, con la cuadrícula a la vista; las matas de una baldosa esparcidas por una densidad gaussiana; el prado 3D con un camino de grava](docs/ground.png)
+
+- **Pies en la hierba.** Las plantas también vienen cortadas en tiras según sus raíces (`ground-front.png` / `.json`): dibuja una tira sobre quien esté detrás y los pies de tu personaje quedan en la hierba, y el pie de un árbol también ([cómo, con código Phaser](skills/spritecast/reference/ground.md)).
+- `ground.py terrain`: las suaves subidas y bajadas del suelo según un mapa de alturas 3D, iluminadas por el mismo sol, sobre todo lo que hay en el suelo.
+- `ground.py puddles`: cinco charcos, de grande a casi seco (una forma que se encoge, para que se seque suave) - un hueco poco profundo de agua oscura con el cielo y la sombra de los árboles al ángulo de la cámara, y un borde mojado.
+- `ground.py grass2d`: sin 3D - las matas de una baldosa de hierba sin costuras recortadas y esparcidas igual (un segundo).
+
+<details><summary>sus pies y el pie de un árbol en la hierba; los charcos</summary>
+
+![sus botas tras las briznas que tiene delante, y las raíces de un árbol en la hierba](docs/ground-feet.png)
+
+![cinco charcos de grande a casi seco, hundidos en la hierba](docs/ground-puddles.png)
+
+</details>
+
 ### Sin dibujo: los renders 3D como fotogramas
 
 Con `"draw": false` en la spec, ningún modelo de imagen dibuja los fotogramas: los propios renders del modelo 3D (con sombreado toon, con su propia textura) son

@@ -1,0 +1,54 @@
+{
+ "name": "translucent",
+ "what": "A pixel sprite made see-through by its own 3D model's thickness, as light passes through a flame, a ghost or water: a ray through each pixel is measured (farthest surface - nearest) and alpha = 1 - exp(-k t), in a few fixed steps so it stays pixel art; details inside (eyes, a mouth) keep the most. Tuned by eye on Rain Girl's fire monster, a ghost and a water drop on the game's grass (2026-11-21).",
+ "floor": 0.05,
+ "cap": 0.8,
+ "levels": [
+  0.05,
+  0.2,
+  0.4,
+  0.6,
+  0.8
+ ],
+ "kinds": {
+  "fire": {
+   "k": 2.0,
+   "note": "a flame: the tips fade into the air",
+   "pulse": {
+    "depth": 0.6,
+    "fade": 0.25
+   }
+  },
+  "ghost": {
+   "k": 1.5,
+   "note": "a ghost: the tail and arms all but gone, the body like mist",
+   "pulse": {
+    "depth": 0.6,
+    "fade": 0.3
+   }
+  },
+  "water": {
+   "k": 1.5,
+   "note": "water: clear at the edge and the point, deeper in the middle"
+  },
+  "default": {
+   "k": 1.5
+  }
+ },
+ "pulse_what": "over an animation's frames, once a loop: the thin parts (a flame's tips, a ghost's tail and arms) let more light through for a while - k times (1 - depth w), the cap times (1 - fade w), w going 0 -> 1 -> 0 - so it wavers rather than blinks (the user asked for it on the ghost and the flame)",
+ "edge": {
+  "what": "no 3D model to measure (an effect's flame, a fireball, a 2D drawing): the distance in from its edge stands for its thickness - the rim pixel, the next, inside; the brightest core kept. The values Rain Girl's ground flames, burning trees and fireballs use (2026-11-21)",
+  "rim": 0.3,
+  "next": 0.55,
+  "inside": 0.8,
+  "core": 0.9,
+  "core_light": 225,
+  "waver": [
+   1,
+   0.82,
+   0.66,
+   0.82
+  ],
+  "waver_what": "over the frames (or in the game, each flame to its own beat: about 4.5 steps a second, a fireball 6) the whole of it times these, by steps"
+ }
+}

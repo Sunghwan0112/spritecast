@@ -223,6 +223,8 @@ def main():
         import propshade; propshade.bake(A.spec, A.shadow or None, strength=A.shadow_strength)
     if spec.get('model') and spec.get('sway'):          # (the wind in it: its leaves in clumps cut from the model, a sheet of frames - free)
         import propshade; propshade.sway(A.spec)
+    if spec.get('model') and spec.get('translucent'):          # (see-through by its 3D thickness: a flame, a ghost, water - free; translucent.py, presets/translucent.json)
+        import translucent; translucent.for_prop(A.spec)
     if spec.get('model') and spec.get('collide') is not False:          # (where it is in the way, cut from the model: solid-<side>.png, and cover-<h>-<side>.png for "collide": {"cover": [...]} - free)
         import propshade; propshade.collide(A.spec)
 

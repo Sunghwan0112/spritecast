@@ -40,6 +40,9 @@ def load(out):
         if e.get('lamp'): s['lamp'] = {'at': rel(e['lamp']['at']), 'spot': rel(e['lamp']['spot'])}
         if e.get('sway') and (out / e['sway']['sheet']).exists():
             w = e['sway']; s['sway'] = {'file': w['sheet'], 'frame': w['frame'], 'frames': w['frames'], 'rows': w['rows'], 'fps': w.get('fps', 4), 'offset': rel([-w['pad'], -w.get('top', 0)])}
+        an = out / 'anim.json'
+        if an.exists() and len(pj['views']) == 1 and 'sway' not in s:          # (propanim.py's loop - a ghost's tail and arms: played as the wind is, one row)
+            A = json.loads(an.read_text()); s['sway'] = {'file': A['file'], 'frame': A['frame'], 'frames': A['frames'], 'rows': ['loop'], 'fps': A.get('fps', 9), 'offset': rel([-A['sprite_at'][0], -A['sprite_at'][1]])}
         if e.get('solid'): s['solid'] = {'file': e['solid']['file'], 'offset': rel(e['solid']['at']), 'hull': [rel(p) for p in e['solid']['hull']]}
         for c in e.get('cover', []): s.setdefault('cover', []).append({'file': c['file'], 'offset': rel(c['at']), 'height_m': c['height_m'], 'hull': [rel(p) for p in c['hull']]})
         sides[k] = s

@@ -538,6 +538,51 @@ on the floor and the wind in its leaves are worked out from it - free, on your c
 
 </details>
 
+### See-through things and creatures that move
+
+A flame, a ghost, a drop of water should let the ground show through - more at a thin tip than in the thick of it. With `"translucent":
+"fire" | "ghost" | "water"` in a prop's spec, each pixel's alpha comes from **how thick its own 3D model is there** (a ray through it,
+light passing as through a medium), in a few fixed steps so it stays pixel art; eyes and a mouth keep the most. A `"pulse"` lets the
+thin parts fade now and then over an animation, so a flame wavers instead of blinking. Free.
+
+![a fire monster, a ghost and a water drop as drawn, and with alpha from their 3D models' thickness: the flame's tips, the ghost's tail and arms, the water's edge see-through](docs/translucent.png)
+
+**Something that moves without a rig** - a ghost's tail, its little arms: `proprig.py` finds a few bones in the model itself (a chain
+along the tail, the arms where they stick out of the body) and renders a loop of poses at your camera (free; look at them first);
+`propanim.py` draws them as pixel art **four frames to a sheet**, so they match (~$0.08 a sheet), and bakes the alpha pose by pose.
+Exported to Phaser and Godot like the wind in a tree.
+
+<details><summary>the ghost's loop: the tail sways like a snail's, the arms swing, the thin parts fade now and then</summary>
+
+![the ghost's 8-frame loop on grass](docs/creature-loop.gif)
+
+</details>
+
+### The ground: a meadow, a path, puddles
+
+The ground your sprites stand on, at the same camera and in the same light - **free**, nothing drawn by an image model:
+`ground.py meadow GROUND.json` plants a meadow of **3D grass, ferns, wildflowers and clover** (they come with the skill: made with Tripo,
+MIT) by a Gaussian density - thick patches and thin, not an even carpet - with a path of earth, two wheel ruts and 3D gravel through it,
+lights it with the props' sun (every plant's shadow on the others), and turns it into pixel art **in your own sprites' palette**. One
+picture of the whole map: no tile, so no repeat and no grid.
+
+![the same ground three ways: a square tile repeated, its grid showing; one tile's tufts scattered by a Gaussian density; the 3D meadow with a gravel path](docs/ground.png)
+
+- **Feet in the grass.** The plants also come cut into strips by their roots (`ground-front.png` / `.json`): draw a strip over whoever
+  stands behind it and your character's feet are in the grass, a tree's foot stands in it ([how, with Phaser code](skills/spritecast/reference/ground.md)).
+- `ground.py terrain`: the ground's gentle rise and fall from a 3D height map, lit by the same sun, laid over everything on the ground.
+- `ground.py puddles`: five puddles, big to nearly dry (one shape shrinking, so drying is smooth) - a shallow hollow of dark water with
+  the sky and the trees' shade in it at the camera's angle, and a wet rim.
+- `ground.py grass2d`: no 3D - one seamless grass tile's tufts cut out and scattered the same way (a second).
+
+<details><summary>her feet and a tree's foot in the grass; the puddles</summary>
+
+![her boots behind the blades in front of her, and a tree's roots in the grass](docs/ground-feet.png)
+
+![five puddles from big to nearly dry, sunk into the grass](docs/ground-puddles.png)
+
+</details>
+
 ### Skipping the drawing: the 3D renders as the frames
 
 With `"draw": false` in the spec, no image model draws the frames: the 3D model's own renders (toon-shaded, its own texture) are

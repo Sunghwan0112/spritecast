@@ -3,6 +3,23 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.25.0 — 2026-11-21
+
+- **The ground: `ground.py meadow | terrain | puddles | grass2d`** *(feedback: "the grid should be iso and not show", "natural, like a
+  meadow", "in the style of our trees")*. Free, nothing drawn by an image model. `meadow`: a meadow of 3D grass, ferns, wildflowers
+  and clover - Tripo-made, coming with the skill in `ground/realistic` (MIT) - planted by a Gaussian density, a path of earth, wheel ruts
+  and 3D gravel, lit by the props' sun with the plants' shadows, pixel art in the user's own palette; one picture of the whole map (no
+  tile: no repeat, no grid). Its plants come cut into strips by their roots (`ground-front.*`), so the grass hides a character's feet
+  and a tree's foot *(feedback)* - not a fire's or a ghost's. `terrain`: the ground's rise and fall from a 3D height map. `puddles`: a
+  shallow hollow of water, five sizes of one shape. `grass2d`: one grass tile's tufts scattered the same way, no 3D. reference/ground.md.
+- **See-through by 3D thickness: `"translucent": "fire" | "ghost" | "water"`** (`translucent.py`, presets/translucent.json) *(feedback:
+  "fire could take an alpha", "lowest 0.05, highest 0.8")*: each pixel's alpha from its own 3D model's thickness, in fixed steps; a
+  `"pulse"` lets the thin parts fade now and then; `--edge` for a drawing with no model (a flame, a fireball).
+- **A creature that moves, from its own model: `proprig.py` + `propanim.py`** *(feedback: "a rig?", "side to side, a little, like a
+  snail", "the arms to and fro, together")*: bones found in the mesh (a chain along the tail, the arms), a loop of poses rendered, drawn
+  four frames to a sheet (they match), alpha pose by pose; exported to Phaser and Godot like the wind. What did not work, and is not
+  offered: bending the drawn sprite itself by the model (it looked melted).
+
 ## 0.24.0 — 2026-11-21
 
 - **Rain Girl's combo as a preset: `motion.py preset SPEC.json rain-girl-combo`** *(feedback: "keep only how much it changed, so others
