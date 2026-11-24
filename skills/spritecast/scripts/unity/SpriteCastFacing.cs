@@ -1,7 +1,7 @@
 // Written by SpriteCast's export.py. Plays a SpriteCast character's animation by action and facing:
 //     SpriteCastFacing.Play(GetComponent<Animator>(), "walk", "east");
-// A facing the set has no drawing for (a set made with "facings": 4 has the diagonals only) shows the nearest one it has; between two
-// as near (east: south-east or north-east) the one shown last on that Animator stays, so walking straight across does not flicker; with none shown
+// A facing the set has no drawing for (a set made with "facings": 4 has the diagonals only, "cardinal" the cardinals) shows the nearest
+// one it has; between two as near (east: south-east or north-east; south-east: south or east) the one shown last on that Animator stays, so walking straight across does not flicker; with none shown
 // yet, the one turned more toward the viewer.
 using System.Collections.Generic;
 using UnityEngine;

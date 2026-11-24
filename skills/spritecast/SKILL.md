@@ -58,7 +58,7 @@ arrangement matters more than detail.
 
 ## Characters
 A standing person: a `character` spec (see spec.md) instead of blocks - a mannequin at their real height, one view per facing, the
-first facing drawn first and the rest from it. Ask the height, the build, the facings (4 diagonals unless their game uses 8) and what
+first facing drawn first and the rest from it. Ask the height, the build, the facings (4 diagonals unless their game uses 8, or 4 cardinals for a game moving up/down/left/right) and what
 they wear. Look at every facing yourself before showing them: the outline check can't see a body turned the wrong way inside a right
 outline (a back view with the front of the clothes). Redraw just that one: `draw <spec> --yes --again --only <facing>` (ask first).
 Poses (`character.pose`): stand, wave, point, hold, arms-crossed, walk (a single mid-stride picture) - say the pose in the description too
@@ -68,7 +68,7 @@ walk cycles or other animation say this plugin doesn't make them (it needs a rig
 drawn to match).
 
 ## Walking characters
-**Ask first: eight facings or four.** `"facings": 4` in the spec renders and draws only the diagonals (south-east, south-west, north-east, north-west): about half the drawing (a walk ~$1 instead of ~$2; pixel art ~$0.7 instead of ~$1.35). Most isometric games draw only these four; offer it whenever cost matters. The exported character (`export.py`) still takes all eight directions - `play("walk", "east")` shows the nearest facing drawn, keeping the one shown last between two as near, so walking straight across does not flicker. With four, south-east is drawn first and the rest follow it (with eight, south). `pixelart.py` draws the spec's facings too.
+**Ask first: eight facings or four.** `"facings": 4` in the spec renders and draws only the diagonals (south-east, south-west, north-east, north-west): about half the drawing (a walk ~$1 instead of ~$2; pixel art ~$0.7 instead of ~$1.35). Most isometric games draw only these four; offer it whenever cost matters. `"facings": "cardinal"` draws south, east, north, west instead (the user: some players' games move only up, down, left and right) - same cost as the diagonals; ask which four. The exported character (`export.py`) still takes all eight directions - `play("walk", "east")` shows the nearest facing drawn, keeping the one shown last between two as near, so walking straight across does not flicker. With the diagonals, south-east is drawn first and the rest follow it (with eight or the cardinals, south). `pixelart.py` draws the spec's facings too.
 For an animated character (an 8-direction walk and standing views), use `${CLAUDE_SKILL_DIR}/scripts/charpipe.py` and read
 [reference/character.md](reference/character.md) first. It needs one finished illustration of the character - facing front, standing straight, arms down, no pose (if theirs is posed, draw a neutral one from it first and show it) - and TRIPO_API_KEY besides OPENAI_API_KEY (or the user's own rigged GLB as `rig_glb`). Ask how tall the character will be on screen in their game and offer the sizes - 512 (HD), 256 (the default), 128, 64 - as
 `"frame_px"` (the frame's height; no answer: 256; another size later is `pack --px`, free). Ask the game's view and set it as `pitch`, not `camera` (30 = 2:1, the default; 35.26 true isometric; 50 3/4 top-down; 12 front - the 8 facings stay 45° apart). Tripo makes the model

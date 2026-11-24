@@ -17,7 +17,8 @@ own rigged model as "rig_glb").
     python charpipe.py model      CHAR.json [--yes]   PAID (~30 Tripo credits; or Meshy with "modeler": "meshy"): the 3D model from the four views
     python charpipe.py rig        CHAR.json [--yes]   PAID (Tripo, ~45 credits): rig + walk + idle, made renderable, feet planted; then render
     python charpipe.py render     CHAR.json           free: the walk (frames × 8 facings) and the idle (8 facings), each with its 3D shadow
-                                                      ("facings": 4 in the spec: the four diagonals only, about half the drawing)
+                                                      ("facings": 4 in the spec: the four diagonals only, about half the drawing;
+                                                       "facings": "cardinal": south, east, north, west only)
     python charpipe.py redraw     CHAR.json [--yes]   PAID (~$0.11 a sheet): the sheets with a frame fitting its render under `redo_below`
                                                       (0.75) drawn again, up to twice; a facing still under it then settled with its
                                                       mirror pair (the better of the two flipped onto the other; south / north: low
@@ -49,9 +50,11 @@ sys.path.insert(0, str(HERE)); import charlib as CL   # noqa: E402
 import touchup as TU   # noqa: E402
 SPEC_PATH = None
 DIRS = ['south', 'south-east', 'east', 'north-east', 'north', 'north-west', 'west', 'south-west']
-# "facings": 4 in the spec - the four diagonals only (about half the drawing): a game moving in 8 directions shows the nearest of them
-# (export.py writes that map into every engine's files). The first one drawn is the one the rest follow: the front, or with four south-east
+# "facings": 4 in the spec - the four diagonals only (about half the drawing), or "cardinal" - south, east, north, west only (a game
+# moving up, down, left and right): a game moving in 8 directions shows the nearest of them (export.py writes that map into every
+# engine's files). The first one drawn is the one the rest follow: the front (south), or with the diagonals south-east
 DIAGONALS = ['south-east', 'south-west', 'north-east', 'north-west']
+CARDINALS = ['south', 'east', 'north', 'west']
 FRONT = 'south'
 PAIR = {'east': 'west', 'west': 'east', 'north-east': 'north-west', 'north-west': 'north-east', 'south-east': 'south-west', 'south-west': 'south-east'}
 CW, CH = 384, 1024                                                            # a sheet's cell (4 across a 1536×1024 picture)
@@ -67,8 +70,9 @@ def load(path):
     s.setdefault('white_shoes', False); os.environ['SPRITECAST_WHITE_SHOES'] = '1' if s.get('white_shoes') else '0'; s.setdefault('head_up', 24); s.setdefault('shoulder_up', 15); s.setdefault('shoulder_wide', 1.05); s.setdefault('pitch', 30); s.setdefault('frames', 8); s.setdefault('neck', 0.16)
     global DIRS, FRONT
     s.setdefault('facings', 8)
-    if s['facings'] not in (4, 8): sys.exit('spec: "facings" is 8 (the default) or 4 (the four diagonals: south-east, south-west, north-east, north-west)')
-    DIRS = list(DIAGONALS) if s['facings'] == 4 else ['south', 'south-east', 'east', 'north-east', 'north', 'north-west', 'west', 'south-west']; FRONT = DIRS[0]
+    fc = {4: 'diagonal', '4': 'diagonal', 'diagonal': 'diagonal', 'diagonals': 'diagonal', 'cardinal': 'cardinal', 'cardinals': 'cardinal', 8: 8, '8': 8}.get(s['facings'])
+    if fc is None: sys.exit('spec: "facings" is 8 (the default), 4 or "diagonal" (south-east, south-west, north-east, north-west) or "cardinal" (south, east, north, west)')
+    s['facings'] = fc; DIRS = list(DIAGONALS) if fc == 'diagonal' else list(CARDINALS) if fc == 'cardinal' else ['south', 'south-east', 'east', 'north-east', 'north', 'north-west', 'west', 'south-west']; FRONT = DIRS[0]
     # THE STANDING POSE: SpriteCast's own idle by default (idleclip.py - a relaxed stand, made here, added to the rig when rendering);
     # "idle_from": "tripo" keeps the rig's own idle clip (Tripo's: arms held out from the body more, little motion). A spec's own
     # "idle" (a clip and a moment) is used as given.
@@ -115,7 +119,7 @@ def front_words():
 
 
 def idle_groups():
-    """the standing views, 4 to a sheet: the eight in two sheets, the four diagonals in one"""
+    """the standing views, 4 to a sheet: the eight in two sheets, four (the diagonals or the cardinals) in one"""
     return (list(DIRS),) if len(DIRS) == 4 else (['south', 'south-east', 'south-west', 'east'], ['west', 'north-east', 'north-west', 'north'])
 
 

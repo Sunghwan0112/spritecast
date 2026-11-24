@@ -58,7 +58,7 @@ todo frame é a mesma pessoa, e ela anda de verdade.
 
 Grátis e MIT. Você paga a OpenAI e a Tripo diretamente; cada etapa paga mostra o custo e espera o seu OK.
 
-**Metade do desenho: quatro direções.** `"facings": 4` no spec desenha só as diagonais (sudeste, sudoeste, nordeste, noroeste): mais
+**Metade do desenho: quatro direções.** `"facings": 4` no spec desenha só as diagonais (sudeste, sudoeste, nordeste, noroeste) - ou `"facings": "cardinal"`, só sul, leste, norte e oeste, para um jogo que se move para cima, para baixo e para os lados: mais
 ou menos metade do custo de desenho (uma caminhada: ~$1 em vez de ~$2; em pixel art ~$0.7 em vez de ~$1.35). O personagem exportado
 continua andando nas oito direções: se você pede leste, ele mostra a direção desenhada mais próxima e a mantém, então andar reto de lado não pisca.
 
@@ -165,7 +165,7 @@ $PYTHON skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # the
 ```
 As oito direções são desenhadas por padrão. Um design que é igual dos dois lados pode usar `"mirror": true` para espelhar as direções oeste
 a partir das leste (cada uma mantendo sua própria sombra), cerca de $0.66 a menos.
-Ou `"facings": 4`: só as quatro diagonais, mais ou menos metade do desenho; o personagem exportado mostra a mais próxima delas em qualquer uma das oito direções.
+Ou `"facings": 4`: só as quatro diagonais, mais ou menos metade do desenho (ou `"facings": "cardinal"`: só sul, leste, norte e oeste); o personagem exportado mostra a mais próxima delas em qualquer uma das oito direções.
 
 Custo por personagem: cerca de $2.2 (OpenAI; ~$1.5 com `"mirror": true`) e 75 créditos Tripo (~$0.75; um animal, 30). Ou traga seu
 próprio GLB com rig (`"rig_glb"`) e pule direto para `render`.

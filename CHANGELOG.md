@@ -3,6 +3,14 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.27.0 — 2026-11-23
+
+- **Four facings, your four: `"facings": "cardinal"`** *(feedback: "some users will want only north, south, east and west")*. Beside
+  `4` (the diagonals), a character can be drawn in south, east, north and west only - about half the drawing, like the diagonals. The
+  exported character still takes all eight directions and shows the nearest drawn (south-east: south or east, the one shown last
+  kept, so moving diagonally does not flicker). `touchup.py` now finds a four-facing set's standing views on their one sheet (it looked
+  for them as if there were eight).
+
 ## 0.26.0 — 2026-11-21
 
 - **Smooth versions of the new tools** *(feedback: "make smooth versions of everything")*, for a game drawn as illustration, not

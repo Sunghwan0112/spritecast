@@ -53,7 +53,8 @@ every frame is the same person, and she actually walks.
 </details>
 
 Free and MIT. You pay OpenAI and Tripo directly; every paid step shows its cost and waits for your OK. `"facings": 4` draws only
-the four diagonals - about half the cost - and the character still walks in all eight directions.
+the four diagonals - about half the cost - and the character still walks in all eight directions; `"facings": "cardinal"` draws
+south, east, north and west instead, for a game that moves up, down, left and right.
 
 ## What you can make
 
@@ -156,7 +157,7 @@ $PYTHON skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # the
 ```
 All eight facings are drawn by default. A design that is the same on both sides can set `"mirror": true` to flip the west facings
 from the east ones (each keeping its own shadow), about $0.66 less.
-Or `"facings": 4`: the four diagonals only, about half the drawing; the exported character shows the nearest of them for any of the eight directions.
+Or `"facings": 4`: the four diagonals only, about half the drawing - or `"facings": "cardinal"`: south, east, north and west only, for a game that moves up, down, left and right; the exported character shows the nearest of them for any of the eight directions.
 
 Cost per character: about $2.2 (OpenAI; ~$1.5 with `"mirror": true`) and 75 Tripo credits (~$0.75; an animal 30). Or bring your
 own rigged GLB (`"rig_glb"`) and skip to `render`.

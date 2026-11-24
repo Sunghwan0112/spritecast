@@ -99,7 +99,9 @@ def cells_for(d, rel):
         pats = [f'{sq}-{dr}-single-{k}-1-', f'{sq}-{dr}-drawn-{g}-{n}-']
     else:
         what, dr = re.match(r'(idle|sit)-(.+)\.png$', name).groups()
-        groups = (['south', 'south-east', 'south-west', 'east'], ['west', 'north-east', 'north-west', 'north'])
+        have = {f.stem[len(what) + 1:] for f in (d / 'render').glob(f'{what}-*.png')}          # (four facings - the diagonals or the cardinals - are one sheet, in the spec's order)
+        four = [x for x in (['south-east', 'south-west', 'north-east', 'north-west'] if 'south' not in have else ['south', 'east', 'north', 'west']) if x in have]
+        groups = (four,) if len(have) == 4 else (['south', 'south-east', 'south-west', 'east'], ['west', 'north-east', 'north-west', 'north'])
         g = next(i for i, ds in enumerate(groups) if dr in ds); pats = [f'{what}-drawn-{g}-{groups[g].index(dr)}-']
     for p in pats:
         got = sorted(cut.glob(f'{p}*.png'), key=lambda f: f.stat().st_mtime, reverse=True)

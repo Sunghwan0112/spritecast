@@ -14,7 +14,7 @@ PYTHON pixelart.py CHAR.json --dirs south-east --yes # draws what is missing
 ```
 
 `--px 96` the standing figure's height (96 is what works; see "Sizes"), `--clips walk,slash,throw` which animations (walk by
-default; any action in the spec), `--dirs` which facings (the spec's: all eight, or the four diagonals with `"facings": 4`), `--again NAME` one sheet anew (a name from the
+default; any action in the spec), `--dirs` which facings (the spec's: all eight, the four diagonals with `"facings": 4`, or the four cardinals with `"cardinal"`), `--again NAME` one sheet anew (a name from the
 plan: `walk-south-east-1`), `--partial` put together what is drawn already, to look at.
 
 **Always show the plan first** (the run without `--yes`): it lists the sheets and the cost (~$0.075 a sheet). Then one facing of one

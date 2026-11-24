@@ -14,7 +14,7 @@ Free: nothing is drawn, the strips are read and laid out again.
              which builds <name>.prefab (Animator > Shadow, Body), the controller and a clip per animation (`walk_south_east`);
              SpriteCast/SpriteCastFacing.cs: `SpriteCastFacing.Play(animator, "walk", "east")`.
 
-A set drawn in four facings ("facings": 4 - the diagonals) still takes all eight: each engine's play() shows the nearest facing drawn
+A set drawn in four facings ("facings": 4 - the diagonals, or "cardinal" - south, east, north, west) still takes all eight: each engine's play() shows the nearest facing drawn
 (Godot, Phaser, Unity's SpriteCastFacing), keeping the one shown last between two as near, so walking straight across does not flicker.
 
 What character.json keeps apart is put together here: every animation's shadows become one strip of equal cells with ONE offset,
@@ -126,8 +126,8 @@ def godot(an, dst, name):
     (dst / f'{name}.gd').write_text(f'''extends Node2D
 ## {name}, written by SpriteCast's export.py. The node's position is the point between the feet (on a seat: where the body rests).
 ##   play("walk", "south-east")      facings: south, south-east, east, north-east, north, north-west, west, south-west
-## A facing the set has no drawing for (a set made with "facings": 4 has the diagonals only) shows the nearest one it has; between two
-## as near (east, between south-east and north-east) the one shown last stays, so walking straight across does not flicker;
+## A facing the set has no drawing for (a set made with "facings": 4 has the diagonals only, "cardinal" the cardinals) shows the nearest one it
+## has; between two as near (east, between south-east and north-east; south-east, between south and east) the one shown last stays, so walking straight across does not flicker;
 ## with none shown yet, the one turned more toward the viewer.
 ## Each animation has its own frame size, so the Body's, the Shadow's and the Effect's offsets are set per animation, from the table below.
 ## Effect: what a swing leaves in the air (water, flame, leaves ...), over the body; it runs at its own pace beside the body's frames.
@@ -231,7 +231,8 @@ def phaser(an, dst, name):
 //   create()  {{ {ident(name)}.create(this); this.girl = {ident(name)}.add(this, 400, 300) }}
 //   this.girl.play('walk', 'south-east'); this.girl.setPosition(x, y)   // x, y: the point between the feet
 // Facings: south, south-east, east, north-east, north, north-west, west, south-west. A facing the set has no drawing for (a set made
-// with "facings": 4 has the diagonals only) shows the nearest one it has; between two as near (east: south-east or north-east) the one
+// with "facings": 4 has the diagonals only, "cardinal" the cardinals) shows the nearest one it has; between two as near (east: south-east
+// or north-east; south-east: south or east) the one
 // shown last stays, so walking straight across does not flicker; with none shown yet, the one turned more toward the viewer.
 export const FACINGS = ['south', 'south-east', 'east', 'north-east', 'north', 'north-west', 'west', 'south-west']
 export const NAME = {json.dumps(name)}

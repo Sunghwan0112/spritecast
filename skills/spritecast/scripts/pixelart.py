@@ -58,11 +58,11 @@ if SMALL: print(f'--px {SMALL}: drawn at 64 (the image model is never asked for 
 s, d = CP.load(A.spec); W = d / 'pixel'; W.mkdir(exist_ok=True); H = A.px; PRICE = 0.075
 # "px" is the STANDING figure's height: how tall it is in the character's own renders (it differs with the model: a coat's hem, big boots)
 _idle = d / 'render/idle-south.png'
-if not _idle.exists(): _idle = d / f'render/idle-{CP.FRONT}.png'      # ("facings": 4 has no south)
+if not _idle.exists(): _idle = d / f'render/idle-{CP.FRONT}.png'      # (the diagonals have no south)
 if _idle.exists():
     _b = Image.open(_idle).convert('RGBA').getbbox()
     if _b: P.FIG = float(_b[3] - _b[1])
-ALL = list(CP.DIRS)          # the spec's facings: all eight, or the four diagonals with "facings": 4
+ALL = list(CP.DIRS)          # the spec's facings: all eight, the four diagonals ("facings": 4) or the four cardinals ("cardinal")
 DIRS = [x for x in (A.dirs.split(',') if A.dirs else ALL) if x in ALL]; CLIPS = A.clips.split(',')
 Z = 1024 // (H * 4 // 3); CWp, CHp = 384 // Z, 1024 // Z; FOOT = CHp - CHp // 12            # a body sheet's cell in sprite pixels
 CWP, CHP = 1024 // Z, 1536 // Z; FOOTP = CHP - CHP // 12                                     # ... and a portrait sheet's one cell (a frame too tall for the other)
