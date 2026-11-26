@@ -163,6 +163,8 @@ class Refused(Exception):
 
 
 def gpt(prompt, imgs, out, size):
+    if os.environ.get('SPRITECAST_DRAW') == 'manual':            # drawn by hand in the ChatGPT app: no key, nothing spent (manualdraw.py)
+        import manualdraw; return manualdraw.draw(prompt, imgs, out, size)
     key = need('OPENAI_API_KEY'); model = os.environ.get('SPRITECAST_MODEL', 'gpt-image-2.5-sunburst')
     fields = {'model': model, 'prompt': prompt, 'size': size, 'quality': os.environ.get('SPRITECAST_QUALITY', 'high'), 'background': 'opaque',
               'output_format': 'png', 'n': '1'}

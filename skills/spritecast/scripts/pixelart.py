@@ -25,6 +25,8 @@
         (then, by hand: pixeledit.py CHAR.json - a page to erase a speck or redraw a face frame by frame; its edits are kept and laid on again here)
         --redraw            PAID with --yes: the sheets with a frame the review marks, drawn again (twice at most), the better kept
         --partial           with --yes left off: put together what is drawn already (an animation's first frames), to look at
+        --manual            no API key, no money: every sheet becomes a job on a local page (127.0.0.1:8790) - its pictures and prompt to give the
+                            ChatGPT app by hand, in a new chat each; the answer is taken from ~/Downloads (or dropped on the page). manualdraw.py
 
 Needs the character's `render/` (charpipe.py render - free with a rig) and OPENAI_API_KEY for the drawing (~$0.075 a sheet).
 What it does:  render -> pixelized guide (4 frames a sheet) -> GPT redraws it as pixel art -> read back on the grid GPT drew
@@ -41,7 +43,8 @@ from PIL import Image
 from scipy import ndimage as ndi
 HERE = Path(__file__).resolve().parent; REPO = HERE
 ap = argparse.ArgumentParser(); ap.add_argument('spec', nargs='?'); ap.add_argument('--px', type=int, default=96); ap.add_argument('--clips', default='walk')
-ap.add_argument('--dirs', default=''); ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', default=''); ap.add_argument('--partial', action='store_true'); ap.add_argument('--no-face-detail', action='store_true'); ap.add_argument('--no-outline', action='store_true'); ap.add_argument('--redraw', action='store_true'); ap.add_argument('--cut', choices=['white', 'ai'], default=None); ap.add_argument('--colours', type=int, default=0); ap.add_argument('--palette', default=''); ap.add_argument('--held-as-drawn', action='store_true'); ap.add_argument('--keep-specks', action='store_true'); A = ap.parse_args()
+ap.add_argument('--dirs', default=''); ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', default=''); ap.add_argument('--partial', action='store_true'); ap.add_argument('--no-face-detail', action='store_true'); ap.add_argument('--no-outline', action='store_true'); ap.add_argument('--redraw', action='store_true'); ap.add_argument('--cut', choices=['white', 'ai'], default=None); ap.add_argument('--colours', type=int, default=0); ap.add_argument('--palette', default=''); ap.add_argument('--held-as-drawn', action='store_true'); ap.add_argument('--keep-specks', action='store_true'); ap.add_argument('--manual', action='store_true'); A = ap.parse_args()
+if A.manual: import os as _os; _os.environ['SPRITECAST_DRAW'] = 'manual'; A.yes = True      # drawn by hand in the ChatGPT app: nothing to pay, so nothing to confirm
 if A.palette == 'list': sys.path.insert(0, str(Path(__file__).resolve().parent)); import pixelkit as P_; P_.show_palettes(); sys.exit()
 if not A.spec: ap.error('the character\'s spec (CHAR.json) is wanted')
 if A.colours and A.colours < 8: sys.exit('--colours: 8 at least (an outline, two tones of hair, of skin, of each cloth: under that the face goes)')

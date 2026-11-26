@@ -56,6 +56,8 @@ Free and MIT. You pay OpenAI and Tripo directly; every paid step shows its cost 
 the four diagonals - about half the cost - and the character still walks in all eight directions; `"facings": "cardinal"` draws
 south, east, north and west instead, for a game that moves up, down, left and right.
 
+**No API key? Draw in the ChatGPT app by hand.** `pixelart.py CHAR.json --manual` (or `SPRITECAST_DRAW=manual` for any step) calls no API and costs nothing: each sheet becomes a job on a local page (127.0.0.1:8790) with the one picture to attach and the prompt to paste. You draw it in a new ChatGPT chat (the free plan works, within its limits), save the answer, and it is taken from your Downloads folder by itself. Tried on Rain Girl's walk: the same character in all 8 frames, but plainer than through the API (fewer shades, no buttons), and a frame or two may need drawing again.
+
 ## What you can make
 
 | | |

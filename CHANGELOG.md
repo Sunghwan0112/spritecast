@@ -3,6 +3,18 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.28.0 — 2026-11-26
+
+- **No API key: draw in the ChatGPT app by hand** *(feedback: "people who subscribe to ChatGPT and want to save money")*.
+  `pixelart.py CHAR.json --manual` (any other step: `SPRITECAST_DRAW=manual`) calls no API and spends nothing. Each sheet becomes a job
+  on a local page (127.0.0.1:8790): the picture to attach and the prompt with a copy button. The user draws it in a new ChatGPT chat
+  (the free plan works, within its limits) and saves the answer; it is taken from ~/Downloads by itself (or dropped on the page),
+  fitted to the sheet's size, and the run goes on. Given two pictures the app put both on one canvas (the guide's figures shrunk to
+  the left, the turnaround redrawn beside them), so a redraw on a guide goes with the guide alone, the sentences about the other
+  pictures cut and the layout spelt out (`SPRITECAST_MANUAL_ALL_IMAGES=1` keeps them all). Tried on Rain Girl's walk (south-east,
+  8 frames, three sheets, the free plan): the same character all through, read on the grid like the API's - but plainer (fewer
+  shades, no buttons; the app draws coarser squares) and a frame came out a little small. `scripts/manualdraw.py`.
+
 ## 0.27.0 — 2026-11-23
 
 - **Four facings, your four: `"facings": "cardinal"`** *(feedback: "some users will want only north, south, east and west")*. Beside

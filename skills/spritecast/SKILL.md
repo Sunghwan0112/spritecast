@@ -24,6 +24,12 @@ Scripts: `${CLAUDE_SKILL_DIR}/scripts/isoprop.py` (steps `render`, `draw`, `fini
    `/plugin` → SpriteCast; a session-start hook hands them to the scripts), else from the environment. Missing: tell the user to put it
    in the plugin's settings and restart Claude Code. Never ask the user to paste a key into the chat, never write it into a file,
    never print it.
+   **No OpenAI key, or the user wants to spend nothing on drawing:** offer `--manual` (`pixelart.py`; any other step with
+   `SPRITECAST_DRAW=manual`, scripts/manualdraw.py). Nothing is called: each sheet is a job on a page at 127.0.0.1:8790 - the ONE
+   picture to attach and the prompt - that the user draws in a NEW ChatGPT chat themselves (the free plan works, within its limits); the
+   answer is taken from ~/Downloads. Given two pictures the app put both on its canvas, so a redraw on a guide goes with the guide alone
+   (the sentences about the others cut). Tell them what to expect: the same character, but plainer than the API (fewer shades), and a
+   frame may need drawing again. Tried on pixel-art sheets; other steps work the same way, untested.
 3. **A first-time user, or "try it" / "체험":** `PYTHON isoprop.py try [--out DIR]` - free, no key: an example's guide rendered on
    their computer and finished with the drawing that came with it → show them `preview.png` and `render.png`, then offer to make
    their own prop.

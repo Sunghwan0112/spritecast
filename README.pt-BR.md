@@ -58,6 +58,8 @@ todo frame é a mesma pessoa, e ela anda de verdade.
 
 Grátis e MIT. Você paga a OpenAI e a Tripo diretamente; cada etapa paga mostra o custo e espera o seu OK.
 
+**Sem chave de API? Desenhe à mão no app do ChatGPT.** `pixelart.py CHAR.json --manual` (ou `SPRITECAST_DRAW=manual` para qualquer etapa) não chama a API e não custa nada: cada folha vira uma tarefa numa página local (127.0.0.1:8790) com a imagem a anexar e o prompt a colar. Você desenha num chat novo do ChatGPT (o plano gratuito serve, dentro dos limites dele), salva a resposta e ela é pega sozinha da sua pasta de Downloads. Testado na caminhada da garota da chuva: a mesma personagem nos 8 quadros, mas mais simples que pela API (menos sombras, sem botões), e talvez um ou dois quadros precisem ser desenhados de novo.
+
 **Metade do desenho: quatro direções.** `"facings": 4` no spec desenha só as diagonais (sudeste, sudoeste, nordeste, noroeste) - ou `"facings": "cardinal"`, só sul, leste, norte e oeste, para um jogo que se move para cima, para baixo e para os lados: mais
 ou menos metade do custo de desenho (uma caminhada: ~$1 em vez de ~$2; em pixel art ~$0.7 em vez de ~$1.35). O personagem exportado
 continua andando nas oito direções: se você pede leste, ele mostra a direção desenhada mais próxima e a mantém, então andar reto de lado não pisca.
