@@ -25,11 +25,15 @@ Scripts: `${CLAUDE_SKILL_DIR}/scripts/isoprop.py` (steps `render`, `draw`, `fini
    in the plugin's settings and restart Claude Code. Never ask the user to paste a key into the chat, never write it into a file,
    never print it.
    **No OpenAI key, or the user wants to spend nothing on drawing:** offer `--manual` (`pixelart.py`; any other step with
-   `SPRITECAST_DRAW=manual`, scripts/manualdraw.py). Nothing is called: each sheet is a job on a page at 127.0.0.1:8790 - the ONE
-   picture to attach and the prompt - that the user draws in a NEW ChatGPT chat themselves (the free plan works, within its limits); the
-   answer is taken from ~/Downloads. Given two pictures the app put both on its canvas, so a redraw on a guide goes with the guide alone
-   (the sentences about the others cut). Tell them what to expect: the same character, but plainer than the API (fewer shades), and a
-   frame may need drawing again. Tried on pixel-art sheets; other steps work the same way, untested.
+   `SPRITECAST_DRAW=manual`, scripts/manualdraw.py). Nothing is called: each sheet is a job on a page at 127.0.0.1:8790 that the user
+   draws in a NEW ChatGPT chat themselves (the free plan works, within its limits); the answer is taken from ~/Downloads. A sheet is
+   TWO messages in that chat, and the page shows both: first the reference pictures (the turnaround, the first sheet) with "do not
+   draw yet, answer ready", then the guide ALONE with the prompt. Why: given the pictures together the app put them all on one
+   canvas; given the guide alone it kept the layout but drew plainer (the coat lost its buttons); references first, guide second
+   kept the layout and drew the buttons. If the first message is answered with a picture instead of "ready", they start a new chat.
+   `SPRITECAST_MANUAL_GUIDE_ONLY=1` is the one-message way (guide alone). Tell them what to expect: the same character, a little
+   plainer than the API, and a frame may need drawing again. Tried on pixel-art sheets (two messages: a first sheet with the
+   turnaround; later sheets with two references not yet); other steps work the same way, untested.
 3. **A first-time user, or "try it" / "체험":** `PYTHON isoprop.py try [--out DIR]` - free, no key: an example's guide rendered on
    their computer and finished with the drawing that came with it → show them `preview.png` and `render.png`, then offer to make
    their own prop.

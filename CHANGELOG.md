@@ -3,6 +3,18 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.28.1 — 2026-11-26
+
+- **Drawing by hand: the references first, then the guide** *(feedback: "give it one picture first, say we draw in that style, then
+  the next")*. A sheet drawn in the ChatGPT app (`--manual`) is now two messages in one chat, both shown on the page with their own
+  copy buttons: the reference pictures (the turnaround; for later sheets the first sheet too) with "do not draw yet, answer ready",
+  then the guide alone with the prompt, which points back at "the picture in my EARLIER message". 0.28.0 sent the guide alone,
+  because two pictures in one message were both put on the canvas - and the app then drew plainer than the API. Tried on Rain
+  Girl's first walk sheet (the free plan): the three figures stayed where the guide has them, the turnaround did not come into the
+  picture, and the coat got its buttons (about 47 tones against 41 with the guide alone, 50 through the API). The figures cover the
+  guide a little less well (0.85, 0.84, 0.80 against 0.85, 0.87, 0.84) and the head turned a little more to the side. Not tried
+  yet: a later sheet, whose first message carries two pictures. `SPRITECAST_MANUAL_GUIDE_ONLY=1` is 0.28.0's one message.
+
 ## 0.28.0 — 2026-11-26
 
 - **No API key: draw in the ChatGPT app by hand** *(feedback: "people who subscribe to ChatGPT and want to save money")*.
