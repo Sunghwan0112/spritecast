@@ -763,11 +763,13 @@ const swayBone = (name, deg) => {      // turn a bone about the up axis (the tai
 };
 let rest = {};
 // a mannequin ("mannequin": true): the model with its picture taken off - a pose to draw another design on. Pale grey all over, the limbs
-// of its right side warm red and of its left side blue (an animal's legs; a person's arms and legs), so that which limb is the near one
-// can be read in every frame; an animal's tail is taken off.
+// of its right side warm and of its left side cool, so that which limb is the near one can be read in every frame - and every limb its
+// own colour: a person's arms red and blue and legs yellow and green, an animal's fore legs red and blue and hind legs yellow and green
+// (the user: with an arm and a leg of one colour, an arm swung over the thigh of its side ran into it - "blue on blue"; seen from the
+// front an animal's fore and hind leg of one side overlap the same way). An animal's tail is taken off.
 window.setPlain = () => {
   const ramp = new THREE.DataTexture(new Uint8Array([90, 160, 230]), 3, 1, THREE.RedFormat); ramp.minFilter = ramp.magFilter = THREE.NearestFilter; ramp.needsUpdate = true;
-  const GREY = [0.52, 0.54, 0.58], SIDE = { R: [0.78, 0.20, 0.17], L: [0.16, 0.34, 0.80] };
+  const GREY = [0.52, 0.54, 0.58], SIDE = { R: [0.78, 0.20, 0.17], L: [0.16, 0.34, 0.80] }, LEG = { R: [0.96, 0.74, 0.12], L: [0.14, 0.62, 0.30] };
   root.traverse((o) => {
     if (!o.isMesh || !o.userData.toon) return;
     const g = o.geometry, si = g.attributes.skinIndex, sw = g.attributes.skinWeight, n = g.attributes.position.count, col = new Float32Array(n * 3);
@@ -777,7 +779,7 @@ window.setPlain = () => {
       for (let k = 0; k < 4; k++) {
         const w = si ? sw.getComponent(i, k) : (k ? 0 : 1), nm = si ? names[si.getComponent(i, k)] : '';
         const m = /^(sh|el|wr|ft|hip|kn|hk|hp|ht)([LR])$/.exec(nm), h = /(Left|Right)(Arm|ForeArm|Hand|UpLeg|Leg|Foot|ToeBase)/.exec(nm);      // an animal's legs; a person's arms and legs (Mixamo's names)
-        const rgb = m ? SIDE[m[2]] : h ? SIDE[h[1][0]] : GREY; for (let j = 0; j < 3; j++) c[j] += w * rgb[j];
+        const rgb = m ? (/^(sh|el|wr|ft)$/.test(m[1]) ? SIDE : LEG)[m[2]] : h ? (/Arm|Hand/.test(h[2]) ? SIDE : LEG)[h[1][0]] : GREY; for (let j = 0; j < 3; j++) c[j] += w * rgb[j];
       }
       col.set(c, i * 3);
     }

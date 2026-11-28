@@ -3,14 +3,14 @@
 <p align="center"><b>일러스트 한 장이 게임 캐릭터가 돼요.</b><br>
 Claude Code용 2D 스프라이트 생성기, 아이소메트릭이든 횡스크롤이든: 8방향 걷기, 동작, 픽셀아트를<br>
 내 게임의 카메라 각도로, 프레임마다 3D 그림자와 함께 만들어요. 옆에 놓을 소품도요.<br>
-3D 모델 없이, 캐릭터와 몬스터와 마을 사람을 마네킹의 걷기 위에 그리기도 해요.</p>
+Tripo 없이, 하나하나 3D 모델도 만들지 않고 SpriteCast의 3D 마네킹 위에 캐릭터와 몬스터와 마을 사람을 그리기도 해요.</p>
 
 <p align="center"><a href="https://github.com/Sunghwan0112/spritecast/stargazers"><img src="https://img.shields.io/github/stars/Sunghwan0112/spritecast?style=social" alt="GitHub stars"></a></p>
 
 <p align="center">
 <a href="#만들-수-있는-것">만들 수 있는 것</a> ·
 <a href="#걷는-캐릭터">캐릭터</a> ·
-<a href="#3d-모델-없이-마네킹-위에서-걷기">3D 모델 없이</a> ·
+<a href="#tripo-없이-spritecast의-3d-마네킹-위에서-걷기">Tripo 없이</a> ·
 <a href="#횡스크롤-게임-한-방향만-그리고-몬스터는-2d로">횡스크롤</a> ·
 <a href="#픽셀아트-아케이드-크기">픽셀아트</a> ·
 <a href="#소품과-배경">소품</a> ·
@@ -42,14 +42,14 @@ claude plugin install spritecast@spritecast
 
 ![같은 장면: 왼쪽은 예전 게임 - 사각 풀 타일과 아이콘 팩의 정면 하트와 물약, 오른쪽은 지금 - 3D 풀밭과 3D 모델로 게임 각도에 맞춰 만든 하트와 물약과 그 그림자](docs/one-angle.png)
 
-<a name="cost"></a>무료, MIT예요. 비용은 OpenAI와 Tripo에 직접 내고(Tripo 1크레딧 = $0.01), 만든 사람에게 가는 돈은 없어요. 돈이 드는 단계는 비용을 먼저 보여 주고 OK를 기다려요. 걷는 캐릭터 하나에 자기 3D 모델로 약 **$3**, Tripo 없이 마네킹 위에 그리면 약 **$0.55**, 소품은 몇 센트, 횡스크롤 게임의 몬스터는 약 **$0.18**예요. 3D 가이드, 마무리, 바닥(풀밭, 길, 웅덩이), 3D 그림자, 반투명, 생물의 포즈, 바람, Phaser·Godot 내보내기, 체험은 무료예요.
+<a name="cost"></a>무료, MIT예요. 비용은 OpenAI와 Tripo에 직접 내고(Tripo 1크레딧 = $0.01), 만든 사람에게 가는 돈은 없어요. 돈이 드는 단계는 비용을 먼저 보여 주고 OK를 기다려요. 걷는 캐릭터 하나에 자기 3D 모델로 약 **$3**, Tripo 없이 SpriteCast의 3D 마네킹 위에 그리면 약 **$0.55**, 소품은 몇 센트, 횡스크롤 게임의 몬스터는 약 **$0.18**예요. 3D 가이드, 마무리, 바닥(풀밭, 길, 웅덩이), 3D 그림자, 반투명, 생물의 포즈, 바람, Phaser·Godot 내보내기, 체험은 무료예요.
 
 <details><summary>항목별 비용</summary>
 
 | | 주는 것 | 받는 것 | 약 |
 |---|---|---|---|
 | **걷는 캐릭터** | 일러스트 한 장 | 8방향 걷기, 서 있는 모습, 프레임마다 그림자 | **$2.9** (그리기 $2.1 + Tripo $0.75) |
-| **마네킹 위에 그린 걷는 캐릭터** | 설명과 내 게임 그림 한 장 | 위에서 본 8방향 걷기(또는 옆모습), SpriteCast의 마네킹 위에 그림. 캐릭터의 3D 모델은 없음 | **$0.54** (디자인 $0.06 + 방향마다 $0.06, 픽셀아트는 약 $1.2) |
+| **3D 마네킹 위에 그린 걷는 캐릭터** | 설명과 내 게임 그림 한 장 | 위에서 본 8방향 걷기(또는 옆모습), SpriteCast의 3D 마네킹 위에 그림. 캐릭터의 3D 모델은 만들지 않음 | **$0.54** (디자인 $0.06 + 방향마다 $0.06, 픽셀아트는 약 $1.2) |
 | **동작 추가** | 동작 이름(Tripo: 빠름), 또는 Mixamo FBX(더 자연스러움) | 달리기, 점프, 베기, 던지기... 8방향 | 동작 하나 **$0.8~1.5** (그리기 $0.7~1.4 + Tripo $0.10, FBX는 무료) |
 | **픽셀아트** | 걷는 캐릭터 | 키 약 100px 픽셀 스프라이트 | 8방향 걷기 **$1.35** (시트 한 장 $0.075) |
 | **동물** | 일러스트 한 장 | 네발 걷기 8방향 | **$2.8** (그리기 $2.5 + Tripo $0.30) |
@@ -69,7 +69,7 @@ claude plugin install spritecast@spritecast
 
 ![위에서 본 8방향으로 걷는 성 경비병, 방향마다 그를 그린 바탕인 맨 마네킹의 걷기와 나란히](docs/mannequin-walk.gif)
 
-<p align="center"><b><a href="#3d-모델-없이-마네킹-위에서-걷기">3D 모델 없이, Tripo 없이</a></b>: 디자인 한 장으로 SpriteCast의 마네킹 위에 그린 8방향 걷기, 약 $0.55.</p>
+<p align="center"><b><a href="#tripo-없이-spritecast의-3d-마네킹-위에서-걷기">Tripo 없이</a></b>: 디자인 한 장으로 SpriteCast의 3D 마네킹 위에 그린 8방향 걷기, 약 $0.55. 캐릭터의 3D 모델은 만들지 않아요.</p>
 
 | | |
 |---|---|
@@ -120,9 +120,7 @@ claude plugin install spritecast@spritecast
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="docs/rain-girl-play.gif" alt="우비소녀의 여행: 노란 우비 소녀와 픽셀 아트 나무, 바위, 덤불, 빨강·초록·보라 불꽃 몬스터와 타는 땅" width="100%"></a></p>
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><b>▶ 브라우저에서 바로 플레이</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl">게임 코드</a><br>설치도 가입도 필요 없어요. 점수를 올리면 아래 랭킹에 나와요.</p>
-
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl/main/leaderboard.svg" alt="우비소녀의 여행 랭킹: 이번 달 TOP 10과 역대 TOP 3, 30분마다 새로 그려져요"></a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><b>▶ 브라우저에서 바로 플레이</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl">게임 코드</a><br>설치도 가입도 필요 없어요.</p>
 
 <p align="center"><i>우비소녀의 여행 · Rain Girl. 노란 우비를 입은 소녀가 우산의 물로 불꽃 몬스터를 꺼서 숲이 타기 전에 지키는 작은 픽셀 액션
 게임이에요.</i></p>
@@ -162,9 +160,7 @@ claude plugin install spritecast@spritecast
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/castle-wall-play.gif" alt="The Castle Wall: 성문 앞에서 경비병, 약초 상인과 함께 있는 레인걸, 성벽 위 통로의 돌늑대, 나무 발판 위의 비구름, 비" width="100%"></a></p>
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ 브라우저에서 바로 플레이</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">게임 코드와 그림마다 만든 방법</a><br>설치도 가입도 필요 없어요. 점수를 올리면 아래 랭킹에 나와요.</p>
-
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl-castle-wall/master/leaderboard.svg" alt="The Castle Wall 순위판: 이번 달 10위와 역대 3위, 30분마다 다시 그려져요"></a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ 브라우저에서 바로 플레이</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">게임 코드와 그림마다 만든 방법</a><br>설치도 가입도 필요 없어요.</p>
 
 같은 소녀가 이번에는 물감으로 칠한 횡스크롤 세계에 있어요. 성벽 위에서 비가 깨운 것들을 사냥해요. 라운드가 이어질수록 더
 어려워져요. 그림은 이렇게 만들었어요.
@@ -180,8 +176,8 @@ claude plugin install spritecast@spritecast
 
 ## 걷는 캐릭터
 
-걷기를 만드는 방법은 두 가지예요. **SpriteCast의 마네킹 위에** 그리면 캐릭터의 3D 모델도 Tripo도 없이 8방향에 약 $0.55예요
-([아래](#3d-모델-없이-마네킹-위에서-걷기)). **자기 3D 모델로** Tripo로 만들면 약 $3이고, 무기를 들고 공격할 캐릭터라면 이쪽이 필요해요.
+걷기를 만드는 방법은 두 가지예요. **SpriteCast의 3D 마네킹 위에** 그리면 캐릭터의 3D 모델을 만들지 않고 Tripo도 없이 8방향에 약 $0.55예요
+([아래](#tripo-없이-spritecast의-3d-마네킹-위에서-걷기)). **자기 3D 모델로** Tripo로 만들면 약 $3이고, 무기를 들고 공격할 캐릭터라면 이쪽이 필요해요.
 
 ![일러스트 → 3D → 그린 프레임 → 8방향 걷기](docs/character.ko.png)
 
@@ -205,13 +201,13 @@ $PYTHON skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # 그
 
 더 많은 옵션(여러 옷차림, 미리보기 영상, Meshy, 뼈대가 든 예시 캐릭터): [docs/guide/characters.md](docs/guide/characters.md#walking-characters) (영어).
 
-### 3D 모델 없이: 마네킹 위에서 걷기
+### Tripo 없이: SpriteCast의 3D 마네킹 위에서 걷기
 
 ![위에서 본 8방향으로 걷는 성 경비병, 방향마다 그를 그린 바탕인 맨 마네킹의 걷기와 나란히](docs/mannequin-walk.gif)
 
-SpriteCast에는 맨 마네킹이 들어 있어요. 남자, 여자, 아이, 개. 머리카락 없는 회색 몸에 오른쪽 팔다리는 빨강, 왼쪽은 파랑이에요.
+SpriteCast에는 맨 3D 마네킹이 들어 있어요. 남자, 여자, 아이, 개. 머리카락 없는 회색 몸이고, 팔다리마다 색이 달라요. 오른팔(개는 오른 앞다리) 빨강·오른다리 노랑, 왼팔 파랑·왼다리 초록이에요.
 `creature.py`가 설명에 맞는 마네킹을 게임 카메라로 걷게 렌더하고(무료), 이미지 모델이 그 자세 위에 캐릭터를 그려요. 디자인 한 장,
-그다음 방향마다 그림 한 장. Tripo도 캐릭터의 3D 모델도 없이 8방향 걷기가 약 $0.54예요.
+그다음 방향마다 그림 한 장. Tripo 없이, 캐릭터의 3D 모델을 만들지 않고 8방향 걷기가 약 $0.54예요.
 
 ```
 $PYTHON skills/spritecast/scripts/creature.py mannequin guard.json   # 무료: 마네킹 걷기, 방향마다 가이드. 그다음 design, walk (먼저 한 방향만: --only south-east)
@@ -261,7 +257,7 @@ Tripo의 네발 동물 리그는 걸음이 어색해요(등뼈가 없고, 어깨
 점프(`"air"`), 등을 보이고 오르는 사다리(`"face": "away"`)까지 돼요.
 
 **몬스터, 동물, 마을 사람은 하나하나 3D 모델을 만들지 않아요.** `creature.py`가 게임 그림 한 장의 화풍으로 디자인을 한 장 그리고,
-SpriteCast에 들어 있는 민무늬 **마네킹**(회색 개, 머리카락 없는 남자·여자·아이. 가까운 쪽 팔다리는 빨강, 먼 쪽은 파랑)의 걷기 자세
+SpriteCast에 들어 있는 민무늬 **마네킹**(회색 개, 머리카락 없는 남자·여자·아이. 가까운 쪽 팔다리는 빨강·노랑, 먼 쪽은 파랑·초록)의 걷기 자세
 위에 그 디자인을 그려요. 맞기, 흩어지기, 뛰기 같은 나머지 동작은 네 장면을 글로 적은 시트 한 장으로 그려요. 그림 한 장에 약 $0.06예요.
 
 - **네발 동물.** 먼저 개 마네킹을 디자인의 다리 길이, 몸통 두께, 목에 맞춰 변형해요(무료). 변형 없이 그리면 멧돼지도 사슴도
@@ -282,7 +278,7 @@ SpriteCast에 들어 있는 민무늬 **마네킹**(회색 개, 머리카락 없
 
 다리가 옆으로 뻗는 것(도마뱀, 거미)은 아직 마네킹이 없어요. 도롱뇽은 개 다리로 선 모습이 됐어요.
 
-**마네킹이냐, 자기 3D 모델이냐?** 다른 캐릭터와 같아요: [자기 3D 모델로 만들어야 할 때](#3d-모델-없이-마네킹-위에서-걷기).
+**마네킹이냐, 자기 3D 모델이냐?** 다른 캐릭터와 같아요: [자기 3D 모델로 만들어야 할 때](#tripo-없이-spritecast의-3d-마네킹-위에서-걷기).
 자세한 내용: [reference/creature.md](skills/spritecast/reference/creature.md).
 
 **옆에서 본 배경도 3D 모델 위에 그려요.** 뒤에 있는 성벽은 소품이에요. 글로 만든 Tripo 모델을 옆에서 수평으로

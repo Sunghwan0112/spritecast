@@ -480,7 +480,7 @@ def render(s, d, only=None):
             br.close(); info['px'] = s['render_px']; (d / 'render/render.json').write_text(json.dumps(info, indent=1))
             return print(f"render: {d / 'render'} - look at them (walk-{FRONT}-*: four legs, the head forward, the tail behind) before `draw`")
         info = pg.evaluate('([u, p, l]) => window.load(u, p, l)', ['http://spritecast.local/asset/rig.glb', s['pitch'], s['light']])
-        if s.get('mannequin'): pg.evaluate('window.setPlain()')              # (a person as a plain grey pose, the right arm and leg red, the left blue)
+        if s.get('mannequin'): pg.evaluate('window.setPlain()')              # (a plain grey pose: the right arm - an animal's right fore leg - red and leg yellow, the left arm blue and leg green)
         w, i = s['walk'], s['idle']
         old = json.loads((d / 'render/render.json').read_text()) if only and (d / 'render/render.json').exists() else {}
         if old.get('actions'): info['actions'] = old['actions']

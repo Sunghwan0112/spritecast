@@ -3,14 +3,14 @@
 <p align="center"><b>One illustration in. A game character out.</b><br>
 A 2D sprite generator for Claude Code, isometric or side-scrolling: 8-direction walks, actions and pixel art<br>
 at your game's camera angle, a 3D shadow under every frame, the props to stand beside them -<br>
-and, with no 3D model at all, characters, monsters and townspeople drawn on a mannequin's walk.</p>
+and, with no Tripo and no 3D model of each, characters, monsters and townspeople drawn over SpriteCast's own 3D mannequin.</p>
 
 <p align="center"><a href="https://github.com/Sunghwan0112/spritecast/stargazers"><img src="https://img.shields.io/github/stars/Sunghwan0112/spritecast?style=social" alt="GitHub stars"></a></p>
 
 <p align="center">
 <a href="#what-you-can-make">What you can make</a> ·
 <a href="#walking-characters">Characters</a> ·
-<a href="#no-3d-model-a-walk-on-a-mannequin">No 3D model</a> ·
+<a href="#no-tripo-a-walk-on-spritecasts-3d-mannequin">No Tripo</a> ·
 <a href="#a-side-scrolling-game-one-facing-and-monsters-drawn-in-2d">Side-scrollers</a> ·
 <a href="#pixel-art-arcade-size">Pixel art</a> ·
 <a href="#props-and-scenery">Props</a> ·
@@ -38,14 +38,14 @@ every frame is the same person, and she actually walks.
 
 ![the same scene: on the left the game before - a square grass tile and a front-on heart and potion from an icon pack; on the right now - a 3D meadow, and the heart and potion made from 3D models at the game's angle, with their shadows](docs/one-angle.png)
 
-<a name="cost"></a>Free and MIT: you pay OpenAI and Tripo directly (1 Tripo credit = $0.01), nothing goes to the author, and every paid step shows its cost and waits for your OK. A walking character is about **$3** with its own 3D model - or about **$0.55** drawn on a mannequin, with no Tripo at all - a prop a few cents, a side-scroller's monster about **$0.18** - and the 3D guides, the finishing, the ground (a meadow, a path, puddles), the 3D shadows, see-through things, creatures' poses, the wind, the export to Phaser and Godot and the try cost nothing.
+<a name="cost"></a>Free and MIT: you pay OpenAI and Tripo directly (1 Tripo credit = $0.01), nothing goes to the author, and every paid step shows its cost and waits for your OK. A walking character is about **$3** with its own 3D model - or about **$0.55** drawn over SpriteCast's own 3D mannequin, with no Tripo - a prop a few cents, a side-scroller's monster about **$0.18** - and the 3D guides, the finishing, the ground (a meadow, a path, puddles), the 3D shadows, see-through things, creatures' poses, the wind, the export to Phaser and Godot and the try cost nothing.
 
 <details><summary>what each one costs</summary>
 
 | | you give | you get | about |
 |---|---|---|---|
 | **A walking character** | one illustration | a walk in 8 facings, standing views, a shadow per frame | **$2.9** (drawing $2.1 + Tripo $0.75) |
-| **A walking character on a mannequin** | a description and a picture from your game | a walk in 8 facings seen from above (or a side view), drawn on SpriteCast's own mannequin - no 3D model of it | **$0.54** ($0.06 the design + $0.06 a facing; as pixel art ~$1.2) |
+| **A walking character on a 3D mannequin** | a description and a picture from your game | a walk in 8 facings seen from above (or a side view), drawn over SpriteCast's own 3D mannequin - no 3D model made of it | **$0.54** ($0.06 the design + $0.06 a facing; as pixel art ~$1.2) |
 | **Another action** | a name (Tripo: quick), or a Mixamo FBX (more natural) | run, jump, slash, throw... in 8 facings | **$0.8-1.5** an action (drawing $0.7-1.4 + Tripo $0.10; an FBX: free) |
 | **Pixel art** | a character that walks | pixel sprites about 100 px tall | **$1.35** a walk in 8 facings ($0.075 a sheet) |
 | **An animal** | one illustration | a four-legged walk in 8 facings | **$2.8** (drawing $2.5 + Tripo $0.30) |
@@ -65,7 +65,7 @@ These are the figures each script prints before it spends; the bills have come i
 
 ![a castle guard walking in 8 facings seen from above, each beside the plain mannequin whose walk he was drawn on](docs/mannequin-walk.gif)
 
-<p align="center"><b><a href="#no-3d-model-a-walk-on-a-mannequin">No 3D model, no Tripo</a></b>: a walk in 8 facings drawn on SpriteCast's own mannequin, from one design - about $0.55.</p>
+<p align="center"><b><a href="#no-tripo-a-walk-on-spritecasts-3d-mannequin">No Tripo</a></b>: a walk in 8 facings drawn over SpriteCast's own 3D mannequin, from one design - about $0.55, with no 3D model made of the character.</p>
 
 | | |
 |---|---|
@@ -116,9 +116,7 @@ Two small games made as examples, each in about a day, with every picture from S
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="docs/rain-girl-play.gif" alt="Rain Girl: a girl in a yellow raincoat among pixel-art trees, rocks and bushes, with red, green and purple fire monsters and burning ground" width="100%"></a></p>
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><b>▶ Play it in your browser</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl">the game's code</a><br>No install, no account. Post your score and you are on the board below.</p>
-
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl/main/leaderboard.svg" alt="Rain Girl's leaderboard: this month's best ten and the best three ever, redrawn every half hour"></a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><b>▶ Play it in your browser</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl">the game's code</a><br>No install, no account.</p>
 
 <p align="center"><i>Rain Girl, a small pixel action game: a girl in a yellow raincoat puts out fire monsters with her umbrella's
 water before the forest burns.</i></p>
@@ -158,9 +156,7 @@ water before the forest burns.</i></p>
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/castle-wall-play.gif" alt="The Castle Wall: the rain girl at the castle gate with a guard and a herbalist, a stone wolf on the wall-walk, a storm cloud over a wooden ledge, rain" width="100%"></a></p>
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ Play it in your browser</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">the game's code, and how each picture was made</a><br>No install, no account. Post your score and you are on the board below.</p>
-
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl-castle-wall/master/leaderboard.svg" alt="The Castle Wall's leaderboard: this month's best ten and the best three ever, redrawn every half hour"></a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ Play it in your browser</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">the game's code, and how each picture was made</a><br>No install, no account.</p>
 
 The same girl in a painted, side-scrolling world: she hunts what the rain has woken on a castle wall, round after round, each
 harder than the last. How its pictures were made:
@@ -176,8 +172,8 @@ No monster or townsperson has a 3D model of its own - how they were drawn: [A si
 
 ## Walking characters
 
-Two ways to make one walk: **on SpriteCast's mannequin** - no 3D model of the character, no Tripo, about $0.55 for 8 facings
-([below](#no-3d-model-a-walk-on-a-mannequin)) - or **with its own 3D model** made by Tripo, about $3: what a character that will hold
+Two ways to make one walk: **on SpriteCast's own 3D mannequin** - no 3D model made of the character, no Tripo, about $0.55 for 8 facings
+([below](#no-tripo-a-walk-on-spritecasts-3d-mannequin)) - or **with its own 3D model** made by Tripo, about $3: what a character that will hold
 a weapon and attack needs.
 
 ![an illustration → 3D → drawn frames → an 8-facing walk](docs/character.png)
@@ -203,13 +199,13 @@ Or `"facings": 4`: the four diagonals only (south-east, south-west, north-east, 
 With your own rigged GLB (`"rig_glb"`), skip to `render`. What a character costs: [the table at the top](#cost).
 More options (several outfits, the preview video, Meshy, the example character with her rig): [docs/guide/characters.md](docs/guide/characters.md#walking-characters).
 
-### No 3D model: a walk on a mannequin
+### No Tripo: a walk on SpriteCast's 3D mannequin
 
 ![a castle guard walking in 8 facings seen from above, each beside the plain mannequin whose walk he was drawn on](docs/mannequin-walk.gif)
 
-SpriteCast comes with plain mannequins - a man, a woman, a child and a dog: bald, grey, the right limbs red and the left blue.
+SpriteCast comes with plain 3D mannequins - a man, a woman, a child and a dog: bald and grey, every limb its own colour: the right arm (a dog's right fore leg) red and the right leg yellow, the left arm blue and the left leg green.
 `creature.py` renders the one your description names walking, with the game's camera (free), and the image model draws your
-character over its poses: one design, then one picture a facing. No Tripo and no model of the character: a walk in 8 facings is
+character over its poses: one design, then one picture a facing. No Tripo, and no 3D model made of the character: a walk in 8 facings is
 about $0.54.
 
 ```
@@ -265,7 +261,7 @@ a cut with its water, a jump (`"air"`), a ladder climbed with her back to us (`"
 
 **Monsters, animals and townspeople need no 3D model each.** `creature.py` draws one design in the look of a picture of your game,
 then its walk on the poses of a plain **mannequin** that comes with SpriteCast - a grey dog, or a bald man, woman or child, the
-near limbs red and the far ones blue - and anything else it does (struck, falling apart, a hop) as a sheet of four moments said in
+near limbs warm (red, yellow) and the far ones cool (blue, green) - and anything else it does (struck, falling apart, a hop) as a sheet of four moments said in
 words. About $0.06 a picture.
 
 - **A four-legged creature.** The dog mannequin is first stretched to the design's own leg length, body depth and neck (free).
@@ -287,7 +283,7 @@ words. About $0.06 a picture.
 
 What stands with its legs out to the sides (a lizard, a spider) has no mannequin yet: a salamander came out standing on dog legs.
 
-**A mannequin or its own 3D model?** As for any character: [when to make its own 3D model](#no-3d-model-a-walk-on-a-mannequin).
+**A mannequin or its own 3D model?** As for any character: [when to make its own 3D model](#no-tripo-a-walk-on-spritecasts-3d-mannequin).
 Details: [reference/creature.md](skills/spritecast/reference/creature.md).
 
 **Scenery seen from the side is drawn over a 3D model too.** The castle wall behind them is a prop: a Tripo model made from words,

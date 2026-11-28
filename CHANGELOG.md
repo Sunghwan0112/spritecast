@@ -3,6 +3,27 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.30.1 — 2026-11-28
+
+- **Every limb of a mannequin its own colour** *(the user: "arm and leg overlap blue on blue - why one colour?")*: a person's right arm red
+  and leg yellow, the left arm blue and leg green (warm the near side, cool the far, as before); an animal's fore legs red
+  and blue and hind legs yellow and green *(the user: "from the front two overlap - make them all different")*, its near legs told apart
+  by colour when its step is measured. A guide of the old colours stops `walk` (`mannequin` again, free); the step is measured on the new ones as on the old (the guard
+  from above: 618 px both). The guard drawn again in eight facings on it ($0.48): overlap 0.55-0.83 (two colours: 0.54-0.78), none of
+  the colours left in the drawing; docs/mannequin-walk.gif shows it.
+- **Fixed: an animal's side-view mannequin was turned 45° toward the viewer** (since 0.29.0 made 45° the side view's default - creature.py
+  passed a person's `turn` but none for an animal): it is rendered straight from the side again, as its design is drawn. The stag's step
+  came out 203 px of the render turned, 251 straight - as before 0.29.0.
+- **The README's people on a mannequin drawn again on the four colours** *(the user: redraw what needs it)*: the guard and the herbalist from
+  the side ($0.12: the first picture's side row in six languages, docs/people-mannequin.png), the pixel-art guard ($0.14,
+  docs/mannequin-pixel.gif), and the stone wolf and the stag ($0.12: the first picture's side row, docs/creature-walk.gif). The example game
+  walks on them too (its wolf, stag, guard and herbalist).
+- **Pixel art: each sheet sized against the guide by height** - two sheets whose figures were drawn the same height read squares of 8.09
+  and 8.59 px, and sized by how the shape fits the second came out 10 % small (84 px beside 90-94); by height all eight are 89-94.
+- **README: "No Tripo", not "No 3D model"** *(the user: it is a 3D mannequin - that misleads)*: the walk is drawn over SpriteCast's own 3D
+  mannequin, and no 3D model is made of the character; the section is "No Tripo: a walk on SpriteCast's 3D mannequin", in six languages.
+- The two games' leaderboards are out of the README *(the user: they blur the point)* - the games keep theirs.
+
 ## 0.30.0 — 2026-11-28
 
 - **A mannequin's walk seen from above** (`creature.py`, `"view": "above"`) *(the user: "you did it in the iso view earlier" - the

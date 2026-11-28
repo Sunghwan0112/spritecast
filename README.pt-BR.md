@@ -3,14 +3,14 @@
 <p align="center"><b>Entra uma ilustração. Sai um personagem de jogo.</b><br>
 Um gerador de sprites 2D para o Claude Code, isométrico ou de rolagem lateral: caminhadas em 8 direções, ações e pixel art<br>
 no ângulo de câmera do seu jogo, uma sombra 3D sob cada frame, os props para ficar ao lado deles -<br>
-e, sem nenhum modelo 3D, personagens, monstros e moradores da vila desenhados sobre o andar de um manequim.</p>
+e, sem Tripo nem um modelo 3D de cada um, personagens, monstros e moradores da vila desenhados sobre o manequim 3D do SpriteCast.</p>
 
 <p align="center"><a href="https://github.com/Sunghwan0112/spritecast/stargazers"><img src="https://img.shields.io/github/stars/Sunghwan0112/spritecast?style=social" alt="GitHub stars"></a></p>
 
 <p align="center">
 <a href="#o-que-você-pode-fazer">O que você pode fazer</a> ·
 <a href="#personagens-que-andam">Personagens</a> ·
-<a href="#sem-modelo-3d-um-andar-sobre-um-manequim">Sem modelo 3D</a> ·
+<a href="#sem-tripo-um-andar-sobre-o-manequim-3d-do-spritecast">Sem Tripo</a> ·
 <a href="#um-jogo-de-rolagem-lateral-uma-direção-e-monstros-desenhados-em-2d">Rolagem lateral</a> ·
 <a href="#pixel-art-tamanho-de-fliperama">Pixel art</a> ·
 <a href="#props-e-cenário">Props</a> ·
@@ -42,14 +42,14 @@ todo frame é a mesma pessoa, e ela anda de verdade.
 
 ![a mesma cena: à esquerda o jogo antes - um ladrilho de grama quadrado e um coração e uma poção de frente de um pacote de ícones; à direita agora - um campo 3D, e o coração e a poção feitos com modelos 3D no ângulo do jogo, com suas sombras](docs/one-angle.png)
 
-<a name="cost"></a>Grátis e MIT: você paga a OpenAI e a Tripo diretamente (1 crédito da Tripo = $0.01), nada vai para o autor, e cada etapa paga mostra o custo e espera o seu OK. Uma personagem que anda custa uns **$3** com o próprio modelo 3D - ou uns **$0.55** desenhada sobre um manequim, sem Tripo -, um objeto alguns centavos e um monstro de um jogo de rolagem lateral uns **$0.18**; os guias 3D, a finalização, o chão (um campo, um caminho, poças), as sombras 3D, as transparências, as poses de criaturas, o vento, a exportação para Phaser e Godot e o teste não custam nada.
+<a name="cost"></a>Grátis e MIT: você paga a OpenAI e a Tripo diretamente (1 crédito da Tripo = $0.01), nada vai para o autor, e cada etapa paga mostra o custo e espera o seu OK. Uma personagem que anda custa uns **$3** com o próprio modelo 3D - ou uns **$0.55** desenhada sobre o manequim 3D do SpriteCast, sem Tripo -, um objeto alguns centavos e um monstro de um jogo de rolagem lateral uns **$0.18**; os guias 3D, a finalização, o chão (um campo, um caminho, poças), as sombras 3D, as transparências, as poses de criaturas, o vento, a exportação para Phaser e Godot e o teste não custam nada.
 
 <details><summary>quanto custa cada coisa</summary>
 
 | | você dá | você recebe | aprox. |
 |---|---|---|---|
 | **Uma personagem que anda** | uma ilustração | caminhada em 8 direções, poses paradas, uma sombra por quadro | **$2.9** (desenho $2.1 + Tripo $0.75) |
-| **Uma personagem que anda, sobre um manequim** | uma descrição e uma imagem do seu jogo | uma caminhada em 8 direções vista de cima (ou de lado), desenhada sobre o manequim do SpriteCast, sem modelo 3D dela | **$0.54** ($0.06 o design + $0.06 por direção; em pixel art ~$1.2) |
+| **Uma personagem que anda, sobre um manequim 3D** | uma descrição e uma imagem do seu jogo | uma caminhada em 8 direções vista de cima (ou de lado), desenhada sobre o manequim 3D do SpriteCast, sem fazer um modelo 3D dela | **$0.54** ($0.06 o design + $0.06 por direção; em pixel art ~$1.2) |
 | **Outra ação** | um nome (Tripo: rápido) ou um FBX do Mixamo (mais natural) | correr, pular, cortar, arremessar... em 8 direções | **$0.8-1.5** por ação (desenho $0.7-1.4 + Tripo $0.10; um FBX: grátis) |
 | **Pixel art** | uma personagem que anda | sprites com cerca de 100 px de altura | **$1.35** uma caminhada em 8 direções ($0.075 por folha) |
 | **Um animal** | uma ilustração | caminhada de quatro patas em 8 direções | **$2.8** (desenho $2.5 + Tripo $0.30) |
@@ -69,7 +69,7 @@ Esses são os valores que cada script mostra antes de gastar; as contas vieram u
 
 ![um guarda do castelo andando em 8 direções visto de cima, cada uma ao lado do manequim liso sobre cujo andar ele foi desenhado](docs/mannequin-walk.gif)
 
-<p align="center"><b><a href="#sem-modelo-3d-um-andar-sobre-um-manequim">Sem modelo 3D, sem Tripo</a></b>: uma caminhada em 8 direções desenhada sobre o manequim do SpriteCast a partir de um design, uns $0.55.</p>
+<p align="center"><b><a href="#sem-tripo-um-andar-sobre-o-manequim-3d-do-spritecast">Sem Tripo</a></b>: uma caminhada em 8 direções desenhada sobre o manequim 3D do SpriteCast a partir de um design, uns $0.55, sem fazer um modelo 3D da personagem.</p>
 
 | | |
 |---|---|
@@ -120,9 +120,7 @@ Dois jogos pequenos feitos como exemplo, cada um em mais ou menos um dia, com to
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="docs/rain-girl-play.gif" alt="Rain Girl: uma menina de capa de chuva amarela entre árvores, pedras e arbustos em pixel art, com monstros de fogo vermelhos, verdes e roxos e chão em chamas" width="100%"></a></p>
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><b>▶ Jogue no navegador</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl">o código do jogo</a><br>Sem instalar nada e sem conta. Envie sua pontuação e você aparece no ranking abaixo.</p>
-
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl/main/leaderboard.svg" alt="O ranking de Rain Girl: os dez melhores do mês e os três melhores de todos os tempos, redesenhado a cada meia hora"></a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><b>▶ Jogue no navegador</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl">o código do jogo</a><br>Sem instalar nada e sem conta.</p>
 
 <p align="center"><i>Rain Girl, um pequeno jogo de ação em pixel art: uma menina de capa de chuva amarela apaga monstros de
 fogo com a água do guarda-chuva antes que a floresta queime.</i></p>
@@ -164,9 +162,7 @@ fogo com a água do guarda-chuva antes que a floresta queime.</i></p>
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/castle-wall-play.gif" alt="The Castle Wall: a menina da chuva no portão do castelo com um guarda e uma herborista, um lobo de pedra no adarve, uma nuvem de tempestade sobre uma passarela de madeira, chuva" width="100%"></a></p>
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ Jogue no navegador</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">o código do jogo, e como cada imagem foi feita</a><br>Sem instalar nada e sem conta. Envie sua pontuação e você aparece no ranking abaixo.</p>
-
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl-castle-wall/master/leaderboard.svg" alt="O placar de The Castle Wall: os dez melhores do mês e os três melhores de sempre, redesenhado a cada meia hora"></a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ Jogue no navegador</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">o código do jogo, e como cada imagem foi feita</a><br>Sem instalar nada e sem conta.</p>
 
 A mesma menina num mundo pintado, de rolagem lateral: ela caça o que a chuva despertou na muralha de um castelo, rodada após
 rodada, cada uma mais difícil que a anterior. Assim foram feitas as imagens:
@@ -182,8 +178,8 @@ Nenhum monstro ou morador da vila tem um modelo 3D próprio - como foram desenha
 
 ## Personagens que andam
 
-Há dois jeitos de fazer uma caminhada: **sobre o manequim do SpriteCast** - sem modelo 3D da personagem, sem Tripo, uns $0.55 por 8
-direções ([abaixo](#sem-modelo-3d-um-andar-sobre-um-manequim)) - ou **com o próprio modelo 3D** feito no Tripo, uns $3: o que precisa uma personagem que vai segurar uma arma e
+Há dois jeitos de fazer uma caminhada: **sobre o manequim 3D do SpriteCast** - sem fazer um modelo 3D da personagem, sem Tripo, uns $0.55 por 8
+direções ([abaixo](#sem-tripo-um-andar-sobre-o-manequim-3d-do-spritecast)) - ou **com o próprio modelo 3D** feito no Tripo, uns $3: o que precisa uma personagem que vai segurar uma arma e
 atacar.
 
 ![uma ilustração → 3D → frames desenhados → uma caminhada em 8 direções](docs/character.pt-BR.png)
@@ -210,13 +206,13 @@ Com seu próprio GLB com rig (`"rig_glb"`), pule direto para `render`. Quanto cu
 
 Mais opções (várias roupas, o vídeo de prévia, Meshy, a personagem de exemplo com o esqueleto): [docs/guide/characters.md](docs/guide/characters.md#walking-characters) (em inglês).
 
-### Sem modelo 3D: um andar sobre um manequim
+### Sem Tripo: um andar sobre o manequim 3D do SpriteCast
 
 ![um guarda do castelo andando em 8 direções visto de cima, cada uma ao lado do manequim liso sobre cujo andar ele foi desenhado](docs/mannequin-walk.gif)
 
-O SpriteCast vem com manequins lisos: um homem, uma mulher, uma criança e um cachorro, carecas e cinza, com os membros direitos em
-vermelho e os esquerdos em azul. O `creature.py` renderiza andando, com a câmera do jogo, aquele que a sua descrição nomeia (grátis), e o
-modelo de imagem desenha a sua personagem sobre as poses dele: um design e depois uma imagem por direção. Sem Tripo e sem modelo da
+O SpriteCast vem com manequins 3D lisos: um homem, uma mulher, uma criança e um cachorro, carecas e cinza, com o braço direito (no cachorro, a pata
+dianteira direita) em vermelho e a perna direita em amarelo, o braço esquerdo em azul e a perna esquerda em verde. O `creature.py` renderiza andando, com a câmera do jogo, aquele que a sua descrição nomeia (grátis), e o
+modelo de imagem desenha a sua personagem sobre as poses dele: um design e depois uma imagem por direção. Sem Tripo e sem fazer um modelo 3D da
 personagem: uma caminhada em 8 direções sai por uns $0.54.
 
 ```
@@ -271,7 +267,7 @@ atrás dele (`"turn": 0` para um perfil estrito). As ações funcionam como ante
 
 **Monstros, animais e moradores da vila não precisam de um modelo 3D cada um.** `creature.py` desenha um design com a cara de uma
 imagem do seu jogo, e depois o andar dele sobre as poses de um **manequim** liso que vem com o SpriteCast - um cachorro cinza, ou
-um homem, uma mulher ou uma criança carecas, com os membros de perto em vermelho e os de longe em azul - e qualquer outra coisa que
+um homem, uma mulher ou uma criança carecas, com os membros de perto em vermelho e amarelo e os de longe em azul e verde - e qualquer outra coisa que
 ele faça (levar um golpe, se desfazer, um pulo) como uma folha de quatro momentos ditos em palavras. Cerca de $0.06 por imagem.
 
 - **Uma criatura de quatro patas.** Primeiro o manequim do cachorro é esticado até o comprimento de perna, a altura do corpo e o
@@ -294,7 +290,7 @@ ele faça (levar um golpe, se desfazer, um pulo) como uma folha de quatro moment
 O que se apoia com as pernas para os lados (um lagarto, uma aranha) ainda não tem manequim: uma salamandra saiu em pé sobre pernas
 de cachorro.
 
-**Um manequim ou o próprio modelo 3D?** Como para qualquer personagem: [quando fazer o próprio modelo 3D](#sem-modelo-3d-um-andar-sobre-um-manequim).
+**Um manequim ou o próprio modelo 3D?** Como para qualquer personagem: [quando fazer o próprio modelo 3D](#sem-tripo-um-andar-sobre-o-manequim-3d-do-spritecast).
 Detalhes: [reference/creature.md](skills/spritecast/reference/creature.md).
 
 **O cenário visto de lado também é desenhado sobre um modelo 3D.** A muralha atrás deles é um prop: um modelo Tripo feito a partir

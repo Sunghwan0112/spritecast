@@ -3,14 +3,14 @@
 <p align="center"><b>放进一张插画，得到一个游戏角色。</b><br>
 一个用于 Claude Code 的 2D 精灵图生成器，等距或横版卷轴都行：8 方向行走、动作和像素画，<br>
 都按你游戏的相机角度生成，每一帧下面都有 3D 阴影，还有能摆在旁边的道具 ——<br>
-以及不用任何 3D 模型、画在人偶走路姿势上的角色、怪物和镇民。</p>
+以及不用 Tripo、不必每个都做 3D 模型、画在 SpriteCast 自带 3D 人偶走路姿势上的角色、怪物和镇民。</p>
 
 <p align="center"><a href="https://github.com/Sunghwan0112/spritecast/stargazers"><img src="https://img.shields.io/github/stars/Sunghwan0112/spritecast?style=social" alt="GitHub stars"></a></p>
 
 <p align="center">
 <a href="#能做什么">能做什么</a> ·
 <a href="#行走角色">角色</a> ·
-<a href="#不用-3d-模型画在人偶的走路上">不用 3D 模型</a> ·
+<a href="#不用-tripo画在-spritecast-的-3d-人偶的走路上">不用 Tripo</a> ·
 <a href="#横版卷轴游戏只画一个朝向怪物用-2d-画">横版卷轴</a> ·
 <a href="#像素画街机尺寸">像素画</a> ·
 <a href="#道具与场景">道具</a> ·
@@ -42,14 +42,14 @@ claude plugin install spritecast@spritecast
 
 ![同一场景：左边是以前的游戏——方形草地贴图和图标包里正面的爱心和药水；右边是现在——3D 草地，以及用 3D 模型按游戏角度做出的爱心和药水及其影子](docs/one-angle.png)
 
-<a name="cost"></a>免费，MIT 许可：你直接付费给 OpenAI 和 Tripo（Tripo 1 点 = $0.01），作者不收任何钱，每个付费步骤都会显示费用并等你确认。一个会走路的角色用它自己的 3D 模型约 **$3**，不用 Tripo、画在人偶上约 **$0.55**，道具只要几美分，横版卷轴游戏的一个怪物约 **$0.18**；3D 引导图、收尾、地面（草地、小路、水洼）、3D 影子、半透明、生物的姿势、风、导出到 Phaser 和 Godot 以及试用都免费。
+<a name="cost"></a>免费，MIT 许可：你直接付费给 OpenAI 和 Tripo（Tripo 1 点 = $0.01），作者不收任何钱，每个付费步骤都会显示费用并等你确认。一个会走路的角色用它自己的 3D 模型约 **$3**，不用 Tripo、画在 SpriteCast 自带的 3D 人偶上约 **$0.55**，道具只要几美分，横版卷轴游戏的一个怪物约 **$0.18**；3D 引导图、收尾、地面（草地、小路、水洼）、3D 影子、半透明、生物的姿势、风、导出到 Phaser 和 Godot 以及试用都免费。
 
 <details><summary>各项费用</summary>
 
 | | 你提供 | 你得到 | 约 |
 |---|---|---|---|
 | **会走路的角色** | 一张插画 | 8 方向行走、站立视图、每帧影子 | **$2.9**（绘制 $2.1 + Tripo $0.75） |
-| **画在人偶上的会走路的角色** | 一段描述和一张你游戏里的图 | 从上方看的 8 方向走路（或侧面），画在 SpriteCast 自带的人偶上，不做角色的 3D 模型 | **$0.54**（设计图 $0.06 + 每个朝向 $0.06；像素画约 $1.2） |
+| **画在 3D 人偶上的会走路的角色** | 一段描述和一张你游戏里的图 | 从上方看的 8 方向走路（或侧面），画在 SpriteCast 自带的 3D 人偶上，不做角色的 3D 模型 | **$0.54**（设计图 $0.06 + 每个朝向 $0.06；像素画约 $1.2） |
 | **更多动作** | 动作名称（Tripo：快），或 Mixamo FBX（更自然） | 跑、跳、斩、投掷……8 方向 | 每个动作 **$0.8–1.5**（绘制 $0.7–1.4 + Tripo $0.10；FBX 免费） |
 | **像素画** | 会走路的角色 | 约 100 px 高的像素精灵 | 8 方向行走 **$1.35**（每张 $0.075） |
 | **动物** | 一张插画 | 四足行走 8 方向 | **$2.8**（绘制 $2.5 + Tripo $0.30） |
@@ -69,7 +69,7 @@ claude plugin install spritecast@spritecast
 
 ![从上方看、朝 8 个方向走路的城堡卫兵，每个朝向旁边是画他时所依据的素色人偶的走路](docs/mannequin-walk.gif)
 
-<p align="center"><b><a href="#不用-3d-模型画在人偶的走路上">不用 3D 模型，不用 Tripo</a></b>：由一张设计图画在 SpriteCast 人偶上的 8 方向走路，约 $0.55。</p>
+<p align="center"><b><a href="#不用-tripo画在-spritecast-的-3d-人偶的走路上">不用 Tripo</a></b>：由一张设计图画在 SpriteCast 的 3D 人偶上的 8 方向走路，约 $0.55，不做角色的 3D 模型。</p>
 
 | | |
 |---|---|
@@ -120,9 +120,7 @@ claude plugin install spritecast@spritecast
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="docs/rain-girl-play.gif" alt="Rain Girl:穿黄色雨衣的女孩,像素风的树、岩石、灌木,红、绿、紫色的火焰怪物和燃烧的地面" width="100%"></a></p>
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><b>▶ 在浏览器里直接玩</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl">游戏代码</a><br>不用安装,不用注册。提交分数就会出现在下面的排行榜上。</p>
-
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl/main/leaderboard.svg" alt="Rain Girl 排行榜:本月前十和历史前三,每半小时重画一次"></a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><b>▶ 在浏览器里直接玩</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl">游戏代码</a><br>不用安装,不用注册。</p>
 
 <p align="center"><i>Rain Girl,一个小型像素动作游戏:穿黄色雨衣的女孩用伞里的水扑灭火焰怪物,不让森林烧起来。</i></p>
 
@@ -158,9 +156,7 @@ claude plugin install spritecast@spritecast
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/castle-wall-play.gif" alt="The Castle Wall：城门口的雨衣女孩，身边有一名卫兵和一名草药商，城墙顶的走道上一只石狼，木栈道上方一朵雨云，下着雨" width="100%"></a></p>
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ 在浏览器里直接玩</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">游戏代码，以及每张图是怎么做的</a><br>不用安装,不用注册。提交分数就会出现在下面的排行榜上。</p>
-
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl-castle-wall/master/leaderboard.svg" alt="The Castle Wall 排行榜：本月前十和历史前三，每半小时重画一次"></a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ 在浏览器里直接玩</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">游戏代码，以及每张图是怎么做的</a><br>不用安装,不用注册。</p>
 
 同一个女孩来到一个手绘的横版卷轴世界：她在城墙上猎杀被雨唤醒的东西，一轮接一轮，一轮比一轮难。里面的每一张图
 图是这样做的：
@@ -176,7 +172,7 @@ claude plugin install spritecast@spritecast
 
 ## 行走角色
 
-做走路有两种方式：**画在 SpriteCast 的人偶上** —— 不做角色的 3D 模型、不用 Tripo，8 个朝向约 $0.55（[见下](#不用-3d-模型画在人偶的走路上)）；
+做走路有两种方式：**画在 SpriteCast 的 3D 人偶上** —— 不做角色的 3D 模型、不用 Tripo，8 个朝向约 $0.55（[见下](#不用-tripo画在-spritecast-的-3d-人偶的走路上)）；
 或者**用它自己的 3D 模型**，由 Tripo 制作，约 $3 —— 要拿武器攻击的角色需要这种。
 
 ![一张插画 → 3D → 绘制的帧 → 8 个朝向的行走](docs/character.zh-CN.png)
@@ -203,12 +199,12 @@ $PYTHON skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # the
 
 更多选项（多套服装、预览视频、Meshy、带骨骼的示例角色）：[docs/guide/characters.md](docs/guide/characters.md#walking-characters)（英文）。
 
-### 不用 3D 模型：画在人偶的走路上
+### 不用 Tripo：画在 SpriteCast 的 3D 人偶的走路上
 
 ![从上方看、朝 8 个方向走路的城堡卫兵，每个朝向旁边是画他时所依据的素色人偶的走路](docs/mannequin-walk.gif)
 
-SpriteCast 自带几个素色人偶：男人、女人、孩子和狗 —— 没有头发的灰色身体，右侧四肢红色，左侧蓝色。`creature.py` 用游戏的相机渲染
-你的描述所对应的人偶走路（免费），图像模型在它的姿势上画出你的角色：先一张设计图，再每个朝向一张图。不用 Tripo，也不做角色的模型：
+SpriteCast 自带几个素色的 3D 人偶：男人、女人、孩子和狗 —— 没有头发的灰色身体，每条肢体颜色各不相同：右臂（狗是右前腿）红色、右腿黄色，左臂蓝色、左腿绿色。`creature.py` 用游戏的相机渲染
+你的描述所对应的人偶走路（免费），图像模型在它的姿势上画出你的角色：先一张设计图，再每个朝向一张图。不用 Tripo，也不做角色的 3D 模型：
 8 个朝向的走路约 $0.54。
 
 ```
@@ -259,7 +255,7 @@ Tripo 给四足动物的骨骼绑定走起来很糟（没有脊椎，肩膀挂�
 被身体挡住（要严格的侧面就用 `"turn": 0`）。动作照常可用：带水花的斩击、跳跃（`"air"`）、背对我们爬的梯子（`"face": "away"`）。
 
 **怪物、动物和镇民不必每个都做 3D 模型。** `creature.py` 按你游戏里一张图的画风画出一张设计图，再把它画在 SpriteCast 自带的素色
-**人偶**的走路姿势上（一只灰色的狗，或没有头发的男人、女人、孩子；靠近观看者的四肢是红色，远侧是蓝色）。它做的其他动作
+**人偶**的走路姿势上（一只灰色的狗，或没有头发的男人、女人、孩子；靠近观看者的四肢是红色和黄色，远侧是蓝色和绿色）。它做的其他动作
 （被击中、散开、跳一下）用文字写出四个瞬间，画成一张图。每张图约 $0.06。
 
 - **四足生物。** 先把狗人偶拉伸到设计图自己的腿长、身体厚度和脖子（免费）。直接画在原样的狗上时，野猪和鹿都长出了狗的腿；
@@ -279,7 +275,7 @@ Tripo 给四足动物的骨骼绑定走起来很糟（没有脊椎，肩膀挂�
 
 腿向两侧伸开站立的东西（蜥蜴、蜘蛛）还没有人偶：一只蝾螈画出来是用狗腿站着的。
 
-**用人偶，还是用它自己的 3D 模型？** 和其他角色一样：[什么时候改用它自己的 3D 模型](#不用-3d-模型画在人偶的走路上)。
+**用人偶，还是用它自己的 3D 模型？** 和其他角色一样：[什么时候改用它自己的 3D 模型](#不用-tripo画在-spritecast-的-3d-人偶的走路上)。
 详见 [reference/creature.md](skills/spritecast/reference/creature.md)。
 
 **从侧面看的场景也画在 3D 模型上。** 他们身后的城墙是一个道具：一个用文字生成的 Tripo 模型，从侧面平视渲染

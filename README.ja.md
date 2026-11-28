@@ -3,14 +3,14 @@
 <p align="center"><b>イラスト1枚を入れれば、ゲームキャラクターが出てくる。</b><br>
 Claude Code 用の2Dスプライトジェネレーターです。アイソメトリックにも横スクロールにも使えます。8方向の歩行、アクション、ピクセルアートを<br>
 ゲームのカメラアングルで作り、すべてのフレームの下に3Dの影を付けます。その横に置くプロップも作れます。<br>
-3Dモデルなしで、キャラクター、モンスター、町の人をマネキンの歩きの上に描くこともできます。</p>
+Tripo なしで、1体ずつの3Dモデルも作らず、SpriteCast の3Dマネキンの上にキャラクター、モンスター、町の人を描くこともできます。</p>
 
 <p align="center"><a href="https://github.com/Sunghwan0112/spritecast/stargazers"><img src="https://img.shields.io/github/stars/Sunghwan0112/spritecast?style=social" alt="GitHub stars"></a></p>
 
 <p align="center">
 <a href="#作れるもの">作れるもの</a> ·
 <a href="#歩くキャラクター">キャラクター</a> ·
-<a href="#3dモデルなしで-マネキンの上の歩き">3Dモデルなし</a> ·
+<a href="#tripo-なしで-spritecast-の3dマネキンの上の歩き">Tripo なし</a> ·
 <a href="#横スクロールのゲーム-1方向だけ描きモンスターは2dで">横スクロール</a> ·
 <a href="#ピクセルアート-アーケードサイズ">ピクセルアート</a> ·
 <a href="#プロップと背景物">プロップ</a> ·
@@ -42,14 +42,14 @@ claude plugin install spritecast@spritecast
 
 ![同じ場面: 左は以前のゲーム - 四角い草タイルとアイコンパックの正面向きのハートとポーション、右は今 - 3Dの草原と、3Dモデルからゲームの角度で作ったハートとポーションとその影](docs/one-angle.png)
 
-<a name="cost"></a>無料、MIT ライセンスです。OpenAI と Tripo には直接支払い(Tripo 1クレジット = $0.01)、作者には何も入りません。有料のステップはすべて費用を表示し、OK を待ちます。歩くキャラクター1体で、自分の3Dモデルなら約 **$3**、Tripo なしでマネキンの上に描けば約 **$0.55**、小物は数セント、横スクロールのゲームのモンスターは約 **$0.18** です。3Dガイド、仕上げ、地面(草原、道、水たまり)、3Dの影、半透明、生き物のポーズ、風、Phaser・Godot への書き出し、お試しは無料です。
+<a name="cost"></a>無料、MIT ライセンスです。OpenAI と Tripo には直接支払い(Tripo 1クレジット = $0.01)、作者には何も入りません。有料のステップはすべて費用を表示し、OK を待ちます。歩くキャラクター1体で、自分の3Dモデルなら約 **$3**、Tripo なしで SpriteCast の3Dマネキンの上に描けば約 **$0.55**、小物は数セント、横スクロールのゲームのモンスターは約 **$0.18** です。3Dガイド、仕上げ、地面(草原、道、水たまり)、3Dの影、半透明、生き物のポーズ、風、Phaser・Godot への書き出し、お試しは無料です。
 
 <details><summary>項目ごとの費用</summary>
 
 | | 渡すもの | 得られるもの | 約 |
 |---|---|---|---|
 | **歩くキャラクター** | イラスト1枚 | 8方向の歩き、立ち姿、フレームごとの影 | **$2.9** (描画 $2.1 + Tripo $0.75) |
-| **マネキンの上に描く歩くキャラクター** | 説明と、自分のゲームの絵1枚 | 上から見た8方向の歩き (または横から)、SpriteCast のマネキンの上に描く。キャラクターの3Dモデルは作らない | **$0.54** (デザイン $0.06 + 1方向ごとに $0.06、ピクセルアートなら約 $1.2) |
+| **3Dマネキンの上に描く歩くキャラクター** | 説明と、自分のゲームの絵1枚 | 上から見た8方向の歩き (または横から)、SpriteCast の3Dマネキンの上に描く。キャラクターの3Dモデルは作らない | **$0.54** (デザイン $0.06 + 1方向ごとに $0.06、ピクセルアートなら約 $1.2) |
 | **動作の追加** | 動作の名前(Tripo: 手早い)、または Mixamo の FBX(より自然) | 走る、跳ぶ、斬る、投げる… 8方向 | 1動作 **$0.8〜1.5** (描画 $0.7〜1.4 + Tripo $0.10、FBX は無料) |
 | **ピクセルアート** | 歩くキャラクター | 身長約100pxのピクセルスプライト | 8方向の歩き **$1.35** (1シート $0.075) |
 | **動物** | イラスト1枚 | 四足歩行 8方向 | **$2.8** (描画 $2.5 + Tripo $0.30) |
@@ -69,7 +69,7 @@ claude plugin install spritecast@spritecast
 
 ![上から見た8方向に歩く城の衛兵。各方向で、描く元になった無地のマネキンの歩きと並んで](docs/mannequin-walk.gif)
 
-<p align="center"><b><a href="#3dモデルなしで-マネキンの上の歩き">3Dモデルなし、Tripo なし</a></b>: デザイン1枚から SpriteCast のマネキンの上に描いた8方向の歩き、約 $0.55。</p>
+<p align="center"><b><a href="#tripo-なしで-spritecast-の3dマネキンの上の歩き">Tripo なし</a></b>: デザイン1枚から SpriteCast の3Dマネキンの上に描いた8方向の歩き、約 $0.55。キャラクターの3Dモデルは作りません。</p>
 
 | | |
 |---|---|
@@ -120,9 +120,7 @@ claude plugin install spritecast@spritecast
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="docs/rain-girl-play.gif" alt="Rain Girl: 黄色いレインコートの少女と、ピクセルアートの木・岩・茂み、赤・緑・紫の炎モンスターと燃える地面" width="100%"></a></p>
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><b>▶ ブラウザですぐ遊ぶ</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl">ゲームのコード</a><br>インストールも登録もいりません。スコアを送ると下のランキングに載ります。</p>
-
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl/main/leaderboard.svg" alt="Rain Girl のランキング: 今月のトップ10と歴代トップ3、30分ごとに描き直されます"></a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><b>▶ ブラウザですぐ遊ぶ</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl">ゲームのコード</a><br>インストールも登録もいりません。</p>
 
 <p align="center"><i>Rain Girl。黄色いレインコートの少女が傘の水で炎モンスターを消し、森が燃えるのを防ぐ小さなピクセル
 アクションゲーム。</i></p>
@@ -162,9 +160,7 @@ claude plugin install spritecast@spritecast
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/castle-wall-play.gif" alt="The Castle Wall: 城門で衛兵と薬草売りと一緒にいるレインガール、城壁の上の通路にいる石のオオカミ、木の足場の上の雨雲、雨" width="100%"></a></p>
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ ブラウザですぐ遊ぶ</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">ゲームのコードと、それぞれの絵の作り方</a><br>インストールも登録もいりません。スコアを送ると下のランキングに載ります。</p>
-
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl-castle-wall/master/leaderboard.svg" alt="The Castle Wall のランキング: 今月のトップ10と歴代トップ3、30分ごとに描き直し"></a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ ブラウザですぐ遊ぶ</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">ゲームのコードと、それぞれの絵の作り方</a><br>インストールも登録もいりません。</p>
 
 同じ少女が、描き込んだ絵の横スクロールの世界にやって来ました。雨が目覚めさせたものを城壁の上で狩ります。ラウンドを重ねるごとに
 難しくなります。絵の作り方:
@@ -180,8 +176,8 @@ claude plugin install spritecast@spritecast
 
 ## 歩くキャラクター
 
-歩きの作り方は2つあります。**SpriteCast のマネキンの上に**描けば、キャラクターの3Dモデルも Tripo もなしで8方向約 $0.55
-([下](#3dモデルなしで-マネキンの上の歩き))。**自分の3Dモデルで** Tripo で作れば約 $3 で、武器を持って攻撃するキャラクターにはこちらが必要です。
+歩きの作り方は2つあります。**SpriteCast の3Dマネキンの上に**描けば、キャラクターの3Dモデルを作らず Tripo もなしで8方向約 $0.55
+([下](#tripo-なしで-spritecast-の3dマネキンの上の歩き))。**自分の3Dモデルで** Tripo で作れば約 $3 で、武器を持って攻撃するキャラクターにはこちらが必要です。
 
 ![イラスト → 3D → 描かれたフレーム → 8方向の歩行](docs/character.ja.png)
 
@@ -207,13 +203,13 @@ $PYTHON skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # the
 
 その他のオプション (複数の衣装、プレビュー動画、Meshy、リグ付きの例のキャラクター): [docs/guide/characters.md](docs/guide/characters.md#walking-characters) (英語)。
 
-### 3Dモデルなしで: マネキンの上の歩き
+### Tripo なしで: SpriteCast の3Dマネキンの上の歩き
 
 ![上から見た8方向に歩く城の衛兵。各方向で、描く元になった無地のマネキンの歩きと並んで](docs/mannequin-walk.gif)
 
-SpriteCast には無地のマネキンが入っています。男性、女性、子ども、犬。髪のない灰色の体で、右の手足は赤、左は青です。`creature.py` が
+SpriteCast には無地の3Dマネキンが入っています。男性、女性、子ども、犬。髪のない灰色の体で、手足はそれぞれ別の色です。右腕 (犬は右の前脚) が赤・右脚が黄、左腕が青・左脚が緑です。`creature.py` が
 説明に合うマネキンをゲームのカメラで歩かせてレンダーし (無料)、画像モデルがそのポーズの上にキャラクターを描きます。デザイン1枚、
-そのあと1方向に1枚。Tripo もキャラクターの3Dモデルもなしで、8方向の歩きが約 $0.54 です。
+そのあと1方向に1枚。Tripo なしで、キャラクターの3Dモデルも作らずに、8方向の歩きが約 $0.54 です。
 
 ```
 $PYTHON skills/spritecast/scripts/creature.py mannequin guard.json   # 無料: マネキンの歩き、方向ごとのガイド。そのあと design、walk (まず1方向だけ: --only south-east)
@@ -265,7 +261,7 @@ Tripo の四足動物用リグはうまく歩きません (背骨がなく、肩
 ジャンプ (`"air"`)、背中を見せて登るはしご (`"face": "away"`)。
 
 **モンスター、動物、町の人には、1体ずつの3Dモデルは要りません。** `creature.py` がゲームの絵1枚の画風でデザインを1枚描き、
-SpriteCast に付属する無地の**マネキン** (灰色の犬、髪のない男性・女性・子ども。手前の手足は赤、奥は青) の歩きのポーズの上に
+SpriteCast に付属する無地の**マネキン** (灰色の犬、髪のない男性・女性・子ども。手前の手足は赤と黄、奥は青と緑) の歩きのポーズの上に
 そのデザインを描きます。殴られる、崩れる、跳ねるなど他の動きは、4つの場面を言葉で書いた1枚のシートで描きます。1枚あたり約 $0.06 です。
 
 - **4本足の生き物。** まず犬のマネキンを、デザインの脚の長さ、胴の厚み、首に合わせて変形します (無料)。変形しないまま描くと、
@@ -287,7 +283,7 @@ SpriteCast に付属する無地の**マネキン** (灰色の犬、髪のない
 
 脚が横に張り出すもの (トカゲ、クモ) には、まだマネキンがありません。サンショウウオは犬の脚で立った姿になりました。
 
-**マネキンか、自分の3Dモデルか?** ほかのキャラクターと同じです: [自分の3Dモデルで作るべきとき](#3dモデルなしで-マネキンの上の歩き)。
+**マネキンか、自分の3Dモデルか?** ほかのキャラクターと同じです: [自分の3Dモデルで作るべきとき](#tripo-なしで-spritecast-の3dマネキンの上の歩き)。
 詳しくは [reference/creature.md](skills/spritecast/reference/creature.md)。
 
 **横から見た背景も3Dモデルの上に描きます。** 後ろの城壁はプロップです。言葉から作った Tripo モデルを真横から水平にレンダーし

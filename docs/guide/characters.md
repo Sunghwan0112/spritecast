@@ -4,8 +4,8 @@
 
 ## Walking characters
 
-Two ways to make one walk: **on SpriteCast's mannequin** - no 3D model of the character, no Tripo, about $0.55 for 8 facings
-([below](#no-3d-model-a-walk-on-a-mannequin)) - or **with its own 3D model** made by Tripo, about $3: what a character that will hold
+Two ways to make one walk: **on SpriteCast's own 3D mannequin** - no 3D model made of the character, no Tripo, about $0.55 for 8 facings
+([below](#no-tripo-a-walk-on-spritecasts-3d-mannequin)) - or **with its own 3D model** made by Tripo, about $3: what a character that will hold
 a weapon and attack needs.
 
 ![an illustration → 3D → drawn frames → an 8-facing walk](../character.png)
@@ -51,13 +51,13 @@ every frame - a flaw in the model fixed in the drawing, not in 3D.
 
 </details>
 
-## No 3D model: a walk on a mannequin
+## No Tripo: a walk on SpriteCast's 3D mannequin
 
 ![a castle guard walking in 8 facings seen from above, each beside the plain mannequin whose walk he was drawn on](../mannequin-walk.gif)
 
-SpriteCast comes with plain mannequins - a man, a woman, a child and a dog: bald, grey, the right limbs red and the left blue.
+SpriteCast comes with plain 3D mannequins - a man, a woman, a child and a dog: bald and grey, every limb its own colour: the right arm (a dog's right fore leg) red and the right leg yellow, the left arm blue and the left leg green.
 `creature.py` renders the one your description names walking, with the game's camera (free), and the image model draws your
-character over its poses: one design, then one picture a facing. No Tripo and no model of the character: a walk in 8 facings is
+character over its poses: one design, then one picture a facing. No Tripo, and no 3D model made of the character: a walk in 8 facings is
 about $0.54.
 
 ```
@@ -119,7 +119,7 @@ a cut with its water, a jump (`"air"`), a ladder climbed with her back to us (`"
 
 **Monsters, animals and townspeople need no 3D model each.** `creature.py` draws one design in the look of a picture of your game,
 then its walk on the poses of a plain **mannequin** that comes with SpriteCast - a grey dog, or a bald man, woman or child, the
-near limbs red and the far ones blue - and anything else it does (struck, falling apart, a hop) as a sheet of four moments said in
+near limbs warm (red, yellow) and the far ones cool (blue, green) - and anything else it does (struck, falling apart, a hop) as a sheet of four moments said in
 words. About $0.06 a picture.
 
 - **A four-legged creature.** The dog mannequin is first stretched to the design's own leg length, body depth and neck (free).
@@ -140,7 +140,7 @@ words. About $0.06 a picture.
 </details>
 
 What stands with its legs out to the sides (a lizard, a spider) has no mannequin yet: a salamander came out standing on dog legs.
-**A mannequin or its own 3D model?** As for any character: [when to make its own 3D model](#no-3d-model-a-walk-on-a-mannequin). Details:
+**A mannequin or its own 3D model?** As for any character: [when to make its own 3D model](#no-tripo-a-walk-on-spritecasts-3d-mannequin). Details:
 [reference/creature.md](../../skills/spritecast/reference/creature.md).
 
 ## More actions: run, jump, slash

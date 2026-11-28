@@ -55,6 +55,10 @@ VIEWS = {'south': "walks straight toward the viewer, DOWN the picture - a FRONT 
          'south-west': "walks toward the LOWER LEFT of the picture - a three-quarter FRONT view: we see its front and its left side"}
 GRID = {4: (4, 1), 6: (3, 2), 8: (4, 2)}; SHEET = (1536, 1024)
 OVER = {}                                     # each facing's frames' overlap with the mannequin, as cut ("redo_below" - 0.5 - marks a frame that left the pose)
+LIMBS_P = ("RIGHT arm is RED and its RIGHT leg YELLOW, its LEFT arm is BLUE and its LEFT leg GREEN")   # a person mannequin's limbs (render_char.html setPlain:
+MARKS = "grey, red, yellow, blue or green"           # an arm and a leg of one colour ran into each other; an animal's fore legs as its arms - seen from the front they overlap)
+LIMBS_A = "RIGHT fore leg is RED and its RIGHT hind leg YELLOW, its LEFT fore leg is BLUE and its LEFT hind leg GREEN"
+PLAIN = 'a plain mannequin, every limb its own colour'      # (mannequin.json's words: a mannequin rendered before the four colours has other words - rendered again)
 HEAD_MAX = 64                                 # a person's frame is moved at most this far across to put its head over the mannequin's (px of the sheet)
 STYLE = ("in exactly the drawing style of image 1: the same line - its weight and its colour - the same way of shading, the same colours and the same degree of realism. "
          "A finished illustration: not pixel art, not a 3D render")
@@ -121,9 +125,9 @@ def design(s, d, root, args):
         game = 'game seen from above' if s['above'] else 'side-scrolling game'
         P = (f"Image 1 is a character of a {game}, shown for its DRAWING STYLE only. Image 2 is a plain grey mannequin, shown for its VIEW and its BUILD only: the new "
              "character stands exactly as the mannequin stands - seen from the same height, turned the same way, facing the same way, the arms hanging at the sides - and has the mannequin's height, proportions "
-             f"and build under its clothes (the mannequin's red and blue only mark its right and left limbs). Draw a new CHARACTER for the same game {words}: {s['what']} "
+             f"and build under its clothes (the mannequin's colours only mark its limbs: its right arm red, right leg yellow, left arm blue, left leg green). Draw a new CHARACTER for the same game {words}: {s['what']} "
              "ONE character, whole from head to feet, in the middle of the picture, small enough that there is white all round it. Plain pure white background, no ground, no shadow, "
-             "no text, no frame, and nothing of image 1 or of the mannequin's grey, red or blue in the picture.")
+             "no text, no frame, and nothing of image 1 or of the mannequin's grey or colours in the picture.")
     else:
         P = (f"Image 1 is a character of a side-scrolling game, shown for its DRAWING STYLE only. Draw a CREATURE for the same game {words}: {s['what']} "
              "ONE creature, whole, seen from the side and FACING RIGHT, in the middle of the picture, small enough that there is white all round it. "
@@ -162,15 +166,20 @@ def _red(f):
 
 
 def paw_step(fr):
-    """an animal's step, px of its renders a whole step: each near paw's place (the red of each frame split into hind and fore leg by x; the leg's lowest part)
-    in the frames where render_char.html's gait has that leg on the ground - its phase (k/n + PHASE) % 1 under STANCE - a straight line through its place
-    against the phase; the fore and the hind paw's lines given one slope (least squares), the paws drawn planted then slide least. → (px, {leg: its own})"""
+    """an animal's step, px of its renders a whole step: each near paw's place (the leg's lowest part) in the frames where render_char.html's gait has that
+    leg on the ground - its phase (k/n + PHASE) % 1 under STANCE - a straight line through its place against the phase; the fore and the hind paw's lines
+    given one slope (least squares), the paws drawn planted then slide least. → (px, {leg: its own}). Which near leg is which: by its COLOUR - the fore red,
+    the hind yellow (render_char.html setPlain). A mannequin rendered before the four colours has both red: split by x then (left of the middle the hind),
+    which on the four-colour wolf gave the two paws 214 and 136 px a step - a leg reaching under the body was taken for the other"""
     n = len(fr); X = {leg: [] for leg in NEAR}
     for f in fr:
-        _, al, rd = _red(f); ys, xs = np.nonzero(al & rd)
-        cut = (xs.min() + xs.max()) / 2
-        for _ in range(8): cut = (xs[xs < cut].mean() + xs[xs >= cut].mean()) / 2
-        for leg, sel in (('fore', xs >= cut), ('hind', xs < cut)): y, x = ys[sel], xs[sel]; X[leg].append(float(x[y > y.max() - 6].mean()))
+        a, al, rd = _red(f); ys, xs = np.nonzero(al & rd); yel = (a[ys, xs, 1] > 0.55 * a[ys, xs, 0]) & (a[ys, xs, 1] > a[ys, xs, 2] + 40)     # (yellow: its green well over its blue - red's and grey's are level)
+        if yel.sum() > 30 and (~yel).sum() > 30: parts = (('fore', ~yel), ('hind', yel))
+        else:
+            cut = (xs.min() + xs.max()) / 2
+            for _ in range(8): cut = (xs[xs < cut].mean() + xs[xs >= cut].mean()) / 2
+            parts = (('fore', xs >= cut), ('hind', xs < cut))
+        for leg, sel in parts: y, x = ys[sel], xs[sel]; X[leg].append(float(x[y > y.max() - 6].mean()))
     num = den = 0.0; own = {}
     for leg, p0 in NEAR.items():
         t = np.array([(k / n + p0) % 1 for k in range(n)]); on = t < STANCE; t, x = t[on], np.array(X[leg])[on]
@@ -185,7 +194,7 @@ def foot_step(fr):
     flat frames (a 4-frame walk) every frame on the ground counts - the heel, or where the heel would be under a toe still down. → (px, words) or None"""
     A = [_red(f) for f in fr]; n = len(fr); bot = [int(np.nonzero(al.any(1))[0][-1]) for _, al, _ in A]; top = min(int(np.nonzero(al.any(1))[0][0]) for _, al, _ in A)
     ground = max(bot); H = ground - top; tol, band = max(2, round(H * 0.004)), max(3, round(H * 0.007))
-    for side, pick in (('near', lambda a, rd: rd), ('far', lambda a, rd: a[..., 2] > a[..., 0] + 60)):
+    for side, pick in (('near', lambda a, rd: rd), ('far', lambda a, rd: np.maximum(a[..., 1], a[..., 2]) > a[..., 0] + 60)):
         R = []
         for a, al, rd in A:
             ys, xs = np.nonzero(al & pick(a, rd))
@@ -247,7 +256,7 @@ def lay_out(s, d, extra):
     for f, b, (cx, cy, _, _) in zip(fr, bb, cells(n)):
         c = f.crop((x0, y0, x1, b[3])); c = c.resize((round(c.width * k), round(c.height * k)), Image.LANCZOS); g.paste(c, (cx + (cw - c.width) // 2, cy + gy - c.height), c)
     g.save(d / 'walk-guide.png'); v, how = step_of(fr, s['person']); adv = v * k
-    (d / 'walk-guide.json').write_text(json.dumps({'n': n, 'ground': gy, 'advance': adv, 'advance_by': how, 'mannequin': s['mannequin'], 'turn': s['turn'] if s['person'] else None, **extra}))
+    (d / 'walk-guide.json').write_text(json.dumps({'n': n, 'ground': gy, 'advance': adv, 'advance_by': how, 'mannequin': s['mannequin'], 'turn': s['turn'] if s['person'] else None, 'limbs': 4, **extra}))
     print(f'mannequin: one whole step carries it {adv:.0f} px of the sheet - {how}'); return adv
 
 
@@ -260,7 +269,7 @@ def mannequin(s, d, root, args):
                                         'false (no walk of this kind: sheets only)')
     if not s['mannequin']: sys.exit('mannequin: this spec has "mannequin": false - its animations are "sheets"')
     if s.get('mannequin_by'): print(f'mannequin: "{s["mannequin"]}" - the spec leaves "mannequin" out, and "what" says "{s["mannequin_by"]}" (give "mannequin" for another)')
-    n = s['frames']; spec = d / 'mannequin.json'; base = {'name': 'mannequin', 'frames': n, 'mannequin': True, 'description': 'a plain mannequin'}
+    n = s['frames']; spec = d / 'mannequin.json'; base = {'name': 'mannequin', 'frames': n, 'mannequin': True, 'description': PLAIN}
     base.update({'facings': 8, 'pitch': s['pitch']} if s['above'] else {'view': 'side'})      # (from above all eight are rendered, free: the step is measured on east)
     if s['person']:
         rig, src = d / 'mannequin-rig.glb', HERE.parent / 'mannequins' / f"{s['mannequin']}.glb"     # (a copy: the render writes a standing clip beside the rig it is given)
@@ -277,8 +286,10 @@ def mannequin(s, d, root, args):
     B = build(d); L = B['L']; fit = {k: round(B[v] / L, 3) for k, v in (('leg', 'leg'), ('body', 'depth'), ('nose_up', 'nose_up'), ('nose_out', 'nose_out'))}
     glb = HERE.parent / 'mannequins' / f"{s['mannequin']}.glb" if not str(s['mannequin']).endswith('.glb') else (root / s['mannequin'])
     if not glb.exists(): sys.exit(f'mannequin: {glb} is not there ("mannequin": "dog", "man", "woman", "child", or an animal\'s .glb of your own)')
+    # ("turn": 0 - an animal is drawn straight from the side, as its design is: left to the side view's default, 45 since 0.29.0, the dog came
+    # out turned toward the viewer - the stag's body short, its step 203 px of the render where it walks 251)
     print(f'mannequin: the design asks for {fit} (each a ratio to the distance between its fore and hind feet)')
-    print('\n'.join(l for l in render_once(spec, json.dumps({**base, 'kind': 'animal', 'fit': fit, 'model_glb': str(glb), 'design': 'design.png'},
+    print('\n'.join(l for l in render_once(spec, json.dumps({**base, 'kind': 'animal', 'fit': fit, 'model_glb': str(glb), 'design': 'design.png', **({} if s['above'] else {'turn': 0})},
                                                          indent=1)).splitlines() if 'fitted' in l)); lay_out_any(s, d, {'fit': fit})
     print(f'mannequin: {guide_names(s, d)} - {n} moments of one step. LOOK: its legs as long and its body as deep as the design\'s? then `walk`')
 
@@ -287,30 +298,30 @@ def walk_prompt(n, person=False):
     if person: return person_prompt(n)
     c, r = GRID[n]; rows = f"in {r} row{'s' if r > 1 else ''} of {c} - {n} moments of one walking step, read left to right{', top row first' if r > 1 else ''}"
     return (f"Image 1 is a POSE SHEET: a plain MANNEQUIN of a four-legged animal shown {n} times, {rows}. It has no coat, no face and no tail - it shows only the pose. In every one it "
-            "faces RIGHT. Its two legs on the side NEAREST the viewer are RED; its two legs on the FAR side are BLUE (half hidden behind the body and the near legs); the rest of it is "
-            f"grey. Image 2 is a creature of a side-scrolling game. Draw the creature of image 2 {n} times - one in place of each mannequin, at that mannequin's place and size on the "
+            "faces RIGHT. Its two legs on the side NEAREST the viewer are warm - the near FORE leg RED, the near HIND leg YELLOW; its two legs on the FAR side are cool - the far "
+            f"FORE leg BLUE, the far HIND leg GREEN (half hidden behind the body and the near legs); the rest of it is grey. Image 2 is a creature of a side-scrolling game. Draw the creature of image 2 {n} times - one in place of each mannequin, at that mannequin's place and size on the "
             "sheet, in exactly that mannequin's pose: every leg where the mannequin's leg of the same colour is and bent as it is bent, each paw exactly where the mannequin's paw is (a "
-            "paw that is off the ground in the mannequin is off the ground by as much), the back, the chest and the neck where the mannequin's are. The legs that are red on the mannequin "
-            "are drawn in front of the body; those that are blue behind it and a little darker. The mannequin has been given this creature's own proportions: its legs are exactly as "
+            "paw that is off the ground in the mannequin is off the ground by as much), the back, the chest and the neck where the mannequin's are. The legs that are red and yellow on the "
+            "mannequin are drawn in front of the body; those that are blue and green behind it and a little darker. The mannequin has been given this creature's own proportions: its legs are exactly as "
             "LONG as the mannequin's legs, its body as deep, its back at the same height - do not make the legs longer or shorter than the mannequin's. It is the creature of image 2 "
             "with its own build, its own head and face, its own coat and markings - and its own TAIL, as in image 2, swaying a little from frame to frame. "
             f"It is the same creature in all {n}: the same colours, the same markings, the same drawing style and line as image 2, the same size - only its legs change, and its tail a "
-            "little. NOTHING of the mannequin shows in the finished sheet: none of its grey, red or blue, none of its smooth bare shape - only the creatures. Each one whole, none "
+            f"little. NOTHING of the mannequin shows in the finished sheet: none of its {MARKS}, none of its smooth bare shape - only the creatures. Each one whole, none "
             "touching another or the sheet's edge. Plain pure white background: no ground, no shadow, no lines, no numbers, no text.")
 
 
 def person_prompt(n):
     c, r = GRID[n]; rows = f"in {r} row{'s' if r > 1 else ''} of {c} - {n} moments of one walking step, read left to right{', top row first' if r > 1 else ''}"
     return (f"Image 1 is a POSE SHEET: a plain bald MANNEQUIN of a person shown {n} times, {rows}. It has no hair, no face and no clothes - it shows only the pose. In every one it walks "
-            "to the RIGHT, its body turned a little toward the viewer. Its RIGHT arm and RIGHT leg - the ones nearer the viewer - are RED; its LEFT arm and LEFT leg - the far ones - are "
-            f"BLUE; the rest of it is grey. Image 2 is a character of a side-scrolling game. Draw the character of image 2 {n} times - one in place of each mannequin, at that mannequin's "
+            "to the RIGHT, its body turned a little toward the viewer. Its RIGHT arm is RED and its RIGHT leg YELLOW - the ones nearer the viewer; its LEFT arm is BLUE and its LEFT "
+            f"leg GREEN - the far ones; the rest of it is grey. Image 2 is a character of a side-scrolling game. Draw the character of image 2 {n} times - one in place of each mannequin, at that mannequin's "
             "place and size on the sheet, in exactly that mannequin's pose: each arm and each leg where the mannequin's limb of the same colour is and bent as it is bent, each foot "
             "exactly where the mannequin's foot is (a foot that is off the ground in the mannequin is off the ground by as much), the head, the shoulders and the hips where the "
             "mannequin's are, the head turned as the mannequin's head is turned. The body under the clothes IS the mannequin's: the same height, legs and arms exactly as long. On it, "
             "the character of image 2 with its own head and face, its own hair, its own clothes and everything it wears, all as in image 2; hair and loose cloth (a cloak, a skirt, a "
             "braid, a strap) sway a little with the step and hang naturally over the moving limbs. "
             f"It is the same character in all {n}: the same face, the same hair, the same clothes and colours, the same drawing style and line as image 2, the same size. "
-            "NOTHING of the mannequin shows in the finished sheet: none of its grey, red or blue, no bald head, no bare body - only the characters. Each one whole, none touching "
+            f"NOTHING of the mannequin shows in the finished sheet: none of its {MARKS}, no bald head, no bare body - only the characters. Each one whole, none touching "
             "another or the sheet's edge. Plain pure white background: no ground, no shadow, no lines, no numbers, no text.")
 
 
@@ -326,6 +337,7 @@ def walk(s, d, root, args):
         turned = lambda t: f' turned {t}°' if s['person'] else ''
         sys.exit(f'walk: walk-guide.png is of {was[0]} frames of "{was[1]}"{turned(was[2])} - the spec asks for {s["frames"]} of "{s["mannequin"]}"{turned(s["turn"])}: '
                  'run `mannequin` again (free) and look at the guide')
+    if info.get('limbs') != 4: sys.exit(OLD_LIMBS)
     if not s['person'] and ds.stat().st_mtime > g.stat().st_mtime:      # an animal's guide is fitted to its design: one drawn after it is not this guide's
         sys.exit('walk: design.png is newer than walk-guide.png - the guide was fitted to the design before it (its legs, body and neck). Run `mannequin` again '
                  '(free), look at the guide, then `walk`')
@@ -519,7 +531,7 @@ def lay_out_grid(s, d, extra):
     half = max(max(ax - b[0], b[2] - ax) for b in bb); up = max(ay - b[1] for b in bb); dn = max(0.0, max(b[3] - ay for b in bb))
     v, how = step_of(east, s['person']); stand = int(np.argmin([f.getbbox()[2] - f.getbbox()[0] for f in east]))
     info = {'n': n, 'view': s['view'], 'mannequin': s['mannequin'], 'turn': s['turn'] if s['person'] else None, 'pixel': s['pixel'] or None, 'drawn': s['drawn'],
-            'step_render': v, 'advance_by': how, 'stand': stand, **extra}
+            'step_render': v, 'advance_by': how, 'stand': stand, 'limbs': 4, **extra}
     for old in d.glob('walk-guide-*.png'): old.unlink()
     (d / 'pixel-state.json').unlink(missing_ok=True)          # (the size the first sheet of pixel art was drawn at: of the old guides)
     if s['pixel']: info.update(pixel_guides(s, d, fr, (ax, ay), half, up, dn))
@@ -581,7 +593,12 @@ def sheets_of(info, x):
     return info['px'][x]['sheets'] if 'px' in info else 1
 
 
-def check_guide(s, info, name):
+OLD_LIMBS = ('walk: the guide is of the mannequin as it was - its two limbs of one side one colour, the prompt now says four colours. Run `mannequin` again '
+             '(free: rendered again), look at the guide, then `walk`')
+
+
+def check_guide(s, info, name, drawing=True):
+    if drawing and info.get('limbs') != 4: sys.exit(OLD_LIMBS)
     was = (info.get('n'), info.get('mannequin', s['mannequin']), info.get('view', 'side'), info.get('pixel'), info.get('turn', s['turn']) if s['person'] else None)
     now = (s['frames'], s['mannequin'], s['view'], s['pixel'] or None, s['turn'] if s['person'] else None)
     if was != now or (info.get('drawn') and not set(s['drawn']) <= set(info['drawn'])):
@@ -595,7 +612,11 @@ def mannequin_words(s):
 
 
 def limbs(s):
-    return ('RIGHT arm and RIGHT leg are RED, its LEFT arm and LEFT leg are BLUE' if s['person'] else 'RIGHT legs are RED, its LEFT legs are BLUE')
+    return LIMBS_P if s['person'] else LIMBS_A
+
+
+def marks(s):
+    return MARKS
 
 
 def pose_words(s):
@@ -626,7 +647,7 @@ def above_prompt(s, x):
             f"it is, not the view. Draw the {w} of image 2 {n} times - one in place of each mannequin, at that mannequin's place and size on the sheet, in exactly that "
             "mannequin's pose AND seen exactly as the mannequin is seen: from the same height above, turned the same way. " + pose_words(s) + own_words(s, x)
             + f"It is the same {w} in all {n}: the same colours, the same drawing style and line as image 2, the same size. NOTHING of the mannequin shows in the finished "
-            f"sheet: none of its grey, red or blue, none of its smooth bare shape{', no bald head' if s['person'] else ''} - only the {w}s. Each one whole, none touching "
+            f"sheet: none of its {marks(s)}, none of its smooth bare shape{', no bald head' if s['person'] else ''} - only the {w}s. Each one whole, none touching "
             "another or the sheet's edge. Plain pure white background: no ground, no shadow, no lines, no numbers, no text.")
 
 
@@ -645,7 +666,7 @@ def pixel_prompt(s, info, x, g):
             f"clusters; {'a face that reads at this size; ' if s['person'] else ''}about 16 colours in all, the SAME colours in every cell"
             + (f" ({s['pixel_words']})" if s.get('pixel_words') else '') + ".\n"
             "Keep the sheet exactly as it is: the same cells, each figure at exactly the same position, size and pose - the same pixels covered. " + pose_words(s) + own_words(s, x)
-            + f"The same {w} in every cell. NOTHING of the mannequin shows: none of its grey, red or blue{', no bald head' if s['person'] else ''}. Nothing between the cells, "
+            + f"The same {w} in every cell. NOTHING of the mannequin shows: none of its {marks(s)}{', no bald head' if s['person'] else ''}. Nothing between the cells, "
             "no borders, no numbers.\n"
             f"Image 2 is the {w} as a finished illustration: {'the face, the hair, the outfit' if s['person'] else 'the head, the coat, the markings'} and the colours to "
             "match - NOT its drawing style, NOT its pose and NOT its view.\n"
@@ -682,7 +703,7 @@ def head_dy(gm, m, P):
 
 def cut_grid(s, d):
     """FREE: every facing drawn cut again -> out/walk-<facing>.png (a side view's pixel art: out/walk.png), out/stand-<facing>.png, out/creature.json"""
-    info = json.loads((d / 'walk-guide.json').read_text()); check_guide(s, info, 'the guides')
+    info = json.loads((d / 'walk-guide.json').read_text()); check_guide(s, info, 'the guides', drawing=False)
     got = [x for x in s['drawn'] if all(drawn_path(s, d, x, g).exists() for g in range(sheets_of(info, x)))]
     if not got: return print('cut: no facing drawn yet - `walk`')
     front = design_facing(s) if design_facing(s) in got else got[0]; got = [front] + [x for x in got if x != front]
@@ -726,15 +747,6 @@ def px_lay(m, rm):
     return best
 
 
-def px_size(m, rm):
-    """how many times the guide's size a sprite was drawn: the guide's mask made bigger and smaller until the sprite lies on it best (pixelart.py's size_on_render)"""
-    best = (-1, 1.0)
-    for r in np.arange(0.86, 1.62, 0.02):
-        R = np.asarray(Image.fromarray(rm).resize((max(2, round(rm.shape[1] * r)), max(2, round(rm.shape[0] * r))), Image.NEAREST)); sc = px_lay(m, R)[0]
-        if sc > best[0]: best = (sc, float(r))
-    return best[1]
-
-
 def cut_pixel(s, d, info, got):
     """each sheet of pixel art read on the grid it was drawn on (pixelgrid.py, the white shut in between the legs told from white things by the AI cut-out), every sheet
     brought to the first's size, each sprite laid where it covers the guide's best; then one palette of "colours" (32) for every frame of every facing"""
@@ -758,7 +770,11 @@ def cut_pixel(s, d, info, got):
             gms = []; anc = []
             for i in idx:
                 gm = np.zeros((SHp, CWp), bool); put(gm, np.ones_like(pf[x][i][1]), pf[x][i][1], L['ox'][i], L['oy']); gms.append(gm); anc.append((L['ox'][i] + pax, L['oy'] + pay))
-            reads = [PG.read(c, 0.0, 0.27, fg=q) for c, q in zip(crops, fgs)]; rs = [px_size(r[1], gm) for r, gm in zip(reads, gms)]; rsh = float(np.median(rs))
+            # each sheet's size against the guide BY HEIGHT, frame for its own frame (a walk stands upright in every frame): the figures of two sheets of one
+            # facing were drawn the same height (747-766 px) but their squares read 8.09 and 8.59 px - by how the shape fits (pixelart.py's size_on_render) the
+            # second came out 6 % LARGER and was made smaller still: its sprites 84 px tall beside the first's 90-94. By height it is read 0.94 and brought up
+            reads = [PG.read(c, 0.0, 0.27, fg=q) for c, q in zip(crops, fgs)]
+            rs = [r[1].shape[0] / (np.ptp(np.nonzero(gm.any(1))[0]) + 1) for r, gm in zip(reads, gms)]; rsh = float(np.median(rs))
             ref = state.setdefault('scale', round(rsh, 4)) if ref is None else ref; k_ = ref / rsh if abs(ref / rsh - 1) > 0.012 else 1.0
             if k_ != 1.0:
                 sz = [(round(c.shape[1] * k_), round(c.shape[0] * k_)) for c in crops]

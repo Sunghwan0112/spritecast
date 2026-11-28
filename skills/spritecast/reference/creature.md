@@ -2,7 +2,7 @@
 
 A monster or an animal for a platformer or a side-view RPG, with no 3D model of it made: one design in the look of a picture of the
 user's, then its animations drawn from that design. A four-legged one's **walk** is drawn on the poses of a plain **mannequin** - a
-grey dog with no coat, no face and no tail, its near legs red and its far legs blue - that has first been given the design's own
+grey dog with no coat, no face and no tail, its near legs red (fore) and yellow (hind), its far legs blue and green - that has first been given the design's own
 proportions. Every other animation (struck, falling apart, a hop, a drift) is a **sheet of four moments said in words**.
 
 Frames face right; a game flips them. `scripts/creature.py`, steps `design`, `mannequin`, `walk`, `sheet`, `cut`, `preview`.
@@ -63,7 +63,14 @@ a facing - and a sheet - `walk-guide-<facing>[-<sheet>].png`), `<sheet>-drawn.pn
 Run a paid step without `--yes` first: it prints the cost. Say the total and wait for a yes. `--again` draws a step anew.
 
 ## A person (`"mannequin": "man" | "woman" | "child"`)
-The mannequins are bald and plain, the right arm and leg red, the left blue. The steps are the same but **`mannequin` comes first**:
+The mannequins are bald and plain: the right arm red and the right leg yellow, the left arm blue and the left leg green *(the user: with
+an arm and a leg of one colour, an arm swung over the thigh of its side ran into it - "blue on blue")*. A guide made before is of the old
+colours, its arm and leg one: `walk` stops and asks for `mannequin` again (free). An animal's the same way *(the user: seen from the front its
+fore and hind leg of one side overlap)*: the fore legs red and blue, the hind legs yellow and green; its step is measured on the near
+legs told apart by colour (by x on an old two-colour render). An animal is rendered straight from the side (`"turn": 0`): left to the side
+view's 45° default it came out turned toward the viewer - the stag's step 203 px of the render where it walks 251. Drawn again on the four
+colours: the stone wolf's legs on the mannequin's (overlap 0.51-0.55), the stag in the poses (0.34-0.41: its legs much thinner than the
+mannequin's, and the antlers - why an animal is looked at, not held to a number). The steps are the same but **`mannequin` comes first**:
 it renders the figure's walk (`walk-guide.png`) and its standing view (`mannequin/render/idle-east.png`; the mannequin is copied into
 the folder as `mannequin-rig.glb`, and copied again - its standing clips with it - when the spec names another), and `design` then draws the
 character standing as the mannequin stands and of its build. There is no fitting for people - the design is drawn to the mannequin,
@@ -107,7 +114,8 @@ view - it shows WHO, not the view; a person's `design` is drawn to the mannequin
 Measured (the guard: cloak, buckled jerkin, pouch and keys; his design drawn from the side; GPT Image 2.6, $0.06 a facing): all eight
 facings the same man - hair, beard, cloak, buckles - in the mannequin's poses, the north ones from behind with the cloak's back and the
 back of the head. Moved 1-56 px across (the cloak behind pushes the body forward, as from the side) and up to 31 px down; 1.03-1.06x
-the mannequin's height. Overlap 0.54-0.78; the five frames under 0.6 had the cloak flared out wide (in the pose). Its step against its height came
+the mannequin's height. Overlap 0.54-0.78; the five frames under 0.6 had the cloak flared out wide (in the pose). Drawn again on the
+four-colour mannequin (the arms and the legs each their own colour): 0.55-0.83, the north-west that had been lowest 0.58-0.83. Its step against its height came
 out as the side view's: 0.71 of a standing height a step with the 30° view's shortening allowed for, 0.72 from the side with its 45°
 turn allowed for.
 An animal from above: the fitted dog renders in all eight facings with its step measured on its paws (the boar: legs x0.44, body
@@ -120,13 +128,17 @@ draw the design (an illustration - image 2: its face, hair, outfit and colours, 
 sheet goes on from the first. Each facing has its own sheets: four frames a sheet where they fit, the squares made smaller down to 6 px
 for that (8 at 96 px; an east stride is wide - at 8 px it was two frames a sheet, four sheets a facing). The answers are read back on
 the grid they were drawn on (pixelgrid.py, pitch_of and read), the white shut in between the legs told from white things by the AI
-cut-out, every sheet brought to the first one's size, each sprite laid where it covers the guide best; then one palette for the bodies
+cut-out, every sheet brought to the first one's size - measured by the figures' HEIGHT against the guide's, frame for its own frame - each
+sprite laid where it covers the guide best; then one palette for the bodies
 and one for the heads ("colours", 32: a third of it the heads' - with one palette for everything the guard's eyes and brows went), the
 heads' rows not cleaned of lone pixels. Works with `"view": "side"` (out/walk.png, out/stand.png) and `"view": "above"`.
 
 Measured (the guard, south-east, 96 px, two sheets $0.14): squares drawn 9.3-9.5 px for 8 asked, so the sprites are about 85 px tall;
 overlap 0.72-0.86; the face, beard, cloak and boots read well, the buckles and keys lose some detail, and the second sheet - scaled
-3.5 % to the first's size before reading - is a little softer. Other moves (`sheet`) are still drawn as illustrations.
+3.5 % to the first's size before reading - is a little softer. Drawn again on the four-colour mannequin: the two sheets' figures the same
+height (747-766 px) but their squares read 8.09 and 8.59 px; sized by how the SHAPE fits (pixelart.py's way) the second came out 6 %
+larger and was made smaller still - its sprites 84 px beside the first's 90-94. By height: 89-94 px, all eight. Other moves (`sheet`)
+are still drawn as illustrations.
 
 ## In the game
 - **The walk's frame is read off the distance walked**: `frame = floor(walked / step * n) % n`, `step` from `creature.json`. The paws
