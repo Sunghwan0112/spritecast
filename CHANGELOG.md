@@ -3,6 +3,15 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.30.2 — 2026-11-28
+
+- **The cut-out: no paper left at a gap's edge** *(the user: "white pixels left on the new guard and the woman")*: a speck under 12 px, or
+  the rim the AI cut-out's 3 px of grace kept between legs and by an arm, is peeled off when the AI sees no figure in it - the guard 14 →
+  0 near-white pixels, the herbalist 37 → 1 (the white of an eye stays, and white clothes: they are inside the AI's figure).
+- **The rest of the example game's walkers drawn again on the four colours** ($0.12: the boy and the boar), every walk cut again with the
+  new cut-out; the game's play recording filmed again for both READMEs (docs/castle-wall-play.gif, the game's play.gif) and its first
+  scene for docs/side-game.png.
+
 ## 0.30.1 — 2026-11-28
 
 - **Every limb of a mannequin its own colour** *(the user: "arm and leg overlap blue on blue - why one colour?")*: a person's right arm red

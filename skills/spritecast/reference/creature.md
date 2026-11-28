@@ -177,7 +177,10 @@ are still drawn as illustrations.
   beside the drawing (`walk-drawn-ai.png`, `<sheet>-drawn-ai.png`, `design-ai.png`, each cell's box written in; made again when the
   drawing changes), so a second `cut` runs it on nothing. (Run once on a whole walk or sheet, 1536 px squeezed into its 1024, it took
   the pale of a mist for paper: 710 px of holes in the stag's misty sheet.) **onnxruntime is needed**: without it `cut` stops and says so, as a character's `finish`
-  does (`doctor.py`); `SPRITECAST_KEY=white` cuts by pure paper white alone, on purpose.
+  does (`doctor.py`); `SPRITECAST_KEY=white` cuts by pure paper white alone, on purpose. What is left of the paper at a gap's edge - a speck under 12 px, or the
+  rim the AI's 3 px of grace kept - is peeled off too: near-white the AI sees no figure in and that touches what is not figure, three
+  passes, then any near-white speck wholly outside the AI's figure *(the user: white pixels left on the new guard and herbalist - 14 and 37
+  of them; after it 0 and 1, an eye's white)*. The AI is asked for whenever any near-white is shut in (it was only for 12 px or more).
 - A sheet's figures sometimes touch (a spray of drops reaching the next figure): the sheet is then cut at the emptiest columns near
   its quarter lines, and `cut` says so - look at the strip. Very pale things (mist) lose their faintest parts to the white.
 

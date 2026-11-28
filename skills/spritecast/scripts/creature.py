@@ -372,8 +372,8 @@ def key(im, ai=None):
     """what of a picture is the figure. The paper's white joined to the picture's edge is not (so a spray of drops, a wisp of mist, a scattering of leaves all
     stay - an AI cut-out alone drops such loose pieces); and the paper SHUT IN between its limbs is not either - told from white clothes and pale coats by the AI
     cut-out (BiRefNet, as for a character's frames): paper is the white where IT sees no figure. A herbalist stood with a white panel between her legs, a stag walked
-    with one between its forelegs, while this was the white key alone. `ai`: () → the AI cut-out of `im` (kept from an earlier `cut`: ai_mask), asked for only
-    when some white of 12 px or more is shut in - with none, the AI could take nothing away. SPRITECAST_KEY=white: only white as pure as the paper is taken
+    with one between its forelegs, while this was the white key alone. `ai`: () → the AI cut-out of `im` (kept from an earlier `cut`: ai_mask), asked for
+    whenever any near-white is shut in. SPRITECAST_KEY=white: only white as pure as the paper is taken
     for paper. With no onnxruntime it stops (CL.NO_ORT), as a character's frames do: it fell back on the white key by itself and nobody knew."""
     m = CL.white_key(im); x = np.asarray(im.convert('RGB')).astype(int)
     if os.environ.get('SPRITECAST_KEY') == 'white':
@@ -381,9 +381,20 @@ def key(im, ai=None):
         return m & ~big[hl]
     if not CL._have_ort(): sys.exit(CL.NO_ORT.format(py=sys.executable))
     paper = (x.min(2) > 232) & (x.max(2) - x.min(2) < 18); hl, hn = ndimage.label(m & paper)                  # (paper is white_key's own near-white: m & paper is
-    if not hn or np.bincount(hl.ravel())[1:].max() < 12: return m                                             # exactly the white shut in)
-    hl, hn = ndimage.label(m & paper & ~ndimage.binary_dilation(ai() if ai else CL.ai_key(im), iterations=3)); big = np.bincount(hl.ravel()) >= 12; big[0] = False
-    return m & ~big[hl]
+    if not hn: return m                                                                                       # exactly the white shut in)
+    A = ai() if ai else CL.ai_key(im)
+    hl, hn = ndimage.label(m & paper & ~ndimage.binary_dilation(A, iterations=3)); big = np.bincount(hl.ravel()) >= 12; big[0] = False; m = m & ~big[hl]
+    # WHAT IS LEFT OF THE PAPER AT A GAP'S EDGE (the user: "white pixels left on the new guard and the woman" - 14 and 37 of them, between the legs and by an
+    # arm): the patches under 12 px, and the rim the 3 px of grace round the AI's figure kept. Near-white that the AI sees no figure in and that touches what is
+    # not figure is peeled off, three passes; then any speck of near-white wholly outside the AI's figure. White clothes and the white of an eye are inside it.
+    pale = (x.min(2) > 220) & (x.max(2) - x.min(2) < 20)
+    for _ in range(3):
+        rim = m & pale & ~A & ndimage.binary_dilation(~m)
+        if not rim.any(): break
+        m = m & ~rim
+    hl, hn = ndimage.label(m & pale)
+    if hn: inside = ndimage.maximum(A, hl, np.arange(1, hn + 1)) > 0; m = m & ~np.concatenate([[False], ~inside])[hl]
+    return m
 
 
 def cut_out(im, m):
