@@ -3,7 +3,7 @@
     python doctor.py                  what is there, what is missing, the python to use
     python doctor.py --fix            sets up what is missing: a venv in ~/.cache/spritecast/venv with the packages
     python doctor.py --fix --browser  also Playwright's Chromium (~150 MB) - only needed when there is no Chrome or Edge
-    python doctor.py --fix --characters   also the cut-out model for characters (224 MB, once)
+    python doctor.py --fix --characters   also the cut-out model for characters and creatures (224 MB, once)
 
 The last line is always `PYTHON=<path>`: the interpreter to run isoprop.py / charpipe.py with.
 """
@@ -16,7 +16,7 @@ VENV = Path.home() / '.cache' / 'spritecast' / 'venv'
 VPY = VENV / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
 NEED = [('numpy', 'numpy', 'image maths'), ('PIL', 'pillow', 'reading and writing pictures'),
         ('scipy', 'scipy', 'cutting out, filling holes, fitting'), ('playwright', 'playwright', 'drives the browser that renders the 3D guide')]
-OPTIONAL = [('onnxruntime', 'onnxruntime', 'characters only: runs the AI cut-out (without it `finish` stops - SPRITECAST_KEY=white cuts by the paper\'s white instead, which loses white clothes)'),
+OPTIONAL = [('onnxruntime', 'onnxruntime', 'characters and creatures: runs the AI cut-out (without it charpipe\'s `finish` and creature.py\'s cuts stop - SPRITECAST_KEY=white cuts by the paper\'s white instead, which loses white clothes)'),
             ('mediapipe', 'mediapipe', 'facecheck only: compares faces across characters (Python 3.9-3.12, pip install mediapipe)')]
 
 
@@ -67,13 +67,13 @@ def main():
             subprocess.run([str(py), '-m', 'playwright', 'install', 'chromium'], check=False); br = browser.which()
     line(bool(br), br or 'none - install Chrome, or run with --fix --browser (Chromium, ~150 MB)', 'Chrome, Edge or Playwright\'s Chromium - the first one found')
     ok = ok and bool(br)
-    print('cut-out model (characters only):')
+    print('cut-out model (characters and creatures):')
     mp = None
     if 'onnxruntime' not in gone:
         sys.path.insert(0, str(HERE)); import charlib
         mp = charlib.seg_model(fetch=False)
         if not mp and a.fix and a.characters: mp = charlib.seg_model()
-    line(bool(mp), 'BiRefNet lite (224 MB)', str(mp) if mp else 'fetched by itself the first time a character is finished (or --fix --characters)')
+    line(bool(mp), 'BiRefNet lite (224 MB)', str(mp) if mp else 'fetched by itself the first time a character is finished or a creature cut (or --fix --characters)')
     print('keys (the plugin\'s settings: /plugin -> SpriteCast, or the environment; never pasted into the chat):')
     for k, why in (('OPENAI_API_KEY', 'drawing - props and characters (about $0.07 a prop, ~$2.2 a walking character; ~$1.5 with "mirror": true)'),
                    ('TRIPO_API_KEY', 'characters: the 3D model and its rig and walk; props: an optional detailed model'),

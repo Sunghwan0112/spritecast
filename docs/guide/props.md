@@ -79,9 +79,11 @@ An NPC that only stands needs no illustration and no rig: it works like a prop. 
 
 ```json
 { "name": "barista",
-  "character": { "height": 1.63, "build": "slim", "directions": ["south-east", "south-west", "north-east", "north-west"] },
+  "character": { "body": "woman", "height": 1.63, "build": "slim", "directions": ["south-east", "south-west", "north-east", "north-west"] },
   "description": "a cheerful young café barista: a short dark-brown bob, a cream cable-knit sweater under a forest-green apron, ..." }
 ```
+
+`"body"` is the plain mannequin that is posed: `"man"`, `"woman"` or `"child"` - three bald figures that come with SpriteCast. (Before 0.29 it was a figure of blocks; the two characters above were drawn on that.)
 
 The anchor is between the feet. About $0.07 for the first facing and $0.08 for each of the others.
 
@@ -98,7 +100,11 @@ for you ("raise the arm higher") and check them in the free render:
 Each limb is two parts, upper and lower (`[out, forward]` degrees each): turned out to its side, then swung forward. `left` and
 `right` are the figure's own.
 
-![four poses](../poses.png)
+A palm can be turned (`"palm": {"left": "front"}` - a wave's open hand faces forward). And an arm cannot pass through the body or the other arm: after the pose is set, whatever overlaps is pushed apart, so crossed arms lie one over the other.
+
+![six poses on the man, the woman and the child mannequin: stand, wave, point, hold, arms crossed, walk](../mannequin-poses.png)
+
+![a waving village boy: the child mannequin's guide and the finished sprite, from the front and from behind](../mannequin-figure.png)
 
 **Single pictures.** These posed figures are one picture per facing; for a walk, see [Walking characters](characters.md#walking-characters).
 Look at every facing yourself (the outline check can't see a head turned the wrong way); redraw one with

@@ -1,14 +1,16 @@
 <h1 align="center"><img src="docs/banner.gif" alt="SpriteCast" width="100%"></h1>
 
 <p align="center"><b>放进一张插画，得到一个游戏角色。</b><br>
-一个用于 Claude Code 的等距精灵图生成器：8 方向行走、动作和像素画，<br>
-都按你游戏的相机角度生成，每一帧下面都有 3D 阴影，还有能摆在旁边的道具。</p>
+一个用于 Claude Code 的 2D 精灵图生成器，等距或横版卷轴都行：8 方向行走、动作和像素画，<br>
+都按你游戏的相机角度生成，每一帧下面都有 3D 阴影，还有能摆在旁边的道具 ——<br>
+以及横版卷轴游戏的怪物和镇民，画在人偶的走路姿势上。</p>
 
 <p align="center"><a href="https://github.com/Sunghwan0112/spritecast/stargazers"><img src="https://img.shields.io/github/stars/Sunghwan0112/spritecast?style=social" alt="GitHub stars"></a></p>
 
 <p align="center">
 <a href="#能做什么">能做什么</a> ·
 <a href="#行走角色">角色</a> ·
+<a href="#横版卷轴游戏只画一个朝向怪物用-2d-画">横版卷轴</a> ·
 <a href="#像素画街机尺寸">像素画</a> ·
 <a href="#道具与场景">道具</a> ·
 <a href="#安装">安装</a> ·
@@ -16,9 +18,9 @@
 <a href="README.md">English</a> · <a href="README.ko.md">한국어</a> · <a href="README.ja.md">日本語</a> · <a href="README.es.md">Español</a> · <a href="README.pt-BR.md">Português</a>
 </p>
 
-![只用 GPT：只有一个方向，总是同一条腿在前，没有阴影。SpriteCast：同一个角色在游戏地面上朝八个方向行走，每个方向都有阴影；一排来自同一个 3D 模型的动作，挥击时甩出水花；以及像素画版本](docs/hero.zh-CN.gif)
+![只用 GPT：只有一个方向，总是同一条腿在前，没有阴影。SpriteCast：同一个角色在游戏地面上朝八个方向行走，每个方向都有阴影；一排来自同一个 3D 模型的动作，挥击时甩出水花；像素画版本；以及横版卷轴游戏用的野猪、鹿、卫兵和草药商，各自走在画它所依据的人偶旁边](docs/hero.zh-CN.gif)
 
-<p align="center"><i>同一个图像模型，同一张角色设定图。左：让 GPT 画行走，原样输出的结果。右：3D 带来的东西。</i></p>
+<p align="center"><i>同一个图像模型，同一张角色设定图。左：让 GPT 画行走，原样输出的结果。右：3D 带来的东西。<br>下：横版卷轴游戏的生物和人，每个都画在旁边那个素色人偶的走路上。</i></p>
 
 ![一辆拉面小摊车的 3D 模型的四个面，以及同样四个面的像素画精灵图，旁边是小小的像素角色](docs/pixel-props.zh-CN.png)
 
@@ -39,30 +41,27 @@ claude plugin install spritecast@spritecast
 
 ![同一场景：左边是以前的游戏——方形草地贴图和图标包里正面的爱心和药水；右边是现在——3D 草地，以及用 3D 模型按游戏角度做出的爱心和药水及其影子](docs/one-angle.png)
 
-**无需密钥即可免费试用。** 之后，一个会走路的角色约 **$3**，道具只要几美分；地面、3D 影子、半透明、生物的姿势、风、导出到 Phaser 和 Godot 都免费。绘制需要 OpenAI 密钥，3D 模型需要 Tripo 密钥（Tripo 1 点 = $0.01）。
+<a name="cost"></a>免费，MIT 许可：你直接付费给 OpenAI 和 Tripo（Tripo 1 点 = $0.01），作者不收任何钱，每个付费步骤都会显示费用并等你确认。一个会走路的角色约 **$3**，道具只要几美分，横版卷轴游戏的一个怪物约 **$0.18**；3D 引导图、收尾、地面（草地、小路、水洼）、3D 影子、半透明、生物的姿势、风、导出到 Phaser 和 Godot 以及试用都免费。
 
 <details><summary>各项费用</summary>
 
 | | 你提供 | 你得到 | 约 |
 |---|---|---|---|
-| **会走路的角色** | 一张插画 | 8 方向行走、站立视图、每帧影子 | **$3**（绘制 $2.2 + Tripo $0.75） |
+| **会走路的角色** | 一张插画 | 8 方向行走、站立视图、每帧影子 | **$2.9**（绘制 $2.1 + Tripo $0.75） |
 | **更多动作** | 动作名称（Tripo：快），或 Mixamo FBX（更自然） | 跑、跳、斩、投掷……8 方向 | 每个动作 **$0.8–1.5**（绘制 $0.7–1.4 + Tripo $0.10；FBX 免费） |
 | **像素画** | 会走路的角色 | 约 100 px 高的像素精灵 | 8 方向行走 **$1.35**（每张 $0.075） |
 | **动物** | 一张插画 | 四足行走 8 方向 | **$2.8**（绘制 $2.5 + Tripo $0.30） |
-| **坐下** | 会走路的角色 | 8 方向坐姿，放在你的道具上 | **$0.22** |
-| **道具、摆好姿势的 NPC** | 一段描述 | 精灵、影子、锚点 | **$0.07**（每多一个朝向 $0.08） |
+| **横版卷轴游戏的主角** | 一张插画 | 从侧面看的走路和站立（只画一个朝向，另一个是它的镜像）、她的动作 | **$1.1**（绘制 $0.33 + Tripo $0.75），每个动作约 $0.3 |
+| **横版卷轴游戏的怪物或镇民** | 一段描述和一张你游戏里的图 | 设计图、画在人偶姿势上的走路、一张四个瞬间的图（被击中、散开） | **$0.18**（每张图 $0.06；不做它的 3D 模型） |
+| **坐下** | 会走路的角色 | 8 方向坐姿，放在你的道具上 | **$0.22**（四个朝向：$0.11） |
+| **道具、摆好姿势的 NPC** | 一段描述 | 精灵、影子、锚点 | **$0.08**（每多一个朝向 $0.09） |
 | **像素画道具** | 一段描述 | 各个方向的像素精灵，与像素角色同比例 | 一个方向 **$0.28**（Tripo $0.20 + 每个方向 $0.08） |
-| **免费** | - | 地面（草地、小路、水洼）、3D 影子、半透明、生物姿势、风、Phaser/Godot 导出、试用 | **$0** |
+
+这些是每个脚本在花钱之前显示的数字；实际账单略低一些（一个道具的绘制：$0.068）。
 
 </details>
 
-免费，MIT 许可。你直接付费给 OpenAI 和 Tripo；每个付费步骤都会显示费用并等你确认。
-
 **没有 API 密钥？在 ChatGPT 应用里手动绘制。** `pixelart.py CHAR.json --manual`（其他步骤用 `SPRITECAST_DRAW=manual`）不调用 API，不花钱：每张表都会成为本地页面（127.0.0.1:8790）上的一个任务，页面会显示要发送的内容。在 ChatGPT 的新对话里（免费方案也可以，在其次数限制内）发两条消息：先发参考图，它只回答“ready”；再发引导图和提示词，它才开始画。保存结果，它会自动从下载文件夹取走。用雨中女孩的行走测试过：只给引导图时，8 帧都是同一个角色；先发参考图时（3 帧），雨衣的纽扣也画出来了。结果仍比 API 的略朴素，可能有一两帧需要重画。
-
-**绘制费用减半：4 个朝向。** 在 spec 里写 `"facings": 4`，只画四个斜向（东南、西南、东北、西北）；上下左右移动的游戏可以用 `"facings": "cardinal"`，只画东南西北四个正向——绘制费用约减半
-（行走：约 $1 而不是约 $2；像素画约 $0.7 而不是约 $1.35）。导出的角色仍然能朝 8 个方向走：要东向时，它显示已画朝向中最近的那个
-并保持住，所以笔直横着走也不会闪。
 
 ## 能做什么
 
@@ -76,6 +75,8 @@ claude plugin install spritecast@spritecast
 | **[坐姿](#坐姿)**，坐在你的道具上，她前面的扶手由 3D 算出 | **[道具](#道具与场景)**，按真实尺寸，全都在同一块地面上 |
 | ![藤编孔雀椅的像素画,分别在太阳、阴天、裸灯泡、前后两处灯和高处的大灯下(橡木地板随灯光明暗) —— 阴影由 3D 模型烘焙,藤编处透光](docs/indoor-shadows.png) | ![像素风的树(两个面)在风中摇动 —— 叶团一次移动一个像素,树干不动,阵风时树顶倾斜 —— 以及从 3D 模型分出的叶团(着色显示)](docs/sway.gif) |
 | **[从 3D 模型烘焙的阴影](#light-shadow-wind)**:太阳、阴天,或你自己摆放的灯 | **[叶间的风](#light-shadow-wind)**,来自同一个模型,一枝一枝地摇 |
+| ![一款横版卷轴游戏：城门口的雨衣女孩，身边有一名卫兵和一名草药商，城墙顶的走道上一只石狼，木栈道上方一朵雨云](docs/side-game.png) | ![石狼、野猪和鹿各按自己的步幅行走](docs/creature-walk.gif) |
+| **[横版卷轴游戏](#横版卷轴游戏只画一个朝向怪物用-2d-画)**：只画一个朝向，另一个是它的镜像 | **[用 2D 画的怪物和人](#横版卷轴游戏只画一个朝向怪物用-2d-画)**：画在人偶的走路姿势上，不必每个都做 3D 模型 |
 
 ## 可以这样提要求
 
@@ -85,6 +86,8 @@ claude plugin install spritecast@spritecast
 - *"让她坐下，把她放到这张扶手椅上。"*
 - *"做一个店主 NPC，穿棕色开衫的老人，四个方向。"*（摆姿势的人物：有描述就够了）
 - *"做一个等距书架，高 1.8 m，摆满书，用 cozy 风格。"*
+- *"我们在做横版卷轴游戏。做出她从侧面看的走路和攻击。"*
+- *"再给它做一只狼、一头野猪和一个镇上的卫兵，不要每个都做 3D 模型。"*
 - *"这是我游戏里的一个道具（props/barrel.png）。照这个风格做一个配套的木箱。"*
 
 ## 为什么可行
@@ -103,7 +106,11 @@ claude plugin install spritecast@spritecast
 样子。每张画之后都会被贴合回它的渲染图并与之对照：画成别的姿势的帧会被标记出来，可以
 重画，绝不会被硬挤进去。道具也是同样的做法，只是用真实尺寸的方块代替骨骼。
 
-## 用它做的游戏:Rain Girl
+## 用它做的游戏
+
+两个小游戏，里面的每一张图都出自 SpriteCast。
+
+### Rain Girl：等距像素画
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="docs/rain-girl-play.gif" alt="Rain Girl:穿黄色雨衣的女孩,像素风的树、岩石、灌木,红、绿、紫色的火焰怪物和燃烧的地面" width="100%"></a></p>
 
@@ -111,8 +118,7 @@ claude plugin install spritecast@spritecast
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl/main/leaderboard.svg" alt="Rain Girl 排行榜:本月前十和历史前三,每半小时重画一次"></a></p>
 
-<p align="center"><i>Rain Girl,一个小型像素动作游戏:穿黄色雨衣的女孩用伞里的水扑灭火焰怪物,不让森林烧起来。
-女孩和游戏里的每个道具都出自 SpriteCast。</i></p>
+<p align="center"><i>Rain Girl,一个小型像素动作游戏:穿黄色雨衣的女孩用伞里的水扑灭火焰怪物,不让森林烧起来。</i></p>
 
 - **女孩。** 一张插画 → Tripo 模型,绑定骨骼,按游戏的相机(2:1,俯视 30°)渲染 → 打伞行走、挥伞、站立,四个斜向(`"facings": 4`),
   每一帧重画成 96 px 的像素画。挥伞洒出的水是用 3D 渲染的特效、用同样的方法画成;站立循环来自 `idleclip.py`。
@@ -142,12 +148,30 @@ claude plugin install spritecast@spritecast
 
 - 更多 —— 统一的调色板、走进树荫会变暗、挡住火球的掩体、风、一个道具的花费：[制作过程](docs/guide/rain-girl.md)（英文）。
 
+### The Castle Wall：约 $3.40 做出的横版卷轴游戏
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/side-game.png" alt="The Castle Wall：城门口的雨衣女孩，身边有一名卫兵和一名草药商，城墙顶的走道上一只石狼，木栈道上方一朵雨云，下着雨" width="100%"></a></p>
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ 在浏览器里直接玩</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">游戏代码，以及每张图是怎么做的</a></p>
+
+同一个女孩来到一个手绘的横版卷轴世界：她在城墙上猎杀被雨唤醒的东西，一轮接一轮，一轮比一轮难。里面的每一张图
+一共花了约 **$3.40 的绘制费用**（外加 115 Tripo 积分）：
+
+| | 做法 | 费用 |
+|---|---|---|
+| **女主角** —— 走路、两种带水的斩击、跳跃、空中斩、梯子、抓取；被击中、精疲力竭 | 从侧面看她自己的 3D 模型（`"view": "side"`）；最后两个由她的站立图直接用 2D 画出 | 约 $1.70 + 75 Tripo 积分 |
+| **五种怪物** —— 石狼、野猪、鹿、水洼、雨云 | 每种一张设计图，在按它调整过的人偶上画走路，再画一张被击中的图（`creature.py`） | $0.90 |
+| **三个镇民** —— 卫兵、草药商、男孩 | 同样的做法，画在没有头发的男人、女人和孩子人偶上 | $0.39 |
+| **场景** —— 城墙、天空、远山、地面、梯子、栈道 | 用 2D 绘制；城墙和灯笼画在各自的 3D 模型上，视角与角色相同 | 约 $0.40 + 40 Tripo 积分 |
+
+没有一个怪物或镇民有自己的 3D 模型 —— 它们是怎么画的：[横版卷轴游戏](#横版卷轴游戏只画一个朝向怪物用-2d-画)。
+
 ## 行走角色
 
 ![一张插画 → 3D → 绘制的帧 → 8 个朝向的行走](docs/character.zh-CN.png)
 
 给它一张角色插画（面朝前方、站直、不摆姿势），你会得到 8 个朝向的行走（每个 8 帧）和 8 张站立图，画风与
-那张插画一致。图像模型无法在帧与帧之间保持身体和姿势，所以动作来自 3D：
+那张插画一致。动作来自 3D（[原因](#为什么可行)）：
 1. 根据插画画出一张转面图。
 2. [Tripo](https://www.tripo3d.ai) 据此生成 3D 模型，绑定骨骼，并给它一个行走和一个待机动画。
 3. 行走用游戏相机渲染（免费），每一帧都带有 3D 身体自己的阴影，沿光线方向
@@ -161,11 +185,10 @@ claude plugin install spritecast@spritecast
 $PYTHON skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # then 3d (model, rig, renders) and draw (then finish, preview by themselves)
 ```
 默认会画全部八个朝向。左右对称的设计可以设置 `"mirror": true`，把西侧朝向由东侧
-翻转得到（各自保留自己的阴影），大约省 $0.66。
-或者 `"facings": 4`：只画四个斜向，绘制约减半（`"facings": "cardinal"`：只画东南西北）；导出的角色朝 8 个方向中任何一个走时，都显示其中最近的那个。
+翻转得到（各自保留自己的阴影）：大约省 $0.66，绘制约 $1.4 而不是 $2.1。
+或者 `"facings": 4`：只画四个斜向（东南、西南、东北、西北），绘制约减半（行走：约 $1 而不是约 $2；像素画约 $0.7 而不是约 $1.35）——或者 `"facings": "cardinal"`：只画东南西北四个正向，适合上下左右移动的游戏。无论哪种，角色仍然能朝 8 个方向走：导出的角色朝 8 个方向中任何一个走时，都显示已画朝向中最近的那个并保持住，所以笔直横着走也不会闪。
 
-每个角色的费用：约 $2.2（OpenAI；用 `"mirror": true` 约 $1.5）和 75 Tripo 积分（约 $0.75；动物为 30）。或者带上你
-自己绑好骨骼的 GLB（`"rig_glb"`），直接跳到 `render`。
+带上你自己绑好骨骼的 GLB（`"rig_glb"`）时，直接跳到 `render`。一个角色的费用：[最上面的表](#cost)。
 
 更多选项（多套服装、预览视频、Meshy、带骨骼的示例角色）：[docs/guide/characters.md](docs/guide/characters.md#walking-characters)（英文）。
 
@@ -190,6 +213,39 @@ Tripo 给四足动物的骨骼绑定走起来很糟（没有脊椎，肩膀挂�
 转面图、spec、帧条、阴影和整张图。花了 30 Tripo 积分和约 $2.5 的绘制费用，包括重画和设计尝试。它的
 帧与渲染图的贴合度为 0.76-0.97（东北和西北用 `"mix"` 逐帧混合，见 reference/character.md）。
 
+### 横版卷轴游戏：只画一个朝向，怪物用 2D 画
+
+做平台跳跃或侧视角 RPG 时，`"view": "side"` 把相机放在平视的正侧面。只画一个朝向（向右走），另一个朝向是它的镜像：八个朝向
+要 18 张的走路和站立，这里只要 3 张（约 $0.33）。身体默认朝观看者转 45°，这样两只眼睛都看得见，横过身体的挥击也不会
+被身体挡住（要严格的侧面就用 `"turn": 0`）。动作照常可用：带水花的斩击、跳跃（`"air"`）、背对我们爬的梯子（`"face": "away"`）。
+
+**怪物、动物和镇民不必每个都做 3D 模型。** `creature.py` 按你游戏里一张图的画风画出一张设计图，再把它画在 SpriteCast 自带的素色
+**人偶**的走路姿势上（一只灰色的狗，或没有头发的男人、女人、孩子；靠近观看者的四肢是红色，远侧是蓝色）。它做的其他动作
+（被击中、散开、跳一下）用文字写出四个瞬间，画成一张图。每张图约 $0.06。
+
+- **四足生物。** 先把狗人偶拉伸到设计图自己的腿长、身体厚度和脖子（免费）。直接画在原样的狗上时，野猪和鹿都长出了狗的腿；
+  调整之后，各自保住了体型。石狼的 8 帧与人偶的位置相差不到 3 px。
+- **人。** 设计图按人偶站立的样子画出来，再画在它的走路姿势上。披斗篷的卫兵和穿裙子的草药商在 8 帧里一直保留着搭扣、钥匙和辫子。
+- **在游戏里**，走路的帧按走过的距离来取（一整步是 `step` px），这样脚不会打滑。
+
+<details><summary>野猪和鹿：设计图、画在原样狗人偶上的走路、画在按它们比例调整后的人偶上的走路</summary>
+
+![野猪和鹿：设计图、画在原样狗人偶上的走路（成了狗腿）、画在按它们比例调整后的人偶上的走路](docs/creature-fit.png)
+
+![石狼、野猪和鹿各按自己的步幅行走](docs/creature-walk.gif)
+
+![走路的男、女人偶，以及画在它们姿势上的披斗篷卫兵和草药商](docs/people-mannequin.png)
+
+</details>
+
+腿向两侧伸开站立的东西（蜥蜴、蜘蛛）还没有人偶：一只蝾螈画出来是用狗腿站着的。动作多、手里拿东西的主角，仍然用她自己的
+3D 模型来做。详见 [reference/creature.md](skills/spritecast/reference/creature.md)。
+
+**从侧面看的场景也画在 3D 模型上。** 他们身后的城墙是一个道具：一个用文字生成的 Tripo 模型，从侧面平视渲染
+（`"camera": {"pitch": 6, "yaw": 90}`）并打上光，再在上面画。画在从 12° 上方看的灰色方块上时，墙顶成了宽阔的地面 —— 从上方看的
+城墙，旁边却是从侧面看的角色；画在 6° 的灰色方块上，又画得扁平（没有光的引导图，图像模型无从塑造石头的体积）。画在它自己打了光
+的模型上，就有了托臂、城齿的侧面和它们的影子。
+
 ### 更多动作：跑、跳、挥砍
 
 除了行走，角色还可以跑、跳或挥动东西。把它们列在 spec 里，`"actions": ["run", "jump", {"name": "slash",
@@ -200,7 +256,7 @@ hurt 和 turn），每个动作都像行走一样在 8 个朝向上渲染、绘�
 逐部分地描述给图像模型，最仔细描述的是手握的那一端（握把、杆身的第一段），它很小又贴着
 身体，模型在这里最容易乱猜。
 
-**用哪个：想省时间用 Tripo，看重效果用 Mixamo。** Tripo 一步就给出动作，不用下载；行走、跑、跳这类手里不拿东西的动作，Tripo 做得就很好。如果效果比时间更重要，推荐用 [Mixamo](https://www.mixamo.com/#/?page=1&query=melee&type=Motion%2CMotionPack)（免费，需要 Adobe 账号），攻击动作尤其如此：动作捕捉更自然，动作有几千个，同一套里的攻击起止姿势相同，容易接成连招（`motion.py link`）。多花一点时间：下载一个（FBX Binary、30 fps、Without Skin），运行 `addclip.py hero.json Move.fbx name` 就能免费套到角色的骨骼上。也有麻烦的地方：Mixamo 没有 API，技能无法直接获取，需要你自己去网站浏览、挑选并下载动作（Claude 会给你搜索链接）。雨女孩的连招就是两个 Mixamo 动作。不要把 FBX 文件放进公开仓库。
+**用哪个：想省时间用 Tripo，看重效果用 Mixamo。** Tripo 一步就给出动作，不用下载；行走、跑、跳这类手里不拿东西的动作，Tripo 做得就很好。如果效果比时间更重要，推荐用 [Mixamo](https://www.mixamo.com/#/?page=1&query=melee&type=Motion%2CMotionPack)（免费，需要 Adobe 账号），攻击动作尤其如此：动作捕捉更自然，动作有几千个，同一套里的攻击起止姿势相同，容易接成连招（`motion.py link`）。多花一点时间：下载一个（FBX Binary、30 fps、Without Skin），运行 `addclip.py hero.json Move.fbx name` 就能免费套到角色的骨骼上。也有麻烦的地方：Mixamo 没有 API，技能无法直接获取，需要你自己去网站浏览、挑选并下载动作（Claude 会给你搜索链接）。不要把 FBX 文件放进公开仓库。
 
 ![雨中女孩拿着雨伞跑、跳和挥砍，挥砍从侧面看](docs/actions.gif)
 
@@ -279,7 +335,7 @@ hurt 和 turn），每个动作都像行走一样在 8 个朝向上渲染、绘�
 
 ![雨衣女孩的两段连击(96 像素像素画),水与火:挥动轨迹与特效包的光环(fxpack --set water-swing, fire-swing)](docs/combo-water-fire.gif)
 
-像素画连招 - 雨女孩的下劈和回旋斩,四个方向,连同水和回旋斩的环(`motion.py`、`fxpack.py`)。两个动作来自 Mixamo,需要自己下载 - 下载哪个、怎么下载,见下面的「雨女孩连招预设」:
+像素画连招 - 雨女孩的下劈和回旋斩,四个方向,连同水和回旋斩的环(`motion.py`、`fxpack.py`;两个 Mixamo 动作:见[像素画](#像素画街机尺寸)里的「雨女孩连招预设」):
 
 ![雨女孩的连招,四个方向的像素画:下劈,接着带水漩涡、环绕身体的环和地面扩散的环的回旋斩](docs/combo-pixel.gif)
 
@@ -304,7 +360,7 @@ hurt 和 turn），每个动作都像行走一样在 8 个朝向上渲染、绘�
 - **渲染免费，绘制方式与普通动作相同**，三四帧一张图，约 $0.08。
 - **连起来看**：`charpipe.py loop hero.json --only walk,ready,slash,recover --facing south-east`（免费）用完成的帧生成
   一个像上面那样的 GIF，这样在重画任何东西之前就能看到跳动的帧。像素画的一套
-  也可以这样在编辑器里把所有帧连起来直接修：`pixeledit.py hero.json --join walk,ready,slash,recover --facing south-east`。
+  也可以这样在[像素编辑器](#像素画街机尺寸)里把所有帧连起来直接修（`--join`）。
 - **只有一帧不对？单独画它。** `charpipe.py frame hero.json --only slash --facing south-east --frame 5 --yes`（约 $0.08）只
   重画那一帧；动作里的 `"frame_words"` 告诉图像模型那一帧的渲染图表达不了的东西。上面的第 5 帧连续五次
   左拳飘在雨伞上方；告诉它那只手大部分藏在她头后面之后，就画对了。
@@ -334,16 +390,16 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 ```
 每张图约 $0.075：全部八个朝向的行走是 18 张（约 $1.35）；上面的投掷有五个朝向，用了 14 张。
 
-**一张图画几帧是自动算出来的：** `pixelart.py` 量出渲染的大小，放得下几帧就放几帧——行走 4 帧，拿着东西 2 帧，长距离挥动 1 帧（所以攻击比行走贵）；花钱之前计划会显示出来。画完之后的步骤全是自动的，不需要自己画帧，只需改几个像素。
+**一张图画几帧是自动算出来的：** `pixelart.py` 量出渲染的大小，放得下几帧就放几帧——行走 4 帧，拿着东西 2 帧，长距离挥动 1 帧（所以攻击比行走贵）；花钱之前计划会显示出来。
 
 - **拿着和扔出去的东西。** `"hold": {"kind": "snowball", "until": "auto"}` 把它放进手里，在手
   移动最快时松手。之后 `pixel.json` 会告诉你是哪一帧、在帧中哪个位置、朝哪个方向以及多快，足够你的引擎生成
   投射物；你还会得到雪球、它的飞行形状和 4 帧的碎裂效果。上面的图就是回放这些数据的结果。
-- **任意 Mixamo 动画。** `addclip.py hero.json Throw.fbx throw` 把 FBX 片段套到角色的骨骼上，免费。上面的投掷
-  就是这样加进来的。
+- **任意 Mixamo 动画**，按[更多动作](#更多动作跑跳挥砍)里的方法套到骨骼上：上面的投掷
+  就是用 `addclip.py hero.json Throw.fbx throw` 加进来的。
 - **连贯的连招。** `motion.py` 像游戏那样把一次攻击接到下一次：下一招从上一招结束的姿势开始，挥击本身不变。
   它还把套来的动作中悬空的脚放回地面，把斧头劈砍改成走弧线的剑斩。在骨骼上完成，免费 - [从 Mixamo 到游戏的流程](skills/spritecast/reference/character.md)。
-- **雨女孩连招预设。** 两个动作属于 Mixamo，需要自己下载（免费，Adobe 账号）：[Standing Melee Attack Downward](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Downward&type=Motion%2CMotionPack) 和 [Standing Melee Attack Backhand](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Backhand&type=Motion%2CMotionPack) —— FBX Binary、30 fps、Without Skin、不做关键帧精简。`motion.py preset hero.json rain-girl-combo` 用同样的数值做同样的修改，并把两个动作写进规格。预设里只有修改，没有动作本身 —— [改了什么](docs/guide/pixel-art.md#pixel-art-arcade-size)（英文）。
+- **雨女孩连招预设。** 自己下载这两个 Mixamo 动作，设置同[更多动作](#更多动作跑跳挥砍)，另外不做关键帧精简：[Standing Melee Attack Downward](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Downward&type=Motion%2CMotionPack) 和 [Standing Melee Attack Backhand](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Backhand&type=Motion%2CMotionPack)。`motion.py preset hero.json rain-girl-combo` 用同样的数值做同样的修改，并把两个动作写进规格。预设里只有修改，没有动作本身 —— [改了什么](docs/guide/pixel-art.md#pixel-art-arcade-size)（英文）。
 - **它会自我审查。** 每一帧都会与它的渲染图对照（姿势、手持物）；`--redraw` 重画被标记的图，
   保留更好的那张。投掷的 40 帧在一次重画后全部通过。
 - **最后一点交给像素编辑器。** 像素画不能全靠规则得到。`pixeledit.py hero.json` 在
@@ -373,7 +429,7 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 精灵图的 0.15 %）。没有动过任何一张脸：它们就是流程生成的样子。每次构建都会打印这些数字。
 
 **更难的一套，以及手工做了什么。** 如果角色拿着东西（武器、雨伞），这件东西的细节需要手工稍作修正：每帧几个像素，
-用橡皮擦和铅笔就行，不需要绘画技能。与"衔接两段动画"中相同的循环，做成像素画：她拿着雨伞走，下沉进入架势，挥动，起身，继续走，
+用橡皮擦和铅笔就行，不需要绘画技能。与"衔接两段动画"中相同的循环，做成像素画——
 四段动画连在一起，共 23 帧。手工修正的只有雨伞：让伞尖和伞边在帧与帧之间保持一致。角色本身没有修，只是擦掉了几个残留的白点。
 总共 51,442 个像素中改了 1,196 个（2.3 %），由一个不会画画的人在几分钟内完成。之所以快，也是像素画里最重要的一点：不是一帧一帧地看，而是把 23 帧连起来播放着看。修正就是让任何部分的像素在帧与帧之间都不会大幅变化。
 没修的：两帧行走中雨伞画得与 3D 雨伞的角度和长度略有偏差。
@@ -434,10 +490,10 @@ spec、`pixel64/`（八个朝向的行走和投掷，128 帧，每帧带阴影�
 
 </details>
 
-**为什么不直接要 32 px？** 图像模型（GPT）在 64 以下画不好小像素画。它按自己的尺寸
+**为什么不直接要 32 px？** 图像模型（GPT）按自己的尺寸
 画"像素"，要求 8 px 的格子，它画出来的从 7.4 到 10.8 都有，而在 32 格里差一格就是少一只眼睛。上图：最上面一行
-是它在 64 下画的；三行红色的是直接要 32 px 的结果，每行用不同的图排布，画的都是同一个行走。所以
-技能先要 64，再从中生成 32（绿色那行）。详情：[reference/pixel.md](skills/spritecast/reference/pixel.md)。
+是它在 64 下画的；三行红色的是直接要 32 px 的结果，每行用不同的图排布，画的都是同一个行走；绿色那行
+是由 64 那套生成的 32 套。详情：[reference/pixel.md](skills/spritecast/reference/pixel.md)。
 
 上面的精灵图在 [`examples/rain_girl/pixel`](examples/rain_girl/pixel) 里：五个朝向的投掷、两个朝向的行走和
 雨伞挥砍的帧条，它们的阴影，带飞行形状和碎裂效果的雪球，以及包含松手数据的 `pixel.json`。
@@ -466,8 +522,7 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # ~$0.08 a
 - **与角色同一比例。** `--ppm` 是每米像素数：像素角色的像素高度除以它的米制身高
   （小个子示例角色为 54），这样道具和角色站在同一块地面上，像素大小也相同。
 - **抠图的收尾由你来做。** 顶棚下面和辐条之间的空隙由 AI 抠图清除；剩下的，在
-  与角色相同的像素编辑器里打开（`pixeledit.py cart.json`）：四个面就是四帧，3D 渲染图可以显示在精灵图旁边
-  或下面，你擦掉的内容会被保留。上面的摊车用这种方式收尾了 122 个像素。
+  与角色相同的像素编辑器里打开（`pixeledit.py cart.json`），四个面就是四帧。上面的摊车用这种方式收尾了 122 个像素。
 - 摊车在 [`examples/ramen_cart`](examples/ramen_cart) 里：spec、Tripo 模型、四张引导图
   和四张精灵图。
 
@@ -613,7 +668,7 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # ~$0.08 a
 </details>
 
 它会找出座面的高度和朝向，让她往后坐，直到膝盖到达座面边缘。如果坐得有点偏，
-就在修饰页面上拖动她（见下文）：松手后会从那个位置重新计算前景部分。
+就在修饰页面上拖动她（见下文）。
 详情：[reference/sitting.md](skills/spritecast/reference/sitting.md)。
 
 ```
@@ -724,11 +779,13 @@ $PYTHON skills/spritecast/scripts/isoprop.py render armchair.json         # then
 
 ```json
 { "name": "barista",
-  "character": { "height": 1.63, "build": "slim", "directions": ["south-east", "south-west", "north-east", "north-west"] },
+  "character": { "body": "woman", "height": 1.63, "build": "slim", "directions": ["south-east", "south-west", "north-east", "north-west"] },
   "description": "a cheerful young café barista: a short dark-brown bob, a cream cable-knit sweater under a forest-green apron, ..." }
 ```
 
-锚点在两脚之间。第一个朝向约 $0.07，其他每个朝向 $0.08。
+`"body"` 是摆姿势用的素色人偶：`"man"`、`"woman"` 或 `"child"`，SpriteCast 自带这三个没有头发的人偶。（0.29 之前它是用方块搭的人偶，上面两个角色就是画在那上面的。）
+
+锚点在两脚之间。第一个朝向约 $0.08，其他每个朝向 $0.09。
 
 <details>
 <summary><b>姿势、自定义角度，以及重画单个朝向</b></summary>
@@ -743,7 +800,11 @@ $PYTHON skills/spritecast/scripts/isoprop.py render armchair.json         # then
 每条肢体分为上下两段（每段 `[out, forward]` 度）：先向身体侧面转出，再向前摆。`left` 和
 `right` 是人物自己的左右。
 
-![四种姿势](docs/poses.png)
+手掌的朝向也可以指定（`"palm": {"left": "front"}`，挥手时张开的手朝前）。手臂也不会穿过身体或另一只手臂：姿势摆好之后，重叠的地方会被推开，所以抱臂时一只手臂叠在另一只上面。
+
+![男人、女人、孩子人偶的六种姿势：站立、挥手、指向、捧着、抱臂、行走](docs/mannequin-poses.png)
+
+![挥手的村里男孩：孩子人偶的引导图和完成的精灵，正面和背面](docs/mannequin-figure.png)
 
 **单张图片。** 这些摆姿势的人物每个朝向一张图；要行走，见[行走角色](#行走角色)。
 每个朝向都要自己看一遍（轮廓检查看不出头转错了方向）；用
@@ -765,8 +826,8 @@ $PYTHON skills/spritecast/scripts/isoprop.py render armchair.json         # then
 
 形状是绘制的。起始位置是 3D 模型的：每只脚开始自己的阴影，花盆的阴影从它的
 底部开始。只有接触地面的部分需要精确。再往上（物体高度的 10 % 到 35 %），高度逐渐过渡为
-从屏幕上读出的平滑高度，所以头发、帽子和叶子投下自然的阴影，而不是人偶的棱角。在它站立的地方
-（12 cm 以下的方块：鞋、花盆底部）会加上引导图自己的 3D 阴影，这样阴影和物体的衔接就像真实的
+从屏幕上读出的平滑高度，所以头发、帽子和叶子投下自然的阴影，而不是引导图的硬边。在它站立的地方
+（引导图 12 cm 以下的部分：鞋、花盆底部）会加上引导图自己的 3D 阴影，这样阴影和物体的衔接就像真实的
 阴影一样：在背光的一侧，绝不会在前面。摆姿势的人物和 `loose` 物体使用这种阴影；实体道具保留 3D
 阴影，行走角色投射 3D 身体自己的阴影（见上文）。用 `"shadow": "drawn" | "guide"` 选择。
 
@@ -838,8 +899,8 @@ $PYTHON = "$env:USERPROFILE\.cache\spritecast\venv\Scripts\python.exe"
 | numpy, pillow, scipy | 抠图、贴合、阴影 | 是（自动安装） |
 | playwright + Chrome 或 Edge | 在你的电脑上渲染 3D 引导图（免费） | 是（自动安装；会使用你已有的浏览器） |
 | onnxruntime + 一个 224 MB 的模型 | 仅限角色：在白纸上保住白鞋的 AI 抠图 | 角色需要（自动下载一次） |
-| `OPENAI_API_KEY` | 绘制，每个道具约 $0.07 | 绘制需要 |
-| `TRIPO_API_KEY` | 角色：3D 模型、骨骼和行走 | 行走角色需要 |
+| `OPENAI_API_KEY` | 绘制 | 绘制需要 |
+| `TRIPO_API_KEY` | 3D 模型：行走角色的模型（带骨骼和行走），或为了更多细节而做的道具模型 | 行走角色需要；用方块做的道具、摆姿势的角色和 `creature.py` 不需要 |
 
 **先免费试用，不需要密钥：** 让 Claude *"try SpriteCast"*。它会在你的电脑上渲染某个示例的引导图，并用
 示例自带的绘制完成收尾（`isoprop.py try`），让你在付费之前看到完整流程。
@@ -848,8 +909,8 @@ $PYTHON = "$env:USERPROFILE\.cache\spritecast\venv\Scripts\python.exe"
 <summary><b>密钥：放在哪里，以及 OpenAI 的验证</b></summary>
 
 密钥：**放在插件的设置里。** 启用 SpriteCast 时，Claude Code 会要求你填写（之后要修改：`/plugin` → SpriteCast → configure）：
-OpenAI 密钥，如果要做行走角色还有 Tripo 密钥。它们保存在系统的凭据
-存储中，以掩码显示，并在会话开始时交给 SpriteCast 的脚本（修改后请重启 Claude Code）。如果设置里没有，
+OpenAI 密钥，如果要做行走角色还有 Tripo 密钥——从 Tripo 的 API 平台获取，API 积分也在那里购买（每个角色 75，每个动物 30）。
+它们保存在系统的凭据存储中，以掩码显示，并在会话开始时交给 SpriteCast 的脚本。如果设置里没有，
 环境变量中已有的密钥仍然有效：
 
 ```bash
@@ -859,16 +920,15 @@ export OPENAI_API_KEY=sk-...          # macOS / Linux (add it to ~/.zshrc or ~/.
 setx OPENAI_API_KEY "sk-..."          # Windows (then open a new terminal)
 ```
 在 Windows 上，只有当 Claude Code 在 Git Bash 中运行命令时（安装了 Git 时的默认设置），设置才会传给脚本；在
-PowerShell 中请使用环境变量。你的密钥留在你的电脑上。它只会发送给 OpenAI，每次绘制由你付费给 OpenAI（约 $0.07）。
+PowerShell 中请使用环境变量。无论哪种方式，都请在启动 Claude Code 之前设置或修改密钥：运行期间设置的密钥
+要重启后才能生效。你的密钥留在你的电脑上，只会发送给 OpenAI。
 
 OpenAI 可能会要求你先验证组织，密钥才能使用图像模型（platform.openai.com → Settings →
-Organization）：在第一次绘制前做一次即可。请在启动 Claude Code 之前设置密钥；运行期间设置的密钥
-要重启后才能生效。行走角色还需要 `TRIPO_API_KEY`，从 Tripo 的 API 平台获取，API 积分也在那里购买
-（每个角色 75，每个动物 30）。
+Organization）：在第一次绘制前做一次即可。
 
 </details>
 
-除了绘制（OpenAI）和 3D 模型（Tripo，或选用的 Meshy），一切都在你的电脑上运行；每个付费步骤都会先显示费用并等你确认。[发送什么、下载什么](docs/guide/engines.md#what-it-sends-and-fetches)（英文）。
+除了绘制（OpenAI）和 3D 模型（Tripo，或选用的 Meshy），一切都在你的电脑上运行。[发送什么、下载什么](docs/guide/engines.md#what-it-sends-and-fetches)（英文）。
 
 ## 路线图
 
@@ -898,19 +958,17 @@ Organization）：在第一次绘制前做一次即可。请在启动 Claude Cod
 - 用于角色肖像的 `photo`：只能使用本人同意的照片。
 - 实体道具得到方块的 3D 阴影；摆姿势的人物和 `loose` 物体得到绘制形状的阴影（见阴影）；
   行走角色得到 3D 身体的阴影。
-- 设置：`SPRITECAST_MODEL`（例如用 `gpt-image-2.6-sunburst` 试用更新的模型；默认值是检查规则调校时所用的模型）和 `SPRITECAST_QUALITY`（`low` | `medium` | `high`）。
+- 设置：`SPRITECAST_MODEL`（默认是 `gpt-image-2.6-sunburst`；设为 `gpt-image-2.5-sunburst` 则用上一代模型绘制）和 `SPRITECAST_QUALITY`（`low` | `medium` | `high`）。
 
 ## 常见问题
-- **要花多少钱？** 引导图、收尾和 `try` 都是免费的。每个道具约 $0.07，每多一个朝向 $0.08；一个行走
-  角色约 $2.2 的绘制费用（用 `"mirror": true` 约 $1.5）和 75 Tripo 积分（动物 30）。每个付费步骤都会显示费用
-  并等你确认。插件是免费的；你直接付费给 OpenAI 和 Tripo，作者不收任何钱。
-- **我需要哪些密钥？** 绘制需要 `OPENAI_API_KEY`，行走角色和动物需要 `TRIPO_API_KEY`（Meshy 可选）。OpenAI 可能
-  会先要求你验证组织。见[密钥](#安装)。
-- **这不就是 AI 绘画吗？** 是的：上色是图像模型做的。SpriteCast 增加的是几何：尺寸、相机角度、
-  行走和阴影都来自 3D。你可以用自己的美术作为风格，或者设置 `"draw": false`，让图像模型不画行走
+- **要花多少钱？** 见靠近开头的[各项费用](#cost)。
+- **我需要哪些密钥？** 绘制需要 `OPENAI_API_KEY`，行走角色和动物需要 `TRIPO_API_KEY`（Meshy 可选）。放在哪里，以及
+  OpenAI 的验证：[密钥](#安装)。
+- **这不就是 AI 绘画吗？** 是的：上色是图像模型做的；尺寸、相机角度、
+  行走和阴影都来自 3D（[为什么可行](#为什么可行)）。你可以用自己的美术作为风格，或者设置 `"draw": false`，让图像模型不画行走
   角色的帧：3D 渲染图就是帧。转面图仍然要画，除非你带上自己绑好骨骼的模型
   （[跳过绘制](#跳过绘制直接用-3d-渲染作为帧)）。
-- **像素画要一帧一帧自己画吗？** 不用。图像模型照着 3D 渲染来画，后续处理是自动的；一张图放几帧也是按渲染大小算出来的。剩下的只是在像素编辑器里每帧改几个像素。
+- **像素画要一帧一帧自己画吗？** 不用。图像模型照着 3D 渲染来画，后续处理是自动的；一张图放几帧也是按渲染大小算出来的。剩下的只是在[像素编辑器](#像素画街机尺寸)里每帧改几个像素。
 - **它做不到什么？** 行走角色要从面朝前方、站直的插画开始。像素画适用于 96 px，以及专门设计成小个子的
   角色的 64 px；32 px 的一套由 64 的生成，脸更粗糙
   （[路线图](#路线图)）。摆姿势的单张图片（挥手、指向、拿着……）只需要描述。地毯这类又大又平的东西最好俯视绘制再斜贴到地面上

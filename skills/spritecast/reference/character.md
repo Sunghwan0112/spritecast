@@ -14,9 +14,9 @@ Three OKs: `turnaround`, `3d` (= `model` + `rig` + `render`), `draw` (then `fini
 | `draw` | 4 frames a call on one sheet; the front first, every other sheet given it; a walk's second sheet given its first; every facing drawn (`"mirror": true` flips the west side from the east) | ~$0.10 a sheet, 18 sheets ≈ $2 (12 ≈ $1.3 with `"mirror": true`) |
 | `finish` | each frame cut out (its cell cut wider), fitted onto its render (one upper-body size per sheet, the legs to the render's feet), heads steadied within a facing and sized to the 3D model's in every facing, `head_fit` applied, edges cleaned; strips and a shadow per frame | free |
 | `preview` | every frame on one sheet, a GIF per facing, and every facing walking at once in `walk-all.mp4` (with ffmpeg) | free |
-| actions | (optional) `"actions"` in the spec: each rendered, drawn and finished like the walk → `out/<name>-<facing>.png`, `"actions"` in `character.json`; `rig` asks Tripo for the presets (run, jump, slash, shoot, dive, climb, fall, hurt, turn; three beside walk and idle), your own rig gives any clip; `"hold"` puts a shape-built thing (an umbrella) in the right hand; `"head": "as_render"` draws the head bowed and turned as the render (the slash's default - the walk's "eyes ahead" lifted it); `redraw` covers actions: a held thing in the wrong place (checked against the render's held thing alone) is redrawn by itself, a frame only a little off is listed for the user (`--low` redraws it too) | ~10 Tripo credits and ~$1.8 an action |
+| actions | (optional) `"actions"` in the spec: each rendered, drawn and finished like the walk → `out/<name>-<facing>.png`, `"actions"` in `character.json`; `rig` asks Tripo for the presets (run, jump, slash, shoot, dive, climb, fall, hurt, turn; three beside walk and idle), your own rig gives any clip; `"hold"` puts a shape-built thing (an umbrella) in the right hand; `"head": "as_render"` draws the head bowed and turned as the render (the slash's default - the walk's "eyes ahead" lifted it); `"fps"` in an action sets its pace in the game in place of its clip's own (the rain girl's cuts: 14.3, 70 ms a frame, the joins before and after at 9 - the cut read as weak at the clip's pace; a pause on the frame that hits is the game's to add, when something is hit); `redraw` covers actions: a held thing in the wrong place (checked against the render's held thing alone) is redrawn by itself, a frame only a little off is listed for the user (`--low` redraws it too) | ~10 Tripo credits and ~$1.8 an action |
 | `sit` | (optional) the rig seated in 8 facings (`render/sit-*`), then with `--draw` drawn and finished → `out/sit-<facing>.png`, `"sit"` in `character.json` (`frame`, and per facing `file`, `seat`, `seat_height`, `shadow`) | free; `--draw` ~$0.22 |
-| `export.py <name>/out` | (its own script) the finished set as files an engine opens as they are → `out/export/`: `godot/` (a folder to drop into a Godot 4 project: `<name>.tscn` with Shadow and Body, two SpriteFrames, `<name>.gd` with `play("walk", "south-east")`), `phaser/` (`<name>.js`, an ES module for Phaser 3: `preload`, `create`, `add`), `aseprite/` (`<name>-<action>.aseprite`: a tag per facing, layers `shadow` and `body`, a slice `feet` with the pivot; a swing's effect as a layer `effect`), `unity/` (copy its contents into `Assets/`: an editor script builds `<name>.prefab` - Animator > Shadow, Body - with a clip per animation; `GetComponent<Animator>().Play("walk_south_east")`). Each animation's shadows become one strip with one offset; a swing's effect (`"trail"`) is a third sprite, Effect, over the body, at its own pace. `--only godot,aseprite`, `--to DIR`, `--name`. Checked by opening them in Godot 4.7, Phaser 3.90, Aseprite and Unity 6000.3; pixel sets (`pixel.json`) are not read yet | free |
+| `export.py <name>/out` | (its own script) the finished set as files an engine opens as they are → `out/export/`: `godot/` (a folder to drop into a Godot 4 project: `<name>.tscn` with Shadow and Body, two SpriteFrames, `<name>.gd` with `play("walk", "south-east")`), `phaser/` (`<name>.js`, an ES module for Phaser 3: `preload`, `create`, `add`), `aseprite/` (`<name>-<action>.aseprite`: a tag per facing, layers `shadow` and `body`, a slice `feet` with the pivot; a swing's effect as a layer `effect`), `unity/` (copy its contents into `Assets/`: an editor script builds `<name>.prefab` - Animator > Shadow, Body - with a clip per animation; `GetComponent<Animator>().Play("walk_south_east")`). Each animation's shadows become one strip with one offset; a swing's effect (`"trail"`) is a third sprite, Effect, over the body, at its own pace - its cells on sheets of at most 4096 px a side (several where one would pass it: `<key>-effect.png`, `-effect-2.png` ...), which Godot, Phaser and Unity read in order. `--only godot,aseprite`, `--to DIR`, `--name`. Checked by opening them in Godot 4.7, Phaser 3.90, Aseprite and Unity 6000.3; pixel sets (`pixel.json`) are not read yet | free |
 | `pack` | frames/ → out/ strips again (after `touchup.py --apply`; `finish` packs too) | free |
 | `touchup.py` | (optional) a local page to fix frames by hand: red clears, green brings pixels back from the drawing; `--apply` lays them on and packs; `finish` re-applies them | free |
 | `facecheck` | (optional, needs mediapipe) one character's head for its height against another's, facing by facing, by face landmarks; `--apply` writes `head_fit` | free |
@@ -47,10 +47,16 @@ Three OKs: `turnaround`, `3d` (= `model` + `rig` + `render`), `draw` (then `fini
 | `draw` | `true` (default); `false`: no image model draws the frames - the 3D renders are the frames (toon-shaded, the model's own texture), with the same 3D shadows: ~$0.09 + the 3D only, but softer (no drawn lines, a simpler face, blurrier fur). The image model still draws the turnaround (the ~$0.09); with your own `rig_glb` it draws nothing at all (`render`, `finish` and `preview`, all free) |
 | `mix` | facings mixed frame by frame with their pair, e.g. `["north-east"]`: both drawn, each frame of each the better (by overlap with its render) of its own drawing and the other's flipped; what `redraw` settles a facing with after two tries |
 | `facings` | `8` (default), `4` (or `"diagonal"`): the four diagonals only (south-east, south-west, north-east, north-west), or `"cardinal"`: south, east, north, west only - rendered, drawn, finished and packed; about half the drawing. The first (south-east, or south for the cardinals) is drawn first and the others follow it. `export.py` gives every engine a play() that takes all eight directions and shows the nearest drawn (between two as near, the one shown last; with none yet, the one turned more toward the viewer). `pixelart.py` draws these facings unless `--dirs` says others |
-| `mirror` | `false` (default): all eight drawn; a facing flipped only when `redraw` mixes a pair that stayed low (each frame the better of its own and its pair's flipped). `true`: west, north-west and south-west flipped from east, north-east and south-east - 6 of the 16 walk sheets not drawn (~$0.66 less), only for a design that is the same on both sides (not hair over one shoulder, a logo, a bag, one ear up); or a list of facings to flip from their pair, e.g. `["north-east"]`. A flipped facing is only as good as its pair (a raincoat girl's west flipped 0.75-0.80, drawn 0.83-0.93). Shadows stay each facing's own. `"never"`: nothing is ever flipped, not by `redraw` either - a facing still low after two tries gets its low frames drawn alone, as south and north do. For a character that is NOT the same on both sides (a thing in one hand, an eye patch, one sleeve): flipped, it changes sides. Set by itself when the spec has a `hold` |
+| `view` | `"above"` (default) or `"side"`: a side-scrolling game. The camera level and straight from the side (`pitch` 0), the head level (`head_up` 0), ONE facing drawn - east, walking to the right - and west flipped from it in `finish`, also with something in the hand (`"mirror": false` draws west too). West is east in a mirror about the picture's middle and nothing else: frame k of every animation - the walk, a loop, a one-shot, an in-between - is east's frame k mirrored (no half-cycle shift, so a `grab` that ends on the climb's first pose joins it the same way facing west), its trail and shadow are east's mirrored too, and `render` does not render it at all (an earlier render's west files are taken away). `pixelart.py --dirs east,west` then stops: west is drawn on its own only with `"mirror": "never"` (rendered again). A walk is 2 sheets, the standing view 1. The feet of every frame on one line; no shadow (a level camera sees the ground edge-on - the game draws its own). `facings` is not used. `pixelart.py` draws east only here (`--dirs east,west` for both). Not yet in this view: a jump cut into rise and fall; sitting (`sit --draw` stops - draw a seated pose as a `creature.py` sheet); a shadow. For monsters and townspeople, `creature.py` (creature.md) |
+| `turn` | with `"view": "side"`: degrees the body is turned toward the viewer while it walks sideways - `0` a flat profile, `30` one eye showing, `45` (the default, as creature.py's people) both eyes (side-scrolling RPGs with big heads), `60` the stride closes up. A cut made ACROSS the body is hidden behind it at 0: turn 30-45 for a character that swings something. In a spin the render shows the back of the head in some frames and the drawing may give them a face: look, and draw those alone (`frame`) |
+| `floor` | `true` in a side view, `false` otherwise: each pose whose feet the clip sinks under the ground is lifted until its lowest point stands on it (never lowered: a jump stays a jump). A side view shows the ground as ONE LINE, and the rain girl's cuts (Mixamo sword clips on a child's short legs) put her boots up to 5% of her height under it - the user: "her feet go through the ground for a moment". `render` says how far each action sinks (`render.json` → `"floor"`: every frame's lowest point before the lift). After it the 3D feet stood on one line in every frame. An action's drawn frame that reaches under its render's lowest point is lifted too (moved on a clear canvas - nothing wraps round to the bottom; where it ends is measured on its biggest piece and the pieces lying on the render, so a stray speck or a shadow drawn under the feet does not lift it); a frame can still sit a few px low - that is the drawing, look at it. |
+| an action's own keys in a side view | `"fps"`: its pace (an attack at 14.3 = 70 ms a frame beside joins at 9). `"face": "away"` (or `"viewer"`, or degrees): seen from another side - a ladder climbed with her back to us. `"in_place": true`: the hips' height pinned (a climb's clip rises; the game moves her). `"air": true`: each pose's lowest point put ON the ground line either way - a jump's frames, moved by the game; a trail's pieces still splash, stop or die at the real ground under her (as far under her boots as the pose is up), not at her boots in mid-air. `"head_up"`: this action's own (a deep crouch bowed the head until only hair was drawn; 30 showed the face). `"canvas"`: a bigger picture for a reach that leaves it - `render` now warns when a figure or what it holds is cut by the picture's edge. `"hold": {..., "on": "back"}`: the held thing slung across the back, both hands empty |
+| `mirror` | `false` (default): all eight drawn; a facing flipped only when `redraw` mixes a pair that stayed low (each frame the better of its own and its pair's flipped). `true`: west, north-west and south-west flipped from east, north-east and south-east - 6 of the 16 walk sheets not drawn (~$0.66 less), only for a design that is the same on both sides (not hair over one shoulder, a logo, a bag, one ear up); or a list of facings to flip from their pair, e.g. `["north-east"]`. A flipped facing is only as good as its pair (a raincoat girl's west flipped 0.75-0.80, drawn 0.83-0.93). Shadows stay each facing's own (a side view: the pair's, mirrored - west has no render). `"never"`: nothing is ever flipped, not by `redraw` either - a facing still low after two tries gets its low frames drawn alone, as south and north do. For a character that is NOT the same on both sides (a thing in one hand, an eye patch, one sleeve): flipped, it changes sides. Set by itself when the spec has a `hold` |
 | `hold` | (optional) something the character **carries all the time**, in one hand: there through the walk, the standing views and every action that has no `hold` of its own (`"hold": false` in an action: the hand empty there). `{"kind": "pistol", "hand": "left"}` - `kind`: `pistol`, `watergun` or `umbrella` (built from shapes on the hand's bone at real size; `length` in metres, `color`, `handle`, and `grip` / `offset` to turn and place it - look at the renders). The hand closes on it: the fingers of the holding hand are bent round the handle in every frame, for whatever is held (`"curl": false` for an open hand, or the degrees at the three joints, e.g. `[60, 75, 55]`); `hand`: `"right"` (default) or `"left"`, in an action's own `hold` too. `words`: your own sentence for it. A thing that is already part of your rigged model (`rig_glb`): `{"in_model": true, "words": "In the LEFT hand: a black pistol ..."}` - nothing is attached, the drawing is told what it is and which hand, and nothing is flipped. With a `hold`, `mirror` is `"never"`, and `finish` checks the thing is where each render has it (`redraw` draws the sheets where it is not). Free to try: `render` again and look. Changing it means `draw` again (paid) |
 | `kind` | `"person"` (default) or `"animal"`: a four-legged animal - no rig bought; its skeleton is found from the mesh and it walks in a cat's or a dog's gait (see Animals) |
 | `model_glb` | an animal: your own static model in place of `3d` |
+| `mannequin` | `true` renders the model as a pose to draw ANOTHER design on - one pale grey, the limbs of its right side red and of its left side blue (an animal's legs; a person's arms and legs: which is the near one reads in every frame), an animal's tail taken off (a stag drawn on a mannequin with a tail got a wolf's brush). `creature.py` uses it ([creature.md](creature.md)) |
+| `fit` | an animal: `{"leg", "body", "nose_up", "nose_out"}` - its legs' length, its body's depth, how high and how far forward its nose is, each as a ratio to the distance between its fore and hind feet; the mesh is stretched to them before its skeleton is looked for (limits x0.25-2.5; the render prints the factors). A head carried under the back's line: the neck is only made as low as it goes |
 | `rig_glb` | skip `turnaround`/`model`/`rig`: your own rigged GLB with clips named `walk` and `idle` |
 | `head_up` | degrees the head is raised in the renders (24) |
 | `white_shoes` | true for white (or very light) shoes: small holes inside the outline round the feet are filled after the AI cut-out (a lace or a sole the segmenter left out). Off otherwise - a heel's straps or a boot's laces have real gaps |
@@ -188,6 +194,9 @@ north-east, north, north-west, west, south-west.
   mirror images about the figure (not the picture's middle: flipped where it stood a frame came out ~18 px off, 0.42-0.76 overlap - so
   each flipped frame is moved sideways onto its own render, `flip_onto`, 0.70-0.90), and flipping swaps the left and right legs, half a
   stride: frame k is the pair's frame k + n/2 flipped. Its shadow is its own render's (the light comes from one side).
+  A SIDE VIEW is not this: west is the exact mirror about the picture's middle, frame k from east's frame k in every animation, and it is
+  not rendered (half a cycle on, the climb's west started on the mirror of east's frame 4 while the grab before it ended on the mirror
+  of frame 0 - the hands swapped at the join; and its trail, taken unshifted from east, ran half a cycle off the body).
   The orange cat's north-east, drawn twice at 0.63-0.70, flipped from north-west: 0.80-0.92 against its own renders.
 - **`finish` again is quick**: each sheet's cells are cut out once and kept in `frames/cut/` by the sheet's name, cell and modification
   time, so after a `redraw` only the changed sheets are cut (the AI cut-out is ~3 s a cell on a CPU): the cat's first finish 211 s, the
@@ -195,8 +204,13 @@ north-east, north, north-west, west, south-west.
 
 ## Notes
 
-The output has a shadow per frame from the 3D body (`out/shadows/`, offsets in `character.json`): tell the user to draw it at
-~30 % under the sprites. If their game's other characters stand on the bottom of their shoes, set `"anchor": "soles"` (the default,
+The output has a shadow per frame from the 3D body (`out/shadows/`, offsets in `character.json`): tell the user to draw it under the
+sprites at `character.json`'s `shadow_alpha` (0.56). Since 0.20 a shadow is light as it falls - deep under the feet, pale at its far
+edge; `"shadow": "flat"` in the spec gives the old one hard shape at 0.3 (the render takes longer for the new one, ~9 min a character
+with three actions). **How deep**: `"shadow_strength"`, the shadow as if laid that many times - a painted set's default is 1 (56 % at
+its deepest), a pixel set's 1.5 (71 %: pixel art says things a little louder, so a figure stands on the ground). On dark ground offer
+1.6-2, on a light floor where it looks heavy 1; `pack` (or `pixelart.py`) again is free and `shadow_alpha` goes with it. The same
+number for the game's props, so they agree. If their game's other characters stand on the bottom of their shoes, set `"anchor": "soles"` (the default,
 the 3D ground under the middle, stands 4-7 game px lower). **Several characters or outfits that should match** (the same person in
 other clothes): `facecheck REF.json --with A.json,B.json` (free; needs mediapipe, Python 3.9-3.12) compares the face for the height,
 facing by facing, by face landmarks - hair fools any outline measure - and `--apply` writes `head_fit` into their specs for `finish`. A rig rendered before this version has no `-s.png`: re-run `render` (free) before `finish`.
@@ -254,13 +268,15 @@ the attack stance is awkward - can we make the frames between? we have the 3D mo
   `pack`'s frame rate for it (it takes the walk's).
 
 ## Moves that join: `motion.py` - free, on the rig, nothing drawn
-A combo is moves played one after another; how each joins the next is what the player feels. All five commands write a copy of the
+A combo is moves played one after another; how each joins the next is what the player feels. Each command (`ground`, `plant`, `link`, `blade`, `layer`, `join`; `preset` runs a recipe of them) writes a copy of the
 rig (`rig/rig-<tag>.glb`) and print the spec's `"rig_glb"` line; render and LOOK after each (`charpipe.py render --only ...`).
 - **`ground SPEC clip ...`** - the lower foot on the ground in every frame. A Mixamo clip carried onto a child's rig by `addclip.py` stood
   8-15 cm in the air and bobbed up through the swing.
 - **`plant SPEC clip ...`** - the feet held where the clip's first frame has them; the hips' turn (up to 98 degrees in Mixamo's sword
   slashes) goes into the spine, so all above the waist moves as before. For a swing whose legs jump from stance to stance (the user:
   "the legs change too abruptly from pose to pose").
+- **`layer SPEC A@t0-t1 B@t0-t1 NAME [--from Spine]`** - A from the `--from` bone up (the arms' swing) on B's legs (a jump): a cut made
+  in the air from a standing cut and a jump, the two clips' times stretched to one length.
 - **`link SPEC A@time B@t0-t1 NAME [--blend 0.4]`** - B started from the pose A is in at that time; the difference to B's own pose fades
   out over the blend, inside B's wind-up, so B's stroke is B's own. The way games join moves (inertialization). Better than `"between"`
   for attacks: in-between poses made a swing float, and cost frames. Link B from the time A's LAST DRAWN frame shows (`"t1"` of A's
@@ -326,6 +342,7 @@ that frame alone:
     "frame_words": {"5@south-east": "the LEFT hand grips the shaft beside the right fist, MOSTLY HIDDEN BEHIND HER HEAD: ..."}
     charpipe.py frame SPEC --only slash --facing south-east --frame 5 --yes        (~$0.08; the frame from 1)
 
+A held thing of the body's own colour, pointing at the viewer, is left out: a yellow umbrella lying foreshortened across a yellow raincoat's shoulder was drawn as a bare handle in a wind-up's two frames; said in `frame_words` ("THE UMBRELLA IS THERE AND MUST BE DRAWN: it runs from her fist down and toward the viewer across her shoulder ... in front of the coat with its own clear outline") both came back with it, each drawn alone.
 `frame_words` keys are the frame (from 1), or `<frame>@<facing>`; the sentence goes into that cell of the sheet's prompt (and of a frame
 drawn alone, and of the pixel sheets - `pixelart.py --again <sheet>` draws that sheet anew). `frame` draws the one frame with its render in the second cell of an empty sheet, at the action's scale and beside its
 drawn sheet for the style; `finish` then uses it in place of the sheet's cell (draw/<action>-<facing>-single-<k>.png; the one before is
@@ -352,6 +369,8 @@ action that is already drawn gets its effect with `render --only slash` and `pac
 - **The looks** (`skills/spritecast/effects/effects.json`): `plain` (a white band; `"color"`), `wind` (thin pale streaks), `water`,
   `fire`, `drops`, `flames`, `leaves`, `greenleaves`, `petals`, `snow`, `sparkle`. A name alone, or `{"style": "leaves", ...}` with
   anything of that look changed (`"alpha"`, `"span"`: how long a band, in frames; `"when": "always"`: the wind-up too;
+  `"stroke": [t0, t1]`: the swing's own seconds of the clip, when the fastest stretch is not the swing - a cut laid over a jump
+  (`motion.py layer`) went back up to its wind-up faster than it cut, and the water came off the return;
   `"frames_x"`; `"pieces"`: the whole list). A new look is one more entry in that file.
 - **`water` and `fire` are ONE BODY, not loose pieces** (the user: "don't water and fire move as a mass?"). Their pieces are soft round
   weights added into a field, and only where the field passes a level is anything shown: close together they are one sheet, a neck
@@ -368,7 +387,11 @@ action that is already drawn gets its effect with `render --only slash` and `pac
   swing throws fly on and on; in the pixel set they fade out with the distance from the figure, gone by 1.15 x reach of its height
   from its middle - never cut in a straight line at the frame's edge (the user saw the squares). The render's frame grows with it
   (1024 px x reach; 768 before for an action with a trail), and `render` says when a trail still runs off it. A game that packs the
-  water's cells in one long row should lay them in a grid: at reach 2 a row was 9168 px, past the 8192 a phone draws.
+  water's cells in one long row should lay them in a grid: at reach 2 a row was 9168 px, past the 8192 a phone draws. `export.py` does:
+  as near square as they go, over several sheets where one would pass 4096 px a side (the side view's backhand: 24 cells of 1152 x 652,
+  18 MP - no 4096 x 4096 texture holds it - now two sheets of 3456 x 2608); Godot, Phaser and Unity read them in order (Unity's
+  importer slices each sheet and joins them into the one clip: the backhand's effect, 24 sprites from 2 sheets). Aseprite takes the
+  cells from the strip.
   `character.json`: `"trail": {<facing>: {"file", "frame", "offset", "frames", "per_frame"}}` in the action - the cell
   size, its top-left from the body frame's top-left, how many cells, and how many of them to each body frame. `export.py` carries it
   into every engine as a third sprite.
@@ -409,3 +432,35 @@ To redraw only what was wrong: move the sheets aside (`<character>/draw/<action>
 A colour that still differs between frames can be evened without drawing: tell the user it can be made ONE colour (the stick all brown)
 but not put where the drawing has no room for it (a silver shaft between two fists drawn touching).
 
+## After `draw`: drawing sheets again
+`finish` names the sheets with a frame fitting its render under `redo_below` (0.75). Each round is paid and asked for:
+1. Show the user the renders beside the drawn frames for those facings (the overlap of each frame on it), and the cost.
+2. `redraw --yes`: those sheets drawn again (up to twice each); each keeps whichever drawing fits better.
+3. **Stop after a sheet's second try and show the result.** Only if the user says so, `redraw --yes` again: a facing still under the
+   line is mixed with its mirror pair (east/west, north-east/north-west, south-east/south-west; not in a side view - there east's low
+   frames are drawn alone: west is its mirror, and not rendered) - the pair drawn too if it was being
+   flipped (2 sheets, ~$0.22; free if drawn already), then each frame the better of its own drawing and the other's flipped. South and
+   north, which have no pair, get their low frames drawn one at a time (~$0.11 each, once each). Before agreeing to a mix on a design
+   that is not the same on both sides, check that what is on one side stays on that side.
+
+A low score is not always a bad drawing: lay the render's outline over the frame and look. For an animal the size is matched by overlap
+per sheet (its height is mostly the tail), so a low score there is the drawing itself - a head turned another way, legs bunched.
+
+## Actions: the head, `redraw`, the prompt
+- **The head.** The walk's prompt keeps the eyes ahead and the chin level (a rig's walk looks down). For an action whose head bows or
+  turns with the motion - a slash, a crouch, a shot aimed low - `"head": "as_render"` (the slash has it by default): drawn bowed and
+  turned exactly as the render, in the facings where the face shows (south, south-east, south-west); side and back views keep the
+  walk's words. Measured on the slash: the face-on facings went from 0.786 to 0.837 overlap (17 → 20 of 24 frames passing); the side
+  and back views did slightly worse with it (0.791 → 0.771).
+- **What `redraw` does with a held thing.** The render's held thing is rendered apart, so a frame is wrong when the drawing covers under
+  half of where it sticks out of the body (`HELD_MIN`), or more than 8 % of the drawing lies well off the render's outline (`EXTRA_MAX`:
+  the umbrella on the other side, or raised where the render has it low - seen from behind the model swaps the hands). Those are drawn
+  again by themselves (twice at most, the better kept). A frame only a little off (a lower overlap, the pose right) is listed, not
+  redrawn: show it beside its render and let the user choose; `redraw --low` redraws those too. A thin thing drawn a few degrees off
+  misses its render's pixels: one pointing the same way (within 25°) from the same side passes.
+- **The prompt** names the action only (`words`) and leaves the pose to the renders (`pose`: each cell one moment, the arm and the held
+  thing where its render has them) - moves spelled out ("raise it overhead, swing it down") had it drawn overhead where the render has
+  it at the side. Each cell gets the held thing's place in its render; where the body hides it the cell says so, and the checks count
+  only the part that shows.
+- Measured: the rain girl's run and jump fit at 0.78+ in every frame on the first drawing; the slash's lower frames are mostly deep bends
+  drawn a touch upright - fine in motion: show them beside their renders and let the user keep them or redraw.

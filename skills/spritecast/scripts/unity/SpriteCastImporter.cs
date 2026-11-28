@@ -18,7 +18,10 @@ using UnityEngine;
 public static class SpriteCastImporter
 {
     [Serializable] class Shadow { public string png; public int[] cell; public int[] offset; }
-    [Serializable] class Effect { public string png; public int[] cell; public int[] offset; public int n; public int per; public int cols; }
+    [Serializable] class Sheet { public string png; public int n; public int cols; }
+    // an effect's cells run on over `sheets` in order (a big one is cut into several, each within the 4096 px a phone's GPU takes); without
+    // the list (an export before it), the one sheet `png` with `n` cells, `cols` a row
+    [Serializable] class Effect { public string png; public int[] cell; public int[] offset; public int n; public int per; public int cols; public Sheet[] sheets; }
     [Serializable] class Anim { public string name; public string png; public int n; public int[] cell; public float[] anchor; public float fps; public bool loop; public Shadow shadow; public Effect effect; }
     [Serializable] class Set { public string name; public float pixels_per_unit; public float shadow_alpha; public string first; public Anim[] anims; }
 
@@ -93,8 +96,9 @@ public static class SpriteCastImporter
             if (a.effect != null && !string.IsNullOrEmpty(a.effect.png))
             {
                 efps = a.fps * Mathf.Max(1, a.effect.per);
-                effect = Slice($"{dir}/{a.effect.png}", a.effect.n, a.effect.cell,
-                    new Vector2((a.anchor[0] - a.effect.offset[0]) / a.effect.cell[0], 1 - (a.anchor[1] - a.effect.offset[1]) / a.effect.cell[1]), ppu, a.effect.cols);
+                var pivot = new Vector2((a.anchor[0] - a.effect.offset[0]) / a.effect.cell[0], 1 - (a.anchor[1] - a.effect.offset[1]) / a.effect.cell[1]);
+                var sheets = a.effect.sheets != null && a.effect.sheets.Length > 0 ? a.effect.sheets : new[] { new Sheet { png = a.effect.png, n = a.effect.n, cols = a.effect.cols } };
+                effect = sheets.SelectMany(s => Slice($"{dir}/{s.png}", s.n, a.effect.cell, pivot, ppu, s.cols)).ToArray();
             }
             var clip = new AnimationClip { frameRate = Mathf.Max(1, Mathf.Round(efps * 100) / 100) };
             AnimationUtility.SetObjectReferenceCurve(clip, EditorCurveBinding.PPtrCurve("Body", typeof(SpriteRenderer), "m_Sprite"), Keys(body, a.fps));

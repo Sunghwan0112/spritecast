@@ -74,9 +74,153 @@ function block(b, W, D) {
   m.add(edges(geo)); return m;
 }
 
+// ---- a person: one of SpriteCast's rigged mannequins (man, woman, child), put in a pose and made a plain mesh -----------------------
+// The pose is the spec's: per limb two directions, each (out, fwd) degrees from hanging straight down - upper arm and forearm, thigh and
+// shin; side 1 is the figure's left. The rig faces +z, its left is +x.
+const limbDir = (out, fwd, s) => { const o = out * Math.PI / 180, f = fwd * Math.PI / 180; return new THREE.Vector3(s * Math.sin(o), -Math.cos(o) * Math.cos(f), Math.cos(o) * Math.sin(f)); };
+function aimBone(b, c, d) {                 // the bone turned (in the world) so that its line to its child lies along d
+  b.updateWorldMatrix(true, false); c.updateWorldMatrix(true, false);
+  const cur = new THREE.Vector3().setFromMatrixPosition(c.matrixWorld).sub(new THREE.Vector3().setFromMatrixPosition(b.matrixWorld)).normalize();
+  const q = new THREE.Quaternion().setFromUnitVectors(cur, d.clone().normalize());
+  const wq = b.getWorldQuaternion(new THREE.Quaternion()), pq = b.parent.getWorldQuaternion(new THREE.Quaternion());
+  b.quaternion.copy(pq.invert().multiply(q).multiply(wq)); b.updateWorldMatrix(false, true);
+}
+// which way a palm faces: at rest (arms held out from the body) it faces down and in - down, less what of that lies along the forearm.
+// Kept in the hand's own frame, it is known again after any pose; then forearm and hand are turned about the forearm's line, half
+// each, until it faces as asked: 'front', 'back', 'in' (toward the body), 'out', 'up', 'down'.
+const PALM = { front: () => [0, 0, 1], back: () => [0, 0, -1], up: () => [0, 1, 0], down: () => [0, -1, 0], in: (s) => [-s, 0, 0], out: (s) => [s, 0, 0] };
+const wpos = (b) => new THREE.Vector3().setFromMatrixPosition(b.matrixWorld);
+function turnAbout(b, axis, angle) {       // the bone turned about a line through itself (in the world)
+  const q = new THREE.Quaternion().setFromAxisAngle(axis, angle), wq = b.getWorldQuaternion(new THREE.Quaternion()), pq = b.parent.getWorldQuaternion(new THREE.Quaternion());
+  b.quaternion.copy(pq.invert().multiply(q).multiply(wq)); b.updateWorldMatrix(false, true);
+}
+function facePalm(fore, hand, local, want) {
+  fore.updateWorldMatrix(true, true); const f = wpos(hand).sub(wpos(fore)).normalize(), flat = (v) => v.clone().sub(f.clone().multiplyScalar(v.dot(f)));
+  const now = flat(local.clone().applyQuaternion(hand.getWorldQuaternion(new THREE.Quaternion()))), to = flat(new THREE.Vector3(...want));
+  if (now.length() < 0.2 || to.length() < 0.2) return;                         // (asked to face along the arm itself: nothing to turn)
+  now.normalize(); to.normalize(); const ang = Math.atan2(new THREE.Vector3().crossVectors(now, to).dot(f), now.dot(to));
+  turnAbout(fore, f, ang / 2); turnAbout(hand, f, ang / 2);
+}
+
+// LIMBS DO NOT PASS THROUGH EACH OTHER OR THE BODY. Each forearm with its hand, the trunk, the head and the thighs are taken as round
+// rods (their thickness: how far the mesh's own points lie from each bone, the middle value). After the pose is set, a forearm that
+// lies inside another rod is pushed out along the shortest way between them - two forearms half each - a little at a time until
+// nothing overlaps: arms crossed lie one in front of the other on the chest, hands held together touch and do not merge.
+function rodsOf(m) {
+  const acc = new Map(), v = new THREE.Vector3(), line = new THREE.Line3(), q = new THREE.Vector3();
+  m.traverse((o) => {
+    if (!o.isSkinnedMesh) return; const P = o.geometry.attributes.position, SI = o.geometry.attributes.skinIndex, SW = o.geometry.attributes.skinWeight, bs = o.skeleton.bones;
+    for (let i = 0; i < P.count; i += 2) {
+      let k = 0; for (let j = 1; j < 4; j++) if (SW.getComponent(i, j) > SW.getComponent(i, k)) k = j;
+      const b = bs[SI.getComponent(i, k)], c = b && b.children.find((x) => x.isBone); if (!c) continue;
+      v.fromBufferAttribute(P, i); o.applyBoneTransform(i, v); v.applyMatrix4(o.matrixWorld); line.set(wpos(b), wpos(c)); line.closestPointToPoint(v, true, q);
+      if (!acc.has(b)) acc.set(b, []); acc.get(b).push(q.distanceTo(v));
+    }
+  });
+  const r = new Map(); for (const [b, d] of acc) { d.sort((x, y) => x - y); r.set(b, d[d.length >> 1]); } return r;
+}
+function closest(a0, a1, b0, b1) {           // the nearest points of two segments: [point on a, point on b, how far along a (0-1)]
+  const d1 = a1.clone().sub(a0), d2 = b1.clone().sub(b0), r = a0.clone().sub(b0), A = d1.dot(d1), E = d2.dot(d2), F = d2.dot(r), C = d1.dot(r), B = d1.dot(d2), den = A * E - B * B;
+  let s = den > 1e-9 ? Math.min(1, Math.max(0, (B * F - C * E) / den)) : 0, u = (B * s + F) / E;
+  if (u < 0) { u = 0; s = Math.min(1, Math.max(0, -C / A)); } else if (u > 1) { u = 1; s = Math.min(1, Math.max(0, (B - C) / A)); }
+  return [a0.clone().add(d1.multiplyScalar(s)), b0.clone().add(d2.multiplyScalar(u)), s];
+}
+const SOFT = 0.72;        // a forearm may sink this far into the body's rods before it is pushed (a rod is rounder than a trunk, and a hand rests against a thigh): at 1 a child's hanging arms were pushed out to 45 degrees
+function keepApart(m, bone, radii) {
+  const R = (b, dflt) => radii.get(b) || dflt, sides = [[1, 'Left'], [-1, 'Right']].filter(([, n]) => bone(n + 'ForeArm') && bone(n + 'Hand'));
+  for (let it = 0; it < 80; it++) {
+    m.updateMatrixWorld(true); let hit = false;
+    const body = [];                                     // what a forearm must stay out of: trunk, head, thighs
+    for (const [a, c] of [['Hips', 'Spine'], ['Spine', 'Spine1'], ['Spine1', 'Spine2'], ['Spine2', 'Neck'], ['Neck', 'Head'], ['LeftUpLeg', 'LeftLeg'], ['RightUpLeg', 'RightLeg']]) {
+      const A = bone(a), C = bone(c); if (!A || !C) continue; const p0 = wpos(A), p1 = wpos(C);
+      if (a === 'Neck') p1.add(p1.clone().sub(p0).multiplyScalar(1.6));                                        // (the head: on past the bone's end, as thick as the neck's rod is wide and half again)
+      body.push({ a: p0, e: p1, r: a === 'Neck' ? R(C, R(A, 0.07)) * 1.5 : R(A, 0.1) });
+    }
+    const arms = sides.map(([s, n]) => { const fb = bone(n + 'ForeArm'), hb = bone(n + 'Hand'), p0 = wpos(fb), w = wpos(hb), len = w.distanceTo(p0);
+      return { s, fb, hb, a: p0, w, e: w.clone().add(w.clone().sub(p0).multiplyScalar(0.55)), len, r: R(fb, 0.04) }; });      // (the rod runs on past the wrist: the hand)
+    const push = (arm, n, by, along) => { aimBone(arm.fb, arm.hb, arm.w.clone().add(n.clone().multiplyScalar(by / Math.max(0.35, along * 1.55))).sub(arm.a)); hit = true; };
+    for (const arm of arms) for (const o of body) {
+      const [pa, pb, s] = closest(arm.a, arm.e, o.a, o.e), d = pa.distanceTo(pb), need = (arm.r + o.r) * SOFT;
+      if (d < need) push(arm, d > 1e-4 ? pa.sub(pb).normalize() : new THREE.Vector3(0, 0, 1), need - d + 0.003, s);
+    }
+    if (arms.length === 2) {
+      const [x, y] = arms, [pa, pb, s] = closest(x.a, x.e, y.a, y.e), d = pa.distanceTo(pb), need = (x.r + y.r) * 1.3;        // (a hand is wider than its forearm's rod: held together, two hands still lay half inside each other)
+      if (d < need) {                                    // (two forearms that cross exactly have no shortest way apart: the figure's left one goes in front)
+        const n = d > 1e-3 ? pa.clone().sub(pb).normalize() : new THREE.Vector3(0, 0, x.s);
+        const [, , u] = closest(y.a, y.e, x.a, x.e); push(x, n, (need - d) / 2 + 0.002, s); push(y, n.clone().negate(), (need - d) / 2 + 0.002, u);
+      }
+    }
+    if (!hit) return it;
+  }
+  return 80;
+}
+
+function poseFigure(m, pose) {
+  const bone = (n) => m.getObjectByName(n) || m.getObjectByName('mixamorig' + n) || m.getObjectByName('mixamorig:' + n);
+  m.updateMatrixWorld(true); const radii = rodsOf(m), palms = {};
+  for (const [s, side] of [[1, 'Left'], [-1, 'Right']]) {                     // each palm's facing at rest, in its hand's own frame
+    const fb = bone(side + 'ForeArm'), hb = bone(side + 'Hand'); if (!fb || !hb) continue;
+    const f = wpos(hb).sub(wpos(fb)).normalize(), n = new THREE.Vector3(0, -1, 0); n.sub(f.clone().multiplyScalar(n.dot(f))).normalize();
+    palms[s] = n.applyQuaternion(hb.getWorldQuaternion(new THREE.Quaternion()).invert());
+  }
+  for (const [s, side] of [[1, 'Left'], [-1, 'Right']]) {
+    const arm = (pose.arm || {})[s], leg = (pose.leg || {})[s];
+    if (arm && bone(side + 'Arm')) { aimBone(bone(side + 'Arm'), bone(side + 'ForeArm'), limbDir(arm[0][0], arm[0][1], s)); aimBone(bone(side + 'ForeArm'), bone(side + 'Hand'), limbDir(arm[1][0], arm[1][1], s)); }
+    if (leg && bone(side + 'UpLeg')) {                 // (a pose that says nothing of the legs leaves them as the rig stands; the foot stays as flat as it was)
+      const foot = bone(side + 'Foot'), flat = foot.getWorldQuaternion(new THREE.Quaternion());
+      aimBone(bone(side + 'UpLeg'), bone(side + 'Leg'), limbDir(leg[0][0], leg[0][1], s)); aimBone(bone(side + 'Leg'), foot, limbDir(leg[1][0], leg[1][1], s));
+      foot.quaternion.copy(foot.parent.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(flat)); foot.updateWorldMatrix(false, true);
+    }
+  }
+  const rounds = keepApart(m, bone, radii);
+  for (const [s, side] of [[1, 'Left'], [-1, 'Right']]) {
+    const want = (pose.palm || {})[s]; if (want && PALM[want] && palms[s]) facePalm(bone(side + 'ForeArm'), bone(side + 'Hand'), palms[s], PALM[want](s));
+  }
+  return rounds;
+}
+function bakeFigure(m) {                     // the rig as it stands now, as plain meshes: its shadow, its heights and its box are then a prop's
+  m.updateMatrixWorld(true); const out = new THREE.Group(), v = new THREE.Vector3();
+  m.traverse((o) => {
+    if (!o.isMesh) return;
+    const g = o.geometry.clone(), P = g.attributes.position;
+    for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(o.geometry.attributes.position, i); if (o.isSkinnedMesh) o.applyBoneTransform(i, v); v.applyMatrix4(o.matrixWorld); P.setXYZ(i, v.x, v.y, v.z); }
+    for (const k of Object.keys(g.attributes)) if (!['position', 'uv'].includes(k)) g.deleteAttribute(k);
+    g.computeVertexNormals(); g.computeBoundingBox(); g.computeBoundingSphere();          // (its box anew: the copy carried the rig's own, and a raised hand was cut off by the picture's edge)
+    const s = Array.isArray(o.material) ? o.material[0] : o.material;
+    out.add(new THREE.Mesh(g, new THREE.MeshToonMaterial({ map: s.map || null, color: s.map ? 0xffffff : (s.color || 0xffffff), gradientMap: ramp })));
+  });
+  return out;
+}
+function restBox(m) {                       // the rig's box as it stands, from its points - as bakeFigure's copy has them (32-bit), without the copy
+  m.updateMatrixWorld(true); const box = new THREE.Box3(), v = new THREE.Vector3(), f = Math.fround;
+  m.traverse((o) => {
+    if (!o.isMesh) return; const P = o.geometry.attributes.position;
+    for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i); if (o.isSkinnedMesh) o.applyBoneTransform(i, v); v.applyMatrix4(o.matrixWorld); box.expandByPoint(v.set(f(v.x), f(v.y), f(v.z))); }
+  });
+  return box;
+}
+// THE POSED FIGURE IS MADE ONCE. setup() runs for every facing (and again after a pass of the low blocks), and each time the GLB was loaded,
+// baked whole only for its box at rest, posed and baked again - the same figure, only turned another way. Kept by what makes it.
+const FIGURES = new Map();
+async function figure(spec) {
+  const { glb, yaw = 0, figure: f } = spec.model, H = spec.model.size[2], key = JSON.stringify([glb, f.pose || {}, f.build || 1, H]);
+  let made = FIGURES.get(key);
+  if (!made) {
+    const g = await new GLTFLoader().loadAsync(glb), m = g.scene; m.updateMatrixWorld(true);
+    const rest = restBox(m);                                                       // its height and its middle as it stands at rest: a raised arm does not make it shorter
+    const rounds = poseFigure(m, f.pose || {}), posed = bakeFigure(m), w = f.build || 1;      // (how many rounds of pushing apart the pose took; 80: it did not come free)
+    const k = H / (rest.max.y - rest.min.y), cx = (rest.min.x + rest.max.x) / 2, cz = (rest.min.z + rest.max.z) / 2, low = new THREE.Box3().setFromObject(posed).min.y;
+    posed.position.set(-cx * k * w, -low * k, -cz * k * w); posed.scale.set(k * w, k, k * w);       // ("build": wider or narrower, the same height)
+    FIGURES.set(key, made = { posed, rounds });
+  }
+  window.figureRounds = made.rounds;
+  const turn = new THREE.Group(); turn.add(made.posed); turn.rotation.y = yaw * Math.PI / 180; return turn;
+}
+
 let modelFoot = null;          // the footprint a model of its own shape covers, metres [W, D]
 async function model(spec) {
   modelFoot = null;
+  if (spec.model.figure) return figure(spec);
   const { glb, yaw = 0 } = spec.model; const [W, D, H] = spec.model.size;
   const g = await new GLTFLoader().loadAsync(glb); const m = g.scene;
   m.traverse((o) => { if (o.isMesh) { const s = Array.isArray(o.material) ? o.material[0] : o.material;
@@ -135,6 +279,21 @@ window.shadowShot = async () => {
   wrap.add(ghost); scene.add(wrap); prop.visible = false;
   await draw(); const url = renderer.domElement.toDataURL('image/png');
   scene.remove(wrap); prop.visible = true; return url;
+};
+// the shadow of only what lies under `top` m - a figure's feet, where it stands: the prop's triangles that are wholly under it, pressed
+// to the ground like shadowShot's (a figure made from a rig has no blocks to cut off at that height)
+window.contactShot = async (top) => {
+  prop.updateMatrixWorld(true); const grp = new THREE.Group(), black = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide }), v = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
+  prop.traverse((o) => {
+    if (!o.isMesh) return; const P = o.geometry.attributes.position, I = o.geometry.index, n = I ? I.count : P.count, out = [];
+    for (let i = 0; i + 2 < n; i += 3) {
+      for (let k = 0; k < 3; k++) v[k].fromBufferAttribute(P, I ? I.getX(i + k) : i + k).applyMatrix4(o.matrixWorld);
+      if (Math.max(v[0].y, v[1].y, v[2].y) <= top) for (const q of v) out.push(q.x, q.y, q.z);
+    }
+    if (out.length) { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(out, 3)); grp.add(new THREE.Mesh(g, black)); }
+  });
+  const wrap = new THREE.Group(); wrap.matrixAutoUpdate = false; wrap.matrix.set(1, SHADOW[0], 0, 0, 0, 0, 0, 0.001, 0, SHADOW[1], 1, 0, 0, 0, 0, 1);
+  wrap.add(grp); scene.add(wrap); prop.visible = false; await draw(); const url = renderer.domElement.toDataURL('image/png'); scene.remove(wrap); prop.visible = true; return url;
 };
 // every pixel's height above the ground (metres, up to `top`) as 16 bits: red the high byte, green the low one; nothing drawn = clear.
 // A point h m up casts its shadow a fixed step (h × the light's offset) away on screen, so this is all a shadow needs.

@@ -1,254 +1,249 @@
 ---
 name: spritecast
-description: Make game sprites at their real size and exact camera angle (2:1 or true isometric, 3/4 top-down, front view) in the user's art style - props, furniture and objects, standing figures, characters walking, running, jumping, slashing and throwing in 8 facings (painted, or as pixel art about 96 px tall for arcade games; props as pixel art too, from every side) and seated in 8 facings, seated on the user's own chairs and benches with the chair's front piece in front of them - from a 3D guide an image model redraws; then cut out, fitted to the guide, given a baked shadow and an anchor, and fixed by hand on a local touch-up page. Use when the user asks for an isometric or top-down prop, furniture, object or character sprite, a walk cycle or another animation (run, jump, attack, throw, a Mixamo FBX clip), pixel-art sprites or a sprite sheet of a character, fixing pixel sprites by hand, a seated or sitting character, putting a character on a chair or bench, or fixing a sprite's cut-out, halo or what covers what.
+description: Make 2D game sprites at their real size and exact camera angle, in the user's art style, from a 3D guide that an image model redraws. Use when the user asks for an isometric or top-down prop, furniture or object sprite (painted or pixel art, from any side, with its shadow); a standing NPC from a description; a character walking in 8 or 4 facings from one illustration, or its run, jump, attack, throw or a Mixamo FBX clip; pixel-art sprites or a sprite sheet of a character; a seated or sitting character, or one put on a chair or bench; a character for a side-scrolling game or platformer; monsters, enemies, animals or townspeople for a side-view game, drawn straight in 2D on a mannequin's walk with no 3D model each; a four-legged animal's walk; a swing's effect, a meadow ground, or files for Godot, Unity, Phaser or Aseprite; or fixing a sprite by hand - pixel sprites in a local editor, a cut-out, a halo or what covers what on a touch-up page.
 license: MIT
 compatibility: Claude Code (runs Python, Playwright and a local Chrome/Chromium on the user's machine; calls the OpenAI Images API with the user's own key)
 ---
 
-# SpriteCast: isometric props and characters at true scale
+# SpriteCast: game sprites at true size and angle, from a 3D guide
 
-Image models draw isometric objects at slightly wrong angles and sizes. This skill gives the model a guide it cannot misread: the
-object built from simple blocks at its real size, rendered with an exact 2:1 isometric camera. The model only redraws the guide in the
-art style of a reference picture; the result is laid back onto the guide, so the angle, size and footprint stay exact.
+Asked for a game sprite, an image model draws it at a slightly wrong angle and size, and a walk that does not walk. SpriteCast gives
+the model a guide it cannot misread - blocks at real size, a 3D model or a posed mannequin, rendered by the game's own camera - lets it
+redraw only the look, and lays the answer back on the guide: cut out, fitted, with a baked shadow and an anchor.
 
-Scripts: `${CLAUDE_SKILL_DIR}/scripts/isoprop.py` (steps `render`, `draw`, `finish`, `preview`). The spec format is in
-[reference/spec.md](reference/spec.md); how to build good guides in [reference/tips.md](reference/tips.md) - read both before writing a spec.
+Scripts are in `${CLAUDE_SKILL_DIR}/scripts/`; `PYTHON` below is the interpreter `doctor.py` prints. **Find the flow in the table
+below and read its reference file before the first step** - this file says what to ask and in which order; the reference has the spec.
+
+## Money: the rule for every flow
+- A paid step run **without `--yes` prints its cost and spends nothing**. Say that cost - and the total when there are several - wait
+  for a yes to THAT amount, then run it with `--yes`. One paid step at a time: never the next one because the last "looked fine".
+- Show the free render (the guide) before the paid drawing. Everything after follows the guide: a problem seen there is fixed there.
+- Never draw again (`--again`, `redraw`, `--redraw`) without asking. A drawing that came out wrong is usually the guide or the words.
+- What the scripts' gates say (OpenAI at quality `high`; the bill is usually a little under):
+
+| step | about |
+|---|---|
+| a prop's or a standing person's drawing (`isoprop.py draw`) | $0.08 the first view, $0.09 each further one |
+| a character's turnaround | $0.09 |
+| a sheet of 4 frames (`charpipe.py draw`, `redraw`, `sit --draw`) | $0.11 - a walk with its standing views is 18 sheets in eight facings (~$2), 9 in four (~$1), 3 in a side view (~$0.33) |
+| one frame drawn alone (`charpipe.py frame`) | $0.08 |
+| a pixel-art sheet (`pixelart.py`) | $0.075 - a walk is 2 sheets a facing (~$1.35 in eight); an action with something held 4 |
+| a pixel prop's view (`proppixel.py`), a sheet of a prop's poses (`propanim.py`) | $0.08 |
+| a creature's design, its walk, a sheet of four moments (`creature.py`) | $0.06 each |
+| Tripo | a character's model + rig + walk ~75 credits (~85 if it comes back uncoloured), each extra action ~10; an animal's model ~30 (~40); a prop's model 20-40 |
 
 ## Setup (once)
-1. Run `python3 ${CLAUDE_SKILL_DIR}/scripts/doctor.py` (any Python 3.9+; `python` on Windows). It lists what is there and what each
-   thing is for; its last line `PYTHON=<path>` is the interpreter to use for every script below. If it says "not ready", tell the user
-   in a line what is missing and run it again with `--fix` (a venv in ~/.cache/spritecast/, the packages, about 10 s). No Chrome or Edge: ask first, then `--fix --browser`
-   (Playwright's Chromium, ~150 MB). For characters add `--characters` (the 224 MB cut-out
-   model, once). If it says the Python cannot make a venv, pass on its one-line fix.
-2. Keys: `OPENAI_API_KEY` for `draw`, `TRIPO_API_KEY` for characters. They come from the plugin's settings (the user gives them in
-   `/plugin` → SpriteCast; a session-start hook hands them to the scripts), else from the environment. Missing: tell the user to put it
-   in the plugin's settings and restart Claude Code. Never ask the user to paste a key into the chat, never write it into a file,
-   never print it.
-   **No OpenAI key, or the user wants to spend nothing on drawing:** offer `--manual` (`pixelart.py`; any other step with
-   `SPRITECAST_DRAW=manual`, scripts/manualdraw.py). Nothing is called: each sheet is a job on a page at 127.0.0.1:8790 that the user
-   draws in a NEW ChatGPT chat themselves (the free plan works, within its limits); the answer is taken from ~/Downloads. A sheet is
-   TWO messages in that chat, and the page shows both: first the reference pictures (the turnaround, the first sheet) with "do not
-   draw yet, answer ready", then the guide ALONE with the prompt. Why: given the pictures together the app put them all on one
-   canvas; given the guide alone it kept the layout but drew plainer (the coat lost its buttons); references first, guide second
-   kept the layout and drew the buttons. If the first message is answered with a picture instead of "ready", they start a new chat.
-   `SPRITECAST_MANUAL_GUIDE_ONLY=1` is the one-message way (guide alone). Tell them what to expect: the same character, a little
-   plainer than the API, and a frame may need drawing again. Tried on pixel-art sheets (two messages: a first sheet with the
-   turnaround; later sheets with two references not yet); other steps work the same way, untested.
-3. **A first-time user, or "try it" / "체험":** `PYTHON isoprop.py try [--out DIR]` - free, no key: an example's guide rendered on
-   their computer and finished with the drawing that came with it → show them `preview.png` and `render.png`, then offer to make
-   their own prop.
+1. `python3 ${CLAUDE_SKILL_DIR}/scripts/doctor.py` (any Python 3.9+; `python` on Windows) lists what is there and what each thing is
+   for; its last line `PYTHON=<path>` is the interpreter for every script. "not ready": say in a line what is missing and run it again
+   with `--fix` (a venv in ~/.cache/spritecast/, ~10 s). No Chrome or Edge: ask first, then `--fix --browser` (Playwright's Chromium,
+   ~150 MB). For characters and creatures add `--characters` (the 224 MB cut-out model, once).
+2. Keys: `OPENAI_API_KEY` for every drawing; `TRIPO_API_KEY` only for a 3D model - a walking character's model and rig, a prop's
+   detailed model (not for props from blocks, standing people or `creature.py`). They come from the plugin's settings (`/plugin` →
+   SpriteCast; a session-start hook hands them to the scripts), else from the environment. Missing: tell the user to put it in the
+   plugin's settings and restart Claude Code. Never ask for a key in the chat, never write one into a file, never print one.
+3. **No OpenAI key, or nothing to spend on drawing:** every drawing step can be done by hand in the ChatGPT app - `pixelart.py --manual`,
+   any other script with `SPRITECAST_DRAW=manual` in its environment. Each picture becomes a job on a local page (127.0.0.1:8790) with
+   what to attach and the prompt; the answer is taken from ~/Downloads. Read [reference/manual.md](reference/manual.md) and tell the
+   user what to expect: the same character a little plainer than the API's, a frame may need drawing again, the app's own limits.
+4. **A first-time user, or "try it" / "체험":** `PYTHON isoprop.py try [--out DIR]` - free, no key: an example's guide rendered on
+   their computer and finished with the drawing that came with it → show `preview.png` and `render.png`, then offer their own prop.
 
-## Making a prop
-1. **Ask only what is missing**: what it is, its real size if it matters, which way it faces, the game's view (`camera`: 2:1
-   isometric by default, true isometric, 3/4 top-down, front; or their own angle), whether it must turn (`views`), and the art style (a bundled style name
-   - `cozy` - or the user's own reference picture: one finished prop in the look they want, ideally on a flat background).
-2. **Write the spec** (`<name>.json` in the user's asset folder): footprint in metres, the blocks at real size, a `description` of the
-   finished object (materials, colours, details), `facing`. Real-world sizes matter: look them up if unsure (a dining chair seat
-   ~45 cm, a door 2.0-2.1 m).
-3. **Render the guide (free)**: `python ${CLAUDE_SKILL_DIR}/scripts/isoprop.py render <spec>`. Look at `render.png` and
-   `render-shadow.png` yourself, then show the user `render.png`. Fix the blocks until the shape, proportions and facing are right -
-   this is the cheap step; everything after it follows the guide.
-4. **Draw (paid)**: run `draw <spec>` without `--yes` first - it prints the model and the cost (about $0.07 at `high`). Tell the user
-   the cost and wait for a yes before running it with `--yes`. With `views`, the first view is drawn first and the others follow it
-   (about $0.09 each) - check the first before drawing the rest when it is a new design. Several props: say the total. Never redraw without asking
-   (`--again`); a drawing that came out wrong is usually a guide or description problem - fix that first.
-5. **Finish and check**: `finish <spec>` then `preview <spec>`. If `finish` warns (or `sprite.json` `fit.ok` is false), the model
-   drew another angle or shape: it was NOT squeezed to fit. Tell the user, say why (often an angled style picture pulled it off the
-   guide's view), fix the description, and ask before drawing again. Look at `preview.png`; show it to the user. If the drawing added or
-   moved parts, adjust the description (say what must NOT be there) and ask before drawing again.
-6. Hand over `sprite.png`, `shadow.png`, `sprite.json` (anchor, footprint corners, px per metre, shadow offset) and say how to place it
-   in their engine: put the sprite so its anchor sits on the footprint's front corner; draw the shadow under all sprites.
+## Which flow
 
-## More detail with a 3D model (Tripo)
-When the user wants more detail than blocks give (curves, carving, tapered legs) and has `TRIPO_API_KEY`: after the block guide is
-right, `model <spec>` (prints the cost; ~20 Tripo credits, ~2 min; ask first, then `--yes`) makes a Tripo model from the description
-and puts it in the spec at the blocks' HEIGHT, in its own proportions - the shape is the model's, never pressed into the blocks' box (blocks → `blocks_draft`). Then `yaws <spec>` (free): look at yaws.png and set
-`model.yaw` to the turn whose front faces where the blocks' did. Then render, show, draw as usual. Blocks alone are fine when the
-arrangement matters more than detail.
+| the user wants | script | read first | keys | what is paid |
+|---|---|---|---|---|
+| a prop, furniture, an object - isometric, top-down or front | `isoprop.py` | spec.md, tips.md | OpenAI | `draw`; `model` (Tripo) only for more detail |
+| scenery for a side-scrolling game (a wall, a house front) | `isoprop.py`, `"camera": {"pitch": 6, "yaw": 90}`, over a Tripo model | tips.md "Scenery for a side-scrolling game" | OpenAI + Tripo | `model`, `draw` |
+| a standing person in a pose (an NPC) | `isoprop.py`, a `character` spec | spec.md | OpenAI | `draw` |
+| a character that walks in 8 or 4 facings; its run, jump, attack | `charpipe.py` | character.md | OpenAI + Tripo | `turnaround`, `3d`, `draw`, `redraw` |
+| a four-legged animal walking in 8 facings | `charpipe.py`, `"kind": "animal"` | character.md "Animals" | OpenAI + Tripo | the same |
+| a side-scrolling game's hero - many moves, a thing in the hand | `charpipe.py`, `"view": "side"` | character.md | OpenAI + Tripo | the same, 3 sheets a walk |
+| a side-scrolling game's monsters, animals, townspeople | `creature.py` | creature.md | OpenAI | `design`, `walk`, `sheet` |
+| pixel art of a character; of a prop | `pixelart.py`; `proppixel.py` | pixel.md | OpenAI (Tripo for a prop seen from several sides) | the sheets |
+| an isometric prop that moves (a ghost's arms); see-through; wind; a lamp's light; where it blocks | `proprig.py` + `propanim.py`; spec keys; `propshade.py`, `lightedit.py` | pixel.md | OpenAI for `propanim.py` only | `propanim.py`'s sheets |
+| a character sitting, or put on the user's chair | `charpipe.py sit`, `seat.py` | sitting.md | OpenAI | `sit --draw` |
+| the ground of a map | `ground.py` | ground.md | - | nothing |
+| hits, splashes, fire round the sprites | `fxpack.py` | pixel.md "Effects from the pack" | - | nothing |
+| a Mixamo move on the rig; attacks that join into a combo | `addclip.py`, `motion.py` | character.md "Moves that join" | - | nothing |
+| files for Godot, Unity, Phaser, Aseprite | `export.py` | below | - | nothing |
+| fixing by hand | `touchup.py`; `pixeledit.py` | touchup.md; pixel.md "Fixing by hand" | - | nothing |
 
-## Characters
-A standing person: a `character` spec (see spec.md) instead of blocks - a mannequin at their real height, one view per facing, the
-first facing drawn first and the rest from it. Ask the height, the build, the facings (4 diagonals unless their game uses 8, or 4 cardinals for a game moving up/down/left/right) and what
-they wear. Look at every facing yourself before showing them: the outline check can't see a body turned the wrong way inside a right
-outline (a back view with the front of the clothes). Redraw just that one: `draw <spec> --yes --again --only <facing>` (ask first).
-Poses (`character.pose`): stand, wave, point, hold, arms-crossed, walk (a single mid-stride picture) - say the pose in the description too
-("waving hello"). Anything else, or "raise the arm higher": write the angles (`{"base": ..., "arm": {...}}`, spec.md "Custom poses"),
-render (free), look, adjust the numbers, and only then draw. Their shadows are cast from the finished drawing (hair, clothes), each pixel moved by the 3D guide's height under it, so every foot starts its own shadow; solid props keep the 3D shadow. No animation: for
-walk cycles or other animation say this plugin doesn't make them (it needs a rigged 3D model and every frame
-drawn to match).
+Two flows are called a creature: a monster for a SIDE view, drawn in 2D with no 3D model of it, is `creature.py`; an ISOMETRIC prop
+whose parts move (a ghost) is `proprig.py` + `propanim.py`.
 
-## Walking characters
-**Ask first: eight facings or four.** `"facings": 4` in the spec renders and draws only the diagonals (south-east, south-west, north-east, north-west): about half the drawing (a walk ~$1 instead of ~$2; pixel art ~$0.7 instead of ~$1.35). Most isometric games draw only these four; offer it whenever cost matters. `"facings": "cardinal"` draws south, east, north, west instead (the user: some players' games move only up, down, left and right) - same cost as the diagonals; ask which four. The exported character (`export.py`) still takes all eight directions - `play("walk", "east")` shows the nearest facing drawn, keeping the one shown last between two as near, so walking straight across does not flicker. With the diagonals, south-east is drawn first and the rest follow it (with eight or the cardinals, south). `pixelart.py` draws the spec's facings too.
-For an animated character (an 8-direction walk and standing views), use `${CLAUDE_SKILL_DIR}/scripts/charpipe.py` and read
-[reference/character.md](reference/character.md) first. It needs one finished illustration of the character - facing front, standing straight, arms down, no pose (if theirs is posed, draw a neutral one from it first and show it) - and TRIPO_API_KEY besides OPENAI_API_KEY (or the user's own rigged GLB as `rig_glb`). Ask how tall the character will be on screen in their game and offer the sizes - 512 (HD), 256 (the default), 128, 64 - as
-`"frame_px"` (the frame's height; no answer: 256; another size later is `pack --px`, free). Ask the game's view and set it as `pitch`, not `camera` (30 = 2:1, the default; 35.26 true isometric; 50 3/4 top-down; 12 front - the 8 facings stay 45° apart). Tripo makes the model
-and the rig; with `"modeler": "meshy"` (and MESHY_API_KEY) Meshy makes the model (the author's way). Offer it when they have a Meshy account. Three steps, the user's OK before each:
-`turnaround` (~$0.09; show it: both sides the same, nothing over the arms) → `3d` (~75 Tripo credits: model, rig, walk, then the
-renders by themselves - show the front and a side: the face, not the back of the head) → `draw` (~$2, every facing drawn; when every facing is drawn,
-`finish` and `preview` run by themselves - show `out/sheet.png` and a GIF). Every paid step prints its cost and needs `--yes`; ask the user for each one, and
-never run the next paid step because the previous one "looked fine": a problem seen in one step is fixed there, not carried on.
-**A four-legged animal** (a cat, a dog, a fox...): `"kind": "animal"` in the spec. The same three steps, but `3d` makes only the model
-(~30 Tripo credits - no rig: Tripo's animal rig is poor, so the skeleton is found from the mesh and walked in a cat's gait). The
-turnaround on all four legs, each leg clear, the tail out behind; clothes only snug ones (a vest, not a cape or a scarf). Check the
-renders before `draw`: four legs, the head forward, the tail behind.
-**Cheaper, softer** (`"draw": false`): no image model draws the frames - the 3D renders are the frames; after `3d` it finishes by itself.
-The turnaround is still drawn by the image model (~$0.09) unless the user brings a rigged GLB (`rig_glb`): only then is no image model used at all.
-Offer it when cost matters more than detail (prototypes, background walkers); say it is softer (no drawn lines, a simpler face).
-**Every facing is drawn by default** (`"mirror": false`): a flipped facing is only as good as its pair and swaps anything that isn't
-the same on both sides (hair over one shoulder, a logo, a bag, one bunny ear up). Flipping comes in only by the rules below - a facing
-still under `redo_below` after two redraws is mixed frame by frame with its flipped pair - or when the user asks to save ~$0.66 on a
-design that is the same on both sides (`"mirror": true`, or a list such as `["north-east"]`). Before agreeing to a mix on a design
-that isn't symmetrical, check that what is on one side stays on that side.
-After `draw` (people and animals alike), `finish` names the sheets with a frame fitting its render under `redo_below` (0.75). Show the user `out/walk-all.mp4` (every facing walking at once; with ffmpeg) - a head that grows and shrinks, a
-jumping frame or an odd stride shows there, not in the numbers. Look at the back views yourself for anything worn on the head (ears,
-antennae, a bow): each on its side and, from behind, only its back (the 3D model makes such things rough).
-Then, asking for each paid round:
-1. Show the user the renders beside the drawn frames for those facings (the overlap of each frame on it), and the cost.
-2. `redraw --yes`: those sheets drawn again (up to twice each); each keeps whichever drawing fits better.
-3. **Stop after a sheet's second try and show the result** before going on. Only if the user says so, `redraw --yes` again: a facing
-   still under the line is mixed with its mirror pair (east/west, north-east/north-west, south-east/south-west) - the pair drawn too if
-   it was being flipped (2 sheets, ~$0.22; free if it's drawn already), then each frame of both the better of its own drawing and the
-   other's flipped; south and north, which have no pair, get their low frames drawn one at a time (~$0.11 each, once each).
-A low score is not always a bad drawing: lay the render's outline over the frame and look. For an animal the size is matched by overlap
-per sheet (its height is mostly the tail), so a low score there is the drawing itself - a head turned another way, legs bunched.
-Then tell the user the shadows are per frame (`out/shadows/`, draw them under the sprites at character.json's `shadow_alpha`: 0.56 - since 0.20 a shadow is light as it falls, deep under the feet and pale at its far edge; `"shadow": "flat"` in the spec for the old one hard shape at 0.3; the render takes longer for it, ~9 min a character with three actions). **How deep the shadow is**: `"shadow_strength"` in the spec, the shadow as if laid that many times - a painted set's default is 1 (as the light gives it, 56 % at its deepest); a **pixel set's is 1.5** (71 %: pixel art says things a little louder than they are, so a figure stands on the ground). On dark ground offer more (1.6-2), on a light floor where it looks heavy offer 1; `pack` (or `pixelart.py`) again is free, and `shadow_alpha` in character.json goes with it. The same number for the game's props (below), so they agree. Matching outfits (`facecheck`),
-the anchor on the soles, and what to do when the cut-out stops for want of onnxruntime: [reference/character.md](reference/character.md#notes).
+## A prop (`isoprop.py`: `render`, `draw`, `finish`, `preview`)
+1. **Ask only what is missing**: what it is, its real size if it matters, which way it faces, the game's view (`camera`: 2:1 isometric
+   by default, true isometric, 3/4 top-down, front, or their own angle), whether it must turn (`views`), and the art style (`cozy`,
+   or their own reference picture: one finished prop in the look they want, on a flat background).
+2. **Write the spec** (`<name>.json` in their asset folder): footprint in metres, the blocks at real size, a `description` of the
+   finished object (materials, colours, details), `facing`. Look real sizes up if unsure (a chair's seat ~45 cm, a door 2.0-2.1 m).
+3. **`render <spec>` (free).** Look at `render.png` and `render-shadow.png` yourself, then show `render.png`. Fix the blocks until
+   shape, proportions and facing are right.
+4. **`draw <spec>` (paid).** With `views`, the first is drawn first and the others follow it - for a new design, check the first
+   before drawing the rest.
+5. **`finish <spec>`, `preview <spec>`.** If `finish` warns (`sprite.json` `fit.ok` false) the model drew another angle or shape and
+   it was NOT squeezed to fit: tell the user, say why (often an angled style picture), fix the description, ask before drawing again.
+   Look at `preview.png` and show it. Parts added or moved: say in the description what must NOT be there.
+6. Hand over `sprite.png`, `shadow.png`, `sprite.json` (anchor, footprint corners, px per metre, shadow offset): the sprite's anchor
+   goes on the footprint's front corner; shadows are drawn under all sprites.
 
-## More actions: run, jump, a slash with something held (people)
-**Which source - say it when the user asks for an action:** Tripo to save time, Mixamo when the result matters (the author's advice). Tripo: one step, no download; moves with nothing in the hands (walk, run, jump) come out fine from it. When the result matters - attacks above all - recommend Mixamo, though it takes a little longer (more natural - motion capture; free; thousands; one set's attacks share a stance, so they link into combos): give a Mixamo search link for the move - `https://www.mixamo.com/#/?page=1&query=<words+joined+by+plus>&type=Motion%2CMotionPack` (e.g. `query=Standing+Melee+Attack+Downward`) - the download settings (FBX Binary, 30 fps, Without Skin, no keyframe reduction), then `addclip.py` (free). Mixamo has no API: the skill cannot fetch from it - say so; the user goes to the site, looks, downloads, and puts the file beside the spec. Never put the FBX in a public repo.
-`"actions": ["run", "jump", {"name": "slash", "hold": "umbrella"}]` in the spec, before `3d` or `rig --again` (~10 Tripo credits an
-action; Tripo's biped presets: run, jump, slash, shoot, dive, climb, fall, hurt, turn - three at most beside the walk and idle; with
-the user's own rig, any clip by name: `{"name": "attack", "clip": "Sword Slash"}`). `render` renders each in 8 facings, `draw` draws
-them after the walk (~$0.11 a sheet, 2 sheets a facing), `finish` fits and packs → `out/<name>-<facing>.png` and `"actions"` in
-`character.json` (frame, anchor, frames, loop, fps, shadows). `"draw": false`: the renders are the frames. A one-shot action (jump,
-slash) plays once, its first frame to its last; a slash or a shot needs something in the hand - `"hold"` builds it from shapes on the
-hand (`umbrella`, `pistol`, `watergun`; `{"kind", "hand": "left"|"right", "length", "color", "grip"}`), so it is in every render and drawn where the render has it.
-`"hold"` in the spec itself (not in one action) is carried all the time - walk, standing, every action - and then nothing is ever flipped
-(`"mirror": "never"`, also on its own for a character that is not the same on both sides). The hand closes on the handle by itself:
-**open `render/hand-<name>.png` and read the line `render` prints before any paid sheet** (reference/character.md, "the hand closes on it").
-**Joining two animations** (`{"name": "ready", "between": ["walk", "slash"], "frames": 3}`; `"slash:end"` for an action's last pose): the rig's
-poses part-way from one to the other, so a walk goes into an attack and back out without a jump. Free to render - look - then drawn like any
-action (reference/character.md, "The poses between two animations").
-**See animations joined**: `charpipe.py loop SPEC --only walk,ready,slash,recover --facing <f>` (free) → `out/loop-<f>.gif` - show it
-after drawing in-betweens: a frame that jumps shows there.
-**One frame of an action wrong**: `"frame_words": {"5@south-east": "..."}` says what the render cannot show for that frame, and
-`charpipe.py frame SPEC --only <action> --facing <f> --frame <n> --yes` (~$0.08) draws it alone. A hand the head hides is drawn pulled into
-sight unless that frame says it is hidden (reference/character.md, "One frame wrong").
-**A swing's effect** (`"trail"` in an action that holds something: `"trail": "water"`): what the held thing leaves in the air - `plain`,
-`wind`, `water`, `drops`, `fire`, `flames`, `leaves`, `greenleaves`, `petals`, `snow`, `sparkle`. Free and no drawing: `render` reads the
-held thing's path off the rig and writes the effect as a sprite of its own (`out/<action>-<facing>-trail.png`, `"trail"` in
-`character.json`), laid over the body; an action already drawn gets one with `render --only <action>` then `pack`. Offer it for a slash
-(reference/character.md, "A swing's effect").
-Show the renders first; a clip with a long still tail (Tripo's slash is 6.6 s, its swing 0.6-2.7) takes `"t0"` / `"t1"`.
-**The head:** the walk's prompt tells the model to keep the eyes ahead and the chin level (a rig's walk looks down). For an action whose
-head bows or turns with the motion - a slash, a crouch, a shot aimed low - set `"head": "as_render"` (the slash has it by default): the
-head is drawn bowed and turned exactly as the render, never lifted to face the viewer - in the facings where the face shows (south,
-south-east, south-west); the side and back views keep the walk's words. Measured on the slash, every frame both ways: the face-on facings
-went from 0.786 to 0.837 overlap (17 → 20 of 24 frames passing), the side and back views did slightly worse with it (0.791 → 0.771). **What `redraw` does with actions:** a held thing drawn in the wrong place is redrawn by itself (twice at most, the better kept) -
-the render's held thing is rendered apart, so a frame is wrong when the drawing covers under half of where it sticks out of the body
-(`HELD_MIN`), or more than 8 % of the drawing lies well off the render's outline (`EXTRA_MAX`: the umbrella on the other side, or
-raised where the render has it low - seen from behind the model swaps the hands). A frame that is only a little off (a lower overlap,
-the pose right) is listed, not redrawn: show the user those frames beside their renders and let them choose; `redraw --low` redraws
-them too. **The prompt** names the action only (`words`) and leaves the pose to the renders (`pose`: each cell one moment, the arm and the
-held thing where its render has them) - moves spelled out ("raise it overhead, swing it down") had it drawn overhead where the render
-has it at the side. Each cell gets the held thing's place in its render; where the body hides it (seen from behind) the cell says so and
-not to draw it, and the checks count only the part that shows. **A held thing is described part by part** (`"hold": {"kind": ..., "words": "..."}`
-overrides the built-in sentence): each part, its colour, and what it must not turn into - above all the end AT THE HAND (a handle, a hilt, a
-grip). That end is small, half under the fingers and against the body, and it is where the image model guesses: an umbrella's silver shaft
-came out brown on one sheet, the two fists moved together and the gap filled with handle. "As the render shows it" is not enough there;
-"a dark brown handle in the fist, then a bare silver shaft as long as the render has it, never brown, the hands as far apart as the render"
-was right on the first drawing. When a user points at a held thing whose colour or shape changes between frames, fix the words, then
-`draw --only <action>` for the sheets moved aside (reference/character.md). A thin thing drawn a few degrees off misses its render's pixels: one
-pointing the same way (within 25°) from the same side passes. The rain girl's run and jump fit at 0.78+ in every frame on the
-first drawing; the slash's lower frames are mostly deep bends drawn a touch upright - fine in motion: show them beside their renders and
-let the user keep them or redraw. When a frame is still wrong, show it beside its render before redrawing.
+**More detail than blocks give** (curves, carving) and the user has a Tripo key: once the blocks are right, `model <spec>` (Tripo;
+~2 min) makes a model from the description at the blocks' HEIGHT in its own proportions (blocks → `blocks_draft`), then `yaws <spec>`
+(free): set `model.yaw` to the turn whose front faces where the blocks' did; render, show, draw as usual. Blocks alone are right when
+the arrangement and exact sizes matter more than surface detail. From several sides in pixel art the guide must be a model.
 
-## Other sizes
-Frames come out 256 px tall (`"frame_px"`); the finished frames in `frames/` keep the drawings' detail (rendered at `"render_px"`
-1024 - a project rendered before at 512 keeps it until `render_px` is set and `render` + `finish` run again, nothing redrawn), so
-bigger stays sharp too. Only when the user asks for another size: `charpipe.py pack
-CHAR.json --px <height>` (free, nothing redrawn) → `out-<height>px/` with its own strips, shadows and character.json; `out/` is left as
-it is.
+## A standing person (`isoprop.py`, a `character` spec)
+One of SpriteCast's mannequins (`"body"`: `"man"`, `"woman"`, `"child"` - bald, plain, a real figure) at their real height, put in the
+pose, one view a facing, the first drawn first and the rest from it. Ask the body, the height, the build, what they wear, and the
+facings (4 diagonals unless their game uses 8; the 4 cardinals for a game that moves up, down, left, right). Poses: stand, wave,
+point, hold, arms-crossed, walk (one mid-stride picture) - say the pose in the description too. Anything else: write the angles
+(spec.md "Custom poses"), render, look, adjust, and only then draw. A palm can be turned (`"palm"`); limbs that overlap are pushed
+apart, and `render` warns when a pose could not be freed. **Look at every facing yourself before showing them**: the outline check
+cannot see a body turned the wrong way inside a right outline (a back view with the front of the clothes) - redraw that one with
+`draw <spec> --yes --again --only <facing>` (ask first). Shadows are cast from the finished drawing. These are single pictures: an
+animation is `charpipe.py`, or in a side view `creature.py` on the same mannequins.
 
-## Pixel-art sprites (arcade size) - details in [reference/pixel.md](reference/pixel.md)
-When the game is drawn in pixels (a belt-scroller, a fighter, an arcade game) or the user asks for pixel art. Not a filter over the
-illustrated frames: the 3D renders are pixelized into a guide, the image model redraws the guide as pixel art, and the answer is read
-back onto the grid it was drawn on - so it needs the renders only (`render`; the illustrated `draw` is not needed for this).
-`PYTHON pixelart.py CHAR.json` prints the plan and the cost and spends nothing; `--yes` draws (~$0.075 a sheet; a walk is 2 sheets a
-facing, 3 for a side view; an action with something held 4). Offer 96 px (`--px`; the image model's "pixels" do not get smaller, so
-128 comes out about 104 - say so). **64 px only for a character designed small** (about three heads tall, its own 3D model:
-reference/pixel.md "Sizes") - and **never less than 64 asked of the image model**: `--px 32` draws at 64 and makes the 32 set from it;
-say that 64 is the one that comes out well. One facing of one animation first, as the sample: show `out-pixel96/preview.gif`, then the rest.
-Every run ends with its review (`REVIEW: N of M frames to look at`: a pose unlike the render's - overlap under `redo_below` - or the
-held thing missing, left in the hand after the release, or drawn in a frame where the figure hides it - a ball in the far hand or behind
-the head): show the user `review.png` (each marked frame beside its guide), not every frame;
-`--redraw` says what drawing those sheets again would cost, `--redraw --yes` does it and keeps the better; `--again <sheet>` redraws one sheet. **Fewer colours or the game's own palette**: `--colours N` / `--palette NAME|FILE` (free, also on `proppixel.py`; `--palette list` shows the 15 that come with the skill; reference/pixel.md). Out: `<clip>-<facing>.png` strips, `shadows/`
-(each frame's 3D shadow), `pixel.json`. **By hand, for what is left** (white between an arm and the body, a face in one frame): `PYTHON pixeledit.py CHAR.json` - a local page
-(a server: run it in the background, give the address) to erase a patch, draw, or copy a good face into another frame; the edits are
-kept and laid on again by every later `pixelart.py` run. Animations a game plays one after another (walk > ready > slash > recover):
-`pixeledit.py CHAR.json --join walk,ready,slash,recover --facing south-east` shows them as one, to be played through and fixed where
-a part jumps - each edit goes to its own animation's frame. **Something thrown** (a snowball): `"hold": {"kind": "snowball", "color": "#bcd6f2",
-"final": "#ffffff", "until": "auto"}` on the action - drawn pale blue so that it shows on white paper, white in the end, let go when
-the hand is fastest; the folder then has the thing's own sprites and `release` in `pixel.json` (frame, point, direction, speed), and
-`<clip>-<facing>-flying.gif` to show. **An animation the rig lacks** (a throw): `PYTHON addclip.py CHAR.json Throw.fbx throw` puts a
-Mixamo FBX (with or without its character) into a copy of the rig, free, bone by bone BY DIRECTION - render it and look before drawing. Never put a Mixamo file
-in a public repository: its animations may be used, not handed on. **Attacks that work together** (free, `PYTHON motion.py`, reference/character.md "Moves that join"):
-`ground` puts a carried clip's feet on the ground (a Mixamo clip stood 8-15 cm in the air on a child's rig), `plant` holds them where they
-stand, `link SPEC A@t B@t0-t1 NAME` starts move B from the pose A is in - the way a game joins a combo, B's stroke its own - `blade` makes
-an axe's chop a sword's cut (less bend, the blade running on from the arm on an arc), `join` makes a combo one clip to render at 24 a
-second and look at the joins. A swing's water reaching further: `"trail_reach": 2` in the action (the frame renders bigger; free). Ask for Mixamo moves of one set (one actor: "Standing Melee Attack ...") - they start and end in one stance. **No moves come with SpriteCast - only the changes made to them.** Asked for a combo like Rain Girl's: `PYTHON motion.py preset SPEC.json rain-girl-combo [--fbx DIR]` (presets/rain-girl-combo.json: Mixamo's two moves carried on, then the same blade, ground and link with the same numbers, and the two actions in the spec - checked against the game's rig: within 3 mm). It needs the user's own downloads - give the user each move's `url` from the preset's `needs` (a Mixamo search for that move: one click to see it playing and download it) and say what to download: on mixamo.com (free, an Adobe account) `Standing Melee Attack Downward` and `Standing Melee Attack Backhand`, each as FBX Binary, 30 fps, Without Skin, keyframe reduction none - then the recipe in reference/character.md ("A combo"); Mixamo's moves may be used, not handed on. **Standing still**: SpriteCast's own idle is the default (`idleclip.py`; `"idle_from": "tripo"` for Tripo's).
+## A walking character (`charpipe.py`) - [reference/character.md](reference/character.md)
+**Ask first:**
+- **Eight facings or four.** `"facings": 4` draws only the diagonals - about half the drawing; most isometric games use only these.
+  `"facings": "cardinal"` draws south, east, north, west for a game that moves that way. The exported character still answers all
+  eight directions with the nearest facing drawn. Offer four whenever cost matters.
+- **The illustration**: one finished picture of the character facing front, standing straight, arms down. If theirs is posed, draw a
+  neutral one from it first and show it.
+- **How tall on screen**: 512, 256 (default), 128 or 64 as `"frame_px"`; another size later is `pack --px` (free).
+- **The game's view** as `pitch`, not `camera`: 30 (2:1, default), 35.26 true isometric, 50 3/4 top-down, 12 front.
 
-**Effects for the game round the sprites** (free, nothing drawn, reference/pixel.md "Effects from the pack"): 253 pixel effects of PVFX
-Foundry (CC0 1.0) come with SpriteCast (`effects/pvfx/`) - hits, splashes, fire, explosions, ice, lightning, smoke, sword trails, projectiles,
-pickups, status. `PYTHON fxpack.py list --search water`, `preview ID ...` (show the picture), `export ID --out assets/fx --as hit
-[--scale 2] [--palette CHAR.json] [--hue 210]` - a sheet and fx.json (cell, pivot, frames, ms) at the sprites' pixel size and, asked, in
-their colours. Offer it when a game wants hits, pickups or a finisher's flourish. A swing round the character: `export --set water-swing`
-(shockwave ring + ripple + spin) or `--set fire-swing` (flame ring + the spin as fire) - the pairing the user chose, with when and on which layer. A ring round a character is cut at its pivot's line:
-the far half behind, the near half in front. Say where an effect came from (the pack's licence: effects/pvfx/LICENSE.txt).
+Three paid steps, a yes before each: **`turnaround`** (show it: both sides the same, nothing over the arms) → **`3d`** (Tripo: model,
+rig, walk, then the free renders - show the front and a side: the face, not the back of the head) → **`draw`** (every facing; then
+`finish` and `preview` run by themselves - show `out/sheet.png` and a GIF). `"modeler": "meshy"` with MESHY_API_KEY makes the model
+with Meshy; the user's own rigged GLB is `rig_glb`.
 
-**One angle for everything** (the user's rule, Rain Girl 2026-11-22: "an iso game looks less like AI slop when everything is made at the same iso view"): pickups, items and anything lying in the world - a heart, a potion - are props too, made from a 3D model at the game's camera with their shadow (isoprop.py model, proppixel.py), never front-on icons from a pack beside an iso character; only what is fixed to the screen (a HUD's hearts, a gauge) may be front-on, best from the same 3D model turned to face the camera. Suggest it when a user brings flat icons into an iso game. **The ground** (free, reference/ground.md): `ground.py meadow GROUND.json` - one picture of the whole map's ground: Tripo-made 3D grass, ferns, wildflowers and clover (they come with the skill) planted by a Gaussian density, a path of earth and 3D gravel, lit by the props' sun, in the props' palette, plus strips so the grass hides feet and props' feet (minutes); `terrain` (the ground's rise and fall), `puddles`, `grass2d` (from one tile, no 3D). Never a repeated square tile (the user: its grid and seams showed). For an illustrated (not pixel) game: `"style": "smooth"` in GROUND.json - continuous light and colour, soft-edged strips, gradient terrain and puddles. **A creature that moves** (a ghost's tail and arms): `proprig.py PROP.json` (free: bones from the mesh, a loop of poses rendered - show rig/poses.gif) then `propanim.py PROP.json` (~$0.08 a sheet of four frames; say the cost) -> out-pixel/anim.png (reference/pixel.md); for a smooth prop (finished with isoprop.py, no out-pixel/) or with `--smooth`, the sheet copies its sprite.png -> <prop>/anim.png, soft alpha. **See-through things** (a flame, a ghost, water): `"translucent": "fire" | "ghost" | "water"` in the prop's spec - alpha from its 3D model's thickness, free, after drawing (`"style": "smooth"` or `--smooth`: continuous alpha, not steps; `translucent.py`, presets/translucent.json; reference/pixel.md). **A prop as pixel art** (`PYTHON proppixel.py PROP.json`, reference/pixel.md "Props as pixel art"): the prop's guide pixelized and redrawn the same way, at the
-pixel character's pixels per metre (`--ppm` = its `figure_px` / its `height_m`) so they stand on one floor. One view of a simple thing works from blocks. **From
-several sides the guide must be a 3D model** (`isoprop.py model`, ~20 Tripo credits: say the cost and wait) - from blocks the image model cannot tell which face has
-what on it. Show `out-pixel/preview.png` beside the renders. With a model, its **shadow** is baked from it by itself (free): show
-`out-pixel/preview-shadow.png`; for a rainy or grey scene offer `--shadow overcast` (or `propshade.py PROP.json --weather overcast`, no drawing); the shadow is 1.5 times as deep as the light gives it by default (pixel art; a smooth one 1) - if it looks heavy on a light floor offer `--shadow-strength 1`, if it is lost on dark ground 1.6-2 (or `"shadow_strength"` in the spec, or `propshade.py PROP.json --strength K`; free - show both previews and let the user choose); indoors ask where the lamp is
-(`--lamp x,y,z --lamp-size r`) or offer `PYTHON lightedit.py PROP.json` (free, 127.0.0.1) - the user drags a lamp round the prop and sees the shadow and the
-floor's light as it moves; a lamp of their own (any picture - "Load a picture...", kept in `~/.spritecast/lamps` for every prop; SpriteCast's in `examples/lamps/`) stands
-on the floor in front or behind, its light point and foot set by a click on it, scaled 0.05-3x (pixel art stays pixel art), its settings saved with it, deleted in two clicks;
-"Bake & save the scene" writes `shadow-<side>.png`, `light-<side>.png` (the floor's light, ADD), `lamp.png` and where it all goes in `pixel.json` for the game. Pixel or
-smooth light (`"light_style"`). For wicker, leaves or a net offer `"see_through"` (reference/pixel.md).
-**The wind**: for a tree, a bush or a plant offer `"sway": "leaves"` (free) - its leaves cut into clumps from the model, each moving whole a pixel at a time: `sway-<side>.png`
-(12 frames x still / breeze / gust), `clumps-<side>.png`, `preview-sway.gif` - show the GIF. A small thing (mushrooms: `"sway": "caps"`) has its parts read off the sprite
-instead, lifted as they move - chosen by itself under 700 moving pixels.
-**For the game's rules** (free, baked with the shadow): `solid-<side>.png`, where a walker cannot stand (the prop's footprint, cut from the model below 0.4 m), and for
-`"collide": {"cover": [0.55]}` `cover-<h>-<side>.png`, what stops a thing flying at that height (a trunk does, the crown over it does not) - show `preview-collide.png`.
-Each side's `shadow` in pixel.json says how to **darken a character in its shade** (`per_m_up`, `height_m`). **Into the engine**: `export.py PROP/out-pixel` ->
-`export/godot/` (a scene: Light, Shadow, Body that sways, Solid polygon; `shade_at()`, `cover_at()`) and `export/phaser/` (a module: `add()`, `.wind()`, `.solid()`,
-`.cover()`, `.shade()`, `shadeOf()`). Unity and Aseprite: not for props yet - say so.
+- **A four-legged animal**: `"kind": "animal"`. `3d` makes only the model - no rig is bought, the skeleton is found from the mesh and
+  walked in a cat's gait. The turnaround on all four legs, each leg clear, the tail out behind; only snug clothes. Check the renders
+  before `draw`: four legs, the head forward, the tail behind.
+- **Cheaper, softer**: `"draw": false` - the 3D renders are the frames (the turnaround is still drawn unless they bring a rigged GLB).
+  Offer it for prototypes and background walkers; say it is softer.
+- **Every facing is drawn by default.** A flipped facing swaps whatever is not the same on both sides (hair over one shoulder, a bag).
+  `"mirror": true` saves ~$0.66 on a design that is the same on both sides - only when the user asks.
+- **After `draw`**: `finish` names the sheets with a frame under `redo_below` (0.75). Show `out/walk-all.mp4` (every facing at once):
+  a head that grows and shrinks or a jumping frame shows there, not in the numbers. Look at the back views yourself for things worn
+  on the head. Drawing sheets again is a round the user agrees to each time - the procedure, and when a facing is mixed with its
+  mirror, is in character.md "After `draw`".
+- **Shadows** are per frame (`out/shadows/`), drawn under the sprites at `character.json`'s `shadow_alpha` (0.56). `"shadow_strength"`
+  makes them deeper or paler (painted sets 1, pixel sets 1.5; the same number for the game's props) - `pack` again is free.
 
-## Sitting (people) - details in [reference/sitting.md](reference/sitting.md)
-Offer it once a character walks. 1) `charpipe.py sit CHAR.json` (free): the rig seated in 8 facings, on nothing - show the renders.
-2) `sit CHAR.json --draw` (~$0.22, after the user agrees; `--yes`): drawn and finished → `out/sit-<facing>.png` and `"sit"` in
-`character.json` (each facing's seat point). 3) On one of their props: `${CLAUDE_SKILL_DIR}/scripts/seat.py PROP.json CHAR.json
---height <m>` (free; ask the character's height): placed on the seat, the prop's front piece for them worked out from both 3D heights
-→ `<view>/seat/<char>-<facing>/` (front.png, seat.json, preview.png). Show the preview.
+**A side-scrolling game: `"view": "side"`.** One facing is drawn (east) and west is its mirror: a walk and the standing view are 3
+sheets. The body is turned 45° toward the viewer by default (`"turn": 45`: both eyes show, and a swing across the body is not hidden);
+`"turn": 0` is a flat profile - offer it for a game drawn in strict profile, and show the free renders at both angles if they are not
+sure. No shadow in this view; no sitting yet (`sit --draw` stops); pixel art draws east only. For what a side-view game needs MANY of -
+monsters, townspeople - use `creature.py` below, not a 3D model each.
+
+**More actions** (`"actions": ["run", "jump", {"name": "slash", "hold": "umbrella"}]`, before `3d` or `rig --again`):
+- **Which source - say it when they ask for an action.** Tripo to save time: one step, and moves with empty hands (walk, run, jump)
+  come out fine (presets: run, jump, slash, shoot, dive, climb, fall, hurt, turn; three at most). **Mixamo when the result matters,
+  attacks above all** - motion capture, free, and one set's attacks share a stance so they join into combos. Mixamo has no API: give
+  the search link `https://www.mixamo.com/#/?page=1&query=<words+joined+by+plus>&type=Motion%2CMotionPack`, the download settings (FBX
+  Binary, 30 fps, Without Skin, no keyframe reduction), then `addclip.py CHAR.json Move.fbx name` (free). **Never put a Mixamo file,
+  or a rig carrying its motion, in a public repository.**
+- `render` renders each action in every facing, `draw` draws them after the walk (2 sheets a facing), `finish` packs →
+  `out/<name>-<facing>.png` and `"actions"` in `character.json`. Show the renders first; a clip with a long still tail takes
+  `"t0"` / `"t1"`.
+- **Something in the hand**: `"hold"` builds it on the hand (`umbrella`, `pistol`, `watergun`, or its own shape), so it is in every
+  render. **Open `render/hand-<name>.png` and read the line `render` prints before any paid sheet** (character.md "the hand closes on
+  it"), and describe the thing part by part (character.md "A held thing: say it part by part").
+- **Joining two animations**: `{"name": "ready", "between": ["walk", "slash"], "frames": 3}`; see them joined with
+  `charpipe.py loop SPEC --only walk,ready,slash --facing <f>` (free) → `out/loop-<f>.gif`.
+- **One frame wrong**: `"frame_words": {"5@south-east": "..."}`, then `charpipe.py frame SPEC --only <action> --facing <f> --frame <n>`.
+- **A swing's effect**: `"trail": "water"` (also `plain`, `wind`, `drops`, `fire`, `flames`, `leaves`, `greenleaves`, `petals`,
+  `snow`, `sparkle`) - free, nothing drawn: read off the held thing's path on the rig, a sprite of its own over the body. Offer it for
+  a slash.
+- The head in an action, what `redraw` does with a held thing, and what the prompt says: character.md "Actions: the head, `redraw`,
+  the prompt".
+
+## Monsters, animals and people for a side-scrolling game (`creature.py`) - [reference/creature.md](reference/creature.md)
+For what a side-view game needs many of, no 3D model of each is made. A spec with `"style"` (a finished character of the game),
+`"what"`, `"height"` (px in the game) and `"sheets"`. **A person goes in another order than an animal - decide which first.**
+- **A four-legged one on straight legs** (wolf, boar, deer): `design` (PAID - one picture from the side, in the style picture's look;
+  show it) → `mannequin` (free: SpriteCast's plain dog is given the design's leg length, body depth and neck, and its walk laid out as
+  `walk-guide.png` - **look at it beside the design before paying**: on a mannequin that was not fitted every creature came out with
+  a dog's legs) → `walk` (PAID: 8 frames on those poses).
+- **A person** (`"mannequin": "man" | "woman" | "child"`): `mannequin` FIRST (free: the bald figure walking, and standing in the view
+  the design is drawn in) → `design` (PAID: the character drawn standing as the mannequin stands, of its build) → `walk` (PAID). No
+  fitting for people: pick the body nearest the character.
+- **Anything else it does** - struck, falling apart, a hop, a drift: `sheet <spec> <kind>` (PAID each), four moments said in words
+  (FIRST ... FOURTH). A creature with no such walk (a blob, a cloud; `"mannequin": false`) is sheets only - then give each sheet its
+  own `"height"`. What stands another way (a lizard, a spider) has no mannequin yet: its movement is a sheet.
+- `preview` (free) → `out/preview.gif`. Hand over `out/*.png` and `out/creature.json` (`export.py` does not read these) and say: show
+  the walk's frame for the DISTANCE walked (`step` px a whole step), so the feet do not slide.
+- The game's main character - many actions, a thing in the hand - is still `charpipe.py` with `"view": "side"`: a mannequin gives a
+  walk, not a rig of the character.
+
+## Pixel art - [reference/pixel.md](reference/pixel.md)
+Not a filter over the illustrated frames: the 3D renders are pixelized into a guide, the image model redraws the guide as pixel art,
+and the answer is read back onto the grid it was drawn on. It needs the character's renders only (`charpipe.py render`).
+
+**A character: `PYTHON pixelart.py CHAR.json`** prints the plan and the cost and spends nothing; `--yes` draws.
+- Offer **96 px** (`--px`; 128 comes out about 104 - say so). **64 only for a character designed small** (about three heads tall, its
+  own 3D model: pixel.md "Sizes"); `--px 32` draws at 64 and makes the 32 set from it.
+- **One facing of one animation first**, as the sample: show `out-pixel96/preview.gif`, then the rest. It draws the spec's facings; a
+  side view draws east only (the game flips it).
+- Every run ends with its review (`REVIEW: N of M frames to look at`): show `review.png`, each marked frame beside its guide.
+  `--redraw` says what drawing those sheets again would cost; `--again <sheet>` redraws one.
+- Fewer colours or the game's own palette: `--colours N`, `--palette NAME|FILE` (free; `--palette list`).
+- **By hand, for what is left**: `PYTHON pixeledit.py CHAR.json` - a local page (a server: run it in the background, give the
+  address) to erase, draw or copy a good face into another frame; edits are kept across later runs. `--join walk,ready,slash
+  --facing south-east` shows animations a game plays one after another as one.
+- Something thrown (`"hold"` with `"until": "auto"`), an animation the rig lacks (`addclip.py`), attacks that join
+  (`motion.py`: `ground`, `plant`, `link`, `blade`, `layer`, `join`, `preset`), a swing's water reaching further (`"trail_reach"`),
+  and the standing loop: pixel.md and character.md "Moves that join". No moves come with SpriteCast - only the changes made to them.
+
+**A prop: `PYTHON proppixel.py PROP.json`** - the prop's guide pixelized and redrawn the same way, at the pixel character's pixels per
+metre (`--ppm` = its `figure_px` / its `height_m`) so they stand on one floor. One view of a simple thing works from blocks; **from
+several sides the guide must be a 3D model** (`isoprop.py model`: say the cost and wait). Show `out-pixel/preview.png` beside the
+renders. With a model, all of this is free and baked from it (pixel.md "Props as pixel art"):
+- **Shadow**: `out-pixel/preview-shadow.png`; `--shadow overcast` for a grey scene; `--shadow-strength` (1.5 by default in pixel art;
+  1 on a light floor, 1.6-2 on dark ground). Indoors: `propshade.py PROP.json --lamp x,y,z --lamp-size r`, or `lightedit.py PROP.json`
+  (a local page where the user drags a lamp and sees the shadow and the floor's light).
+- **Wind**: `"sway": "leaves"` for a tree or a bush, `"caps"` for small things - show `preview-sway.gif`.
+- **The game's rules**: `solid-<side>.png` (where a walker cannot stand), `"collide": {"cover": [0.55]}` (what stops a thing flying
+  at that height), and how to darken a character in its shade.
+- **See-through** (a flame, a ghost, water): `"translucent": "fire" | "ghost" | "water"`. **Parts that move** (a ghost's tail):
+  `proprig.py PROP.json` (free: bones from the mesh, show `rig/poses.gif`) then `propanim.py PROP.json` (paid sheets).
+- **Into the engine**: `export.py PROP/out-pixel` → Godot and Phaser. Unity and Aseprite: not for props yet - say so.
+
+**Effects round the sprites** (`fxpack.py`, free): 253 pixel effects of PVFX Foundry (CC0) come with SpriteCast - `list --search water`,
+`preview ID`, `export ID --out assets/fx --as hit [--scale 2] [--palette CHAR.json]`, or a set (`--set water-swing`, `--set fire-swing`).
+Say where an effect came from (effects/pvfx/LICENSE.txt).
+
+## One angle for everything, and the ground
+Pickups and anything lying in the world (a heart, a potion) are props too - made at the game's camera with their shadow, never
+front-on icons beside an isometric character; only what is fixed to the screen (a HUD) may be front-on. Suggest it when a user brings
+flat icons into an isometric game (reference/tips.md). **The ground** (free, [reference/ground.md](reference/ground.md)):
+`ground.py meadow GROUND.json` - one picture of the whole map's ground, 3D grass and flowers planted over it, lit by the props' sun,
+with strips so the grass hides feet; `terrain`, `puddles`, `grass2d`. Never a repeated square tile.
+
+## Sitting (people) - [reference/sitting.md](reference/sitting.md)
+Offer it once a character walks (not in a side view). `charpipe.py sit CHAR.json` (free): the rig seated in its facings, on nothing -
+show the renders. `sit CHAR.json --draw` (two sheets in eight facings, one in four): drawn and finished → `out/sit-<facing>.png` and
+`"sit"` in `character.json`. On one of their props: `seat.py PROP.json CHAR.json --height <m>` (free; ask the character's height) →
+`<view>/seat/<char>-<facing>/` with the prop's front piece for that sitter. Show the preview.
 
 ## Into the user's engine
-When a character is finished and the user names their engine (or asks for Aseprite files), run
-`${CLAUDE_SKILL_DIR}/scripts/export.py <name>/out` (free): `out/export/godot/` (a scene to drop into a Godot 4 project),
-`out/export/phaser/` (an ES module for Phaser 3), `out/export/aseprite/` (one `.aseprite` an action, a tag per facing),
-`out/export/unity/` (copy its contents into `Assets/`: the prefab and the clips build themselves). A swing's effect goes along as a third
-sprite over the body. Pixel sets are not read yet:
-for those give the numbers in `pixel.json` as before.
+A finished character, and the user names their engine: `export.py <name>/out` (free) → `out/export/godot/` (a scene for Godot 4),
+`phaser/` (an ES module for Phaser 3), `aseprite/` (one file an action, a tag a facing), `unity/` (copy into `Assets/`: the prefab and
+clips build themselves). A swing's effect goes along as a third sprite. Not read yet: a character's pixel set (give the numbers in
+`pixel.json`) and `creature.py`'s strips (`creature.json`).
 
-## Touching up by hand - details in [reference/touchup.md](reference/touchup.md)
-`${CLAUDE_SKILL_DIR}/scripts/touchup.py SPEC.json` (free) is a local page where the user paints fixes: red clears (paper between the
-limbs, a halo), green brings pixels back from the drawing (a white shirt the cut-out took for paper), blue paints a prop's front piece,
-⬠ a polygon, 🪑 drags a seated character into place. **It is a server: start it in the background**, give the user the address it
-prints, and stop it when they are done; then `touchup.py SPEC.json --apply`. Offer it whenever a cut-out, a front piece or a seat
-looks off, and tell the user painting by hand is the most accurate step. Never paint for them without asking.
+## Touching up by hand - [reference/touchup.md](reference/touchup.md)
+`touchup.py SPEC.json` (free) is a local page where the user paints fixes: red clears (paper between limbs, a halo), green brings
+pixels back (a white shirt the cut-out took for paper), blue paints a prop's front piece, a polygon, and dragging a seated character
+into place. **It is a server: start it in the background**, give the address, stop it when they are done; then `touchup.py SPEC.json
+--apply`. Offer it whenever a cut-out, a front piece or a seat looks off - painting by hand is the most accurate step. Never paint for
+them without asking.
 
 ## Rules
-- Spend money only after the user agreed to that amount. Show the free render before any paid step.
-- Keep everything in the user's project folder; don't touch other files.
-- Real brands, logos and characters from existing games or films: leave them out of descriptions (write "no logos").
+- Money: the rule at the top. Spend only what the user agreed to; show the free render first.
+- Keep everything in the user's project folder; do not touch other files.
+- Real brands, logos, and characters from existing games or films stay out of descriptions (write "no logos").
+- Mixamo files and rigs carrying Mixamo motion never go into a public repository.
 - The output is the user's; the bundled `cozy` style picture may be used freely (MIT).

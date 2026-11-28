@@ -55,6 +55,13 @@ A held thing is part of the action in the spec (`"hold"`), built from shapes in 
   set: it is automatic. If a user points at such a frame, `--again <that sheet>` draws it with this wording.
 - An action with `until` is rendered by `PYTHON chardepth.py CHAR.json render <action>` (it knows `snowball`; `charpipe.py render`
   knows `umbrella`). Look at the renders before drawing.
+- The depth pass (`chardepth.py`, run by itself for what has none: the head's mask the sprite's face detail goes by) renders each action
+  as `render` did - the same canvas (`charpipe.canvas_of`: 1024 x `trail_reach` for an action with a trail) and the action's own
+  `head_up`, and the held thing as `render` has it (none for `"in_model"`, a pistol not turned in the hand). It had 768 for any held
+  thing and the spec's `head_up`: a trail action's head mask came out 1.33x too big at `trail_reach` 1 and 2.67x at 2 (the side view's
+  jump cut: none of it on the face), and the jump's (`"head_up": 30`) a fifth off the head. Delete `<character>/depth/<action>-*` of such
+  an action for it to be made again. A side view: west is not rendered (`--dirs east,west` stops
+  and says so).
 - For a thing let go the folder also gets `<thing>.png` (the thing alone), `<thing>-fly.png` (stretched along its way),
   `<thing>-hit.png` (a 4-frame burst), `<clip>-<facing>-flying.gif` (the throw with the thing in flight over a floor of blocks, its
   shadows by the same light - show this), and in `pixel.json`:

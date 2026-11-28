@@ -1,14 +1,16 @@
 <h1 align="center"><img src="docs/banner.gif" alt="SpriteCast" width="100%"></h1>
 
 <p align="center"><b>One illustration in. A game character out.</b><br>
-An isometric sprite generator for Claude Code: 8-direction walks, actions and pixel art<br>
-at your game's camera angle, with a 3D shadow under every frame - and the props to stand beside them.</p>
+A 2D sprite generator for Claude Code, isometric or side-scrolling: 8-direction walks, actions and pixel art<br>
+at your game's camera angle, a 3D shadow under every frame, the props to stand beside them -<br>
+and a side-scroller's monsters and townspeople, drawn on a mannequin's walk.</p>
 
 <p align="center"><a href="https://github.com/Sunghwan0112/spritecast/stargazers"><img src="https://img.shields.io/github/stars/Sunghwan0112/spritecast?style=social" alt="GitHub stars"></a></p>
 
 <p align="center">
 <a href="#what-you-can-make">What you can make</a> ·
 <a href="#walking-characters">Characters</a> ·
+<a href="#a-side-scrolling-game-one-facing-and-monsters-drawn-in-2d">Side-scrollers</a> ·
 <a href="#pixel-art-arcade-size">Pixel art</a> ·
 <a href="#props-and-scenery">Props</a> ·
 <a href="#install">Install</a> ·
@@ -16,9 +18,9 @@ at your game's camera angle, with a 3D shadow under every frame - and the props 
 <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.ja.md">日本語</a> · <a href="README.es.md">Español</a> · <a href="README.pt-BR.md">Português</a>
 </p>
 
-![GPT alone: one direction, the same leg always in front, no shadow. SpriteCast: the same character walking in eight directions on the game's floor, each with its shadow; a row of actions from the same 3D, the swing throwing water; and as pixel art](docs/hero.gif)
+![GPT alone: one direction, the same leg always in front, no shadow. SpriteCast: the same character walking in eight directions on the game's floor, each with its shadow; a row of actions from the same 3D, the swing throwing water; as pixel art; and for a side-scroller, a boar, a stag, a guard and a herbalist each walking beside the mannequin it was drawn on](docs/hero.gif)
 
-<p align="center"><i>The same image model, the same character sheet. Left: GPT asked for a walk, as it came out. Right: what the 3D adds.</i></p>
+<p align="center"><i>The same image model, the same character sheet. Left: GPT asked for a walk, as it came out. Right: what the 3D adds.<br>Bottom: a side-scroller's creatures and people, each beside the plain mannequin whose walk it was drawn on.</i></p>
 
 ```
 claude plugin marketplace add Sunghwan0112/spritecast
@@ -35,26 +37,25 @@ every frame is the same person, and she actually walks.
 
 ![the same scene: on the left the game before - a square grass tile and a front-on heart and potion from an icon pack; on the right now - a 3D meadow, and the heart and potion made from 3D models at the game's angle, with their shadows](docs/one-angle.png)
 
-**Try it free, with no key.** Then a walking character is about **$3**, a prop a few cents - and the ground, the 3D shadows, see-through things, creatures' poses, the wind and the export to Phaser and Godot cost nothing. You need an OpenAI key to draw, and a Tripo key for 3D models (1 Tripo credit = $0.01).
+<a name="cost"></a>Free and MIT: you pay OpenAI and Tripo directly (1 Tripo credit = $0.01), nothing goes to the author, and every paid step shows its cost and waits for your OK. A walking character is about **$3**, a prop a few cents, a side-scroller's monster about **$0.18** - and the 3D guides, the finishing, the ground (a meadow, a path, puddles), the 3D shadows, see-through things, creatures' poses, the wind, the export to Phaser and Godot and the try cost nothing.
 
 <details><summary>what each one costs</summary>
 
 | | you give | you get | about |
 |---|---|---|---|
-| **A walking character** | one illustration | a walk in 8 facings, standing views, a shadow per frame | **$3** (drawing $2.2 + Tripo $0.75) |
+| **A walking character** | one illustration | a walk in 8 facings, standing views, a shadow per frame | **$2.9** (drawing $2.1 + Tripo $0.75) |
 | **Another action** | a name (Tripo: quick), or a Mixamo FBX (more natural) | run, jump, slash, throw... in 8 facings | **$0.8-1.5** an action (drawing $0.7-1.4 + Tripo $0.10; an FBX: free) |
 | **Pixel art** | a character that walks | pixel sprites about 100 px tall | **$1.35** a walk in 8 facings ($0.075 a sheet) |
 | **An animal** | one illustration | a four-legged walk in 8 facings | **$2.8** (drawing $2.5 + Tripo $0.30) |
-| **Sitting** | a character that walks | seated in 8 facings, placed on your props | **$0.22** |
-| **A prop, or a posed NPC** | a description | a sprite, its shadow, its anchor | **$0.07** (+ $0.08 a further facing) |
+| **A side-scroller's hero** | one illustration | a walk and standing seen from the side (one facing drawn, the other its mirror), her actions | **$1.1** (drawing $0.33 + Tripo $0.75), each action ~$0.3 |
+| **A side-scroller's monster or townsperson** | a description and a picture from your game | a design, a walk drawn on a mannequin's poses, a sheet of four moments (struck, falling apart) | **$0.18** ($0.06 a picture; no 3D model of it) |
+| **Sitting** | a character that walks | seated in 8 facings, placed on your props | **$0.22** (four facings: $0.11) |
+| **A prop, or a posed NPC** | a description | a sprite, its shadow, its anchor | **$0.08** (+ $0.09 a further facing) |
 | **A pixel-art prop** | a description | pixel sprites from every side, at the pixel character's scale | **$0.28** for one side (Tripo $0.20 + $0.08 a side) |
-| **Free** | - | the ground (meadow, path, puddles), 3D shadows, see-through, creatures' poses, wind, Phaser/Godot export, the try | **$0** |
+
+These are the figures each script prints before it spends; the bills have come in a little under (a prop's drawing: $0.068).
 
 </details>
-
-Free and MIT. You pay OpenAI and Tripo directly; every paid step shows its cost and waits for your OK. `"facings": 4` draws only
-the four diagonals - about half the cost - and the character still walks in all eight directions; `"facings": "cardinal"` draws
-south, east, north and west instead, for a game that moves up, down, left and right.
 
 **No API key? Draw in the ChatGPT app by hand.** `pixelart.py CHAR.json --manual` (or `SPRITECAST_DRAW=manual` for any step) calls no API and costs nothing: each sheet becomes a job on a local page (127.0.0.1:8790) that shows what to send. In a new ChatGPT chat (the free plan works, within its limits) you send two messages: first the reference pictures, which it only answers "ready" to, then the guide with the prompt. Save the answer, and it is taken from your Downloads folder by itself. Tried on Rain Girl's walk: with the guide alone, the same character in all 8 frames; with the references sent first (3 frames), the coat's buttons came out too. Still a little plainer than through the API, and a frame or two may need drawing again.
 
@@ -70,6 +71,8 @@ south, east, north and west instead, for a game that moves up, down, left and ri
 | **[Sitting](docs/guide/characters.md#sitting)** on your props, the armrest in front of her worked out in 3D | **[Pixel-art props](docs/guide/pixel-art.md#pixel-art-props-any-object-any-side)** from any side, at the character's scale |
 | ![a rattan peacock chair as pixel art under the sun, on a grey day, under a bare bulb, a lamp in front and behind it, and a big light above](docs/indoor-shadows.png) | ![a pixel-art tree from two sides swaying in the wind, clumps of leaves moving a pixel at a time](docs/sway.gif) |
 | **[Shadows baked from the 3D model](docs/guide/pixel-art.md#light-shadow-wind)**: the sun, a grey day, or a lamp you place | **[Wind in the leaves](docs/guide/pixel-art.md#light-shadow-wind)**, bough by bough, from the same model |
+| ![a side-scrolling game: the rain girl at the castle gate with a guard and a herbalist, a stone wolf on the wall-walk, a storm cloud over a wooden ledge](docs/side-game.png) | ![a stone wolf, a boar and a stag walking, each at its own step](docs/creature-walk.gif) |
+| **[A side-scrolling game](#a-side-scrolling-game-one-facing-and-monsters-drawn-in-2d)**: one facing drawn, the other its mirror | **[Monsters and people drawn in 2D](#a-side-scrolling-game-one-facing-and-monsters-drawn-in-2d)** on a mannequin's walk, no 3D model each |
 
 ## Things to ask for
 
@@ -79,6 +82,8 @@ south, east, north and west instead, for a game that moves up, down, left and ri
 - *"Make her sit, and put her on this armchair."*
 - *"Make a shopkeeper NPC, an old man in a brown cardigan, in four directions."* (a posed figure: a description is enough)
 - *"Make an isometric bookshelf, 1.8 m tall, full of books, in the cozy style."*
+- *"We're making a side-scroller. Make her walk and attack seen from the side."*
+- *"Make a wolf, a boar and a town guard for it - no 3D model for each."*
 
 ## Why it works
 
@@ -97,7 +102,11 @@ look. Every drawing is fitted back onto its render and checked against it: a fra
 redrawn, never squeezed to fit. Props work the same way, with blocks at real size in place of the rig - so props made at different
 times line up on one floor, all lit by the same light.
 
-## Made with it: Rain Girl
+## Made with it
+
+Two small games, every picture in them from SpriteCast.
+
+### Rain Girl: isometric pixel art
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="docs/rain-girl-play.gif" alt="Rain Girl: a girl in a yellow raincoat among pixel-art trees, rocks and bushes, with red, green and purple fire monsters and burning ground" width="100%"></a></p>
 
@@ -106,7 +115,7 @@ times line up on one floor, all lit by the same light.
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl/main/leaderboard.svg" alt="Rain Girl's leaderboard: this month's best ten and the best three ever, redrawn every half hour"></a></p>
 
 <p align="center"><i>Rain Girl, a small pixel action game: a girl in a yellow raincoat puts out fire monsters with her umbrella's
-water before the forest burns. The girl and every prop in it came out of SpriteCast.</i></p>
+water before the forest burns.</i></p>
 
 - **The girl.** One illustration; a Tripo model, rigged and rendered at the game's camera (2:1, 30° down): a walk with her umbrella,
   the swing and standing, in the four diagonal facings (`"facings": 4`), every frame redrawn as 96 px pixel art. The water she throws
@@ -139,12 +148,30 @@ water before the forest burns. The girl and every prop in it came out of SpriteC
 
 - More - one palette, her shade under the trees, the cover that stops a fireball, the wind, what a prop cost: [how it was made](docs/guide/rain-girl.md).
 
+### The Castle Wall: a side-scroller for about $3.40
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/side-game.png" alt="The Castle Wall: the rain girl at the castle gate with a guard and a herbalist, a stone wolf on the wall-walk, a storm cloud over a wooden ledge, rain" width="100%"></a></p>
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ Play it in your browser</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">the game's code, and how each picture was made</a></p>
+
+The same girl in a painted, side-scrolling world: she hunts what the rain has woken on a castle wall, round after round, each
+harder than the last. Every picture in it cost about **$3.40 of drawing** (and 115 Tripo credits):
+
+| | how | cost |
+|---|---|---|
+| **The heroine** - walk, two cuts with water, a jump, a cut from the air, a ladder, a grab; struck, worn out | her own 3D model seen from the side (`"view": "side"`); the last two drawn in 2D from her standing picture | ~$1.70 + Tripo 75 credits |
+| **Five monsters** - a stone wolf, a boar, a stag, a puddle, a storm cloud | one design each, a walk on the mannequin fitted to it, a sheet for being struck (`creature.py`) | $0.90 |
+| **Three townspeople** - a guard, a herbalist, a boy | the same, on the bald man, woman and child | $0.39 |
+| **The board** - the castle wall, sky, far hills, ground, ladders, ledges | painted in 2D; the wall and the lanterns drawn over their own 3D models, seen as the characters are | ~$0.40 + Tripo 40 credits |
+
+No monster or townsperson has a 3D model of its own - how they were drawn: [A side-scrolling game](#a-side-scrolling-game-one-facing-and-monsters-drawn-in-2d).
+
 ## Walking characters
 
 ![an illustration → 3D → drawn frames → an 8-facing walk](docs/character.png)
 
 Give it one illustration of a character (facing front, standing straight, no pose) and you get a walk in 8 facings (8 frames each) and 8 standing views, in that
-illustration's look. An image model can't keep a body and a pose from frame to frame, so the motion comes from 3D:
+illustration's look. The motion comes from 3D ([why](#why-it-works)):
 1. A turnaround is drawn from the illustration.
 2. [Tripo](https://www.tripo3d.ai) makes the 3D model from it, rigs it and gives it a walk and an idle.
 3. The walk is rendered with the game's camera (free), each frame with the 3D body's own shadow, pressed flat onto the ground
@@ -158,11 +185,10 @@ illustration's look. An image model can't keep a body and a pose from frame to f
 $PYTHON skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # then 3d (model, rig, renders) and draw (then finish, preview by themselves)
 ```
 All eight facings are drawn by default. A design that is the same on both sides can set `"mirror": true` to flip the west facings
-from the east ones (each keeping its own shadow), about $0.66 less.
-Or `"facings": 4`: the four diagonals only, about half the drawing - or `"facings": "cardinal"`: south, east, north and west only, for a game that moves up, down, left and right; the exported character shows the nearest of them for any of the eight directions.
+from the east ones (each keeping its own shadow): about $0.66 less, ~$1.4 of drawing instead of $2.1.
+Or `"facings": 4`: the four diagonals only (south-east, south-west, north-east, north-west), about half the drawing (a walk ~$1 instead of ~$2; pixel art ~$0.7 instead of ~$1.35) - or `"facings": "cardinal"`: south, east, north and west only, for a game that moves up, down, left and right. Either way the character still walks in all eight directions: the exported character shows the nearest of them for any of the eight, keeping the one shown last between two, so walking straight across does not flicker.
 
-Cost per character: about $2.2 (OpenAI; ~$1.5 with `"mirror": true`) and 75 Tripo credits (~$0.75; an animal 30). Or bring your
-own rigged GLB (`"rig_glb"`) and skip to `render`.
+With your own rigged GLB (`"rig_glb"`), skip to `render`. What a character costs: [the table at the top](#cost).
 More options (several outfits, the preview video, Meshy, the example character with her rig): [docs/guide/characters.md](docs/guide/characters.md#walking-characters).
 
 ### Four-legged animals
@@ -186,6 +212,46 @@ The cat is in [`examples/tabby_cat`](examples/tabby_cat): an orange tabby in a l
 turnaround, spec, strips, shadows and sheet - 30 Tripo credits and about $2.5 of drawing, redraws and design tries included. Its
 frames fit their renders at 0.76-0.97 (north-east and north-west mixed frame by frame with `"mix"`, see reference/character.md).
 
+### A side-scrolling game: one facing, and monsters drawn in 2D
+
+For a platformer or a side-view RPG, `"view": "side"` puts the camera level, straight from the side. ONE facing is drawn - walking
+right - and the other is its mirror: a walk and the standing view are 3 sheets (~$0.33) where eight facings take 18. The body is
+turned 45° toward the viewer by default, so both eyes show and a swing across the body is not hidden behind it (`"turn": 0` for a
+strict profile). Actions work as before:
+a cut with its water, a jump (`"air"`), a ladder climbed with her back to us (`"face": "away"`).
+
+**Monsters, animals and townspeople need no 3D model each.** `creature.py` draws one design in the look of a picture of your game,
+then its walk on the poses of a plain **mannequin** that comes with SpriteCast - a grey dog, or a bald man, woman or child, the
+near limbs red and the far ones blue - and anything else it does (struck, falling apart, a hop) as a sheet of four moments said in
+words. About $0.06 a picture.
+
+- **A four-legged creature.** The dog mannequin is first stretched to the design's own leg length, body depth and neck (free).
+  Drawn on the dog as it was, a boar and a stag both came out with a dog's legs; fitted, each kept its build. A stone wolf's 8
+  frames came out within 3 px of the mannequin's places.
+- **A person.** The design is drawn standing as the mannequin stands, then walking on its poses. A cloaked guard and a herbalist
+  in a skirt kept their buckles, keys and braid through all 8 frames.
+- **In the game** the walk's frame is read off the distance walked (`step` px a whole step), so paws and feet do not slide.
+
+<details><summary>a boar and a stag: the design, the walk drawn on the dog as it was, and on the dog given their proportions</summary>
+
+![a boar and a stag: the design, the walk drawn on the dog as it was (a dog's legs), and on the dog given their proportions](docs/creature-fit.png)
+
+![a stone wolf, a boar and a stag walking, each at its own step](docs/creature-walk.gif)
+
+![a bald man and woman mannequin walking, and a cloaked guard and a herbalist drawn on their poses](docs/people-mannequin.png)
+
+</details>
+
+What stands with its legs out to the sides (a lizard, a spider) has no mannequin yet: a salamander came out standing on dog legs.
+The game's main character, with many actions and a thing in her hand, is still made from her own 3D model. Details:
+[reference/creature.md](skills/spritecast/reference/creature.md).
+
+**Scenery seen from the side is drawn over a 3D model too.** The castle wall behind them is a prop: a Tripo model made from words,
+rendered level from the side (`"camera": {"pitch": 6, "yaw": 90}`) and lit, then drawn over. Drawn over grey blocks seen from 12°
+above, its tops were wide floors - seen from above beside characters seen from the side; over grey blocks at 6° it came out flat (a
+guide with no light gives the image model nothing to model the stone by). From its own lit model it has the corbels, the merlons'
+sides and their shadows.
+
 ### More actions: run, jump, slash
 
 Beside the walk, a character can run, jump or swing something. List them in the spec, `"actions": ["run", "jump", {"name": "slash",
@@ -196,7 +262,7 @@ every frame (an umbrella, a pistol or a water pistol for now; the right hand, or
 image model part by part - most carefully the end at the hand (the handle, the first stretch of the shaft), which is small and against
 the body and is where it guesses otherwise.
 
-**Which to use: Tripo to save time, Mixamo when the result matters.** Tripo gives the moves in one step, with nothing to download - and a walk, a run, a jump (nothing in the hands) come out fine from it. When the result matters more than the time, we recommend [Mixamo](https://www.mixamo.com/#/?page=1&query=melee&type=Motion%2CMotionPack) (free, with an Adobe account), attacks above all: motion-captured moves look more natural, there are thousands, and the attacks of one set start and end in the same stance, so they join into combos (`motion.py link`). It takes a little longer: download one (FBX Binary, 30 fps, Without Skin) and `addclip.py hero.json Move.fbx name` carries it onto the character's rig, free. The catch: Mixamo has no API, so SpriteCast cannot fetch from it - you go to the site, look through the moves and download them yourself; Claude gives you the search link. Rain Girl's combo is two Mixamo moves. Never put the FBX files in a public repository.
+**Which to use: Tripo to save time, Mixamo when the result matters.** Tripo gives the moves in one step, with nothing to download - and a walk, a run, a jump (nothing in the hands) come out fine from it. When the result matters more than the time, we recommend [Mixamo](https://www.mixamo.com/#/?page=1&query=melee&type=Motion%2CMotionPack) (free, with an Adobe account), attacks above all: motion-captured moves look more natural, there are thousands, and the attacks of one set start and end in the same stance, so they join into combos (`motion.py link`). It takes a little longer: download one (FBX Binary, 30 fps, Without Skin) and `addclip.py hero.json Move.fbx name` carries it onto the character's rig, free. The catch: Mixamo has no API, so SpriteCast cannot fetch from it - you go to the site, look through the moves and download them yourself; Claude gives you the search link. Never put the FBX files in a public repository.
 
 ![the rain girl running, jumping and slashing with her umbrella - the slash seen from the side](docs/actions.gif)
 
@@ -275,7 +341,7 @@ its frames.
 
 ![Rain Girl's two-hit combo as 96-px pixel art, with water and with fire: the swing's own trail and the effects pack's rings (fxpack --set water-swing, fire-swing)](docs/combo-water-fire.gif)
 
-A combo in pixel art - Rain Girl's downward cut and spinning backhand in four facings, with their water and the backhand's ring (`motion.py`, `fxpack.py`). The two moves are Mixamo's, downloaded yourself - which ones and how, under "Rain Girl's combo as a preset" below:
+A combo in pixel art - Rain Girl's downward cut and spinning backhand in four facings, with their water and the backhand's ring (`motion.py`, `fxpack.py`; the two Mixamo moves: "Rain Girl's combo as a preset" under [Pixel art](#pixel-art-arcade-size)):
 
 ![Rain Girl's combo as pixel art in four facings: the downward cut, then the spinning backhand with its water spiral, a ring swept round her and a ring on the ground](docs/combo-pixel.gif)
 
@@ -300,7 +366,7 @@ the stance (3 frames from the rig), swings with the water effect, comes back up 
 - **Free to render, drawn like any action** - one sheet for three or four frames, about $0.08.
 - **Look at them joined**: `charpipe.py loop hero.json --only walk,ready,slash,recover --facing south-east` (free) makes a GIF like the
   one above from the finished frames, so a frame that jumps is seen before anything is drawn again. A pixel set
-  can be fixed that way too, all the frames end to end in the editor: `pixeledit.py hero.json --join walk,ready,slash,recover --facing south-east`.
+  can be fixed that way too, all the frames end to end in the [pixel editor](#pixel-art-arcade-size) (`--join`).
 - **One frame wrong? Draw it alone.** `charpipe.py frame hero.json --only slash --facing south-east --frame 5 --yes` (~$0.08) draws
   just that frame again; `"frame_words"` in the action tells the image model what that frame's render cannot. Frame 5 above had the
   left fist floating over the umbrella five times running; told the hand is mostly hidden behind her head, it came out right.
@@ -330,18 +396,19 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 ```
 About $0.075 a sheet: a walk in all eight facings is 18 sheets (about $1.35); the throw above, five facings, was 14.
 
-**How many frames go on a sheet is worked out, not chosen:** `pixelart.py` measures the renders and fits as many as have room - four for a walk, two when something is held, one for a long swing (so an attack costs more than a walk); the plan shows it before anything is spent. Everything after the drawing is automatic; you never draw a frame, only fix a few pixels.
+**How many frames go on a sheet is worked out, not chosen:** `pixelart.py` measures the renders and fits as many as have room - four for a walk, two when something is held, one for a long swing (so an attack costs more than a walk); the plan shows it before anything is spent.
 
 - **Things held and thrown.** `"hold": {"kind": "snowball", "until": "auto"}` puts it in the hand and lets it go when the hand
   moves fastest. `pixel.json` then says which frame, where in the frame, which way and how fast - enough for your engine to spawn
   the projectile - and you get the ball, its flight shape and a 4-frame burst. The picture above is that data played back.
-- **Any Mixamo animation.** `addclip.py hero.json Throw.fbx throw` carries an FBX clip onto the character's rig, free. The throw
-  above came in that way.
+- **Any Mixamo animation**, carried onto the rig as under [More actions](#more-actions-run-jump-slash): the throw above came in
+  with `addclip.py hero.json Throw.fbx throw`.
 - **Combos that join.** `motion.py` links one attack to the next the way games do - the second starts from the pose the first ends in, its
   stroke untouched - puts carried feet back on the ground, and turns an axe chop into a sword cut on an arc. Free, on the rig - [the recipe, Mixamo to the game](skills/spritecast/reference/character.md).
-- **Rain Girl's combo as a preset.** The two moves are Mixamo's, downloaded yourself (free, with an Adobe account):
-  [Standing Melee Attack Downward](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Downward&type=Motion%2CMotionPack) and [Standing Melee Attack Backhand](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Backhand&type=Motion%2CMotionPack) - FBX Binary, 30 fps, Without Skin,
-  no keyframe reduction. `motion.py preset hero.json rain-girl-combo` makes the same changes to them and puts the two actions in
+- **Rain Girl's combo as a preset.** Download the two Mixamo moves yourself, with the settings under [More actions](#more-actions-run-jump-slash)
+  and no keyframe reduction:
+  [Standing Melee Attack Downward](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Downward&type=Motion%2CMotionPack) and [Standing Melee Attack Backhand](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Backhand&type=Motion%2CMotionPack).
+  `motion.py preset hero.json rain-girl-combo` makes the same changes to them and puts the two actions in
   the spec. The preset keeps only the changes, never the moves - [what was changed](docs/guide/pixel-art.md#pixel-art-arcade-size).
 - **It reviews itself.** Every frame is checked against its render (the pose, the held thing); `--redraw` draws the marked sheets
   again and keeps the better drawing. The throw's 40 frames all passed after one redraw.
@@ -373,7 +440,7 @@ sprites). No face was touched: they are as the pipeline made them. The build pri
 
 **A harder set, and what the hand did.** With something held - a weapon, an umbrella - its details need a little fixing by hand:
 a few pixels a frame, with an eraser and a pencil, no drawing skill. The same loop as the one under "Joining two animations", in pixel
-art: she walks with her umbrella, goes down into the stance, swings, comes back up and walks on - four animations joined, 23 frames.
+art - four animations joined, 23 frames.
 Only the umbrella was fixed by hand: its tip and edge made the same from frame to frame. The character was not; a few left-over white
 specks were erased, nothing more. In all 1,196 pixels of 51,442 (2.3 %), by someone who does not draw, in a few minutes. What made it quick, and what matters most in pixel art: looking at all 23 frames in a row, playing, not one at a time - a fix is
 making sure no part's pixels change a lot from one frame to the next. Not fixed: in two walk frames
@@ -436,10 +503,10 @@ rig are not in the repo.
 
 </details>
 
-**Why not ask for 32 px?** The image model (GPT) does not do small pixel art well under 64. It draws its "pixels" at a size of its
+**Why not ask for 32 px?** The image model (GPT) draws its "pixels" at a size of its
 own - asked for 8-px squares it drew anything from 7.4 to 10.8 - and at 32 squares one square off is an eye gone. Above: the top row
-is what it draws at 64; the three red rows are 32 px asked for directly, each a different sheet layout, all of the same walk. So the
-skill asks for 64 and makes 32 from that (the green row). The details: [reference/pixel.md](skills/spritecast/reference/pixel.md).
+is what it draws at 64; the three red rows are 32 px asked for directly, each a different sheet layout, all of the same walk; the
+green row is the 32 set made from the 64 one. The details: [reference/pixel.md](skills/spritecast/reference/pixel.md).
 
 The sprites above are in [`examples/rain_girl/pixel`](examples/rain_girl/pixel): the throw in five facings, a walk in two and the
 umbrella slash as strips, their shadows, the snowball with its flight shape and burst, and `pixel.json` with the release data.
@@ -468,8 +535,7 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # ~$0.08 a
 - **The same scale as the character.** `--ppm` is pixels per metre: the pixel character's height in pixels over its height in metres
   (54 for the small example character), so the prop and the character stand on one floor in the same size of pixel.
 - **The cut-out is yours to finish.** The air under a roof and between spokes is cleared by the AI cut-out; what it leaves, open in the
-  same pixel editor as the characters (`pixeledit.py cart.json`): the four sides are four frames, the 3D render can be shown beside
-  or under the sprite, and what you erase is kept. The cart above had 122 pixels finished that way.
+  same pixel editor as the characters (`pixeledit.py cart.json`), the four sides as four frames. The cart above had 122 pixels finished that way.
 - The cart is in [`examples/ramen_cart`](examples/ramen_cart): the spec, the Tripo model, the four guides
   and the four sprites.
 
@@ -636,7 +702,7 @@ backrest) from both of their 3D heights - no painting:
 </details>
 
 It finds the seat's height and which way it faces, and sits her back until her knees reach the seat's edge. If she sits a little off,
-drag her on the touch-up page (below): letting go works the front piece out again from there.
+drag her on the touch-up page (below).
 The details: [reference/sitting.md](skills/spritecast/reference/sitting.md).
 
 ```
@@ -747,11 +813,13 @@ An NPC that only stands needs no illustration and no rig: it works like a prop. 
 
 ```json
 { "name": "barista",
-  "character": { "height": 1.63, "build": "slim", "directions": ["south-east", "south-west", "north-east", "north-west"] },
+  "character": { "body": "woman", "height": 1.63, "build": "slim", "directions": ["south-east", "south-west", "north-east", "north-west"] },
   "description": "a cheerful young café barista: a short dark-brown bob, a cream cable-knit sweater under a forest-green apron, ..." }
 ```
 
-The anchor is between the feet. About $0.07 for the first facing and $0.08 for each of the others.
+`"body"` is the plain mannequin that is posed: `"man"`, `"woman"` or `"child"` - three bald figures that come with SpriteCast. (Before 0.29 it was a figure of blocks; the two characters above were drawn on that.)
+
+The anchor is between the feet. About $0.08 for the first facing and $0.09 for each of the others.
 
 <details>
 <summary><b>Poses, your own angles, and redrawing one facing</b></summary>
@@ -766,7 +834,11 @@ for you ("raise the arm higher") and check them in the free render:
 Each limb is two parts, upper and lower (`[out, forward]` degrees each): turned out to its side, then swung forward. `left` and
 `right` are the figure's own.
 
-![four poses](docs/poses.png)
+A palm can be turned (`"palm": {"left": "front"}` - a wave's open hand faces forward). And an arm cannot pass through the body or the other arm: after the pose is set, whatever overlaps is pushed apart, so crossed arms lie one over the other.
+
+![six poses on the man, the woman and the child mannequin: stand, wave, point, hold, arms crossed, walk](docs/mannequin-poses.png)
+
+![a waving village boy: the child mannequin's guide and the finished sprite, from the front and from behind](docs/mannequin-figure.png)
 
 **Single pictures.** These posed figures are one picture per facing; for a walk, see [Walking characters](#walking-characters).
 Look at every facing yourself (the outline check can't see a head turned the wrong way); redraw one with
@@ -788,8 +860,8 @@ the guide under it, or of the nearest guide pixel for hair or leaves past the gu
 
 The shape is the drawing's. Where it starts is the 3D model's: each foot starts its own shadow, and a pot's shadow starts at its
 base. Only what touches the floor has to be exact. Higher up (from 10 % to 35 % of the object's height) the height eases into a
-smooth one read off the screen, so hair, hats and leaves cast a natural shadow instead of the mannequin's corners. Where it stands
-(the blocks up to 12 cm: shoes, a pot's base) the guide's own 3D shadow is added, so the shadow meets the object as a real one
+smooth one read off the screen, so hair, hats and leaves cast a natural shadow instead of the guide's hard edges. Where it stands
+(the guide up to 12 cm: shoes, a pot's base) the guide's own 3D shadow is added, so the shadow meets the object as a real one
 would: on the side away from the light, never in front of it. Posed figures and `loose` things get it; solid props keep the 3D
 shadow, and walking characters cast their 3D body's own (above). Choose with `"shadow": "drawn" | "guide"`.
 
@@ -840,8 +912,8 @@ alone, and tells you what each thing is for. Nothing to install by hand.
 |---|---|---|
 | Python 3.9+ | runs the scripts | yes |
 | playwright + Chrome or Edge | renders the 3D guide on your computer (free) | yes (set up for you; a browser you have is used) |
-| `OPENAI_API_KEY` | drawing, about $0.07 a prop | to draw |
-| `TRIPO_API_KEY` | characters: the 3D model, its rig and walk | for walking characters |
+| `OPENAI_API_KEY` | drawing | to draw |
+| `TRIPO_API_KEY` | a 3D model: a walking character's (with its rig and walk), or a prop's for more detail | for walking characters; not for props from blocks, posed figures or `creature.py` |
 
 **Try it first, free, no key:** ask Claude to *"try SpriteCast"*. It renders one of the examples' guides on your computer and
 finishes it with the drawing that came with the example, so you see the whole way before paying for anything.
@@ -850,9 +922,9 @@ finishes it with the drawing that came with the example, so you see the whole wa
 <summary><b>Keys: where they go, and OpenAI's verification</b></summary>
 
 Keys: **in the plugin's settings.** When you enable SpriteCast, Claude Code asks for them (`/plugin` → SpriteCast → configure,
-to change them later): the OpenAI key, and the Tripo key if you make walking characters. They are kept in your system's credential
-store, masked, and handed to SpriteCast's scripts when a session starts (restart Claude Code after changing one). A key already in your
-environment still works when the settings have none:
+to change them later): the OpenAI key, and the Tripo key if you make walking characters - from Tripo's API platform, where API
+credits are bought (75 a character, 30 an animal). They are kept in your system's credential store, masked, and handed to
+SpriteCast's scripts when a session starts. A key already in your environment still works when the settings have none:
 
 ```bash
 export OPENAI_API_KEY=sk-...          # macOS / Linux (add it to ~/.zshrc or ~/.bashrc to keep it)
@@ -861,12 +933,11 @@ export OPENAI_API_KEY=sk-...          # macOS / Linux (add it to ~/.zshrc or ~/.
 setx OPENAI_API_KEY "sk-..."          # Windows (then open a new terminal)
 ```
 On Windows the settings reach the scripts only when Claude Code runs its commands in Git Bash (its default when Git is installed); in
-PowerShell use the environment. Your key stays on your computer. It is only sent to OpenAI, and you pay OpenAI for each drawing (about $0.07).
+PowerShell use the environment. Either way, set or change a key before you start Claude Code: one set while it runs is seen only
+after a restart. Your key stays on your computer; it is only sent to OpenAI.
 
 OpenAI may ask you to verify your organisation before a key can use image models (platform.openai.com → Settings →
-Organization): do it once before your first drawing. Set the key before you start Claude Code; a key set while it runs is seen
-only after a restart. Walking characters also need `TRIPO_API_KEY`, from Tripo's API platform, where API credits are bought
-(75 a character, 30 an animal).
+Organization): do it once before your first drawing.
 
 </details>
 
@@ -890,8 +961,8 @@ $PYTHON = "$env:USERPROFILE\.cache\spritecast\venv\Scripts\python.exe"
 
 </details>
 
-Everything runs on your computer except the drawing (OpenAI) and the 3D models (Tripo, or Meshy if you choose it); each paid step
-prints its cost and waits for your OK. [What is sent where, and what is downloaded](docs/guide/engines.md#what-it-sends-and-fetches).
+Everything runs on your computer except the drawing (OpenAI) and the 3D models (Tripo, or Meshy if you choose it).
+[What is sent where, and what is downloaded](docs/guide/engines.md#what-it-sends-and-fetches).
 
 ## Roadmap
 
@@ -919,19 +990,17 @@ Feedback decides what comes next, and what changed because of it is marked in th
 - Leave real brands, logos and characters from existing games out of descriptions.
 - Don't use a living artist's work as your style picture without their permission.
 - A `photo` for a character's likeness: only of someone who agreed to it.
-- Settings: `SPRITECAST_MODEL` (e.g. `gpt-image-2.6-sunburst` to try the newer model; the default is what the checks were tuned on) and `SPRITECAST_QUALITY` (`low` | `medium` | `high`).
+- Settings: `SPRITECAST_MODEL` (the default is `gpt-image-2.6-sunburst`; `gpt-image-2.5-sunburst` draws with the one before) and `SPRITECAST_QUALITY` (`low` | `medium` | `high`).
 
 ## FAQ
-- **What does it cost?** The guides, finishing and the `try` are free. About $0.07 a prop, $0.08 for each further facing; a walking
-  character about $2.2 of drawing (~$1.5 with `"mirror": true`) and 75 Tripo credits (an animal 30). Each paid step shows its cost
-  and waits for your OK. The plugin is free; you pay OpenAI and Tripo directly, nothing goes to the author.
-- **Which keys do I need?** `OPENAI_API_KEY` to draw, `TRIPO_API_KEY` for walking characters and animals (Meshy optional). OpenAI may
-  ask you to verify your organisation first. See [Keys](#install).
-- **Isn't this AI art?** Yes: an image model does the painting. What SpriteCast adds is the geometry: the size, the camera angle, the
-  walk and the shadows come from 3D. You can give your own art as the style, or set `"draw": false` so the 3D renders are the frames
+- **What does it cost?** See [what each one costs](#cost), near the top.
+- **Which keys do I need?** `OPENAI_API_KEY` to draw, `TRIPO_API_KEY` for walking characters and animals (Meshy optional). Where
+  they go, and OpenAI's verification: [Keys](#install).
+- **Isn't this AI art?** Yes: an image model does the painting; the size, the camera angle, the walk and the shadows come from 3D
+  ([Why it works](#why-it-works)). You can give your own art as the style, or set `"draw": false` so the 3D renders are the frames
   ([Skipping the drawing](docs/guide/characters.md#skipping-the-drawing-the-3d-renders-as-the-frames)).
 - **Do I draw pixel art frame by frame?** No. The frames are drawn by the image model from the 3D renders and cleaned up
-  automatically; what is left is a few pixels a frame in the pixel editor.
+  automatically; what is left is a few pixels a frame in the [pixel editor](#pixel-art-arcade-size).
 - **What doesn't it do?** Walking characters start from an illustration facing front, standing straight. Pixel art works at 96 px,
   and at 64 px for a character designed small; a 32-px set is made from the 64 one, with rougher faces. Look at the results yourself:
   the outline check can't see a head turned the wrong way.

@@ -3,6 +3,105 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.29.0 — 2026-11-26
+
+- **SKILL.md reorganised** *(feedback: "the skill is too long; costs differ from doc to doc; some flows stop")*: the money rule and
+  one table of what each paid step costs (the figures the scripts' own gates print) at the top, a table from the user's ask to the
+  script, its reference file, the keys and the paid steps; each flow's steps in order. 40 KB → 25 KB; the long passages moved to
+  the reference files (drawing again after `draw`, an action's head, `redraw` and prompt → reference/character.md; drawing by hand →
+  the new reference/manual.md). The description is back under the 1024-character limit (953).
+- **A side view turns the body 45° toward the viewer by default** *(the user's choice)*, as `creature.py`'s people already did - both eyes
+  show, and a swing across the body is not hidden behind it. `"turn": 0` for a strict profile.
+- **Scenery for a side-scrolling game** (reference/tips.md, a row in SKILL.md's table) *(the user, on the example game's castle wall: "almost
+  Picasso"; "not three-dimensional"; "just make it from a prompt")*: seen as the characters are (`"camera": {"pitch": 6, "yaw": 90}`), drawn
+  over a lit Tripo model made from words - not over grey blocks (flat) nor from 12° above (wide floors beside side-view characters).
+- **A review of the scripts, fixed** *(the user chose every item)*:
+  - **A creature's walk `step` was 6-19 % off, so feet slid**: it is measured from the planted foot only now (an animal's paws in the
+    frames they are down, fitted against the leg's phase; a person's heel while the sole is flat). Checked against 24-frame renders:
+    within 1 %. guard 83.7 → 94.2 game px, herbalist 82.3 → 89.4, kid 44.2 → 47.4, stag 61.1 → 59.5; `cut` measures an old guide again.
+  - **A side view's mirrored facing was half a cycle off its east one** (west climb started on east's frame 4: the hands swapped at
+    grab → climb; a looped action's effect was off its body). West is now east's exact mirror, frame for frame, and is not rendered at
+    all (a side-view action renders in about half the time).
+  - **`creature.py` reused stale files before a paid drawing** (the man's rig kept after switching to "woman"; `walk` drawn on a guide
+    fitted to the design before `design --again`): it copies again or refuses, before any cost is shown.
+  - `creature.py`: stops when onnxruntime is missing instead of cutting by white alone; keeps a creature's loose pieces (drops, leaves);
+    a sheet takes its own scale (one with no `height` was drawn 1.6-2× too big); a person's head is found under a hat or a spear's tip;
+    an empty frame or a refused drawing gives a message, not a traceback.
+  - An air action's water splashed on an invisible floor at her boots: it falls to the real ground now. The depth pass rendered on
+    another canvas than `render` (a trail action's head mask 1.33× too big) and ignored `head_up`. Rendering "jump" deleted
+    "jump-cut"'s trail renders. A frame touching the top edge wrapped round when lifted to the floor.
+  - `export.py`: an effect sheet over 4096 px is split into sheets that fit (24 cells of a long water swing were one 4608×3912 sheet).
+  - `isoprop.py`'s standing-person prompt said "arms hanging" and "its nose block" for every pose: it follows the pose and the body now.
+  - Faster: the white key 19× (identical masks), the AI cut-out per cell only where paper is shut in, cached (`cut` 82-123 s → 35-79 s,
+    a repeat 5-13 s), `flip_onto` 4×, a trail action's `finish` a quarter of the memory, a posed figure built once.
+- **Fixed: `isoprop.py draw` ignored `SPRITECAST_DRAW=manual`** - it called the API directly (asking for a key) though the docs said
+  every step could be drawn by hand. It now goes through the same hand-drawing page as the rest.
+- **Fixed: `charpipe.py sit --draw` with `"facings": 4` or `"cardinal"`** always stopped asking for `render/sit-south.png`, and
+  quoted two sheets where one is drawn. It checks the first facing's render and draws one sheet for four facings (~$0.11).
+- **Costs agree everywhere** - the README, the guides and SKILL.md quote what each script's gate prints (a prop $0.08, a further facing
+  $0.09; a walk's drawing ~$2.1; a side view's walk and standing ~$0.33); a side-scroller's monster ($0.18) and hero rows added.
+- **README**: a second game made with it - *The Castle Wall*, a side-scroller whose every picture cost about $3.40; the banner's second
+  scene is that game (filmed from it, the title washed by its rain and wetted by her cut); the first picture gained a row of the
+  side-scroller's creatures and people beside the mannequins they were drawn on; scenery seen from the side drawn over its own lit 3D
+  model (drawn over grey blocks, the castle wall came out flat).
+
+- **GPT Image 2.6 is the default** *(the user's decision: "switch everything to 2.6 - the earlier judgment that 2.5 was better
+  looks like an error")*. `gpt-image-2.6-sunburst` draws everything (characters, props, pixel art);
+  `SPRITECAST_MODEL=gpt-image-2.5-sunburst` is the one before. The same price per token, and the same cost a sheet where it was
+  measured ($0.23 for three sheets, $0.36 for four, with either). On the rain girl in a side view it kept closer to the guide: a
+  walk's overlap 0.94-0.96 against 0.90-0.94, a two-move umbrella combo 0.66-0.89 against 0.53-0.81, the held thing off its place
+  in 1 frame against 5. One character, one run each; what 0.14.1 found against it (a walk's second sheet repeating the first
+  half's arm) has not been drawn again ([reference/tips.md](skills/spritecast/reference/tips.md)).
+- **A side view: `"view": "side"`** *(the user: "let's extend our way to 2D games")*. For a side-scrolling game: the camera level,
+  straight from the side (`"pitch"` 0), the head level (`"head_up"` 0), ONE facing drawn - east, walking to the right - and west
+  flipped from it, also with a thing in the hand (`"mirror": false` draws west too). A walk is 2 sheets and the standing view 1,
+  where eight facings take 18. The feet of every frame come out on one line (1 px of 256 apart). No shadow: a level camera sees the
+  ground edge-on. `"turn": 45` turns the body that many degrees toward the viewer while it walks sideways (0 a flat profile; at 30
+  one eye shows, at 45 both, at 60 the stride closes up) - and a cut made across the body, hidden behind it in a flat profile,
+  shows. Drawn for the rain girl at 0, 30 and 45: a walk's overlap 0.85-0.96. Not done yet: a jump cut into its rise and fall,
+  the engines' files checked with it, sitting. `pixelart.py` draws east only in this view (it drew both facings: twice the cost for
+  a facing the game flips); `charpipe.py sit --draw` stops with a message there instead of failing on a missing render.
+- **A spin in a turned side view**: its frames with the back of the head in the render came back with a face. The prompt now
+  says so; of four such frames 2.6 then drew two right, one half right. The guide is the cause that is left - a wide swing's
+  figures are a quarter of their cell's height. `frame` draws one of them alone.
+- **Fixed: a facing flipped from its pair (`"mirror"`) sat 60 px to the left of its render** since 0.9.0 - the reach of the search
+  that lays it on its render had been written over the render itself, so every frame took the first shift tried. Overlap
+  0.04-0.12 before, 0.78-0.90 after (a side view's west). `finish` again lays them right; nothing is drawn again.
+- **Creatures for a side-scrolling game, drawn in 2D: `creature.py`** *(the user: "monsters straight in 2D"; then "could a plain
+  mannequin - no fur, no detail, four legs - be baked for GPT to follow?"; then "the leg length changing is the biggest thing")*.
+  One design in the look of a picture of the game; a four-legged creature's 8-frame walk drawn on the poses of a plain dog mannequin
+  that comes with SpriteCast (`mannequins/dog.glb`: grey, near legs red, far legs blue, no tail), first stretched to the design's
+  own leg length, body depth and neck (`mannequin`, free); any other animation as a sheet of four moments in words. ~$0.06 a
+  picture, no 3D model per creature. A stone wolf's frames came out within 3 px of the mannequin's places. Drawn on the dog as it
+  was, a boar and a stag both got a dog's legs; fitted (legs x0.44 and x2.32) each kept its build. A salamander did not work - what
+  stands with its legs out to the sides needs its own mannequin and gait. In a character spec: `"mannequin": true`, `"fit"`
+  ([reference/creature.md](skills/spritecast/reference/creature.md)).
+- **People on mannequins too, and the block figure gone** *(the user: "man and woman mannequins too, bald, to see whether the motion is
+  followed"; "put the mannequins in the skill and replace making a person from blocks"; "a child one too")*. Three bald, plain figures
+  come with SpriteCast - `mannequins/man.glb`, `woman.glb`, `child.glb` (a GPT turnaround, Tripo's model and rig). `creature.py` draws
+  a person's 8-frame walk on them (`"mannequin": "man"`...): a cloaked guard and a herbalist in a skirt followed every pose and kept
+  their details; each frame is moved across so its head is over the mannequin's (the drawing sat 17-49 px off). And a standing person
+  (`isoprop.py`, a `character` spec) is now one of these figures in the pose - `"body": "man" | "woman" | "child"` - where it was a
+  figure of boxes and round limbs (`"body": "blocks"` keeps that). The poses are the same numbers, set on the rig's bones; a palm can be
+  turned (`"palm"`; a wave's hand faces forward) and **an arm no longer passes through the body or the other arm**: what overlaps
+  after the pose is set is pushed apart *(the user: "arms crossed, the hands go through each other - can that be stopped?")*. Drawn
+  once this way: a waving boy on the child, front and back, finished with no warning. Tried
+  once in an isometric view: the guard drawn on the man's walk seen from above came out in view and pose in three facings.
+- `creature.py` cuts its figures out with the AI cut-out's help *(the user: "the white between her legs is still there - isn't the AI
+  cut-out used here?")*: the paper shut in between limbs is told from white clothes by it, and loose pieces (drops, mist, leaves) are
+  kept by the white key. A person also gets `out/stand.png`, and a sheet can be of a character (`"noun"`): the game's heroine struck,
+  and worn out, were drawn from her standing picture.
+- **A side view's actions**: an action's own `"fps"`, `"head_up"` and `"canvas"`; `"face": "away"` (a ladder climbed with the back to
+  us); `"in_place"` (the hips' height pinned); `"air"` (a jump's frames, each on the ground line - the game moves her); a thing
+  carried `"on": "back"`; `"floor"` (on in a side view: a pose whose feet the clip sinks under the ground is lifted onto it, in the
+  render and again in `finish`); `motion.py layer` (one clip's upper body on another's legs). `render` warns when a figure or what
+  it holds is cut by the picture's edge - a jump's raised umbrella was, and was drawn cut.
+- **Fixed in a side view**: west is the exact mirror of east, frames and effect alike (laid onto its own render it jittered up to
+  100 px a frame and left the water of a cut on the wrong side); an in-between action was packed as a loop (its mirrored frames in
+  the wrong order); an effect's sheet came out one column and 15,000 px tall - `export.py` now lays it out near square.
+- A side view's standing sheet says how many figures it has (one), and SpriteCast's idle clip is made once for each `"head_up"`
+  (a spec whose `"head_up"` changed kept the clip made for the old one: the head bowed).
+
 ## 0.28.1 — 2026-11-26
 
 - **Drawing by hand: the references first, then the guide** *(feedback: "give it one picture first, say we draw in that style, then

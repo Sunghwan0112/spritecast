@@ -21,19 +21,35 @@ Learned making a few hundred props for an isometric life-sim.
 - **Your own style**: one finished prop in the look you want, alone, on a flat background, is the best reference. A whole scene
   works less well - the model copies its content.
 - **A 3D model** (`"model"`) beats blocks for complex shapes (a car, a statue); blocks are enough for furniture.
-- **Cost**: one drawing at `high` ≈ $0.07 (gpt-image-2.5, 2026). `SPRITECAST_QUALITY=medium` ≈ $0.06 (most of the cost is the two
+- **Cost**: one drawing at `high` ≈ $0.07 (gpt-image-2.6, 2026). `SPRITECAST_QUALITY=medium` ≈ $0.06 (most of the cost is the two
   input images), `low` looks rough. Try a new idea on one prop before many.
 
-- **Which image model**: `gpt-image-2.5-sunburst` is the default, and what every prompt and check here was tuned on.
-  `SPRITECAST_MODEL=gpt-image-2.6-sunburst` (out 2026-11-04, the same price per token) draws with the newer one - nothing else
-  changes, and a sheet costs about the same ($0.07-0.10). Tried on seven sheets of the rain girl (2026-11-13), not more:
-  - **better**: a held thing's parts in their own colours (the umbrella's handle brown, where 2.5 drew it near-black; the shaft
-    and the tip silver); the two sheets of one walk at the same size (2.5 drew them 6 % apart, which shows as the head stepping
-    between the halves of the stride - 26 px of 1024 down to 8);
-  - **worse**: the second sheet of that walk repeated the first half's arm - twice running, the first drawing and its `redraw` -
-    so the thing in the hand was drawn in front where the render has it at the hip (the checks named it both times, and `redraw`
-    kept the 2.5 drawing: overlap 0.77 against 0.71). It seems to follow the "first half, already drawn" picture more closely
-    than 2.5 does. A slash was drawn larger still than 2.5 draws it;
-  - **no gain**: pixel art keeps to its squares about as well, with a heavier outline and the black hair gone a little brown.
-  So: **2.5 stays the default** (the user's decision, 2026-11-13). Offer 2.6 when a held thing's colours come out wrong or a walk's two halves differ in size - one sheet
-  first, beside the 2.5 one - and do not mix it into a set without looking: `SPRITECAST_MODEL` applies to every drawing in the run.
+- **Which image model**: `gpt-image-2.6-sunburst` is the default since 0.29.0 (the user's decision, 2026-11-26: "the earlier
+  judgment that 2.5 was better looks like an error"). `SPRITECAST_MODEL=gpt-image-2.5-sunburst` draws with the one before - the
+  same price per token, and in what was measured the same cost a sheet ($0.07-0.10). `SPRITECAST_MODEL` applies to every drawing
+  in the run: do not mix the two into one set without looking.
+  - **What decided it** (the rain girl in a side view, 2026-11-26, seven sheets with each): 2.6 kept closer to the guide - a walk's
+    overlap 0.94-0.96 against 0.90-0.94, the head nearer the 3D model's size (x0.96 against x0.92), a two-move umbrella combo
+    0.66-0.89 against 0.53-0.81, the held thing off its place in 1 frame against 5 - at the same $0.23 and $0.36. It shades more
+    (folds and gloss on a raincoat). One character, one run each.
+  - **What the first comparison found** (2026-11-13, seven sheets, 2.5 kept then): 2.6 better at a held thing's own colours and at
+    the two sheets of one walk coming out the same size; worse once - the second sheet of a walk with a thing in the hand repeated
+    the first half's arm, twice running - and pixel art no better (a heavier outline, black hair a little brown). That arm has
+    not been drawn again with 2.6 since: if a second sheet copies the first one's arm, draw that sheet with 2.5 and compare.
+  - The checks' thresholds were tuned on 2.5's drawings. Nothing has shown them wrong for 2.6, and nothing has been measured.
+
+## Scenery for a side-scrolling game (a castle wall, a house front)
+Learned on the castle wall of the side-view example game; the user turned down the first three tries.
+- **Seen as the characters are**: from the side, nearly level - `"camera": {"pitch": 6, "yaw": 90}`. Of a top only a thin strip shows.
+  Rendered 12° from above, its tops became wide floors - scenery seen from above beside characters seen from the side ("almost Picasso").
+- **Over a lit 3D model, not grey blocks.** Over blocks the drawing came out flat: a guide with no light gives the image model nothing to
+  model stone by. `isoprop.py model` (Tripo from words, ~20 credits) with a description that says where things are ("merlons ONLY along
+  the back edge, the walk open in front of them"). A model made from a drawing (its front, and its mirror for a back) put battlements on
+  both edges and left crooked corners - prefer words.
+- **Tripo builds in its own proportions** (the wall came out barely longer than its tower) and may stand a little crooked. On the render,
+  before drawing: level it, mirror it if the light should come from the other side, and lengthen it by repeating one period (crenel middle
+  to crenel middle). Check the platforms against the render: at `px_per_m` 96 one render pixel was one game pixel, so the walk and the
+  tower's roof could be read straight off it.
+- What characters go behind (a tower's front parapet) is a picture of its own over them; in the example game it is painted as a mask, and
+  goes see-through while the player is behind it.
+

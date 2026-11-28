@@ -78,7 +78,7 @@ def main(spec, WANT=WANT, sd=None, colour=False):
     save = lambda url, p: Path(p).write_bytes(base64.b64decode(url.split(',', 1)[1]))
     with sync_playwright() as pw:
         br = BROWSER.launch(pw); pg = br.new_page(); pg.route('http://spritecast.local/**', serve); pg.goto('http://spritecast.local/render_char.html')
-        pg.wait_for_function('window.ready === true', timeout=30000); pg.evaluate('(r) => window.setRes(r)', CL.PX)
+        pg.wait_for_function('window.ready === true', timeout=30000); CP.SIDE and CP.SIDE_TURN and pg.evaluate('(o) => window.setFacing(o)', {'east': 90 - CP.SIDE_TURN, 'west': CP.SIDE_TURN - 90}); pg.evaluate('(f) => window.setFloor(f)', bool(s.get('floor'))); pg.evaluate('(r) => window.setRes(r)', CL.PX)   # (setFacing: a side view turned toward the viewer, as charpipe renders it)
         info = pg.evaluate('([u, p, l]) => window.load(u, p, l)', ['http://spritecast.local/asset/rig.glb', s['pitch'], s['light']])
         pg.evaluate('() => { window.wantDepth = true; }')
         clips = {c['name']: c['duration'] for c in info['clips']}; w = s['walk']
@@ -92,17 +92,19 @@ def main(spec, WANT=WANT, sd=None, colour=False):
             if name not in WANT or a['clip'] not in clips: continue
             t0, t1, n = a['t0'], a['t1'] if a['t1'] is not None else clips[a['clip']], a['frames']
             t1x = t1 if a['loop'] else t0 + (t1 - t0) * n / max(1, n - 1)
-            hold = a.get('hold'); pg.evaluate('(px) => window.setCanvas(px)', a.get('canvas') or (768 if hold else 512))
+            hold = a.get('hold'); pg.evaluate('(px) => window.setCanvas(px)', CP.canvas_of(a))      # (the canvas `render` had: else the head mask, laid on the render by pixelart.py, is another size)
+            if isinstance(hold, dict) and hold.get('in_model'): hold = None                         # (the rigged model has it already, as in `render`)
             if hold:
                 h = {'kind': hold} if isinstance(hold, str) else dict(hold)
-                h.setdefault('size', s.get('height_m', 1.7)); h.setdefault('grip', [0, 0, -90])
+                h.setdefault('size', s.get('height_m', 1.7))
+                if h['kind'] not in ('pistol', 'watergun'): h.setdefault('grip', [0, 0, -90])         # (`render` turns none of those two in the hand)
                 if not pg.evaluate('([k, o]) => window.setHold(k, o)', [h['kind'], h]): print(f"depth: {name}: cannot hold \"{h['kind']}\"")
                 until = h.get('until')
                 if until == 'auto': until = pg.evaluate('([c, a, b]) => window.handFastest(c, a, b)', [a['clip'], t0, t1]); print(f'depth: {name}: let go at {until:.2f} s (the hand at its fastest)')
                 pg.evaluate('(u) => { window.holdUntil = u; }', until); pg.evaluate('(w) => { window.wantHeld = w; }', bool(colour))
             for dr in WANT[name]:
-                shots = (pg.evaluate('(a) => window.blendFrames(...a)', [ends[0][0], ends[0][1], ends[1][0], ends[1][1], dr, n] + pose) if ends
-                         else pg.evaluate('(a) => window.frames(...a)', [a['clip'], dr, n, t0, t1x] + pose))
+                shots = (pg.evaluate('(a) => window.blendFrames(...a)', [ends[0][0], ends[0][1], ends[1][0], ends[1][1], dr, n] + pose + [ends[0][2], ends[1][2], CP.face_yaw(ends[0][3], dr), CP.face_yaw(ends[1][3], dr)]) if ends
+                         else pg.evaluate('(a) => window.frames(...a)', [a['clip'], dr, n, t0, t1x, a.get('head_up', s['head_up'])] + pose[1:] + [{'yaw': CP.face_yaw(a, dr), 'pinY': bool(a.get('in_place')), 'stick': bool(a.get('air'))}]))      # (the action's own "head_up", as `render`)
                 for k, u in enumerate(pg.evaluate('window.depthShots')): save(u, out / f'{name}-{dr}-{k}.png')
                 if colour:
                     for k, u in enumerate(shots): save(u, ren / f'{name}-{dr}-{k}.png')

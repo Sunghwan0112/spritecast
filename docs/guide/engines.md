@@ -56,7 +56,7 @@ The full format: [reference/character.md](../../skills/spritecast/reference/char
 |---|---|---|
 | spec | Claude writes `<name>.json`: footprint, blocks in metres, a description of the finished object | free |
 | `render` | three.js in headless Chrome: the guide, its shadow and the model's input | free |
-| `draw` | OpenAI Images (`gpt-image-2.5-sunburst` by default): the guide redrawn in your style | ~$0.07 |
+| `draw` | OpenAI Images (`gpt-image-2.6-sunburst` by default): the guide redrawn in your style | ~$0.07 |
 | `finish` | magenta keyed out softly, fitted back onto the guide's box, shadow baked, anchor measured | free |
 | `preview` | the sprite on a 1 m floor grid | free |
 

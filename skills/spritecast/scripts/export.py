@@ -19,7 +19,9 @@ A set drawn in four facings ("facings": 4 - the diagonals, or "cardinal" - south
 
 What character.json keeps apart is put together here: every animation's shadows become one strip of equal cells with ONE offset,
 so an engine shows shadow frame i under body frame i and never reads a table. A swing's effect ("trail": water, flame, leaves ...)
-goes along as a third sprite over the body, played at its own pace (it may have two cells to each body frame).
+goes along as a third sprite over the body, played at its own pace (it may have two cells to each body frame), its cells laid out as
+near square as they go - over several sheets (<key>-effect.png, -effect-2.png ...) where one would pass 4096 px a side, which every
+engine reads in order (Aseprite takes the cells from the strip).
 
 A pixel PROP (<name>/out-pixel, with pixel.json) is handed on to propexport.py: Godot and Phaser, with its baked shadow, a lamp's light,
 the wind in it, where it is in the way and how to shade a character in its shadow."""
@@ -74,10 +76,26 @@ def shadow_strip(a):
     return st, [w, h], [x0, y0]
 
 
+MAX_SIDE = 4096          # the biggest texture a phone's GPU is sure to take, px a side
+WARNED = set()
+
+
+def layout(n, cw, ch, cap=MAX_SIDE):
+    """n effect cells of cw x ch px → [(cells, cols)], a sheet each: as near square as each goes, every sheet at most `cap` px a side - as
+    few sheets as that allows, the cells shared out evenly. A strip of a big water's 24 cells of 1152 px was 27648 px wide; one sheet
+    as near square as it goes, 4608 x 3912 - 18 MP, which no 4096 x 4096 texture holds whichever way it is laid. Now two of 3456 x 2608.
+    (One cell past `cap` itself: one sheet as near square as it goes, and the caller says so)"""
+    best = lambda m, ok: min([c for c in range(1, m + 1) if ok(c)] or [m], key=lambda c: (max(c * cw, -(-m // c) * ch), c))
+    if cw > cap or ch > cap: return [(n, best(n, lambda c: True))]
+    per = (cap // cw) * (cap // ch); k = -(-n // per); sizes = [n // k + (1 if j < n % k else 0) for j in range(k)]
+    return [(m, best(m, lambda c, m=m: c * cw <= cap and -(-m // c) * ch <= cap)) for m in sizes]
+
+
 def prepare(an, dst):
     """copies the body strips into dst and writes the shadow strips beside them; every animation gains `png`, `shadow` ({png, cell, offset})
-    and `effect` ({png, cell, offset, n, per, cols}: a swing's effect, laid over the body; `per` of its cells to each body frame; its
-    sheet has `cols` cells a row), or None"""
+    and `effect` ({png, cell, offset, n, per, cols, sheets}: a swing's effect, laid over the body; `per` of its cells to each body frame;
+    `sheets`: [{png, n, cols}] - its cells in order over one or more sheets, each at most 4096 px a side, `cols` cells a row (`png`
+    and `cols` are the first's)), or None"""
     dst.mkdir(parents=True, exist_ok=True)
     for a in an:
         a['key'] = f"{a['action']}-{a['facing']}"; a['png'] = f"{a['key']}.png"
@@ -89,12 +107,20 @@ def prepare(an, dst):
             s[0].save(dst / f"{a['key']}-shadow.png"); a['shadow'] = dict(png=f"{a['key']}-shadow.png", cell=s[1], offset=s[2])
         a['effect'] = None
         if a['fx']:
-            # laid out again in rows no wider than 2048 px: sixteen cells side by side pass the 4096 px a phone's texture may be
-            cw, chh = a['fx']['cell']; n = a['fx']['n']; cols = max(1, min(n, 2048 // cw)); src = Image.open(a['fx']['file']).convert('RGBA')
-            sheet = Image.new('RGBA', (cols * cw, -(-n // cols) * chh), (0, 0, 0, 0))
-            for i in range(n): sheet.paste(src.crop((i * cw, 0, (i + 1) * cw, chh)), ((i % cols) * cw, (i // cols) * chh))
-            sheet.save(dst / f"{a['key']}-effect.png", optimize=True)
-            a['effect'] = dict(png=f"{a['key']}-effect.png", cell=a['fx']['cell'], offset=a['fx']['offset'], n=n, per=a['fx']['per'], cols=cols)
+            # laid out again as near square as it goes, in as many sheets as keep each within the 4096 px a phone's texture may be (a strip
+            # of 24 cells of 1152 px is 27648 px wide; stood in one column, 15648 px tall)
+            cw, chh = a['fx']['cell']; n = a['fx']['n']
+            lay = layout(n, cw, chh)
+            if (cw > MAX_SIDE or chh > MAX_SIDE) and a['key'] not in WARNED: WARNED.add(a['key']); print(f"export: {a['key']}: one effect cell is {cw} x {chh} px - past the {MAX_SIDE} px a phone's GPU takes; the effect may not show there (a smaller \"frame_px\", or `pack --px`)")
+            src = Image.open(a['fx']['file']).convert('RGBA'); sheets, i0 = [], 0
+            for j, (m, cols) in enumerate(lay):
+                png = f"{a['key']}-effect.png" if j == 0 else f"{a['key']}-effect-{j + 1}.png"
+                sheet = Image.new('RGBA', (cols * cw, -(-m // cols) * chh), (0, 0, 0, 0))
+                for i in range(m): sheet.paste(src.crop(((i0 + i) * cw, 0, (i0 + i + 1) * cw, chh)), ((i % cols) * cw, (i // cols) * chh))
+                sheet.save(dst / png, optimize=True); sheets.append(dict(png=png, n=m, cols=cols)); i0 += m
+            for f in dst.glob(f"{a['key']}-effect-*.png"):          # (an earlier export's further sheets, no longer used)
+                if f.name not in {x['png'] for x in sheets}: f.unlink()
+            a['effect'] = dict(png=sheets[0]['png'], cell=a['fx']['cell'], offset=a['fx']['offset'], n=n, per=a['fx']['per'], cols=sheets[0]['cols'], sheets=sheets)
 
 
 def ident(s): return re.sub(r'\W', '_', s)
@@ -107,10 +133,11 @@ def godot(an, dst, name):
         ext, sub, anims = [], [], []
         for a in an:
             src = a if which == 'body' else (a[which] or {}); png, cell = src.get('png'), src.get('cell')
-            fr = []; n, speed = (src['n'], round(a['fps'] * src['per'], 2)) if which == 'effect' and png else (a['n'], a['fps']); cols = src.get('cols', n) if which == 'effect' else n
-            if png:
-                e = len(ext) + 1; ext.append(f'[ext_resource type="Texture2D" path="{png}" id="{e}"]')
-                for i in range(n):
+            fr = []; n, speed = (src['n'], round(a['fps'] * src['per'], 2)) if which == 'effect' and png else (a['n'], a['fps'])
+            pages = src.get('sheets') or [dict(png=png, n=n, cols=src.get('cols', n) if which == 'effect' else n)]      # (an effect may be over several sheets: its frames run on from one to the next)
+            for pg in (pages if png else []):
+                e = len(ext) + 1; ext.append(f'[ext_resource type="Texture2D" path="{pg["png"]}" id="{e}"]'); cols = pg['cols']
+                for i in range(pg['n']):
                     s = f'a{len(sub) + 1}'
                     sub.append(f'[sub_resource type="AtlasTexture" id="{s}"]\natlas = ExtResource("{e}")\nregion = Rect2({(i % cols) * cell[0]}, {(i // cols) * cell[1]}, {cell[0]}, {cell[1]})\n')
                     fr.append('{\n"duration": 1.0,\n"texture": SubResource("%s")\n}' % s)
@@ -241,11 +268,14 @@ export const ANIMS = {json.dumps(A, indent=1)}
 
 const key = k => NAME + ':' + k
 
+// an effect's sheets (a big one is cut into several, each within the 4096 px a phone's GPU takes): their texture keys, in order
+const sheets = (k, a) => (a.effect.sheets || [a.effect]).map((s, j) => [key(k) + ':effect' + (j ? ':' + j : ''), s])
+
 export function preload(scene, base = '') {{
   for (const [k, a] of Object.entries(ANIMS)) {{
     scene.load.spritesheet(key(k), base + a.png, {{ frameWidth: a.cell[0], frameHeight: a.cell[1] }})
     if (a.shadow) scene.load.spritesheet(key(k) + ':shadow', base + a.shadow.png, {{ frameWidth: a.shadow.cell[0], frameHeight: a.shadow.cell[1] }})
-    if (a.effect) scene.load.spritesheet(key(k) + ':effect', base + a.effect.png, {{ frameWidth: a.effect.cell[0], frameHeight: a.effect.cell[1] }})
+    if (a.effect) for (const [t, s] of sheets(k, a)) scene.load.spritesheet(t, base + s.png, {{ frameWidth: a.effect.cell[0], frameHeight: a.effect.cell[1] }})
   }}
 }}
 
@@ -253,8 +283,8 @@ export function create(scene) {{
   for (const [k, a] of Object.entries(ANIMS)) {{
     if (!scene.anims.exists(key(k)))
       scene.anims.create({{ key: key(k), frames: scene.anims.generateFrameNumbers(key(k), {{ start: 0, end: a.n - 1 }}), frameRate: a.fps, repeat: a.loop ? -1 : 0 }})
-    if (a.effect && !scene.anims.exists(key(k) + ':effect'))          // a swing's effect: `per` cells to each body frame, so at `per` times the pace
-      scene.anims.create({{ key: key(k) + ':effect', frames: scene.anims.generateFrameNumbers(key(k) + ':effect', {{ start: 0, end: a.effect.n - 1 }}), frameRate: a.fps * a.effect.per, repeat: a.loop ? -1 : 0 }})
+    if (a.effect && !scene.anims.exists(key(k) + ':effect'))          // a swing's effect: `per` cells to each body frame, so at `per` times the pace; its frames run on from one sheet to the next
+      scene.anims.create({{ key: key(k) + ':effect', frames: sheets(k, a).flatMap(([t, s]) => scene.anims.generateFrameNumbers(t, {{ start: 0, end: (s.n ?? a.effect.n) - 1 }})), frameRate: a.fps * a.effect.per, repeat: a.loop ? -1 : 0 }})
   }}
 }}
 
@@ -374,14 +404,15 @@ def aseprite(an, dst, name):
 # ---------------------------------------------------------------- Unity
 def unity(an, dst, name):
     """unity/<name>/ (the strips and <name>.spritecast.json) and unity/SpriteCast/Editor/SpriteCastImporter.cs, which builds the
-    prefab, the Animator controller and the clips inside Unity when the folder is copied into Assets/"""
+    prefab, the Animator controller and the clips inside Unity when the folder is copied into Assets/. An effect over several sheets
+    (`effect.sheets`) is sliced sheet by sheet into one clip"""
     prepare(an, dst / name)
     first = next((a for a in an if a['action'] == 'idle'), an[0])['key']
     (dst / name / f'{name}.spritecast.json').write_text(json.dumps(dict(
         name=name, pixels_per_unit=100, shadow_alpha=SHADOW_ALPHA, first=ident(first),
         anims=[dict(name=ident(a['key']), png=a['png'], n=a['n'], cell=a['cell'], anchor=a['anchor'], fps=a['fps'], loop=a['loop'],
                     shadow=a['shadow'] or dict(png='', cell=[0, 0], offset=[0, 0]),
-                    effect=a['effect'] or dict(png='', cell=[0, 0], offset=[0, 0], n=0, per=1, cols=1)) for a in an]), indent=1))
+                    effect=a['effect'] or dict(png='', cell=[0, 0], offset=[0, 0], n=0, per=1, cols=1, sheets=[])) for a in an]), indent=1))
     ed = dst / 'SpriteCast' / 'Editor'; ed.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(Path(__file__).resolve().parent / 'unity' / 'SpriteCastImporter.cs', ed / 'SpriteCastImporter.cs')
     shutil.copyfile(Path(__file__).resolve().parent / 'unity' / 'SpriteCastFacing.cs', dst / 'SpriteCast' / 'SpriteCastFacing.cs')   # (runtime, not Editor/)

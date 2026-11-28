@@ -28,6 +28,30 @@ window.setCanvas = (px) => { const h = VIEW_H * px / SIZE; renderer.setSize(px, 
 aim();
 // facing → turn about the up axis (south: toward the viewer, east: to the right of the screen)
 const FACING = { 'south': 0, 'south-east': 45, 'east': 90, 'north-east': 135, 'north': 180, 'north-west': -135, 'west': -90, 'south-west': -45 };
+// a side view turned toward the viewer ("turn" in the spec): east and west at other angles than square to the camera
+window.setFacing = (o) => { Object.assign(FACING, o); };
+// "floor": a clip that sinks the feet under the ground (a lunge made for longer legs, laid on a child's) is lifted pose by pose until
+// its lowest point stands on the ground - never lowered, so a jump stays a jump. A side view shows the ground as one line, and a boot
+// under it shows (the rain girl's cuts: up to 4% of her height under the walk's line). window.floorLows: each pose's lowest point.
+let FLOOR = false; window.setFloor = (on) => { FLOOR = !!on; }; window.floorLows = [];
+// stick (an action's "air": true): the pose's lowest point is put ON the ground line whichever way it is off - a jump's frames, for a game
+// that moves the sprite itself: her boots are then where the game has her, in the air as on the ground
+// GROUND: where the real ground is under the pose just set, for a trail's pieces (they splash, stop or die there): y = 0 - but a stuck
+// pose was moved down by as much as it was up, and the ground with it: -lo. (At 0, the jump cut's water burst on an invisible floor at
+// her boots, in mid-air.) Not raised for a pose the clip sank into the ground: that is the clip's fault, the ground stays where it is
+let GROUND = 0;
+const onFloor = (keep = false, stick = false) => { root.position.y = 0; root.updateMatrixWorld(true); GROUND = 0;
+  if (!keep && !stick && !FLOOR) return;          // (nothing to measure or move: a trail's path poses the body 200 times, and skinning every vertex on the CPU each time was for nothing)
+  const lo = meshBox().min.y; if (keep) window.floorLows.push(+lo.toFixed(4));
+  if (stick || (FLOOR && lo < 0)) { root.position.y = -lo; root.updateMatrixWorld(true); }
+  if (stick) GROUND = Math.min(0, -lo); };
+// does anything drawn touch the picture's edge? (a figure, or a trail, cut by the canvas: charpipe.py says so) - the four borders read
+// back from the drawing buffer; decoding every 4096 px picture again in Python for it took longer than rendering it
+function edgeHit() {
+  const gl = renderer.getContext(), w = gl.drawingBufferWidth, h = gl.drawingBufferHeight, buf = new Uint8Array(4 * Math.max(w, h));
+  const any = (x, y, cw, ch) => { gl.readPixels(x, y, cw, ch, gl.RGBA, gl.UNSIGNED_BYTE, buf); for (let i = 3; i < 4 * cw * ch; i += 4) if (buf[i]) return true; return false; };
+  return any(0, 0, w, 1) || any(0, h - 1, w, 1) || any(0, 0, 1, h) || any(w - 1, 0, 1, h);
+}
 let root, mixer, clips = [], hips = null; const bones = {};
 
 // the whole body pressed flat onto the ground along the light: a point h up lands (dx·h, dz·h) away on the floor (the game's light,
@@ -99,9 +123,20 @@ window.load = async (url, pitch = 30, light = 'right') => {
     if (o.isBone) { bones[o.name.replace(/^mixamorig:?/i, '')] = o; o.userData.restPos = o.position.clone(); o.userData.restQ = o.quaternion.clone(); if (!hips && /hip|pelvis/i.test(o.name)) hips = o; }
   });
   mixer = new THREE.AnimationMixer(m); clips = g.animations;
+  // which way the head and the chest face, frame by frame (window.headShots): the model's forward (+z at rest) kept in each bone's own axes
+  root.updateMatrixWorld(true);
+  for (const k of ['Head', 'Spine2', 'Spine1', 'Spine']) { const b = bones[k]; if (b) { b.userData.restInv = b.getWorldQuaternion(new THREE.Quaternion()).invert(); b.userData.fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(b.userData.restInv); } }
   return { clips: clips.map((c) => ({ name: c.name, duration: c.duration })), height: h, footY: 0.5 + 0.5 * Math.cos(PITCH) / VIEW_H };
 };
 
+// the head and the chest against the camera in the pose as it stands: face/chest 1 = straight at the viewer, 0 = side on, -1 = away
+// (the back of the head, the back of the body); up = how far the face points up (-1 = straight down: bowed)
+function headView() {
+  const tc = new THREE.Vector3(0, Math.sin(PITCH), Math.cos(PITCH));
+  const v = (k) => { const b = bones[k]; return b && b.userData.fwd ? b.userData.fwd.clone().applyQuaternion(b.getWorldQuaternion(new THREE.Quaternion())).normalize() : null; };
+  const h = v('Head'), c = v('Spine2') || v('Spine1') || v('Spine');
+  return h ? { face: +h.dot(tc).toFixed(3), up: +h.y.toFixed(3), chest: c ? +c.dot(tc).toFixed(3) : null, chest_up: c ? +c.y.toFixed(3) : null } : null;
+}
 // tilt the head (and a little of the neck) up by `deg`, about the character's right axis (a rig's walk looks down a little)
 function headUp(deg) {
   if (!deg) return;
@@ -167,8 +202,8 @@ function fxPath(pose, t0, t1, o) {
     const c = box.getCenter(new THREE.Vector3()), axis = far.clone().sub(c); axis.set(Math.abs(axis.x) >= Math.abs(axis.y) && Math.abs(axis.x) >= Math.abs(axis.z) ? axis.x : 0, Math.abs(axis.y) > Math.abs(axis.x) && Math.abs(axis.y) >= Math.abs(axis.z) ? axis.y : 0, Math.abs(axis.z) > Math.abs(axis.x) && Math.abs(axis.z) > Math.abs(axis.y) ? axis.z : 0);
     thing.userData.reach = { tip: c.clone().add(axis).toArray(), base: [0, 0, 0] };      // along its longest side, from the grip to its far end
   }
-  const L = thing.userData.reach, K = 200, T = [], tip = [], low = [], a = new THREE.Vector3(...L.tip), b = a.clone().lerp(new THREE.Vector3(...L.base), o.width || 0.6);
-  for (let k = 0; k <= K; k++) { const tt = t0 + (t1 - t0) * k / K; pose(tt); thing.updateWorldMatrix(true, false); T.push(tt); tip.push(thing.localToWorld(a.clone())); low.push(thing.localToWorld(b.clone())); }
+  const L = thing.userData.reach, K = 200, T = [], tip = [], low = [], ground = [], a = new THREE.Vector3(...L.tip), b = a.clone().lerp(new THREE.Vector3(...L.base), o.width || 0.6);
+  for (let k = 0; k <= K; k++) { const tt = t0 + (t1 - t0) * k / K; pose(tt); thing.updateWorldMatrix(true, false); T.push(tt); tip.push(thing.localToWorld(a.clone())); low.push(thing.localToWorld(b.clone())); ground.push(GROUND); }
   // the STROKE: the longest run in which the far end goes at over half its top speed - the swing itself, not the wind-up
   const sp = [0]; for (let k = 1; k <= K; k++) sp.push(tip[k].distanceTo(tip[k - 1])); const top = Math.max(...sp);
   let best = [0, 0], run = null, len = 0, bestLen = 0;
@@ -176,7 +211,15 @@ function fxPath(pose, t0, t1, o) {
     if (k <= K && sp[k] > top * 0.5) { if (run === null) { run = k - 1; len = 0; } len += sp[k]; }
     else if (run !== null) { if (len > bestLen) { bestLen = len; best = [run, k - 1]; } run = null; }
   }
-  return { T, tip, low, dt: (t1 - t0) / K, blade: tip[0].distanceTo(low[0]) / (o.width || 0.6), stroke: best };
+  // ("stroke": [t0, t1] in the trail - the swing's own seconds of the clip, said by hand: a cut laid over a jump goes back up to its wind-up faster than it
+  // cuts, and that return was taken for the stroke - the water came off the wrong end)
+  if (Array.isArray(o.stroke)) { const ix = (s) => Math.max(0, Math.min(K, Math.round((s - t0) / (t1 - t0) * K))); best = [ix(o.stroke[0]), ix(o.stroke[1])]; }
+  return { T, tip, low, ground, dt: (t1 - t0) / K, blade: tip[0].distanceTo(low[0]) / (o.width || 0.6), stroke: best };
+}
+// the ground's height at time t (GROUND as the path's poses had it: 0, or under a pose stuck in the air), kept at the ends past them
+function groundAt(path, t) {
+  const g = path.ground, K = g.length - 1; if (!(path.dt > 0)) return g[0];
+  const x = Math.max(0, Math.min(K, (t - path.T[0]) / path.dt)), i = Math.min(K - 1, Math.floor(x)); return g[i] + (g[i + 1] - g[i]) * (x - i);
 }
 function fxPieces(path, o) {          // every piece of the whole action, born where the far end is fast
   const out = [];
@@ -198,8 +241,8 @@ function fxPieces(path, o) {          // every piece of the whole action, born w
                    rot: r() * Math.PI * 2, spin: (r() - 0.5) * 2 * (P.spin ?? 0), phase: r() * 6.283, tilt: (r() - 0.5) * (P.tilt ?? 0), splash: r() < (P.splash ?? 0.5), sp: [r(), r(), r()] };
         if (P.ground === 'splash') {          // when and where it first meets the ground: there it bursts (a ring on the floor, a few droplets up)
           const dr_ = P.drag ?? 0, g_ = P.gravity ?? 0;
-          for (let a_ = 0.01; a_ < q.life; a_ += 0.01) { const e_ = dr_ > 0 ? (1 - Math.exp(-dr_ * a_)) / dr_ : a_, y = q.at.y + q.v.y * e_ + 0.5 * g_ * a_ * a_;
-            if (y < 0) { q.hit = { a: a_, at: q.at.clone().addScaledVector(q.v, e_).setY(0) }; break; } }
+          for (let a_ = 0.01; a_ < q.life; a_ += 0.01) { const e_ = dr_ > 0 ? (1 - Math.exp(-dr_ * a_)) / dr_ : a_, y = q.at.y + q.v.y * e_ + 0.5 * g_ * a_ * a_, gy = groundAt(path, q.born + a_);
+            if (y < gy) { q.hit = { a: a_, at: q.at.clone().addScaledVector(q.v, e_).setY(gy) }; break; } }
         }
         out.push(q);
       }
@@ -262,7 +305,7 @@ function fxBand(path, t, dtFrame, o, grp) {
 }
 function fxDraw(path, parts, t, dtFrame, o) {          // the effect at time t → a Group, or null when there is nothing of it then
   const grp = new THREE.Group(), mass = new THREE.Group(); fxBand(path, t, dtFrame, o, grp);
-  const right = new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld, 0), upv = new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld, 1);
+  const right = new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld, 0), upv = new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld, 1), gy = groundAt(path, t);
   for (const q of parts) {
     const a = t - q.born; if (a < 0 || a > q.life) continue;
     const P = q.P, dr = P.drag ?? 0, g = P.gravity ?? 0, e = dr > 0 ? (1 - Math.exp(-dr * a)) / dr : a;
@@ -271,13 +314,13 @@ function fxDraw(path, parts, t, dtFrame, o) {          // the effect at time t �
     if (q.hit && a >= q.hit.a) {          // "ground": "splash" - burst where it landed: a ring spreading on the floor, a few droplets thrown up
       const s_ = a - q.hit.a, T_ = 0.3; if (s_ > T_ || !q.splash) continue; const u_ = s_ / T_, R_ = q.size * (0.3 + 1.1 * u_);
       const ring = new THREE.Mesh(new THREE.RingGeometry(R_ * 0.8, R_, 28), new THREE.MeshBasicMaterial({ color: 0xe4f5ff, transparent: true, opacity: 0.7 * (1 - u_), side: THREE.DoubleSide, depthWrite: false, toneMapped: false }));
-      ring.rotation.x = -Math.PI / 2; ring.position.copy(q.hit.at).setY(0.003); ring.frustumCulled = false; grp.add(ring);
+      ring.rotation.x = -Math.PI / 2; ring.position.copy(q.hit.at).setY(gy + 0.003); ring.frustumCulled = false; grp.add(ring);
       q.sp.forEach((z, i_) => { const ang = 6.283 * (z + i_ / 3), out_ = new THREE.Vector3(Math.cos(ang), 0, Math.sin(ang)).multiplyScalar(q.size * (1.2 + 2 * z) * u_);
         const dp = new THREE.Mesh(new THREE.CircleGeometry(q.size * 0.16, 10), new THREE.MeshBasicMaterial({ color: 0x8fd0ff, transparent: true, opacity: 0.9 * (1 - u_), depthWrite: false, toneMapped: false }));
-        dp.position.copy(q.hit.at).add(out_).setY(q.size * (2.2 + 2 * z) * u_ * (1 - u_) * 2); dp.quaternion.copy(cam.quaternion); dp.frustumCulled = false; grp.add(dp); });
+        dp.position.copy(q.hit.at).add(out_).setY(gy + q.size * (2.2 + 2 * z) * u_ * (1 - u_) * 2); dp.quaternion.copy(cam.quaternion); dp.frustumCulled = false; grp.add(dp); });
       continue;
     }
-    if (p.y < 0) { if ((P.ground ?? 'die') === 'die') continue; p.y = 0.002; }
+    if (p.y < gy) { if ((P.ground ?? 'die') === 'die') continue; p.y = gy + 0.002; }
     const u = a / q.life, alpha = Math.min(1, u / 0.08) * Math.min(1, (1 - u) / (P.fade ?? 0.35));
     const size = q.size * (P.shrink ? Math.pow(1 - u, P.shrink) : 1) * (P.grow ? 1 + P.grow * u : 1);
     let rot = q.rot + q.spin * a;
@@ -348,33 +391,36 @@ function massPass(mass, kind) {          // the field into a buffer (the body hi
   _quad.m.uniforms.field.value = _rt.texture; _quad.m.uniforms.kind.value = kind === 'fire' ? 1 : 0; _quad.m.uniforms.px.value.set(1 / sz.x, 1 / sz.y);
   renderer.render(_quad.scene, _quad.cam);
 }
-window.frames = (clipName, dir, n, t0, t1, head, up = 0, wide = 1, shadows = false) => {
+// opt.yaw: this animation seen from another side than its facing's (degrees, as FACING: a side view's ladder climb, 180 - her back to the
+// camera); opt.pinY: the hips kept at the first frame's height too (a climb's clip goes up a rung a cycle: the game moves the sprite)
+window.frames = (clipName, dir, n, t0, t1, head, up = 0, wide = 1, shadows = false, opt = {}) => {
   window.shadowShots = []; window.heldShots = []; window.bodyShots = [];
   root.rotation.y = FACING[dir] * Math.PI / 180;
+  if (opt && opt.yaw !== undefined && opt.yaw !== null) root.rotation.y = opt.yaw * Math.PI / 180;
   mixer.stopAllAction();
   const clip = clips.find((c) => c.name === clipName) || clips[0];
   const act = mixer.clipAction(clip); act.play();
-  const out = []; let x0 = null, z0 = null;
-  window.trailShots = [];
+  const out = []; let x0 = null, z0 = null, y0 = null;
+  window.trailShots = []; window.headShots = []; window.floorLows = []; window.edgeShots = []; window.trailEdges = [];
   // THE MIXER WRITES A BONE ONLY WHEN ITS VALUE CHANGED since it last wrote it (three's PropertyMixer). What is done to the pose after
   // it - the shoulders raised, the head lifted, the fingers curled - is then never undone where a bone holds still: a swing with a
   // trail is posed 200 times to trace its path first, and an arm the clip keeps still was raised 200 times over - frame one showed it
   // straight up. So the pose as the mixer left it is put back before every new one.
   let animated = null;
-  const pose = (t) => {
+  const pose = (t, keep = false) => {
     if (animated) for (const [b, q, p] of animated) { b.quaternion.copy(q); b.position.copy(p); }
-    if (hips && x0 === null) { mixer.setTime(t0); x0 = hips.position.x; z0 = hips.position.z; }
+    if (hips && x0 === null) { mixer.setTime(t0); x0 = hips.position.x; z0 = hips.position.z; y0 = hips.position.y; }
     mixer.setTime(t);
     animated = Object.values(bones).map((b) => [b, b.quaternion.clone(), b.position.clone()]);
-    if (hips) { hips.position.x = x0; hips.position.z = z0; }      // the walk stays on the spot
+    if (hips) { hips.position.x = x0; hips.position.z = z0; if (opt && opt.pinY) hips.position.y = y0; }      // the walk stays on the spot
     curlFingers();
-    root.updateMatrixWorld(true); shoulders(up, wide); root.updateMatrixWorld(true); headUp(head); root.updateMatrixWorld(true);
+    root.updateMatrixWorld(true); shoulders(up, wide); root.updateMatrixWorld(true); headUp(head); root.updateMatrixWorld(true); onFloor(keep, !!(opt && opt.stick));
   };
   const fx = held && FX ? fxPath(pose, t0, t1, FX) : null, parts = fx ? fxPieces(fx, FX) : [];
   for (let i = 0; i < n; i++) {
     const t = t0 + (t1 - t0) * i / n;
-    pose(t);
-    renderer.render(scene, cam); out.push(renderer.domElement.toDataURL('image/png'));
+    pose(t, true);
+    renderer.render(scene, cam); out.push(renderer.domElement.toDataURL('image/png')); window.headShots.push(headView()); window.edgeShots.push(edgeHit());
     if (held && FX) {      // the swing's effect alone, the body and the held thing cutting it where they are in front → window.trailShots
       // "frames_x": m effect frames to each of the body's (the body is drawn 8 times, the effect costs nothing): shown at m times the
       // pace over the same body frame, a sheet of water is seen tearing instead of being whole in one frame and drops in the next
@@ -385,12 +431,12 @@ window.frames = (clipName, dir, n, t0, t1, head, up = 0, wide = 1, shadows = fal
         // water already down at the feet while the umbrella was still up). Kept inside the clip at its two ends
         const te = Math.min(t1, Math.max(t0, t + (t1 - t0) / n * (j - (m - 1) / 2) / m));
         const ribbon = fx ? fxDraw(fx, parts, te, (t1 - t0) / n, FX) : null;
-        if (!ribbon) { window.trailShots.push(null); continue; }
+        if (!ribbon) { window.trailShots.push(null); window.trailEdges.push(false); continue; }
         renderer.clear(); renderer.autoClear = false;
         if (ribbon.userData.mass) massPass(ribbon.userData.mass, FX.mass);
         scene.add(ribbon); renderer.render(scene, cam); scene.remove(ribbon); renderer.autoClear = true;
         ribbon.traverse((x) => { if (x.isMesh) x.geometry.dispose(); if (x.material) x.material.dispose(); });
-        window.trailShots.push(renderer.domElement.toDataURL('image/png'));
+        window.trailShots.push(renderer.domElement.toDataURL('image/png')); window.trailEdges.push(edgeHit());
       }
       solid.forEach(([o, mt]) => { o.material = mt; });
     }
@@ -404,24 +450,29 @@ window.frames = (clipName, dir, n, t0, t1, head, up = 0, wide = 1, shadows = fal
       window.shadowShots.push(shadowShot());
     }
   }
+  root.position.y = 0;
   return out;
 };
 // IN-BETWEEN POSES ("between": [from, to] in an action): the body part-way from one clip's pose to another's - the frames that join
 // a walk to an attack's first pose, which no clip has. Both clips are played at once at one moment each, weighted (eased, so it
 // leaves and arrives gently); the hips stay on the spot each clip keeps.
-window.blendFrames = (clipA, tA, clipB, tB, dir, n, head, up = 0, wide = 1, shadows = false) => {
+// pinA, pinB: the moment of each clip whose place the hips keep - an action's frames all stand where its FIRST frame stands (window.frames),
+// so the end of an action that steps (a spinning cut) is laid where the action began, not where the clip has walked to
+// yawA, yawB: the side each end is seen from, where it is not the facing's own (an end with "face") - the body turns from one to the other
+window.blendFrames = (clipA, tA, clipB, tB, dir, n, head, up = 0, wide = 1, shadows = false, pinA = null, pinB = null, yawA = null, yawB = null) => {
   window.shadowShots = []; window.heldShots = []; window.bodyShots = []; window.trailShots = [];
   root.rotation.y = FACING[dir] * Math.PI / 180;
+  const ya = yawA === null ? FACING[dir] : yawA, yb = yawB === null ? FACING[dir] : yawB, turnBy = ((yb - ya + 540) % 360) - 180;
   const find = (nm) => clips.find((c) => c.name === nm) || clips[0], A = mixer.clipAction(find(clipA)), B = mixer.clipAction(find(clipB));
   const only = (act, t) => { mixer.stopAllAction(); act.play(); mixer.setTime(t); return hips ? [hips.position.x, hips.position.z] : [0, 0]; };
-  const pa = only(A, tA), pb = only(B, tB), out = [];
+  const pa = only(A, pinA === null ? tA : pinA), pb = only(B, pinB === null ? tB : pinB), out = []; window.headShots = []; window.floorLows = []; window.edgeShots = []; window.trailEdges = [];
   for (let i = 0; i < n; i++) {
-    const u = (i + 1) / (n + 1), w = u * u * (3 - 2 * u);
+    const u = (i + 1) / (n + 1), w = u * u * (3 - 2 * u); root.rotation.y = (ya + turnBy * w) * Math.PI / 180;
     mixer.stopAllAction(); A.reset().play(); B.reset().play(); A.setEffectiveWeight(1 - w); B.setEffectiveWeight(w); A.time = tA; B.time = tB; mixer.update(0);
     if (hips) { hips.position.x = pa[0] + (pb[0] - pa[0]) * w; hips.position.z = pa[1] + (pb[1] - pa[1]) * w; }
     curlFingers();
-    root.updateMatrixWorld(true); shoulders(up, wide); root.updateMatrixWorld(true); headUp(head); root.updateMatrixWorld(true);
-    renderer.render(scene, cam); out.push(renderer.domElement.toDataURL('image/png'));
+    root.updateMatrixWorld(true); shoulders(up, wide); root.updateMatrixWorld(true); headUp(head); root.updateMatrixWorld(true); onFloor(true);
+    renderer.render(scene, cam); out.push(renderer.domElement.toDataURL('image/png')); window.headShots.push(headView()); window.edgeShots.push(edgeHit());
     if (held && window.wantHeld) {       // the held thing alone, and the body alone (as window.frames has them: where the held thing should be drawn)
       const others = []; root.traverse((o) => { if (o.isMesh && !isHeld(o)) { others.push(o); o.visible = false; } });
       renderer.render(scene, cam); window.heldShots.push(renderer.domElement.toDataURL('image/png'));
@@ -432,7 +483,7 @@ window.blendFrames = (clipA, tA, clipB, tB, dir, n, head, up = 0, wide = 1, shad
       window.shadowShots.push(shadowShot());
     }
   }
-  A.setEffectiveWeight(1); B.setEffectiveWeight(1); mixer.stopAllAction();
+  A.setEffectiveWeight(1); B.setEffectiveWeight(1); mixer.stopAllAction(); root.position.y = 0;
   return out;
 };
 // ---- something held in a hand (an action's "hold", or the character's own: carried through the walk and the standing views too) ------
@@ -502,6 +553,19 @@ let _ramp = null;
 function rampTex() { if (_ramp) return _ramp; const s = new Uint8Array([90, 170, 255]); _ramp = new THREE.DataTexture(s, 3, 1, THREE.RedFormat); _ramp.minFilter = _ramp.magFilter = THREE.NearestFilter; _ramp.needsUpdate = true; return _ramp; }
 window.setHold = (kind, o = {}) => {
   window.clearHold(); if (!kind || !HOLDS[kind]) return false;
+  if (o.on === 'back') {
+    // CARRIED ON THE BACK ("on": "back"): both hands are busy (a ladder) and the thing must not vanish. It lies across the back from over
+    // the right shoulder down to the left hip, fixed to the upper spine: its middle `back` figure heights behind the bone and `down`
+    // under it, leaning `tilt` degrees from upright. No hand closes on it.
+    const sp = bones.Spine2 || bones.Spine1 || bones.Spine; if (!sp || !sp.userData.restInv) return false;
+    const obj = HOLDS[kind](o); obj.traverse((m) => { if (m.isMesh) { m.userData.toon = m.material; m.userData.flat = flatMaterial(); m.frustumCulled = false; } });
+    const wrap = new THREE.Group(); wrap.add(obj); sp.add(wrap); root.updateMatrixWorld(true);
+    const ws = new THREE.Vector3(); sp.getWorldScale(ws); wrap.scale.setScalar(1 / ws.x);
+    const L = (o.length || 0.85) / (o.size || 1.7), tilt = (o.tilt ?? 32) * Math.PI / 180, dir = new THREE.Vector3(Math.sin(tilt), -Math.cos(tilt), 0);     // from the handle (up, at the right shoulder) to the tip
+    wrap.quaternion.copy(sp.userData.restInv).multiply(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir));
+    wrap.position.copy(new THREE.Vector3(0, -(o.down ?? 0.05), -(o.back ?? 0.1)).addScaledVector(dir, -L * 0.5).applyQuaternion(sp.userData.restInv)).divideScalar(ws.x);
+    held = wrap; heldSide = 'Right'; heldCurl = null; window.holdInfo = { kind, on: 'back' }; root.updateMatrixWorld(true); return true;
+  }
   const side = o.hand === 'left' ? 'Left' : 'Right', own = HOLD_GRIP[kind] || {}, flip = side === 'Left' ? -1 : 1;
   const hand = bones[side + 'Hand'] || bones['mixamorig' + side + 'Hand']; if (!hand) return false;
   const obj = HOLDS[kind](o); obj.traverse((m) => { if (m.isMesh) { m.userData.toon = m.material; m.userData.flat = flatMaterial(); m.frustumCulled = false; } });
@@ -698,6 +762,31 @@ const swayBone = (name, deg) => {      // turn a bone about the up axis (the tai
   b.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(ax, deg * Math.PI / 180)); root.updateMatrixWorld(true);
 };
 let rest = {};
+// a mannequin ("mannequin": true): the model with its picture taken off - a pose to draw another design on. Pale grey all over, the limbs
+// of its right side warm red and of its left side blue (an animal's legs; a person's arms and legs), so that which limb is the near one
+// can be read in every frame; an animal's tail is taken off.
+window.setPlain = () => {
+  const ramp = new THREE.DataTexture(new Uint8Array([90, 160, 230]), 3, 1, THREE.RedFormat); ramp.minFilter = ramp.magFilter = THREE.NearestFilter; ramp.needsUpdate = true;
+  const GREY = [0.52, 0.54, 0.58], SIDE = { R: [0.78, 0.20, 0.17], L: [0.16, 0.34, 0.80] };
+  root.traverse((o) => {
+    if (!o.isMesh || !o.userData.toon) return;
+    const g = o.geometry, si = g.attributes.skinIndex, sw = g.attributes.skinWeight, n = g.attributes.position.count, col = new Float32Array(n * 3);
+    const names = o.isSkinnedMesh ? o.skeleton.bones.map((b) => Object.keys(bones).find((k) => bones[k] === b) || b.name || '') : [];
+    for (let i = 0; i < n; i++) {
+      const c = [0, 0, 0];
+      for (let k = 0; k < 4; k++) {
+        const w = si ? sw.getComponent(i, k) : (k ? 0 : 1), nm = si ? names[si.getComponent(i, k)] : '';
+        const m = /^(sh|el|wr|ft|hip|kn|hk|hp|ht)([LR])$/.exec(nm), h = /(Left|Right)(Arm|ForeArm|Hand|UpLeg|Leg|Foot|ToeBase)/.exec(nm);      // an animal's legs; a person's arms and legs (Mixamo's names)
+        const rgb = m ? SIDE[m[2]] : h ? SIDE[h[1][0]] : GREY; for (let j = 0; j < 3; j++) c[j] += w * rgb[j];
+      }
+      col.set(c, i * 3);
+    }
+    g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    o.material = o.userData.toon = new THREE.MeshToonMaterial({ color: 0xffffff, vertexColors: true, gradientMap: ramp });
+  });
+  // no tail: drawn from a mannequin with a tail, a stag with a short scut came out with a wolf's brush - the tail is the design's own business
+  if (bones.t0) { bones.t0.scale.setScalar(0.001); root.updateMatrixWorld(true); }
+};
 
 window.loadQuad = async (url, pitch = 30, light = 'right') => {
   if (light === 'left') SHADOW = [0.42, -0.78];
@@ -731,8 +820,39 @@ window.loadQuad = async (url, pitch = 30, light = 'right') => {
   geo.applyMatrix4(new THREE.Matrix4().makeTranslation(-(box.min.x + box.max.x) / 2, -box.min.y, -(box.min.z + box.max.z) / 2));
   geo.applyMatrix4(new THREE.Matrix4().makeScale(S, S, S)); geo.computeVertexNormals();
   box = new THREE.Box3().setFromBufferAttribute(geo.attributes.position);
-  const H = box.max.y, cx = 0, n = P.count;
+  let H = box.max.y; const cx = 0, n = P.count;
   const Y = (i) => P.getY(i), X = (i) => P.getX(i), Z = (i) => P.getZ(i);
+  // "fit" (a mannequin given another animal's build): its legs, the depth of its body and the reach of its neck stretched or shrunk to the
+  // proportions asked for - each a ratio to the distance between the fore and the hind feet - before its skeleton is looked for. Drawn on
+  // a dog's mannequin as it was, a boar, a stag and a salamander all came out with a dog's legs.
+  window.quadFitted = null;
+  if (window.quadFit) {
+    const fit = window.quadFit; let z0 = 1e9, z1 = -1e9;
+    for (let i = 0; i < n; i++) if (Y(i) < 0.1 * H) { z0 = Math.min(z0, Z(i)); z1 = Math.max(z1, Z(i)); }
+    const zf0 = z1 - 0.15 * (z1 - z0), zh0 = z0 + 0.15 * (z1 - z0), wb = zf0 - zh0, zm = (zf0 + zh0) / 2;
+    let be = 1e9, bk = -1e9, nz = -1e9, ny = 0;                     // its belly, its back over the middle, its nose
+    for (let i = 0; i < n; i++) {
+      const x = X(i), y = Y(i), z = Z(i);
+      if (Math.abs(x) < 0.08 && z > zh0 + 0.25 * wb && z < zf0 - 0.25 * wb) be = Math.min(be, y);
+      if (Math.abs(x) < 0.08 && Math.abs(z - zm) < 0.03) bk = Math.max(bk, y);
+      if (z > nz) { nz = z; ny = y; }
+    }
+    const lim = (v) => Math.min(2.5, Math.max(0.25, v));
+    const a = fit.leg ? lim(fit.leg * wb / be) : 1, b = fit.body ? lim(fit.body * wb / (bk - be)) : 1;
+    const c = ny - bk > 0.02 ? (fit.nose_up > 0.03 ? lim(fit.nose_up * wb / (ny - bk)) : 0.3) : b;   // (a head carried under the back's line, a boar's: the neck as low as it goes - stretched with the body it stood up like a giraffe's)
+    const d = fit.nose_out > 0.03 && nz - zf0 > 0.02 ? lim(fit.nose_out * wb / (nz - zf0)) : 1;
+    for (let i = 0; i < n; i++) {
+      const y = Y(i), z = Z(i);
+      P.setY(i, y < be ? y * a : y < bk ? be * a + (y - be) * b : be * a + (bk - be) * b + (y - bk) * c);
+      if (z > zf0) P.setZ(i, zf0 + (z - zf0) * d);
+    }
+    P.needsUpdate = true; box = new THREE.Box3().setFromBufferAttribute(P);
+    const S2 = 0.72 / Math.max(box.max.y - box.min.y, box.max.z - box.min.z);
+    geo.applyMatrix4(new THREE.Matrix4().makeTranslation(-(box.min.x + box.max.x) / 2, -box.min.y, -(box.min.z + box.max.z) / 2));
+    geo.applyMatrix4(new THREE.Matrix4().makeScale(S2, S2, S2)); geo.computeVertexNormals();
+    box = new THREE.Box3().setFromBufferAttribute(P); H = box.max.y;
+    window.quadFitted = { leg: +a.toFixed(2), body: +b.toFixed(2), neck: +c.toFixed(2), reach: +d.toFixed(2) };
+  }
   // the four feet: what touches the ground, in four clusters (fore / hind by z, left / right by x - the animal faces +z, its left is +x)
   const low = []; for (let i = 0; i < n; i++) if (Y(i) < 0.1 * H) low.push(i);
   let lz0 = 1e9, lz1 = -1e9, lx = 0; for (const i of low) { lz0 = Math.min(lz0, Z(i)); lz1 = Math.max(lz1, Z(i)); lx = Math.max(lx, Math.abs(X(i))); }

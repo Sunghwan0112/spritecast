@@ -26,7 +26,7 @@
 | `camera` | `"iso-2:1"` (default: 30° down, footprint a diamond, tiles 2:1), `"isometric"` (true isometric, 35.26°), `"topdown"` (3/4 top-down, 50°, square on), `"front"` (12°, square on, side-scroller), or `{"pitch": deg, "yaw": deg}` |
 | `views` | turns to draw, e.g. `[0, 90, 180, 270]` for all four facings: one folder each (`turn-<deg>/`); the later ones are drawn with the first drawing as a reference, so it stays the same object |
 | `light` | `"right"` (default: light from the upper right, shadows up-left) or `"left"` |
-| `character` | a person instead of blocks: `{"height": 1.7, "build": "slim" \| "average" \| "broad", "pose": "stand" \| "wave" \| "point" \| "hold" \| "arms-crossed" \| "walk" or {"base": preset, "arm": {"left"\|"right": [[out, fwd], [out, fwd]]}, "leg": {...}}, "directions": [...]}` - a mannequin is built for you (footprint 0.5 m, anchor between the feet, `loose`); directions from `south` (toward the viewer), `south-east`, `east`, `north-east`, `north`, `north-west`, `west`, `south-west`; default the four diagonals. One folder per direction. Extra `blocks` (a bag, a hat brim) are added to the mannequin |
+| `character` | a person instead of blocks: `{"body": "man" \| "woman" \| "child", "height": 1.7, "build": "slim" \| "average" \| "broad", "pose": "stand" \| "wave" \| "point" \| "hold" \| "arms-crossed" \| "walk" or {"base": preset, "arm": {"left"\|"right": [[out, fwd], [out, fwd]]}, "leg": {...}}, "directions": [...]}` - one of SpriteCast's mannequins (bald, plain; `mannequins/<body>.glb`; no `height`: 1.75, 1.65, 1.25 m; no `body`: `man`; `"body": "blocks"` is the figure of boxes and round limbs used before 0.29) is put in the pose for you (footprint 0.5 m, anchor between the feet, `loose`); directions from `south` (toward the viewer), `south-east`, `east`, `north-east`, `north`, `north-west`, `west`, `south-west`; default the four diagonals. One folder per direction. Extra `blocks` (a bag, a hat brim) are added to the mannequin. The drawing is told the pose: standing relaxed with the arms at the sides for `stand`, otherwise what the figure does and its arms, hands (and a walk's legs) exactly as the mannequin's; where it looks by the mannequin's face (`blocks`: its nose block). Every facing renders from one posed figure (made once) |
 | `shadow` | `"guide"`: cast in 3D from the blocks, exact for solid things (the default). `"drawn"`: the finished drawing's silhouette, each pixel moved by the guide's 3D height under it (render-height.png) - the drawing's shape (hair, clothes, leaves), every foot and base starting its shadow where it stands; higher up (10-35 % of the height) easing into a smooth height read off the screen, for a natural shadow above; where it stands, the guide's own 3D shadow of its blocks up to 12 cm (render-contact.png) (the default for characters and `loose`) |
 | `loose` | `true` for plants and other loose shapes that may spill past their guide: fitted by height, not checked for proportions |
 | `style` | a bundled style name (`cozy`) or a path to your own style picture |
@@ -39,6 +39,16 @@ parts: upper arm then forearm, thigh then shin. Each part is `[out, fwd]` degree
 its own side (negative: across the body), then swung `fwd` forward (negative: back). `left` and `right` are the figure's own (facing
 the viewer, its right hand is on the screen's left). Examples: a raised hand `[[80, 10], [165, 15]]`, an arm pointing ahead
 `[[8, 80], [8, 88]]`, hands on a cup `[[6, 8], [-35, 70]]`, a leg stepping forward `[[2, 24], [2, 6]]`.
+
+`"palm": {"left": "front"}` - which way that palm faces: `front`, `back`, `in` (toward the body), `out`, `up`, `down` (the presets set
+it: a wave's open hand faces forward, hands holding something are palm up). Forearm and hand are turned about the forearm's line, half
+each. An arm set by angles keeps the palm the arm leaves it with, unless said.
+
+**Limbs do not pass through each other.** Each forearm with its hand, the trunk, the head and the thighs are taken as round rods as
+thick as the mesh is there; after the pose is set, a forearm lying inside another rod is pushed out the shortest way, a little at a
+time (two forearms half each). So `arms-crossed` lies one forearm over the other, and angles that would put a hand into the chest
+stop at the chest. A forearm may sink a little way into the body's rods (a hand rests against a thigh) before it is pushed. `render`
+warns when a pose did not come free in 80 rounds - change its numbers.
 
 ## Axes
 - **x** runs to the screen's lower right (↘), **y** to its lower left (↙), **h** up. Metres.

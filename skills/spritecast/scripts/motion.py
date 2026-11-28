@@ -14,6 +14,10 @@
         an axe's chop made a sword's cut: the forward bend cut to --bend of itself (spine and hips, the thighs turned back so the
         feet stay); the wrist turned so the blade runs on from the arm through the stroke, and (--lag) trails the hand early in it
         and catches up at the hit - its tip on an arc round the shoulder
+    python motion.py layer SPEC.json downward@0.35-1.40 jumping@0.90-1.25 NAME [--from Spine]
+        clip A's upper body on clip B's legs: every bone from --from up (the spine, arms, head) moves as in A, the hips and legs as in
+        B (B's stretch of time spread over A's), and the spine keeps the turn it has in A whatever B's hips do - a cut made in the
+        air: the ground cut's arms over a jump's legs (a jump attack, with no new clip to find)
     python motion.py join SPEC.json NAME downward:0:2.26 bh:0:2.49 ...
         clips one after another as one (to render a whole combo smoothly, 24 a second, and look at the joins)
     python motion.py preset SPEC.json rain-girl-combo [--fbx DIR]
@@ -196,6 +200,25 @@ def blade(r, s, clip, stroke, bend, lag, maxdeg):
     return data
 
 
+def layer(r, a_rng, b_rng, name, top):
+    A, ra = a_rng.split('@'); a0, a1 = [float(x) for x in ra.split('-')]; B, rb = b_rng.split('@'); b0, b1 = [float(x) for x in rb.split('-')]
+    ca, cb = r.clip(A), r.clip(B); us = np.arange(0, a1 - a0 + 1e-6, 1 / FPS); tb = lambda u: b0 + (b1 - b0) * u / max(1e-9, a1 - a0)
+    if top not in r.names: sys.exit(f'motion layer: no bone "{top}" in the rig')
+    ti = r.names.index(top); up = set(); todo = [ti]
+    while todo: i = todo.pop(); up.add(i); todo += r.j['nodes'][i].get('children', [])
+    bones = {}
+    for i in sorted({i for (i, p) in list(ca) + list(cb) if p == 'rotation'}):
+        if i == ti: q = [(r.wrot(r.parent[i], cb, tb(u)).inv() * r.wrot(i, ca, a0 + u)).as_quat() for u in us]        # the turn it has in A, on B's hips
+        elif i in up: q = [r.trs(i, ca, a0 + u)[1].as_quat() for u in us]
+        else: q = [r.trs(i, cb, tb(u))[1].as_quat() for u in us]
+        bones[r.names[i]] = np.array(q).ravel()
+    hp = r.names.index('Hips'); hips = np.array([r.trs(hp, cb, tb(u))[0] for u in us]).ravel()
+    tmp = r.path.with_name(r.path.stem + f'.{name}.tmp.glb'); write_clip(str(r.path), str(tmp), name, {'n': len(us), 'duration': float(us[-1]), 'bones': bones, 'hips': hips}, fps=FPS)
+    data = tmp.read_bytes(); tmp.unlink()
+    print(f'motion: layer {name}: {A} {a0:.2f}-{a1:.2f} s from "{top}" up, on the legs of {B} {b0:.2f}-{b1:.2f} s ({len(us)} keys, {len(up)} bones from {A})')
+    return data
+
+
 def join(r, name, segs):
     frames = []
     for k, sg in enumerate(segs):
@@ -257,7 +280,7 @@ def main(argv):
     if len(argv) >= 3 and argv[0] == 'preset':
         rest = argv[3:]; fb = rest[rest.index('--fbx') + 1] if '--fbx' in rest else ''
         return preset(argv[1], argv[2], fb)
-    if len(argv) < 3 or argv[0] not in ('ground', 'plant', 'link', 'blade', 'join'): sys.exit(__doc__)
+    if len(argv) < 3 or argv[0] not in ('ground', 'plant', 'link', 'blade', 'join', 'layer'): sys.exit(__doc__)
     cmd, spec = argv[0], argv[1]; s, d = CP.load(spec); glb = Path(s.get('rig_glb') or d / 'rig/rig.glb')
     if not glb.is_absolute(): glb = (Path(spec).resolve().parent / glb) if not glb.exists() else glb.resolve()
     r = Rig(glb); rest = argv[2:]
@@ -269,6 +292,8 @@ def main(argv):
     elif cmd == 'plant': data, tag = plant(r, rest), 'plant'
     elif cmd == 'link':
         blend = opt('--blend', 0.4); data, tag = link(r, rest[0], rest[1], rest[2], blend), rest[2]
+    elif cmd == 'layer':
+        top = opt('--from', 'Spine'); data, tag = layer(r, rest[0], rest[1], rest[2], top), rest[2]
     elif cmd == 'blade':
         st = opt('--stroke', ''); bend = opt('--bend', 0.55); lag = opt('--lag', 0.9); mx = opt('--max-turn', 100.0)
         if not st: sys.exit('motion blade: --stroke T0-T1 (when the stroke is fastest - render the clip and look, or watch the hand)')

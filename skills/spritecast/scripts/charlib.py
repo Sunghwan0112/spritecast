@@ -2,7 +2,6 @@
 drawn frames (cut out of their sheet, a walk fitted onto its renders, the heads' size steadied, the white left between the limbs and
 round dark hair taken out) and the 3D shadows."""
 import os, sys, json, struct
-from collections import deque
 import numpy as np
 from PIL import Image
 from scipy import ndimage
@@ -267,17 +266,12 @@ def _have_ort():
 
 
 def white_key(im):
-    """the figure: everything but the near-white background joined to the picture's edge"""
-    d = np.array(im.convert('RGB')).astype(int); near = (d.min(2) > 232) & ((d.max(2) - d.min(2)) < 18); H, W = near.shape
-    bg = np.zeros((H, W), bool); q = deque()
-    for yy, xx in [(0, x) for x in range(W)] + [(H - 1, x) for x in range(W)] + [(y, 0) for y in range(H)] + [(y, W - 1) for y in range(H)]:
-        if near[yy, xx] and not bg[yy, xx]: bg[yy, xx] = True; q.append((yy, xx))
-    while q:
-        yy, xx = q.popleft()
-        for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-            ny, nx = yy + dy, xx + dx
-            if 0 <= ny < H and 0 <= nx < W and near[ny, nx] and not bg[ny, nx]: bg[ny, nx] = True; q.append((ny, nx))
-    return ~bg
+    """the figure: everything but the near-white background joined to the picture's edge (the near-white's 4-connected pieces that
+    touch the edge - the same mask the pure-Python flood fill from the edge it replaced gave, ~20x faster: 1.75 → 0.09 s on 1536x1024)"""
+    d = np.asarray(im.convert('RGB')); lo = d.min(2); near = (lo > 232) & ((d.max(2) - lo) < 18)          # (uint8: max - min never wraps)
+    lab, n = ndimage.label(near); fig = np.ones(n + 1, bool)
+    fig[np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]])] = False; fig[0] = True
+    return fig[lab]
 
 
 PX = 1.0      # the renders' resolution against the 512 px they were made for (charpipe sets it from "render_px"): px constants scale by it
@@ -500,7 +494,15 @@ def flip_onto(im, ren):
     figure, not about the picture's middle: flipped where it stood, a frame came out ~18 px off its render - 0.42-0.76 overlap where it
     fits at 0.83-0.90)"""
     a = np.asarray(im.convert('RGBA').transpose(Image.FLIP_LEFT_RIGHT)); r = np.asarray(Image.open(ren).convert('RGBA'))[..., 3] > 128; m = a[..., 3] > 127
-    r = round(60 * PX); dx = max(range(-r, r + 1), key=lambda s: (np.roll(m, s, 1) & r).sum() / max(1, (np.roll(m, s, 1) | r).sum()))
+    w = round(60 * PX)        # (w, not r: since 0.9.0 the reach was written over the render's mask and every flipped frame went 60 px to the left)
+    # overlap = both / (frame + render - both) at each shift s of the frame (np.roll: what goes off one side comes in at the other). Only
+    # the render's box can hold `both`, so the frame's columns that come into it at some shift are gathered once and each shift is a slice
+    # of that - the same counts as rolling the whole canvas 2w+1 times, ~5x faster (194 → 41 ms a 1024 px frame)
+    ys = np.nonzero(r.any(1) & m.any(1))[0]; xs = np.nonzero(r.any(0))[0]; nm, nr = int(m.sum()), int(r.sum()); both = [0] * (2 * w + 1)   # (a shift is sideways only:
+    if len(ys):                                                                                                                         # rows not in both hold none)
+        y0, y1, x0, x1 = ys[0], ys[-1] + 1, xs[0], xs[-1] + 1; rr = r[y0:y1, x0:x1]; ext = m[y0:y1][:, np.arange(x0 - w, x1 + w) % m.shape[1]]
+        both = [int((ext[:, w - s:w - s + (x1 - x0)] & rr).sum()) for s in range(-w, w + 1)]
+    dx = max(range(-w, w + 1), key=lambda s: both[s + w] / max(1, nm + nr - both[s + w]))
     out = np.zeros_like(a)
     if dx >= 0: out[:, dx:] = a[:, :a.shape[1] - dx]
     else: out[:, :dx] = a[:, -dx:]

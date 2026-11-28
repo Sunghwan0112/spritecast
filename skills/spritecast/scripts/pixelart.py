@@ -66,6 +66,8 @@ if _idle.exists():
     _b = Image.open(_idle).convert('RGBA').getbbox()
     if _b: P.FIG = float(_b[3] - _b[1])
 ALL = list(CP.DIRS)          # the spec's facings: all eight, the four diagonals ("facings": 4) or the four cardinals ("cardinal")
+if CP.SIDE and not A.dirs:          # a side view: east alone is drawn - west is its mirror, and the game flips the sprite (both were drawn and paid for; --dirs east,west still draws both)
+    A.dirs = 'east'; print('a side view: only east is drawn - flip it in the game for west (--dirs east,west to draw both)')
 DIRS = [x for x in (A.dirs.split(',') if A.dirs else ALL) if x in ALL]; CLIPS = A.clips.split(',')
 Z = 1024 // (H * 4 // 3); CWp, CHp = 384 // Z, 1024 // Z; FOOT = CHp - CHp // 12            # a body sheet's cell in sprite pixels
 CWP, CHP = 1024 // Z, 1536 // Z; FOOTP = CHP - CHP // 12                                     # ... and a portrait sheet's one cell (a frame too tall for the other)
@@ -296,7 +298,7 @@ def body_sheet(clip, dr, g):
     words = s['actions'].get(clip, {}).get('words', 'walking')
     (W / f'{clip}-{dr}-{g}-{H}-prompt.txt').write_text(
         f"Image 1 is a SHEET of {len(idx)} frames of one {words} animation, side by side, read left to right: a 3D render of one person seen from a game "
-        f"camera from above, already reduced to LOW-RESOLUTION PIXELS - every square of {Z}x{Z} px in the picture is ONE sprite pixel, on a grid "
+        f"camera {CP.CAM}, already reduced to LOW-RESOLUTION PIXELS - every square of {Z}x{Z} px in the picture is ONE sprite pixel, on a grid "
         f"that starts at the picture's top-left corner; the figure is {H} sprite pixels tall. It is only a rough guide: its colours are muddy, "
         "it has no outline, the face is blank and dark streaks on the clothes are mistakes of the 3D model.\n"
         "Redraw EVERY cell as FINISHED PIXEL ART for an arcade game (a 1990s belt-scroll / fighting game sprite), ON THE SAME GRID: "
@@ -419,6 +421,8 @@ def main():
     EDITED.clear(); ASIDE.clear(); SPECKS.clear(); T0 = time.time()
     todo = [(c, dr) for c in CLIPS for dr in DIRS]
     miss = [(c, dr) for c, dr in todo if not all((d / f'render/{c}-{dr}-{i}.png').exists() for i in range(nframes(c)))]
+    gone = sorted({dr for _, dr in miss if dr not in CP.rendered_dirs(s)})
+    if gone: sys.exit(f'a side view renders {CP.FRONT} alone - {", ".join(gone)} is its mirror (flip the sprite in the game): leave it out of --dirs, or give the spec "mirror": "never" and `charpipe.py render` again to draw it on its own')
     if miss: sys.exit(f'no renders for {miss} - run `charpipe.py render` first')
     want = {}
     for c, dr in todo:

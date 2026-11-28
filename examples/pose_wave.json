@@ -1,6 +1,6 @@
 {
   "name": "pose_wave",
-  "character": {
+  "character": {"body": "blocks", 
     "height": 1.75,
     "build": "broad",
     "pose": "wave",

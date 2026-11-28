@@ -68,6 +68,45 @@ The cat is in [`examples/tabby_cat`](../../examples/tabby_cat): an orange tabby 
 turnaround, spec, strips, shadows and sheet - 30 Tripo credits and about $2.5 of drawing, redraws and design tries included. Its
 frames fit their renders at 0.76-0.97 (north-east and north-west mixed frame by frame with `"mix"`, see reference/character.md).
 
+## A side-scrolling game: one facing, and monsters drawn in 2D
+
+For a platformer or a side-view RPG, `"view": "side"` puts the camera level, straight from the side. ONE facing is drawn - walking
+right - and the other is its mirror: a walk and the standing view are 3 sheets (~$0.33) where eight facings take 18. `"turn": 45`
+turns the body toward the viewer, so both eyes show and a swing across the body is not hidden behind it. Actions work as before:
+a cut with its water, a jump (`"air"`), a ladder climbed with her back to us (`"face": "away"`).
+
+<details><summary>a side-scrolling game: the rain girl at the foot of a castle wall in the rain, a stag beside her, a stone wolf on the wall, a storm cloud over a wooden ledge</summary>
+
+![a side-scrolling game: the rain girl at the foot of a castle wall in the rain, a stag beside her, a stone wolf on the wall, a storm cloud over a wooden ledge](../side-game.png)
+
+</details>
+
+**Monsters, animals and townspeople need no 3D model each.** `creature.py` draws one design in the look of a picture of your game,
+then its walk on the poses of a plain **mannequin** that comes with SpriteCast - a grey dog, or a bald man, woman or child, the
+near limbs red and the far ones blue - and anything else it does (struck, falling apart, a hop) as a sheet of four moments said in
+words. About $0.06 a picture.
+
+- **A four-legged creature.** The dog mannequin is first stretched to the design's own leg length, body depth and neck (free).
+  Drawn on the dog as it was, a boar and a stag both came out with a dog's legs; fitted, each kept its build. A stone wolf's 8
+  frames came out within 3 px of the mannequin's places.
+- **A person.** The design is drawn standing as the mannequin stands, then walking on its poses. A cloaked guard and a herbalist
+  in a skirt kept their buckles, keys and braid through all 8 frames.
+- **In the game** the walk's frame is read off the distance walked (`step` px a whole step), so paws and feet do not slide.
+
+<details><summary>a boar and a stag: the design, the walk drawn on the dog as it was, and on the dog given their proportions</summary>
+
+![a boar and a stag: the design, the walk drawn on the dog as it was (a dog's legs), and on the dog given their proportions](../creature-fit.png)
+
+![a stone wolf, a boar and a stag walking, each at its own step](../creature-walk.gif)
+
+![a bald man and woman mannequin walking, and a cloaked guard and a herbalist drawn on their poses](../people-mannequin.png)
+
+</details>
+
+What stands with its legs out to the sides (a lizard, a spider) has no mannequin yet: a salamander came out standing on dog legs.
+The game's main character, with many actions and a thing in her hand, is still made from her own 3D model. Details:
+[reference/creature.md](../../skills/spritecast/reference/creature.md).
+
 ## More actions: run, jump, slash
 
 Beside the walk, a character can run, jump or swing something. List them in the spec, `"actions": ["run", "jump", {"name": "slash",

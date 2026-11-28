@@ -1,6 +1,6 @@
 {
   "name": "pose_hold",
-  "character": {
+  "character": {"body": "blocks", 
     "height": 1.63,
     "build": "slim",
     "pose": "hold",

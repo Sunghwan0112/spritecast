@@ -1,6 +1,6 @@
 {
   "name": "pose_walk",
-  "character": {
+  "character": {"body": "blocks", 
     "height": 1.72,
     "build": "average",
     "pose": "walk",

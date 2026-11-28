@@ -1,6 +1,6 @@
 {
   "name": "pose_arms_crossed",
-  "character": {
+  "character": {"body": "blocks", 
     "height": 1.8,
     "build": "broad",
     "pose": "arms-crossed",

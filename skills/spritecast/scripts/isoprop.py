@@ -12,7 +12,7 @@ image model redrawing it in your art style, then cut out, fitted back onto the g
 
 Output goes to <the spec's folder>/<spec name>/ (or --out DIR); a spec with several `views` gets a folder per view (turn-<deg>/).
 `draw` never overwrites an existing drawn.png (pass --again).
-Environment: OPENAI_API_KEY (draw only); TRIPO_API_KEY (model only); SPRITECAST_MODEL (default gpt-image-2.5-sunburst), SPRITECAST_QUALITY (low|medium|high, default high).
+Environment: OPENAI_API_KEY (draw only); TRIPO_API_KEY (model only); SPRITECAST_MODEL (default gpt-image-2.6-sunburst), SPRITECAST_QUALITY (low|medium|high, default high).
 """
 import argparse, base64, json, math, os, sys, time, urllib.error, urllib.request, uuid
 from pathlib import Path
@@ -24,7 +24,7 @@ from scipy import ndimage
 HERE = Path(__file__).resolve().parent
 STYLES = HERE.parent / 'styles'
 MAGENTA = (255, 0, 255)
-PRICE = {'image_in': 8e-6, 'text_in': 5e-6, 'image_out': 30e-6}       # USD per token (OpenAI, gpt-image-2.5)
+PRICE = {'image_in': 8e-6, 'text_in': 5e-6, 'image_out': 30e-6}       # USD per token (OpenAI, gpt-image-2.5 and 2.6: the same)
 # camera presets: pitch = degrees the camera looks down, yaw = how far the prop is turned (45: its footprint a diamond, 90: square on,
 # its +y side toward the viewer); words = how the prompt names the view
 CAMERAS = {
@@ -64,32 +64,41 @@ FACING_WORDS = {'south': 'facing straight toward the viewer', 'south-east': 'fac
 # a pose: per limb two directions, each (out, fwd) in degrees - first turned out to the side, then swung forward from hanging
 # straight down: upper arm and forearm, thigh and shin. side +1 is the figure's left (its +x side), -1 its right
 POSES = {
-    'stand':  {'arm': {1: ((5, 0), (5, 5)), -1: ((5, 0), (5, 5))}},
-    'wave':   {'arm': {1: ((80, 10), (165, 15)), -1: ((5, 0), (5, 5))}},
-    'point':  {'arm': {1: ((8, 80), (8, 88)), -1: ((5, 0), (5, 5))}},
-    'hold':   {'arm': {1: ((6, 8), (-35, 70)), -1: ((6, 8), (-35, 70))}},            # hands together in front: a cup, a tray, a book
+    'stand':  {'arm': {1: ((5, 0), (5, 5)), -1: ((5, 0), (5, 5))}, 'palm': {1: 'in', -1: 'in'}},
+    'wave':   {'arm': {1: ((80, 10), (165, 15)), -1: ((5, 0), (5, 5))}, 'palm': {1: 'front', -1: 'in'}},          # the open hand toward whoever is greeted
+    'point':  {'arm': {1: ((8, 80), (8, 88)), -1: ((5, 0), (5, 5))}, 'palm': {1: 'down', -1: 'in'}},
+    'hold':   {'arm': {1: ((6, 8), (-35, 70)), -1: ((6, 8), (-35, 70))}, 'palm': {1: 'up', -1: 'up'}},            # hands together in front: a cup, a tray, a book
     'arms-crossed': {'arm': {1: ((14, 22), (-72, 78)), -1: ((14, 22), (-72, 70))}},
-    'walk':   {'arm': {1: ((6, -20), (6, -12)), -1: ((6, 22), (6, 40))},
+    'walk':   {'arm': {1: ((6, -20), (6, -12)), -1: ((6, 22), (6, 40))}, 'palm': {1: 'in', -1: 'in'},
                'leg': {1: ((2, 24), (2, 6)), -1: ((2, -16), (2, -40))}},                # mid-stride: the +x leg forward
 }
+PALMS = ('front', 'back', 'in', 'out', 'up', 'down')          # which way a mannequin's palm faces (a figure of blocks has round hands)
+POSE_DOING = {'stand': 'standing', 'wave': 'standing and waving one hand', 'point': 'standing and pointing ahead with one arm',          # (the drawing's prompt: what the figure does)
+              'hold': 'standing with both hands held together in front of the body', 'arms-crossed': 'standing with the arms crossed',
+              'walk': 'walking, in mid-stride'}
 
 
 SIDES = {'left': 1, 'right': -1}          # the figure's own left and right
+BODIES = {'man': 1.75, 'woman': 1.65, 'child': 1.25}      # the mannequins (mannequins/<body>.glb) and the height each is given when the spec gives none, m
 
 
 def resolve_pose(p):
     """a preset name, or {"base": preset, "arm": {"left"|"right": [[out, fwd], [out, fwd]]}, "leg": {...}}: the preset with those limbs
     set - upper arm then forearm, thigh then shin, each turned `out` degrees to its side, then swung `fwd` degrees forward (negative:
-    back, or across the body for `out`). So an agent can change a pose by numbers and check it in the free render"""
+    back, or across the body for `out`); "palm": {"left"|"right": which way that palm faces}. So an agent can change a pose by numbers and
+    check it in the free render"""
     if isinstance(p, str):
         if p not in POSES: sys.exit(f'character pose: one of {", ".join(POSES)}, or a dict (see spec.md)')
         return POSES[p]
     base = json.loads(json.dumps(resolve_pose(p.get('base', 'stand')), default=list))
-    pose = {limb: {int(k): v for k, v in base.get(limb, {}).items()} for limb in ('arm', 'leg')}
+    pose = {limb: {int(k): v for k, v in base.get(limb, {}).items()} for limb in ('arm', 'leg', 'palm')}
     for limb in ('arm', 'leg'):
         for side, v in (p.get(limb) or {}).items():
             if side not in SIDES: sys.exit(f'character pose: {limb} sides are "left" and "right"')
-            pose[limb][SIDES[side]] = (tuple(v[0]), tuple(v[1]))
+            pose[limb][SIDES[side]] = (tuple(v[0]), tuple(v[1])); pose['palm'].pop(SIDES[side], None) if limb == 'arm' else None      # (an arm set by hand: its palm as the arm leaves it, unless said)
+    for side, v in (p.get('palm') or {}).items():
+        if side not in SIDES or v not in PALMS: sys.exit(f'character pose: "palm": {{"left" | "right": one of {", ".join(PALMS)}}}')
+        pose['palm'][SIDES[side]] = v
     return pose
 
 
@@ -136,7 +145,16 @@ def load_spec(path):
     spec = json.loads(Path(path).read_text(encoding='utf-8'))
     if spec.get('character') is not None:                       # a person: the mannequin as the guide, one view per facing
         c = spec['character'] = spec['character'] or {}
-        spec.setdefault('footprint', [0.5, 0.5]); spec['blocks'] = mannequin(c) + spec.get('blocks', [])
+        spec.setdefault('footprint', [0.5, 0.5]); body = c.get('body', 'man')
+        if body == 'blocks': spec['blocks'] = mannequin(c) + spec.get('blocks', [])        # the figure of boxes and round limbs, as before 0.29
+        else:                                                                             # one of the mannequins that come with SpriteCast, in the pose
+            if body not in BODIES: sys.exit(f'character body: "{body}" - one of {", ".join(BODIES)}, or "blocks"')
+            glb = HERE.parent / 'mannequins' / f'{body}.glb'
+            if not glb.exists(): sys.exit(f'character: {glb} is missing')
+            w = {'slim': 0.9, 'average': 1.0, 'broad': 1.12}.get(c.get('build', 'average'), 1.0)
+            spec['model'] = {'glb': str(glb), 'yaw': -90, 'size': [0.5, 0.5, float(c.get('height', BODIES[body]))],
+                             'figure': {'pose': resolve_pose(c.get('pose', 'stand')), 'build': w}}     # (the rig faces +z; -90 turns it to face +y like the blocks did)
+            spec['blocks'] = spec.get('blocks', [])
         spec.setdefault('loose', True); spec.setdefault('anchor', 'center')
         bad = [d for d in c.get('directions', []) if d not in DIRS]
         if bad: sys.exit(f'character directions: {bad} - use {", ".join(DIRS)}')
@@ -184,7 +202,7 @@ def render(spec, d):
             save(page.evaluate('() => window.shot()'), 'render.png')
             save(page.evaluate('() => window.shadowShot()'), 'render-shadow.png')
             top = max([block_top(x) for x in spec.get('blocks') or []]
-                      + ([spec['model']['size'][2]] if spec.get('model') else [])) + 0.05
+                      + ([spec['model']['size'][2] * (1.3 if spec['model'].get('figure') else 1)] if spec.get('model') else [])) + 0.05      # (a figure: a hand raised over the head)
             save(page.evaluate('(t) => window.heightShot(t)', top), 'render-height.png')
             corners = [page.evaluate('([x, y]) => window.toCanvas(x, y, 0)', c) for c in ([0, 0], [W, 0], [W, D], [0, D])]
             lo = sorted(corners, key=lambda p: -p[1])                           # the anchor: the footprint's lowest corner on screen,
@@ -197,9 +215,12 @@ def render(spec, d):
                 page.evaluate('(s) => window.setup(s)', {**page_spec, 'blocks': low, 'model': None, 'keepFrame': True})
                 save(page.evaluate('() => window.shadowShot()'), 'render-contact.png')
                 page.evaluate('(s) => window.setup(s)', page_spec)                          # (back to the whole prop)
+            if spec.get('model', {}).get('figure'): save(page.evaluate('(t) => window.contactShot(t)', CONTACT_H), 'render-contact.png')      # a mannequin's feet
             (vd / 'render.json').write_text(json.dumps(meta, indent=1))
             model_input(vd)
             print(f'render: {vd / "render.png"}  ({info["size"][0]}x{info["size"][1]} px)')
+            if spec.get('model', {}).get('figure') and page.evaluate('() => window.figureRounds') >= 80:
+                print('render: WARNING - the pose still has an arm inside the body or the other arm after 80 rounds of pushing apart; look at render.png and change the pose\'s numbers')
         browser.close()
 
 
@@ -258,10 +279,21 @@ def prompt_character(spec, first, yaw, light, look):
             if name.startswith('north') else '')
     again = (' Image 3 is this very character already drawn facing another way: draw exactly the same person - the same face, hair, '
              'body, clothes, colours and details - only turned as image 1 shows.') if first else ''
-    return ("Image 1 is a 3D render of a plain mannequin standing, for a character sprite in a game, seen from the game's exact camera - "
-            f"a {camera(spec)['words']}. The figure is {face}.{back}{again} Redraw the mannequin as {spec['description']} - standing relaxed "
+    c = spec.get('character') or {}; p = c.get('pose', 'stand')
+    # what the figure does, from its pose: "arms hanging at the sides" was said for every pose (a wave, a point, a walk drawn with the arms
+    # down), and "its small nose block" for every body - only the figure of blocks has one; a mannequin shows where it looks by its face
+    sig = lambda q: json.dumps({k: v for k, v in resolve_pose(q).items() if v}, sort_keys=True, default=list)
+    still = sig(p) == sig('stand')
+    doing = 'standing' if still else POSE_DOING.get(p, 'in a pose of its own') if isinstance(p, str) else 'in a pose of its own'
+    looks = ' (its small nose block shows where the face looks)' if c.get('body') == 'blocks' else ' (its face shows where it looks)'
+    which = 'the arms, the hands and the legs' if (resolve_pose(p).get('leg') or {}) else 'the arms and the hands'
+    limbs = ('arms hanging at the sides' if still else f'{which} exactly where and as the mannequin has them - each limb at the '
+             "same angle, each hand where the mannequin's is and turned the same way")
+    return (f"Image 1 is a 3D render of a plain mannequin {doing}, for a character sprite in a game, seen from the game's exact camera - "
+            f"a {camera(spec)['words']}. The figure is {face}.{back}{again} Redraw the mannequin as {spec['description']} - "
+            + ('standing relaxed ' if still else '' if doing == 'in a pose of its own' else f'{doing}, ') +
             "in exactly the mannequin's pose: the same height and size on the canvas, the feet where its feet are, the body and the head "
-            "turned exactly as the mannequin's (its small nose block shows where the face looks), arms hanging at the sides. Hair and "
+            f"turned exactly as the mannequin's{looks}, {limbs}. Hair and "
             "clothes may go a little past the mannequin's outline, nothing else. "
             f"In exactly the art style of image 2: {look}. Take ONLY the style from image 2 - nothing of its content and NOT its camera "
             f"angle: the angle is image 1's. Light from the {light}. "
@@ -292,13 +324,16 @@ def draw(spec, d, args):
     vs = views(spec, d); todo = [(t, vd) for t, vd in vs if args.again or not (vd / 'drawn.png').exists()]
     if args.only: todo = [(t, vd) for t, vd in todo if vd.name in args.only.split(',') or str(t) in args.only.split(',')]
     if not todo: return print('draw: every view is drawn already (--again to draw anew)')
-    model = os.environ.get('SPRITECAST_MODEL', 'gpt-image-2.5-sunburst'); quality = os.environ.get('SPRITECAST_QUALITY', 'high')
+    model = os.environ.get('SPRITECAST_MODEL', 'gpt-image-2.6-sunburst'); quality = os.environ.get('SPRITECAST_QUALITY', 'high')
     out_tok = {'low': 196, 'medium': 439, 'high': 1756}.get(quality, 1756)
     est = sum((2600 if vd == vs[0][1] else 3900) * PRICE['image_in'] + 450 * PRICE['text_in'] + out_tok * PRICE['image_out'] for _, vd in todo)
-    print(f'draw: {len(todo)} view(s), {model}, quality {quality}, about ${est:.2f}')
-    if not args.yes: return print('draw: not spent — run again with --yes')
+    manual = os.environ.get('SPRITECAST_DRAW') == 'manual'          # drawn by hand in the ChatGPT app (manualdraw.py): no key, nothing spent, nothing to confirm
     key = os.environ.get('OPENAI_API_KEY')
-    if not key: sys.exit('draw: set OPENAI_API_KEY')
+    if manual: print(f'draw: {len(todo)} view(s), by hand in the ChatGPT app - nothing spent')
+    else:
+        print(f'draw: {len(todo)} view(s), {model}, quality {quality}, about ${est:.2f}')
+        if not args.yes: return print('draw: not spent — run again with --yes')
+        if not key: sys.exit('draw: set OPENAI_API_KEY (or SPRITECAST_DRAW=manual to draw it yourself in the ChatGPT app)')
     for t, vd in todo:                                                         # the first view first: the others follow its drawing
         ref = vs[0][1] / 'drawn.png' if vd != vs[0][1] else None
         if ref is not None and not ref.exists(): sys.exit('draw: the first view has no drawing yet')
@@ -311,6 +346,8 @@ def draw_one(spec, d, args, model, quality, key, ref):
     size = '%dx%d' % Image.open(imgs[0]).size
     yaw = json.loads((d / 'render.json').read_text()).get('camera', {}).get('yaw', 45)
     fields = {'model': model, 'prompt': prompt(spec, first=bool(ref), yaw=yaw), 'size': size, 'quality': quality, 'background': 'opaque', 'output_format': 'png', 'n': '1'}
+    if os.environ.get('SPRITECAST_DRAW') == 'manual':
+        import manualdraw; manualdraw.draw(fields['prompt'], imgs, out, size); return print(f'draw: {out}  (drawn by hand)')
     b = uuid.uuid4().hex; body = b''
     for k, v in fields.items(): body += f'--{b}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode()
     for p in imgs:

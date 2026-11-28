@@ -1,14 +1,16 @@
 <h1 align="center"><img src="docs/banner.gif" alt="SpriteCast" width="100%"></h1>
 
 <p align="center"><b>Entra una ilustración. Sale un personaje de juego.</b><br>
-Un generador de sprites isométricos para Claude Code: caminatas en 8 direcciones, acciones y pixel art<br>
-con el ángulo de cámara de tu juego, con una sombra 3D bajo cada fotograma, y los props que van a su lado.</p>
+Un generador de sprites 2D para Claude Code, isométricos o de scroll lateral: caminatas en 8 direcciones, acciones y pixel art<br>
+con el ángulo de cámara de tu juego, una sombra 3D bajo cada fotograma, los props que van a su lado -<br>
+y los monstruos y la gente del pueblo de un juego de scroll lateral, dibujados sobre el andar de un maniquí.</p>
 
 <p align="center"><a href="https://github.com/Sunghwan0112/spritecast/stargazers"><img src="https://img.shields.io/github/stars/Sunghwan0112/spritecast?style=social" alt="GitHub stars"></a></p>
 
 <p align="center">
 <a href="#lo-que-puedes-hacer">Lo que puedes hacer</a> ·
 <a href="#personajes-que-caminan">Personajes</a> ·
+<a href="#un-juego-de-scroll-lateral-una-orientación-y-monstruos-dibujados-en-2d">Scroll lateral</a> ·
 <a href="#pixel-art-tamaño-arcade">Pixel art</a> ·
 <a href="#props-y-escenario">Props</a> ·
 <a href="#instalación">Instalación</a> ·
@@ -16,9 +18,9 @@ con el ángulo de cámara de tu juego, con una sombra 3D bajo cada fotograma, y 
 <a href="README.md">English</a> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.ja.md">日本語</a> · <a href="README.pt-BR.md">Português</a>
 </p>
 
-![GPT solo: una dirección, siempre la misma pierna delante, sin sombra. SpriteCast: el mismo personaje caminando en ocho direcciones sobre el suelo del juego, cada una con su sombra; una fila de acciones a partir del mismo 3D, el golpe lanzando agua; y en pixel art](docs/hero.es.gif)
+![GPT solo: una dirección, siempre la misma pierna delante, sin sombra. SpriteCast: el mismo personaje caminando en ocho direcciones sobre el suelo del juego, cada una con su sombra; una fila de acciones a partir del mismo 3D, el golpe lanzando agua; en pixel art; y para un juego de scroll lateral, un jabalí, un ciervo, un guardia y una herbolaria, cada uno andando junto al maniquí sobre el que se dibujó](docs/hero.es.gif)
 
-<p align="center"><i>El mismo modelo de imagen, la misma hoja de personaje. Izquierda: lo que salió al pedirle a GPT una caminata. Derecha: lo que aporta el 3D.</i></p>
+<p align="center"><i>El mismo modelo de imagen, la misma hoja de personaje. Izquierda: lo que salió al pedirle a GPT una caminata. Derecha: lo que aporta el 3D.<br>Abajo: las criaturas y la gente de un juego de scroll lateral, cada una junto al maniquí liso sobre cuyo andar se dibujó.</i></p>
 
 ![un carrito de ramen callejero como modelo 3D desde cuatro lados, y esos mismos cuatro lados como sprites en pixel art junto al pequeño personaje en píxeles](docs/pixel-props.es.png)
 
@@ -39,30 +41,27 @@ cada fotograma es la misma persona, y de verdad camina.
 
 ![la misma escena: a la izquierda el juego antes - una baldosa de hierba cuadrada y un corazón y una poción de frente de un pack de iconos; a la derecha ahora - un prado 3D, y el corazón y la poción hechos con modelos 3D al ángulo del juego, con sus sombras](docs/one-angle.png)
 
-**Pruébalo gratis, sin clave.** Después, un personaje que camina cuesta unos **$3** y un objeto unos centavos; el suelo, las sombras 3D, las transparencias, las poses de criaturas, el viento y la exportación a Phaser y Godot no cuestan nada. Para dibujar necesitas una clave de OpenAI, y para modelos 3D una de Tripo (1 crédito de Tripo = $0.01).
+<a name="cost"></a>Gratis y MIT: pagas a OpenAI y a Tripo directamente (1 crédito de Tripo = $0.01), al autor no le llega nada, y cada paso de pago muestra su coste y espera tu OK. Un personaje que camina cuesta unos **$3**, un objeto unos centavos y un monstruo de un juego de scroll lateral unos **$0.18**; las guías 3D, el acabado, el suelo (un prado, un camino, charcos), las sombras 3D, las transparencias, las poses de criaturas, el viento, la exportación a Phaser y Godot y la prueba no cuestan nada.
 
 <details><summary>lo que cuesta cada cosa</summary>
 
 | | das | recibes | aprox. |
 |---|---|---|---|
-| **Un personaje que camina** | una ilustración | un paseo en 8 direcciones, vistas de pie, una sombra por fotograma | **$3** (dibujo $2.2 + Tripo $0.75) |
+| **Un personaje que camina** | una ilustración | un paseo en 8 direcciones, vistas de pie, una sombra por fotograma | **$2.9** (dibujo $2.1 + Tripo $0.75) |
 | **Otra acción** | un nombre (Tripo: rápido) o un FBX de Mixamo (más natural) | correr, saltar, cortar, lanzar... en 8 direcciones | **$0.8-1.5** por acción (dibujo $0.7-1.4 + Tripo $0.10; un FBX: gratis) |
 | **Pixel art** | un personaje que camina | sprites de unos 100 px de alto | **$1.35** un paseo en 8 direcciones ($0.075 por hoja) |
 | **Un animal** | una ilustración | un paseo a cuatro patas en 8 direcciones | **$2.8** (dibujo $2.5 + Tripo $0.30) |
-| **Sentarse** | un personaje que camina | sentado en 8 direcciones, sobre tus objetos | **$0.22** |
-| **Un objeto o un NPC en pose** | una descripción | un sprite, su sombra, su ancla | **$0.07** (+ $0.08 por dirección extra) |
+| **El protagonista de un juego de scroll lateral** | una ilustración | un andar y la vista de pie vistos de lado (se dibuja una orientación, la otra es su espejo), sus acciones | **$1.1** (dibujo $0.33 + Tripo $0.75), cada acción ~$0.3 |
+| **Un monstruo o alguien del pueblo de un juego de scroll lateral** | una descripción y una imagen de tu juego | un diseño, un andar dibujado sobre las poses de un maniquí, una hoja de cuatro momentos (recibir un golpe, deshacerse) | **$0.18** ($0.06 por imagen; sin modelo 3D propio) |
+| **Sentarse** | un personaje que camina | sentado en 8 direcciones, sobre tus objetos | **$0.22** (cuatro direcciones: $0.11) |
+| **Un objeto o un NPC en pose** | una descripción | un sprite, su sombra, su ancla | **$0.08** (+ $0.09 por dirección extra) |
 | **Un objeto en pixel art** | una descripción | sprites desde cada lado, a la escala del personaje pixel | **$0.28** por un lado (Tripo $0.20 + $0.08 por lado) |
-| **Gratis** | - | el suelo (prado, camino, charcos), sombras 3D, transparencias, poses de criaturas, viento, exportar a Phaser/Godot, la prueba | **$0** |
+
+Son las cifras que cada script muestra antes de gastar; las facturas han salido un poco por debajo (el dibujo de un objeto: $0.068).
 
 </details>
 
-Gratis y MIT. Pagas a OpenAI y a Tripo directamente; cada paso de pago muestra su coste y espera tu OK.
-
 **¿Sin clave de API? Dibuja a mano en la app de ChatGPT.** `pixelart.py CHAR.json --manual` (o `SPRITECAST_DRAW=manual` para cualquier paso) no llama a la API y no cuesta nada: cada hoja se vuelve una tarea en una página local (127.0.0.1:8790) que muestra qué enviar. En un chat nuevo de ChatGPT (el plan gratuito sirve, dentro de sus límites) envías dos mensajes: primero las imágenes de referencia, a las que solo responde «ready», y luego la guía con el prompt. Guardas la respuesta y se toma sola de tu carpeta de Descargas. Probado con el paseo de la chica de la lluvia: con la guía sola, el mismo personaje en los 8 fotogramas; enviando antes las referencias (3 fotogramas) salieron también los botones del impermeable. Sigue siendo algo más sencillo que con la API, y puede que haya que redibujar uno o dos fotogramas.
-
-**La mitad del dibujo: cuatro orientaciones.** `"facings": 4` en el spec dibuja solo las diagonales (sureste, suroeste, noreste,
-noroeste) - o `"facings": "cardinal"`, solo sur, este, norte y oeste, para un juego que se mueve arriba, abajo, a izquierda y derecha: más o menos la mitad del coste de dibujo (un paseo: ~$1 en vez de ~$2; en pixel art ~$0.7 en vez de ~$1.35). El personaje
-exportado sigue caminando en las ocho direcciones: si pides el este, muestra la orientación dibujada más cercana y la mantiene, así que caminar en línea recta de lado no parpadea.
 
 ## Lo que puedes hacer
 
@@ -76,6 +75,8 @@ exportado sigue caminando en las ocho direcciones: si pides el este, muestra la 
 | **[Sentarse](#sentarse)** en tus props, con el reposabrazos que queda delante de ella calculado en 3D | **[Props](#props-y-escenario)** a su tamaño real, todos en un mismo suelo |
 | ![una silla pavo real de ratán en pixel art bajo el sol, un día gris, una bombilla desnuda, una lámpara delante y detrás y una luz grande arriba, sobre un suelo de roble iluminado por cada una - cada sombra horneada desde su modelo 3D, el tejido dejando pasar la luz](docs/indoor-shadows.png) | ![un árbol en pixel art desde dos lados meciéndose con el viento - grupos de hojas moviéndose un píxel cada vez, el tronco quieto, una ráfaga inclinando la copa - y los mismos grupos en colores, sacados de su modelo 3D](docs/sway.gif) |
 | **[Sombras horneadas desde el modelo 3D](#light-shadow-wind)**: el sol, un día gris o una lámpara que colocas tú | **[Viento en las hojas](#light-shadow-wind)**, rama a rama, desde el mismo modelo |
+| ![un juego de scroll lateral: la niña de la lluvia en la puerta del castillo con un guardia y una herbolaria, un lobo de piedra en el adarve, una nube de tormenta sobre una pasarela de madera](docs/side-game.png) | ![un lobo de piedra, un jabalí y un ciervo andando, cada uno a su paso](docs/creature-walk.gif) |
+| **[Un juego de scroll lateral](#un-juego-de-scroll-lateral-una-orientación-y-monstruos-dibujados-en-2d)**: se dibuja una orientación, la otra es su espejo | **[Monstruos y personas dibujados en 2D](#un-juego-de-scroll-lateral-una-orientación-y-monstruos-dibujados-en-2d)** sobre el andar de un maniquí, sin un modelo 3D para cada uno |
 
 ## Cosas que puedes pedir
 
@@ -85,6 +86,8 @@ exportado sigue caminando en las ocho direcciones: si pides el este, muestra la 
 - *"Haz que se siente, y ponla en este sillón."*
 - *"Haz un NPC tendero, un anciano con una chaqueta de punto marrón, en cuatro direcciones."* (una figura en pose: basta con una descripción)
 - *"Haz una estantería isométrica, de 1.8 m de alto, llena de libros, en el estilo cozy."*
+- *"Estamos haciendo un juego de scroll lateral. Haz que camine y ataque vista de lado."*
+- *"Haz un lobo, un jabalí y un guardia del pueblo para él, sin un modelo 3D para cada uno."*
 - *"Aquí tienes un prop de mi juego (props/barrel.png). Haz una caja a juego en ese estilo."*
 
 ## Por qué funciona
@@ -103,7 +106,11 @@ Así que SpriteCast nunca se lo pide. **El 3D hace el movimiento; el modelo de i
 de tu ilustración. Después, cada dibujo se ajusta de nuevo sobre su render y se compara con él: un fotograma dibujado en otra pose se marca y se puede
 volver a dibujar, nunca se fuerza para que encaje. Los props funcionan igual, con bloques a tamaño real en lugar del rig.
 
-## Hecho con SpriteCast: Rain Girl
+## Hecho con SpriteCast
+
+Dos juegos pequeños, con todas sus imágenes hechas con SpriteCast.
+
+### Rain Girl: pixel art isométrico
 
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="docs/rain-girl-play.gif" alt="Rain Girl: una niña con impermeable amarillo entre árboles, rocas y arbustos en pixel art, con monstruos de fuego rojos, verdes y morados y suelo en llamas" width="100%"></a></p>
 
@@ -112,7 +119,7 @@ volver a dibujar, nunca se fuerza para que encaje. Los props funcionan igual, co
 <p align="center"><a href="https://sunghwan0112.github.io/rain-girl/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl/main/leaderboard.svg" alt="La clasificación de Rain Girl: los diez mejores del mes y los tres mejores de siempre, redibujada cada media hora"></a></p>
 
 <p align="center"><i>Rain Girl, un pequeño juego de acción en pixel art: una niña con impermeable amarillo apaga monstruos de
-fuego con el agua de su paraguas antes de que arda el bosque. La niña y todos los objetos salieron de SpriteCast.</i></p>
+fuego con el agua de su paraguas antes de que arda el bosque.</i></p>
 
 - **La niña.** Una ilustración; un modelo de Tripo con esqueleto, renderizado con la cámara del juego (2:1, 30° hacia abajo): caminar
   con el paraguas, el golpe y de pie, en las cuatro direcciones diagonales (`"facings": 4`), cada fotograma redibujado como pixel art de
@@ -147,12 +154,30 @@ fuego con el agua de su paraguas antes de que arda el bosque. La niña y todos l
 
 - Más - una sola paleta, la niña oscureciéndose a la sombra de los árboles, la cobertura que para una bola de fuego, el viento, lo que costó un objeto: [cómo se hizo](docs/guide/rain-girl.md) (en inglés).
 
+### The Castle Wall: un juego de scroll lateral por unos $3.40
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/side-game.png" alt="The Castle Wall: la niña de la lluvia en la puerta del castillo con un guardia y una herbolaria, un lobo de piedra en el adarve, una nube de tormenta sobre una pasarela de madera, lluvia" width="100%"></a></p>
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ Juégalo en el navegador</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">el código del juego, y cómo se hizo cada imagen</a></p>
+
+La misma niña en un mundo pintado de scroll lateral: caza lo que la lluvia ha despertado en la muralla de un castillo, ronda tras
+ronda, cada una más difícil que la anterior. Todas sus imágenes costaron unos **$3.40 de dibujo** (y 115 créditos de Tripo):
+
+| | cómo | coste |
+|---|---|---|
+| **La protagonista** - andar, dos cortes con agua, un salto, un corte en el aire, una escalera, un agarre; recibir un golpe, agotada | su propio modelo 3D visto de lado (`"view": "side"`); los dos últimos dibujados en 2D a partir de su imagen de pie | ~$1.70 + 75 créditos de Tripo |
+| **Cinco monstruos** - un lobo de piedra, un jabalí, un ciervo, un charco, una nube de tormenta | un diseño cada uno, un andar sobre el maniquí ajustado a él, una hoja para cuando recibe un golpe (`creature.py`) | $0.90 |
+| **Tres personas del pueblo** - un guardia, una herbolaria, un niño | lo mismo, sobre el hombre, la mujer y el niño calvos | $0.39 |
+| **El escenario** - la muralla, el cielo, las colinas lejanas, el suelo, escaleras, pasarelas | pintado en 2D; la muralla y los faroles, dibujados sobre sus propios modelos 3D vistos como los personajes | ~$0.40 + 40 créditos de Tripo |
+
+Ningún monstruo ni persona del pueblo tiene un modelo 3D propio; cómo se dibujaron: [Un juego de scroll lateral](#un-juego-de-scroll-lateral-una-orientación-y-monstruos-dibujados-en-2d).
+
 ## Personajes que caminan
 
 ![una ilustración → 3D → fotogramas dibujados → una caminata en 8 orientaciones](docs/character.es.png)
 
 Dale una ilustración de un personaje (de frente, erguido, sin pose) y obtienes una caminata en 8 orientaciones (8 fotogramas cada una) y 8 vistas en reposo, con el aspecto de esa
-ilustración. Un modelo de imagen no puede mantener un cuerpo y una pose de fotograma a fotograma, así que el movimiento sale del 3D:
+ilustración. El movimiento sale del 3D ([por qué](#por-qué-funciona)):
 1. Se dibuja un turnaround a partir de la ilustración.
 2. [Tripo](https://www.tripo3d.ai) hace el modelo 3D a partir de él, le pone un rig y le da una caminata y un idle.
 3. La caminata se renderiza con la cámara del juego (gratis), cada fotograma con la propia sombra del cuerpo 3D, aplastada contra el suelo
@@ -166,11 +191,10 @@ ilustración. Un modelo de imagen no puede mantener un cuerpo y una pose de foto
 $PYTHON skills/spritecast/scripts/charpipe.py turnaround hero.json --yes   # then 3d (model, rig, renders) and draw (then finish, preview by themselves)
 ```
 Por defecto se dibujan las ocho orientaciones. Un diseño que es igual por ambos lados puede usar `"mirror": true` para voltear las orientaciones oeste
-a partir de las este (cada una con su propia sombra), unos $0.66 menos.
-O `"facings": 4`: solo las cuatro diagonales, más o menos la mitad del dibujo (o `"facings": "cardinal"`: solo sur, este, norte y oeste); el personaje exportado muestra la más cercana de ellas en cualquiera de las ocho direcciones.
+a partir de las este (cada una con su propia sombra): unos $0.66 menos, ~$1.4 de dibujo en vez de $2.1.
+O `"facings": 4`: solo las cuatro diagonales (sureste, suroeste, noreste, noroeste), más o menos la mitad del dibujo (un paseo: ~$1 en vez de ~$2; en pixel art ~$0.7 en vez de ~$1.35) - o `"facings": "cardinal"`: solo sur, este, norte y oeste, para un juego que se mueve arriba, abajo, a izquierda y derecha. En los dos casos el personaje sigue caminando en las ocho direcciones: el personaje exportado muestra la orientación dibujada más cercana en cualquiera de las ocho y la mantiene, así que caminar en línea recta de lado no parpadea.
 
-Coste por personaje: unos $2.2 (OpenAI; ~$1.5 con `"mirror": true`) y 75 créditos de Tripo (~$0.75; un animal 30). O trae tu
-propio GLB con rig (`"rig_glb"`) y salta directamente a `render`.
+Con tu propio GLB con rig (`"rig_glb"`), salta directamente a `render`. Lo que cuesta un personaje: [la tabla de arriba](#cost).
 
 Más opciones (varios atuendos, el vídeo de vista previa, Meshy, el personaje de ejemplo con su esqueleto): [docs/guide/characters.md](docs/guide/characters.md#walking-characters) (en inglés).
 
@@ -195,6 +219,47 @@ El gato está en [`examples/tabby_cat`](examples/tabby_cat): un atigrado naranja
 turnaround, spec, tiras, sombras y hoja: 30 créditos de Tripo y unos $2.5 de dibujo, incluidos los redibujados y las pruebas de diseño. Sus
 fotogramas se ajustan a sus renders con 0.76-0.97 (noreste y noroeste mezclados fotograma a fotograma con `"mix"`, ver reference/character.md).
 
+### Un juego de scroll lateral: una orientación, y monstruos dibujados en 2D
+
+Para un juego de plataformas o un RPG visto de lado, `"view": "side"` pone la cámara a la altura de los ojos, justo de lado. Se dibuja
+UNA orientación - caminando hacia la derecha - y la otra es su espejo: un andar y la vista de pie son 3 hojas (~$0.33) donde ocho
+orientaciones piden 18. Por defecto el cuerpo está girado 45° hacia quien mira, así se ven los dos ojos y un golpe que cruza el cuerpo no
+queda escondido detrás (`"turn": 0` para un perfil estricto). Las acciones funcionan como antes: un corte con su agua, un salto (`"air"`), una escalera que se sube de
+espaldas (`"face": "away"`).
+
+**Los monstruos, los animales y la gente del pueblo no necesitan un modelo 3D cada uno.** `creature.py` dibuja un diseño con el
+aspecto de una imagen de tu juego, y luego su andar sobre las poses de un **maniquí** liso que viene con SpriteCast - un perro
+gris, o un hombre, una mujer o un niño calvos, con las extremidades cercanas en rojo y las lejanas en azul - y cualquier otra cosa
+que haga (recibir un golpe, deshacerse, un salto) como una hoja de cuatro momentos dichos con palabras. Unos $0.06 por imagen.
+
+- **Una criatura de cuatro patas.** Primero se estira el maniquí del perro hasta el largo de pata, el fondo de cuerpo y el cuello
+  del propio diseño (gratis). Dibujados sobre el perro tal cual, un jabalí y un ciervo salieron con patas de perro; ajustado, cada
+  uno conservó su complexión. Los 8 fotogramas de un lobo de piedra salieron a menos de 3 px del lugar del maniquí.
+- **Una persona.** El diseño se dibuja de pie como está el maniquí, y luego andando sobre sus poses. Un guardia con capa y una
+  herbolaria con falda conservaron hebillas, llaves y trenza en los 8 fotogramas.
+- **En el juego** el fotograma del andar se lee de la distancia recorrida (`step` px por paso completo), así las patas y los pies
+  no resbalan.
+
+<details><summary>un jabalí y un ciervo: el diseño, el andar dibujado sobre el perro tal cual, y sobre el perro con sus proporciones</summary>
+
+![un jabalí y un ciervo: el diseño, el andar dibujado sobre el perro tal cual (patas de perro), y sobre el perro con sus proporciones](docs/creature-fit.png)
+
+![un lobo de piedra, un jabalí y un ciervo andando, cada uno a su paso](docs/creature-walk.gif)
+
+![un maniquí calvo de hombre y otro de mujer andando, y un guardia con capa y una herbolaria dibujados sobre sus poses](docs/people-mannequin.png)
+
+</details>
+
+Lo que se apoya con las patas hacia los lados (un lagarto, una araña) aún no tiene maniquí: una salamandra salió de pie sobre patas
+de perro. El personaje principal del juego, con muchas acciones y algo en la mano, se sigue haciendo con su propio modelo 3D.
+Detalles: [reference/creature.md](skills/spritecast/reference/creature.md).
+
+**El escenario visto de lado también se dibuja sobre un modelo 3D.** La muralla que hay detrás es un prop: un modelo de Tripo hecho
+con palabras, renderizado de lado y a nivel (`"camera": {"pitch": 6, "yaw": 90}`) e iluminado, y luego dibujado encima. Dibujada sobre
+bloques grises vistos desde 12° de altura, sus partes de arriba salieron como suelos anchos - vistas desde arriba junto a personajes
+vistos de lado; sobre bloques grises a 6° salió plana (una guía sin luz no le da al modelo de imagen nada con qué modelar la piedra).
+Desde su propio modelo iluminado tiene las ménsulas, los lados de los merlones y sus sombras.
+
 ### Más acciones: correr, saltar, dar tajos
 
 Además de caminar, un personaje puede correr, saltar o blandir algo. Enuméralas en la spec, `"actions": ["run", "jump", {"name": "slash",
@@ -205,7 +270,7 @@ cada fotograma (por ahora un paraguas, una pistola o una pistola de agua; la man
 modelo de imagen pieza a pieza, con más cuidado el extremo de la mano (el mango, el primer tramo del palo), que es pequeño y queda pegado
 al cuerpo, y es donde, si no, el modelo se lo inventa.
 
-**Cuál usar: Tripo para ahorrar tiempo, Mixamo cuando importa el resultado.** Tripo da los movimientos en un paso, sin descargar nada, y caminar, correr o saltar (con las manos vacías) salen bien con él. Cuando el resultado importa más que el tiempo, recomendamos [Mixamo](https://www.mixamo.com/#/?page=1&query=melee&type=Motion%2CMotionPack) (gratis, con una cuenta de Adobe), sobre todo para ataques: los movimientos capturados se ven más naturales, hay miles, y los ataques de una misma serie empiezan y terminan en la misma guardia, así que se enlazan en combos (`motion.py link`). Lleva un poco más: descarga uno (FBX Binary, 30 fps, Without Skin) y `addclip.py hero.json Move.fbx name` lo pasa al esqueleto del personaje, gratis. La pega: Mixamo no tiene API, así que SpriteCast no puede descargar de él - tienes que ir al sitio, mirar los movimientos y descargarlos tú; Claude te da el enlace de búsqueda. El combo de Rain Girl son dos movimientos de Mixamo. Nunca pongas los FBX en un repositorio público.
+**Cuál usar: Tripo para ahorrar tiempo, Mixamo cuando importa el resultado.** Tripo da los movimientos en un paso, sin descargar nada, y caminar, correr o saltar (con las manos vacías) salen bien con él. Cuando el resultado importa más que el tiempo, recomendamos [Mixamo](https://www.mixamo.com/#/?page=1&query=melee&type=Motion%2CMotionPack) (gratis, con una cuenta de Adobe), sobre todo para ataques: los movimientos capturados se ven más naturales, hay miles, y los ataques de una misma serie empiezan y terminan en la misma guardia, así que se enlazan en combos (`motion.py link`). Lleva un poco más: descarga uno (FBX Binary, 30 fps, Without Skin) y `addclip.py hero.json Move.fbx name` lo pasa al esqueleto del personaje, gratis. La pega: Mixamo no tiene API, así que SpriteCast no puede descargar de él - tienes que ir al sitio, mirar los movimientos y descargarlos tú; Claude te da el enlace de búsqueda. Nunca pongas los FBX en un repositorio público.
 
 ![la chica de la lluvia corriendo, saltando y dando un tajo con su paraguas; el tajo visto de lado](docs/actions.gif)
 
@@ -284,7 +349,7 @@ sus fotogramas.
 
 ![El combo de dos golpes de la niña de la lluvia en pixel art de 96 px, con agua y con fuego: la estela del golpe y los anillos del pack de efectos (fxpack --set water-swing, fire-swing)](docs/combo-water-fire.gif)
 
-Un combo en pixel art - el tajo hacia abajo y el revés giratorio de Rain Girl en cuatro direcciones, con su agua y el anillo del revés (`motion.py`, `fxpack.py`). Los dos movimientos son de Mixamo y los descargas tú - cuáles y cómo, más abajo en "El combo de Rain Girl como preset":
+Un combo en pixel art - el tajo hacia abajo y el revés giratorio de Rain Girl en cuatro direcciones, con su agua y el anillo del revés (`motion.py`, `fxpack.py`; los dos movimientos de Mixamo: "El combo de Rain Girl como preset" en [Pixel art](#pixel-art-tamaño-arcade)):
 
 ![El combo de Rain Girl en pixel art en cuatro direcciones: el tajo hacia abajo y luego el revés giratorio con su espiral de agua, un anillo a su alrededor y otro en el suelo](docs/combo-pixel.gif)
 
@@ -309,7 +374,7 @@ la postura (3 fotogramas del rig), golpea con el efecto de agua, vuelve a subir 
 - **Gratis de renderizar, se dibuja como cualquier acción**: una hoja para tres o cuatro fotogramas, unos $0.08.
 - **Míralas unidas**: `charpipe.py loop hero.json --only walk,ready,slash,recover --facing south-east` (gratis) genera un GIF como el
   de arriba con los fotogramas terminados, así se ve un fotograma que salta antes de volver a dibujar nada. Un set en
-  pixel art se puede corregir así también, con todos los fotogramas seguidos en el editor: `pixeledit.py hero.json --join walk,ready,slash,recover --facing south-east`.
+  pixel art se puede corregir así también, con todos los fotogramas seguidos en el [editor de píxeles](#pixel-art-tamaño-arcade) (`--join`).
 - **¿Un fotograma mal? Dibújalo solo.** `charpipe.py frame hero.json --only slash --facing south-east --frame 5 --yes` (~$0.08) vuelve a dibujar
   solo ese fotograma; `"frame_words"` en la acción le dice al modelo de imagen lo que el render de ese fotograma no puede. El fotograma 5 de arriba tenía el
   puño izquierdo flotando sobre el paraguas cinco veces seguidas; tras decirle que la mano queda casi oculta detrás de la cabeza, salió bien.
@@ -339,16 +404,16 @@ $PYTHON skills/spritecast/scripts/pixelart.py hero.json --clips walk,throw --yes
 ```
 Unos $0.075 por hoja: una caminata en las ocho orientaciones son 18 hojas (unos $1.35); el lanzamiento de arriba, cinco orientaciones, fueron 14.
 
-**Cuántos fotogramas van en una hoja se calcula solo:** `pixelart.py` mide los renders y pone los que caben - cuatro en una caminata, dos si lleva algo, uno en un golpe largo (por eso un ataque cuesta más que una caminata); el plan lo muestra antes de gastar nada. Todo lo que viene después es automático: no dibujas fotogramas, solo arreglas unos píxeles.
+**Cuántos fotogramas van en una hoja se calcula solo:** `pixelart.py` mide los renders y pone los que caben - cuatro en una caminata, dos si lleva algo, uno en un golpe largo (por eso un ataque cuesta más que una caminata); el plan lo muestra antes de gastar nada.
 
 - **Cosas que se sostienen y se lanzan.** `"hold": {"kind": "snowball", "until": "auto"}` lo pone en la mano y lo suelta cuando la mano
   se mueve más rápido. `pixel.json` dice entonces en qué fotograma, en qué punto del fotograma, en qué dirección y a qué velocidad (suficiente para que tu motor genere
   el proyectil), y recibes la bola, su forma en vuelo y un estallido de 4 fotogramas. La imagen de arriba son esos datos reproducidos.
-- **Cualquier animación de Mixamo.** `addclip.py hero.json Throw.fbx throw` lleva un clip FBX al rig del personaje, gratis. El lanzamiento
-  de arriba entró así.
+- **Cualquier animación de Mixamo**, llevada al rig como en [Más acciones](#más-acciones-correr-saltar-dar-tajos): el lanzamiento
+  de arriba entró con `addclip.py hero.json Throw.fbx throw`.
 - **Combos que enlazan.** `motion.py` une un ataque con el siguiente como lo hacen los juegos: el segundo empieza en la pose en que acaba el
   primero, sin tocar el golpe; además devuelve al suelo los pies de un clip importado y convierte un hachazo en un tajo de espada en arco. Gratis, sobre el rig - [la receta, de Mixamo al juego](skills/spritecast/reference/character.md).
-- **El combo de Rain Girl como preset.** Los dos movimientos son de Mixamo y los descargas tú (gratis, con una cuenta de Adobe): [Standing Melee Attack Downward](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Downward&type=Motion%2CMotionPack) y [Standing Melee Attack Backhand](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Backhand&type=Motion%2CMotionPack) - FBX Binary, 30 fps, Without Skin, sin reducción de fotogramas clave. `motion.py preset hero.json rain-girl-combo` les hace los mismos cambios con los mismos números y pone las dos acciones en la especificación. El preset guarda solo los cambios, nunca los movimientos - [qué se cambió](docs/guide/pixel-art.md#pixel-art-arcade-size) (en inglés).
+- **El combo de Rain Girl como preset.** Descarga tú los dos movimientos de Mixamo, con los ajustes de [Más acciones](#más-acciones-correr-saltar-dar-tajos) y sin reducción de fotogramas clave: [Standing Melee Attack Downward](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Downward&type=Motion%2CMotionPack) y [Standing Melee Attack Backhand](https://www.mixamo.com/#/?page=1&query=Standing+Melee+Attack+Backhand&type=Motion%2CMotionPack). `motion.py preset hero.json rain-girl-combo` les hace los mismos cambios con los mismos números y pone las dos acciones en la especificación. El preset guarda solo los cambios, nunca los movimientos - [qué se cambió](docs/guide/pixel-art.md#pixel-art-arcade-size) (en inglés).
 - **Se revisa a sí mismo.** Cada fotograma se compara con su render (la pose, el objeto en la mano); `--redraw` vuelve a dibujar las hojas marcadas
   y se queda con el mejor dibujo. Los 40 fotogramas del lanzamiento pasaron todos tras un redibujado.
 - **Y luego un editor de píxeles para el último detalle.** No todo el pixel art se consigue con reglas. `pixeledit.py hero.json` abre cada fotograma en
@@ -379,7 +444,7 @@ sprites). No se tocó ninguna cara: están como las dejó el pipeline. El build 
 
 **Un juego más difícil, y lo que hizo la mano.** Si el personaje lleva algo (un arma, un paraguas), los detalles de eso necesitan un
 pequeño retoque a mano: unos pocos píxeles por fotograma, con un borrador y un lápiz, sin saber dibujar. El mismo bucle que el de "Unir
-dos animaciones", en pixel art: camina con su paraguas, baja a la postura, golpea, vuelve a subir y sigue caminando; cuatro animaciones
+dos animaciones", en pixel art - cuatro animaciones
 unidas, 23 fotogramas. Solo se retocó a mano el paraguas: la punta y el borde igualados de un fotograma a otro. El personaje no; solo se
 borraron unas pocas motas blancas sobrantes. En total, 1,196 píxeles de 51,442 (2.3 %), por alguien que no dibuja, en unos minutos. Lo que lo hizo rápido, y lo que más importa en pixel art: ver los 23 fotogramas seguidos, en reproducción, no uno por uno; corregir es
 lograr que ninguna parte cambie mucho de píxeles de un fotograma al siguiente. Sin corregir: en dos
@@ -441,10 +506,10 @@ rig no están en el repo.
 
 </details>
 
-**¿Por qué no pedir 32 px?** El modelo de imagen (GPT) no hace bien pixel art pequeño por debajo de 64. Dibuja sus "píxeles" a un tamaño
+**¿Por qué no pedir 32 px?** El modelo de imagen (GPT) dibuja sus "píxeles" a un tamaño
 propio (al pedirle cuadros de 8 px los dibujó de entre 7.4 y 10.8) y con 32 cuadros, un cuadro desviado es un ojo perdido. Arriba: la fila superior
-es lo que dibuja a 64; las tres filas rojas son 32 px pedidos directamente, cada una con una disposición de hoja distinta, todas de la misma caminata. Así que el
-skill pide 64 y genera 32 a partir de eso (la fila verde). Los detalles: [reference/pixel.md](skills/spritecast/reference/pixel.md).
+es lo que dibuja a 64; las tres filas rojas son 32 px pedidos directamente, cada una con una disposición de hoja distinta, todas de la misma caminata; la
+fila verde es el set de 32 hecho a partir del de 64. Los detalles: [reference/pixel.md](skills/spritecast/reference/pixel.md).
 
 Los sprites de arriba están en [`examples/rain_girl/pixel`](examples/rain_girl/pixel): el lanzamiento en cinco orientaciones, una caminata en dos y el
 tajo con paraguas como tiras, sus sombras, la bola de nieve con su forma en vuelo y su estallido, y `pixel.json` con los datos del lanzamiento.
@@ -473,8 +538,7 @@ $PYTHON skills/spritecast/scripts/proppixel.py cart.json --yes        # ~$0.08 a
 - **La misma escala que el personaje.** `--ppm` son píxeles por metro: la altura del personaje en píxeles dividida entre su altura en metros
   (54 para el personaje pequeño de ejemplo), así el prop y el personaje están en un mismo suelo con el mismo tamaño de píxel.
 - **El recorte lo terminas tú.** El aire bajo un techo y entre radios lo limpia el recorte con IA; lo que deje, ábrelo en el
-  mismo editor de píxeles que los personajes (`pixeledit.py cart.json`): los cuatro lados son cuatro fotogramas, el render 3D se puede mostrar al lado
-  o debajo del sprite, y lo que borres se guarda. Al carrito de arriba se le terminaron así 122 píxeles.
+  mismo editor de píxeles que los personajes (`pixeledit.py cart.json`), los cuatro lados como cuatro fotogramas. Al carrito de arriba se le terminaron así 122 píxeles.
 - El carrito está en [`examples/ramen_cart`](examples/ramen_cart): la spec, el modelo de Tripo, las cuatro guías
   y los cuatro sprites.
 
@@ -632,7 +696,7 @@ respaldo de un banco) a partir de las alturas 3D de ambos, sin pintar nada:
 </details>
 
 Encuentra la altura del asiento y hacia dónde mira, y la echa hacia atrás hasta que sus rodillas llegan al borde del asiento. Si queda un poco desplazada,
-arrástrala en la página de retoque (abajo): al soltarla, la pieza delantera se vuelve a calcular desde ahí.
+arrástrala en la página de retoque (abajo).
 Los detalles: [reference/sitting.md](skills/spritecast/reference/sitting.md).
 
 ```
@@ -743,11 +807,13 @@ Un NPC que solo está de pie no necesita ilustración ni rig: funciona como un p
 
 ```json
 { "name": "barista",
-  "character": { "height": 1.63, "build": "slim", "directions": ["south-east", "south-west", "north-east", "north-west"] },
+  "character": { "body": "woman", "height": 1.63, "build": "slim", "directions": ["south-east", "south-west", "north-east", "north-west"] },
   "description": "a cheerful young café barista: a short dark-brown bob, a cream cable-knit sweater under a forest-green apron, ..." }
 ```
 
-El ancla está entre los pies. Unos $0.07 por la primera orientación y $0.08 por cada una de las demás.
+`"body"` es el maniquí liso que se pone en la pose: `"man"`, `"woman"` o `"child"` - tres figuras calvas que vienen con SpriteCast. (Antes de 0.29 era una figura de bloques; los dos personajes de arriba se dibujaron sobre ella.)
+
+El ancla está entre los pies. Unos $0.08 por la primera orientación y $0.09 por cada una de las demás.
 
 <details>
 <summary><b>Poses, tus propios ángulos, y volver a dibujar una orientación</b></summary>
@@ -762,7 +828,11 @@ por ti ("sube más el brazo") y comprobarlos en el render gratuito:
 Cada extremidad son dos partes, superior e inferior (`[out, forward]` grados cada una): girada hacia su lado y luego llevada hacia delante. `left` y
 `right` son los de la propia figura.
 
-![cuatro poses](docs/poses.png)
+Se puede girar una palma (`"palm": {"left": "front"}` - la mano abierta de un saludo mira al frente). Y un brazo no puede atravesar el cuerpo ni el otro brazo: una vez puesta la pose, lo que se solapa se separa a empujones, así los brazos cruzados quedan uno sobre el otro.
+
+![seis poses en el maniquí de hombre, de mujer y de niño: de pie, saludar, señalar, sostener, brazos cruzados, andar](docs/mannequin-poses.png)
+
+![un niño del pueblo saludando: la guía del maniquí de niño y el sprite terminado, de frente y de espaldas](docs/mannequin-figure.png)
 
 **Imágenes sueltas.** Estas figuras en pose son una imagen por orientación; para una caminata, ver [Personajes que caminan](#personajes-que-caminan).
 Revisa tú cada orientación (la comprobación del contorno no ve una cabeza girada hacia el lado equivocado); vuelve a dibujar una con
@@ -784,8 +854,8 @@ la guía que tiene debajo, o del píxel de guía más cercano para el pelo o las
 
 La forma es la del dibujo. Dónde empieza es cosa del modelo 3D: cada pie empieza su propia sombra, y la sombra de una maceta empieza en su
 base. Solo lo que toca el suelo tiene que ser exacto. Más arriba (del 10 % al 35 % de la altura del objeto) la altura pasa suavemente a una
-altura suave leída de la pantalla, así el pelo, los sombreros y las hojas proyectan una sombra natural en lugar de las esquinas del maniquí. Donde se apoya
-(los bloques hasta 12 cm: zapatos, la base de una maceta) se añade la propia sombra 3D de la guía, así la sombra se une al objeto como lo haría una real:
+altura suave leída de la pantalla, así el pelo, los sombreros y las hojas proyectan una sombra natural en lugar de los bordes duros de la guía. Donde se apoya
+(la guía hasta 12 cm: zapatos, la base de una maceta) se añade la propia sombra 3D de la guía, así la sombra se une al objeto como lo haría una real:
 del lado opuesto a la luz, nunca delante. Las figuras en pose y las cosas `loose` la reciben; los props sólidos mantienen la sombra
 3D, y los personajes que caminan proyectan la de su propio cuerpo 3D (arriba). Elige con `"shadow": "drawn" | "guide"`.
 
@@ -857,8 +927,8 @@ Ahí, ejecuta los comandos `$PYTHON ...` de abajo como `& $PYTHON ...`.
 | numpy, pillow, scipy | recorte, ajuste, sombras | sí (se instala por ti) |
 | playwright + Chrome o Edge | renderiza la guía 3D en tu ordenador (gratis) | sí (se instala por ti; se usa un navegador que ya tengas) |
 | onnxruntime + un modelo de 224 MB | solo personajes: el recorte con IA que conserva zapatos blancos sobre papel blanco | personajes (se descarga una vez, solo) |
-| `OPENAI_API_KEY` | dibujar, unos $0.07 por prop | para dibujar |
-| `TRIPO_API_KEY` | personajes: el modelo 3D, su rig y su caminata | para personajes que caminan |
+| `OPENAI_API_KEY` | dibujar | para dibujar |
+| `TRIPO_API_KEY` | un modelo 3D: el de un personaje que camina (con su rig y su caminata), o el de un prop para más detalle | para personajes que caminan; no para props hechos con bloques, personajes en pose ni `creature.py` |
 
 **Pruébalo primero, gratis, sin clave:** pídele a Claude *"prueba SpriteCast"*. Renderiza en tu ordenador la guía de uno de los ejemplos y
 la termina con el dibujo que venía con el ejemplo (`isoprop.py try`), así ves todo el proceso antes de pagar nada.
@@ -867,8 +937,8 @@ la termina con el dibujo que venía con el ejemplo (`isoprop.py try`), así ves 
 <summary><b>Claves: dónde van, y la verificación de OpenAI</b></summary>
 
 Claves: **en los ajustes del plugin.** Cuando activas SpriteCast, Claude Code te las pide (`/plugin` → SpriteCast → configure,
-para cambiarlas más tarde): la clave de OpenAI, y la de Tripo si haces personajes que caminan. Se guardan en el almacén de credenciales de tu
-sistema, enmascaradas, y se pasan a los scripts de SpriteCast cuando empieza una sesión (reinicia Claude Code después de cambiar una). Una clave que ya esté en tu
+para cambiarlas más tarde): la clave de OpenAI, y la de Tripo si haces personajes que caminan - de la plataforma de API de Tripo, donde se compran los créditos de API
+(75 por personaje, 30 por animal). Se guardan en el almacén de credenciales de tu sistema, enmascaradas, y se pasan a los scripts de SpriteCast cuando empieza una sesión. Una clave que ya esté en tu
 entorno sigue funcionando cuando los ajustes no tienen ninguna:
 
 ```bash
@@ -878,16 +948,15 @@ export OPENAI_API_KEY=sk-...          # macOS / Linux (add it to ~/.zshrc or ~/.
 setx OPENAI_API_KEY "sk-..."          # Windows (then open a new terminal)
 ```
 En Windows, los ajustes solo llegan a los scripts cuando Claude Code ejecuta sus comandos en Git Bash (lo que hace por defecto si Git está instalado); en
-PowerShell usa el entorno. Tu clave se queda en tu ordenador. Solo se envía a OpenAI, y pagas a OpenAI por cada dibujo (unos $0.07).
+PowerShell usa el entorno. En los dos casos, configura o cambia una clave antes de iniciar Claude Code: una configurada mientras se ejecuta solo se ve
+tras reiniciar. Tu clave se queda en tu ordenador; solo se envía a OpenAI.
 
 OpenAI puede pedirte que verifiques tu organización antes de que una clave pueda usar modelos de imagen (platform.openai.com → Settings →
-Organization): hazlo una vez antes de tu primer dibujo. Configura la clave antes de iniciar Claude Code; una clave configurada mientras se ejecuta solo se ve
-tras reiniciar. Los personajes que caminan también necesitan `TRIPO_API_KEY`, de la plataforma de API de Tripo, donde se compran los créditos de API
-(75 por personaje, 30 por animal).
+Organization): hazlo una vez antes de tu primer dibujo.
 
 </details>
 
-Todo se ejecuta en tu ordenador salvo el dibujo (OpenAI) y los modelos 3D (Tripo, o Meshy si lo eliges); cada paso de pago muestra su coste y espera tu OK. [Qué se envía adónde y qué se descarga](docs/guide/engines.md#what-it-sends-and-fetches) (en inglés).
+Todo se ejecuta en tu ordenador salvo el dibujo (OpenAI) y los modelos 3D (Tripo, o Meshy si lo eliges). [Qué se envía adónde y qué se descarga](docs/guide/engines.md#what-it-sends-and-fetches) (en inglés).
 
 ## Hoja de ruta
 
@@ -917,19 +986,17 @@ Los comentarios deciden lo que viene después, y lo que cambió gracias a ellos 
 - Una `photo` para el parecido de un personaje: solo de alguien que lo haya aceptado.
 - Los props sólidos reciben la sombra 3D de sus bloques; las figuras en pose y las cosas `loose`, una sombra con la forma del propio dibujo (ver Sombras);
   los personajes que caminan, la de su cuerpo 3D.
-- Ajustes: `SPRITECAST_MODEL` (p. ej. `gpt-image-2.6-sunburst` para probar el modelo más nuevo; el valor por defecto es aquel con el que se calibraron las comprobaciones) y `SPRITECAST_QUALITY` (`low` | `medium` | `high`).
+- Ajustes: `SPRITECAST_MODEL` (el valor por defecto es `gpt-image-2.6-sunburst`; con `gpt-image-2.5-sunburst` dibuja el modelo anterior) y `SPRITECAST_QUALITY` (`low` | `medium` | `high`).
 
 ## Preguntas frecuentes
-- **¿Cuánto cuesta?** Las guías, el acabado y el `try` son gratis. Unos $0.07 por prop, $0.08 por cada orientación más; un personaje que camina,
-  unos $2.2 de dibujo (~$1.5 con `"mirror": true`) y 75 créditos de Tripo (un animal 30). Cada paso de pago muestra su coste
-  y espera tu OK. El plugin es gratis; pagas a OpenAI y a Tripo directamente, al autor no le llega nada.
-- **¿Qué claves necesito?** `OPENAI_API_KEY` para dibujar, `TRIPO_API_KEY` para personajes que caminan y animales (Meshy opcional). OpenAI puede
-  pedirte primero que verifiques tu organización. Ver [Claves](#instalación).
-- **¿No es esto arte con IA?** Sí: un modelo de imagen hace la pintura. Lo que aporta SpriteCast es la geometría: el tamaño, el ángulo de cámara, la
-  caminata y las sombras salen del 3D. Puedes dar tu propio arte como estilo, o poner `"draw": false` para que ningún modelo de imagen dibuje los fotogramas
+- **¿Cuánto cuesta?** Mira [lo que cuesta cada cosa](#cost), cerca del principio.
+- **¿Qué claves necesito?** `OPENAI_API_KEY` para dibujar, `TRIPO_API_KEY` para personajes que caminan y animales (Meshy opcional). Dónde
+  van, y la verificación de OpenAI: [Claves](#instalación).
+- **¿No es esto arte con IA?** Sí: un modelo de imagen hace la pintura; el tamaño, el ángulo de cámara, la
+  caminata y las sombras salen del 3D ([Por qué funciona](#por-qué-funciona)). Puedes dar tu propio arte como estilo, o poner `"draw": false` para que ningún modelo de imagen dibuje los fotogramas
   de un personaje que camina: los renders 3D son los fotogramas. El turnaround se sigue dibujando, a menos que traigas tu propio modelo con rig
   ([Sin dibujo](#sin-dibujo-los-renders-3d-como-fotogramas)).
-- **¿Tengo que dibujar el pixel art fotograma a fotograma?** No. El modelo de imagen dibuja a partir de los renders 3D y la limpieza es automática; cuántos fotogramas van en una hoja también se calcula por el tamaño de los renders. Lo que queda son unos pocos píxeles por fotograma en el editor de píxeles.
+- **¿Tengo que dibujar el pixel art fotograma a fotograma?** No. El modelo de imagen dibuja a partir de los renders 3D y la limpieza es automática; cuántos fotogramas van en una hoja también se calcula por el tamaño de los renders. Lo que queda son unos pocos píxeles por fotograma en el [editor de píxeles](#pixel-art-tamaño-arcade).
 - **¿Qué no hace?** Los personajes que caminan parten de una ilustración de frente, erguidos. El pixel art funciona a 96 px, y a 64 px para un personaje
   diseñado pequeño; un juego de 32 px se genera a partir del de 64, con caras más toscas
   ([Hoja de ruta](#hoja-de-ruta)). Las imágenes sueltas en pose (saludar, señalar, sostener...) solo necesitan una descripción. Las cosas grandes y planas como las alfombras quedan mejor dibujadas en vista cenital y sesgadas sobre el suelo
