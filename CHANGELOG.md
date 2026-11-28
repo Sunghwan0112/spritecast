@@ -3,6 +3,32 @@
 What changed in each version. The version is the one in `.claude-plugin/plugin.json`; Claude Code offers an update when it goes up.
 Changes made because of a report or a request are marked *(feedback)*.
 
+## 0.30.0 — 2026-11-28
+
+- **A mannequin's walk seen from above** (`creature.py`, `"view": "above"`) *(the user: "you did it in the iso view earlier" - the
+  experiment, now a step)*: the man's, woman's, child's or dog's walk rendered by a game camera 30° above in all eight facings (free)
+  and each facing drawn on its own guide, one picture a facing (`walk --only <facing>`); `"facings"` 4 or `"cardinal"`, `"mirror": true`.
+  Every facing on one cell size with an `anchor` (the ground under the figure), a `[across, down]` step, and a standing frame. A guard
+  drawn in eight facings ($0.48): the same man in all of them, the north ones from behind; his step against his height as the side
+  view's.
+- **As pixel art** (`"pixel": 96`, either view) *(the user)*: the mannequin reduced to sprite pixels, drawn over as pixel art on its grid
+  and read back as `pixelart.py` reads a character - four frames a sheet where they fit (squares down to 6 px for that), every sheet at
+  the first one's size, the heads with a palette of their own (with one for everything the guard's eyes and brows went).
+- **The mannequin is chosen from the words** *(the user: a man on the man, a woman on the woman, a child, a boy or a girl on the child, a
+  four-legged animal on the dog)*: `creature.py`'s `"mannequin"` and `isoprop.py`'s `"body"`, when left out, from the first word of
+  `"what"` / `"description"` that says which (and an age under 13 makes a child); words that name none stop `creature.py` with a question.
+  It was the dog whatever the words said (`isoprop.py`: the man).
+- **A person's walk drawn on a mannequin is held to 0.5 overlap** *(the user's figure)*: `cut` measures each frame's outline against
+  the mannequin's and names those under `"redo_below"` (0.5), kept in `creature.json`; an animal's is printed with no threshold - look
+  at it *(the user)*: antlers, a mane or a tail are not on the plain dog. A character's own render asks 0.75, but clothes, hair
+  and a cloak are not on the bare mannequin: drawings in the pose came to 0.54-0.86 (0.6 named five frames of a flared cloak), a walk
+  drawn on a stale guide 0.33.
+- `creature.py mannequin` does not render again (~5 minutes from above) while the mannequin and its rig are the same.
+- **README** *(the user: "people will find this the most interesting - our mannequin, no Tripo charge")*: the guard's 8-facing walk on the
+  mannequin heads "What you can make" (docs/mannequin-walk.gif, docs/mannequin-pixel.gif), a section "No 3D model: a walk on a mannequin"
+  (about $0.55 for 8 facings) with when to make its own 3D model instead - recommended from the start for a character that will hold a
+  weapon and attack, as Rain Girl does; the cost table and the nav have it, in all six languages and docs/guide/characters.md.
+
 ## 0.29.0 — 2026-11-26
 
 - **SKILL.md reorganised** *(feedback: "the skill is too long; costs differ from doc to doc; some flows stop")*: the money rule and

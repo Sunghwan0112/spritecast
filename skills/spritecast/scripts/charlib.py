@@ -581,3 +581,36 @@ def defringe(im, band=None, inner=None):
     use = solid & (d <= band) & (Lf < 150) & (Lp > Lf + 6) & (resid < 16)
     a[..., 3] = np.where(use, al * k, al); a[..., :3] = np.where(use[..., None], F, a[..., :3])
     return Image.fromarray(a.clip(0, 255).astype(np.uint8))
+
+
+# ---- which of SpriteCast's mannequins a figure said in words is ------------------------------------------------------------------------
+# (creature.py's "mannequin" and isoprop.py's "body" when a spec leaves them out - the user: a man on the man, a woman on the woman, a child,
+# a boy or a girl on the child, an animal on four legs on the dog)
+WHO = {'child': r'boys?|girls?|child|children|kids?|toddlers?|lads?|lass|lasses|schoolboys?|schoolgirls?|youngsters?|infants?|bab(?:y|ies)',
+       'woman': r'wom[ae]n|lad(?:y|ies)|queens?|princess(?:es)?|witch(?:es)?|maids?|maidens?|nuns?|(?:grand)?mothers?|wi(?:fe|ves)|priestess(?:es)?|'
+                r'sorceress(?:es)?|heroines?|waitress(?:es)?|empress(?:es)?|duchess(?:es)?|countess(?:es)?|females?|she|her|hers|herself',
+       'man': r'm[ae]n|gentlem[ae]n|kings?|princes?|wizards?|monks?|(?:grand)?fathers?|husbands?|priests?|sorcerers?|lords?|males?|guys?|he|him|his|himself',
+       'dog': r'dogs?|wol(?:f|ves)|fox(?:es)?|boars?|pigs?|hogs?|stags?|deer|horses?|pon(?:y|ies)|foals?|cats?|kittens?|bears?|lions?|tigers?|cows?|bulls?|'
+              r'ox|oxen|goats?|sheep|rams?|lambs?|rats?|mouse|mice|rabbits?|hares?|hounds?|pupp(?:y|ies)|pups?|cubs?|calf|calves|donkeys?|mules?|elks?|moose|'
+              r'hyenas?|panthers?|leopards?|jaguars?|camels?|buffalo(?:es)?|bison|badgers?|raccoons?|squirrels?|antelopes?|gazelles?|reindeer|cattle|'
+              r'four-legged|quadrupeds?|paws|hooves|hoofs'}
+_AGE = {w: i + 1 for i, w in enumerate('one two three four five six seven eight nine ten eleven twelve'.split())}
+
+
+def who_of(text):
+    """which mannequin a figure said in words stands on: 'man', 'woman', 'child' (a boy or a girl too) or 'dog' (any animal on four legs). The FIRST
+    such word in the words decides - "a castle guard - a man of about thirty ... his dog" is a man, "a wolf ... her cubs" a wolf - and an age under 13
+    ("of about eight", "a 10-year-old") makes a man or a woman a child. ("she-wolf": the "she" is the wolf's.) → (mannequin, the word that decided)
+    or (None, None) when the words name none of them (a slime, a ghost)"""
+    import re
+    t = re.sub(r'\b(?:she|he)-', '', (text or '').lower()); hits = []
+    for k, p in WHO.items(): hits += [(m.start(), k, m.group(0)) for m in re.finditer(rf'\b(?:{p})\b', t)]
+    if not hits: return None, None
+    _, k, w = min(hits)
+    if k in ('man', 'woman'):
+        n = '|'.join(['\\d+'] + list(_AGE))
+        a = re.search(rf'\b(?:of about|of around|aged|age)\s+({n})\b', t) or re.search(rf'\b({n})[- ]years?[- ]old\b', t)
+        if a:
+            v = a.group(1); v = int(v) if v.isdigit() else _AGE[v]
+            if v < 13: return 'child', f'{w} ... {a.group(0)}'
+    return k, w

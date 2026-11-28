@@ -1,4 +1,4 @@
-# Creatures and people for a side-scrolling game, drawn straight in 2D (`creature.py`)
+# Creatures and people drawn straight in 2D on a mannequin's walk (`creature.py`)
 
 A monster or an animal for a platformer or a side-view RPG, with no 3D model of it made: one design in the look of a picture of the
 user's, then its animations drawn from that design. A four-legged one's **walk** is drawn on the poses of a plain **mannequin** - a
@@ -6,6 +6,8 @@ grey dog with no coat, no face and no tail, its near legs red and its far legs b
 proportions. Every other animation (struck, falling apart, a hop, a drift) is a **sheet of four moments said in words**.
 
 Frames face right; a game flips them. `scripts/creature.py`, steps `design`, `mannequin`, `walk`, `sheet`, `cut`, `preview`.
+The same walk can be seen from above in 8 facings for an isometric or top-down game (`"view": "above"`), and drawn as pixel art
+(`"pixel": 96`) - see the sections below.
 
 ## The spec (`<name>.json`)
 ```json
@@ -26,12 +28,17 @@ Frames face right; a game flips them. `scripts/creature.py`, steps `design`, `ma
 | `what` | the creature, part by part, and how it stands. A walker: "standing on its four legs" |
 | `height` | how tall the walk's FIRST frame is in the game, px (the heroine beside it: 144) - and a sheet's first frame, when the sheet gives none |
 | `frames` | the walk's frames: 8 (default; two rows of four on the sheet), 6 or 4. A four-legged walk in 4 frames is the same four leg shapes handed round the legs - it reads as flicker; use 8 |
-| `mannequin` | `"dog"` (default), `"man"`, `"woman"`, `"child"` - all come with SpriteCast - an animal's `.glb` of your own, or `false`: no walk of this kind - a blob, a cloud, a thing that hops: `sheets` only |
+| `mannequin` | `"dog"` (any animal on four legs), `"man"`, `"woman"`, `"child"` - all come with SpriteCast - an animal's `.glb` of your own, or `false`: no walk of this kind - a blob, a cloud, a thing that hops: `sheets` only. **Left out, it is chosen from `what`**: the first of its words that names a man (or "he", "his"), a woman ("she", "her"), a child (a boy, a girl, a kid - or a man or a woman "of about eight", under 13) or an animal on four legs (a wolf, a boar, a horse ...); `mannequin` prints which word chose it. Words that name none of them (a slime, a ghost) stop `mannequin`: give it |
+| `view` | `"side"` (default: a side-scrolling game, frames facing right) or `"above"`: a game seen from above (`"pitch"` 30°), every facing drawn - see Seen from above |
+| `facings` | with `"view": "above"`: 8 (default), 4 (the diagonals) or `"cardinal"`. `"mirror": true` flips west, north-west and south-west from their pairs instead of drawing them (a figure the same on both sides) |
+| `redo_below` | a person: 0.5 *(the user's figure, a rough one)*; **an animal has none - look at it** *(the user)*: its overlap is printed and kept, but antlers, a mane, a tail or a snout are not on the plain fitted dog, by a different amount for every animal. A walk's frame whose outline overlaps the mannequin's less than this is named by `cut` (LOW - look; `walk --again`) and the overlaps are kept in `creature.json`. Lower than a character's 0.75 (charpipe.py: a drawing over its OWN render) because clothes, hair and a cloak are not on the bare mannequin: the guard from the side 0.61-0.75; from above, 64 frames in eight facings 0.54-0.78 - all in the pose, the lowest with the cloak flared out wide behind (0.6 named five of them); as pixel art 0.72-0.86. A walk drawn on another guide than its own (a stag's, the mannequin fitted again after the drawing): 0.33 |
+| `pixel` | the figure's height in sprite pixels (64-192): the walk drawn as PIXEL ART - see Pixel art. `"colours"` (32): the colours of the whole set; `"pixel_words"`: how the pixel art is drawn, in words |
 | `noun` | `"character"` when the sheets are of a person who has no mannequin walk here - the game's own heroine, her standing picture put at `<name>/design.png` with `"mannequin": false`: struck and thrown back, worn out and sitting down, each a sheet |
 | `turn` | a person: degrees the body is turned toward the viewer as it walks sideways (45; 0 a flat profile) - as a side-view character's `"turn"` |
 | `sheets` | name → `{"moments": "...", "height": px of ITS first frame (left out: the walk's `height` - give it when the first moment is not standing up as the walk does: a crouch, a heap), "hang": true for a floating thing (frames hung from their tops - its rain falls under it)}`. **Every picture has its own scale**, from its own first figure: the model draws a figure at a different size in each (a person ~430 px tall in a walk's cell, 700-900 px on a sheet - the walk's scale made a sheet 1.6-2x too big) |
 
-Files go to `<the spec's folder>/<name>/`: `design.png`, `walk-guide.png`, `walk-drawn.png`, `<sheet>-drawn.png`, and `out/walk.png`,
+Files go to `<the spec's folder>/<name>/`: `design.png`, `walk-guide.png`, `walk-drawn.png` (seen from above or as pixel art: one of each
+a facing - and a sheet - `walk-guide-<facing>[-<sheet>].png`), `<sheet>-drawn.png`, and `out/walk.png`,
 `out/<sheet>.png` (strips of equal cells), a person's `out/stand.png` (the design cut out at the walk's height: what stands between walks), `out/creature.json` (each strip's cell, frames, `align`, and the walk's `step`).
 `<picture>-ai.png` beside a drawing is its AI cut-out, kept (see The cut-out).
 
@@ -60,7 +67,9 @@ The mannequins are bald and plain, the right arm and leg red, the left blue. The
 it renders the figure's walk (`walk-guide.png`) and its standing view (`mannequin/render/idle-east.png`; the mannequin is copied into
 the folder as `mannequin-rig.glb`, and copied again - its standing clips with it - when the spec names another), and `design` then draws the
 character standing as the mannequin stands and of its build. There is no fitting for people - the design is drawn to the mannequin,
-so pick the body nearest the character (a child for a child: on an adult's legs a child's design would get them).
+so the body must be the nearest to the character (a child for a child: on an adult's legs a child's design would get them). Left out,
+`"mannequin"` is chosen from `what` (*the user: a man on the man, a woman on the woman, a child, a boy or a girl on the child, an animal on
+four legs on the dog*) - the first word in it that says which; check the line `mannequin` prints.
 
 Measured on two characters (a guard: cloak, buckled jerkin, pouch and keys, boots; a herbalist: braid, bodice, skirt, satchel):
 every frame took the mannequin's pose - leg crossing, arm swing - and kept its details through all 8 frames; cloak and skirt swayed.
@@ -75,10 +84,49 @@ A village boy on the child (drawn with this script end to end): the same - poses
 head came out smaller than the child mannequin's big one, in the design and in the walk alike: the build is followed loosely, the
 pose closely.
 
-**Tried once in an isometric view** (not in the tool): the same guard, drawn only from his side at eye level, on the man's walk seen
-from 30 degrees above - toward the lower right, to the right, and away to the upper right. All three came out seen from above, in the
-poses, the back view with the cloak's back and the back of the head; overlap with the mannequin 0.59-0.73 after the heads were lined
-up. So the view can be changed too; whether eight facings stay one character was not checked.
+## Seen from above (`"view": "above"`)
+For an isometric or top-down game: the mannequin's walk rendered by a game camera 30° above (`"pitch"`), in all eight facings
+(free, ~5 minutes; not rendered again while `mannequin.json` and the rig are the same), and each facing drawn on its own guide -
+`walk-guide-<facing>.png`, one picture a facing (`walk --only south-east` for one; the gate names them and their cost). The prompt says
+how the facing is seen ("toward the LOWER RIGHT - a three-quarter FRONT view"), and for the north facings that the character is seen
+from BEHIND, the back of its hair and clothes drawn to belong to the design. The design can be drawn from the side as for a side
+view - it shows WHO, not the view; a person's `design` is drawn to the mannequin standing in the south-east view.
+- Every facing's guide has ONE scale, and the ground under the figure at one point of every cell: seen from above a step goes up and
+  down the picture, so a frame is not stood on its lowest point. `cut` moves a person's frame across until its head is over the
+  mannequin's and down until its nearer foot is on the mannequin's, brings each facing's figures to one size (the image model draws
+  each picture at a size of its own: `cut` prints it when a facing is more than 3 % off), and makes the south-east facing's first frame
+  `"height"` px tall.
+- `out/walk-<facing>.png` - every facing on one cell size, with `"anchor"` in `creature.json`: the point of the cell that is the
+  ground under the figure (where the game puts its position) - and `out/stand-<facing>.png`, the walk's frame in which the feet pass
+  each other (the narrowest, measured on the mannequin): what stands still between walks. `"mirror": true` flips west, north-west
+  and south-west from their pairs instead of drawing them.
+- `step` is `[across, down]` px of a whole step on the picture: measured on the east facing as a side view's is, and turned for each
+  facing on the ground seen 30° from above (south-east `[86.9, 43.4]`: 2:1, as an isometric ground). `preview` walks every facing over
+  dotted ground.
+
+Measured (the guard: cloak, buckled jerkin, pouch and keys; his design drawn from the side; GPT Image 2.6, $0.06 a facing): all eight
+facings the same man - hair, beard, cloak, buckles - in the mannequin's poses, the north ones from behind with the cloak's back and the
+back of the head. Moved 1-56 px across (the cloak behind pushes the body forward, as from the side) and up to 31 px down; 1.03-1.06x
+the mannequin's height. Overlap 0.54-0.78; the five frames under 0.6 had the cloak flared out wide (in the pose). Its step against its height came
+out as the side view's: 0.71 of a standing height a step with the 30° view's shortening allowed for, 0.72 from the side with its 45°
+turn allowed for.
+An animal from above: the fitted dog renders in all eight facings with its step measured on its paws (the boar: legs x0.44, body
+x1.76, 110 px of the render a step); none has been drawn from above yet - draw one facing first and look.
+
+## Pixel art (`"pixel": 96`)
+The walk drawn as pixel art, as `pixelart.py` draws a character over its render: the mannequin's frames reduced to sprite pixels (the
+figure standing `pixel` px tall), laid out as a few frames a sheet in squares of Z px (one sprite pixel), and the image model asked to
+draw the design (an illustration - image 2: its face, hair, outfit and colours, not its style) as pixel art ON that grid; a second
+sheet goes on from the first. Each facing has its own sheets: four frames a sheet where they fit, the squares made smaller down to 6 px
+for that (8 at 96 px; an east stride is wide - at 8 px it was two frames a sheet, four sheets a facing). The answers are read back on
+the grid they were drawn on (pixelgrid.py, pitch_of and read), the white shut in between the legs told from white things by the AI
+cut-out, every sheet brought to the first one's size, each sprite laid where it covers the guide best; then one palette for the bodies
+and one for the heads ("colours", 32: a third of it the heads' - with one palette for everything the guard's eyes and brows went), the
+heads' rows not cleaned of lone pixels. Works with `"view": "side"` (out/walk.png, out/stand.png) and `"view": "above"`.
+
+Measured (the guard, south-east, 96 px, two sheets $0.14): squares drawn 9.3-9.5 px for 8 asked, so the sprites are about 85 px tall;
+overlap 0.72-0.86; the face, beard, cloak and boots read well, the buckles and keys lose some detail, and the second sheet - scaled
+3.5 % to the first's size before reading - is a little softer. Other moves (`sheet`) are still drawn as illustrations.
 
 ## In the game
 - **The walk's frame is read off the distance walked**: `frame = floor(walked / step * n) % n`, `step` from `creature.json`. The paws

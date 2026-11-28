@@ -3,13 +3,14 @@
 <p align="center"><b>Entra una ilustración. Sale un personaje de juego.</b><br>
 Un generador de sprites 2D para Claude Code, isométricos o de scroll lateral: caminatas en 8 direcciones, acciones y pixel art<br>
 con el ángulo de cámara de tu juego, una sombra 3D bajo cada fotograma, los props que van a su lado -<br>
-y los monstruos y la gente del pueblo de un juego de scroll lateral, dibujados sobre el andar de un maniquí.</p>
+y, sin ningún modelo 3D, personajes, monstruos y gente del pueblo dibujados sobre el andar de un maniquí.</p>
 
 <p align="center"><a href="https://github.com/Sunghwan0112/spritecast/stargazers"><img src="https://img.shields.io/github/stars/Sunghwan0112/spritecast?style=social" alt="GitHub stars"></a></p>
 
 <p align="center">
 <a href="#lo-que-puedes-hacer">Lo que puedes hacer</a> ·
 <a href="#personajes-que-caminan">Personajes</a> ·
+<a href="#sin-modelo-3d-un-andar-sobre-un-maniquí">Sin modelo 3D</a> ·
 <a href="#un-juego-de-scroll-lateral-una-orientación-y-monstruos-dibujados-en-2d">Scroll lateral</a> ·
 <a href="#pixel-art-tamaño-arcade">Pixel art</a> ·
 <a href="#props-y-escenario">Props</a> ·
@@ -41,13 +42,14 @@ cada fotograma es la misma persona, y de verdad camina.
 
 ![la misma escena: a la izquierda el juego antes - una baldosa de hierba cuadrada y un corazón y una poción de frente de un pack de iconos; a la derecha ahora - un prado 3D, y el corazón y la poción hechos con modelos 3D al ángulo del juego, con sus sombras](docs/one-angle.png)
 
-<a name="cost"></a>Gratis y MIT: pagas a OpenAI y a Tripo directamente (1 crédito de Tripo = $0.01), al autor no le llega nada, y cada paso de pago muestra su coste y espera tu OK. Un personaje que camina cuesta unos **$3**, un objeto unos centavos y un monstruo de un juego de scroll lateral unos **$0.18**; las guías 3D, el acabado, el suelo (un prado, un camino, charcos), las sombras 3D, las transparencias, las poses de criaturas, el viento, la exportación a Phaser y Godot y la prueba no cuestan nada.
+<a name="cost"></a>Gratis y MIT: pagas a OpenAI y a Tripo directamente (1 crédito de Tripo = $0.01), al autor no le llega nada, y cada paso de pago muestra su coste y espera tu OK. Un personaje que camina cuesta unos **$3** con su propio modelo 3D - o unos **$0.55** dibujado sobre un maniquí, sin Tripo -, un objeto unos centavos y un monstruo de un juego de scroll lateral unos **$0.18**; las guías 3D, el acabado, el suelo (un prado, un camino, charcos), las sombras 3D, las transparencias, las poses de criaturas, el viento, la exportación a Phaser y Godot y la prueba no cuestan nada.
 
 <details><summary>lo que cuesta cada cosa</summary>
 
 | | das | recibes | aprox. |
 |---|---|---|---|
 | **Un personaje que camina** | una ilustración | un paseo en 8 direcciones, vistas de pie, una sombra por fotograma | **$2.9** (dibujo $2.1 + Tripo $0.75) |
+| **Un personaje que camina, sobre un maniquí** | una descripción y una imagen de tu juego | un andar en 8 orientaciones visto desde arriba (o de lado), dibujado sobre el maniquí de SpriteCast, sin modelo 3D propio | **$0.54** ($0.06 el diseño + $0.06 por orientación; en pixel art ~$1.2) |
 | **Otra acción** | un nombre (Tripo: rápido) o un FBX de Mixamo (más natural) | correr, saltar, cortar, lanzar... en 8 direcciones | **$0.8-1.5** por acción (dibujo $0.7-1.4 + Tripo $0.10; un FBX: gratis) |
 | **Pixel art** | un personaje que camina | sprites de unos 100 px de alto | **$1.35** un paseo en 8 direcciones ($0.075 por hoja) |
 | **Un animal** | una ilustración | un paseo a cuatro patas en 8 direcciones | **$2.8** (dibujo $2.5 + Tripo $0.30) |
@@ -64,6 +66,10 @@ Son las cifras que cada script muestra antes de gastar; las facturas han salido 
 **¿Sin clave de API? Dibuja a mano en la app de ChatGPT.** `pixelart.py CHAR.json --manual` (o `SPRITECAST_DRAW=manual` para cualquier paso) no llama a la API y no cuesta nada: cada hoja se vuelve una tarea en una página local (127.0.0.1:8790) que muestra qué enviar. En un chat nuevo de ChatGPT (el plan gratuito sirve, dentro de sus límites) envías dos mensajes: primero las imágenes de referencia, a las que solo responde «ready», y luego la guía con el prompt. Guardas la respuesta y se toma sola de tu carpeta de Descargas. Probado con el paseo de la chica de la lluvia: con la guía sola, el mismo personaje en los 8 fotogramas; enviando antes las referencias (3 fotogramas) salieron también los botones del impermeable. Sigue siendo algo más sencillo que con la API, y puede que haya que redibujar uno o dos fotogramas.
 
 ## Lo que puedes hacer
+
+![un guardia del castillo caminando en 8 orientaciones visto desde arriba, cada una junto al maniquí liso sobre cuyo andar se dibujó](docs/mannequin-walk.gif)
+
+<p align="center"><b><a href="#sin-modelo-3d-un-andar-sobre-un-maniquí">Sin modelo 3D, sin Tripo</a></b>: un andar en 8 orientaciones dibujado sobre el maniquí de SpriteCast a partir de un diseño, unos $0.55.</p>
 
 | | |
 |---|---|
@@ -176,6 +182,10 @@ Ningún monstruo ni persona del pueblo tiene un modelo 3D propio; cómo se dibuj
 
 ## Personajes que caminan
 
+Hay dos formas de hacer un andar: **sobre el maniquí de SpriteCast** - sin modelo 3D del personaje, sin Tripo, unos $0.55 por 8
+orientaciones ([abajo](#sin-modelo-3d-un-andar-sobre-un-maniquí)) - o **con su propio modelo 3D** hecho con Tripo, unos $3: lo que necesita un personaje que va a llevar un
+arma y atacar.
+
 ![una ilustración → 3D → fotogramas dibujados → una caminata en 8 orientaciones](docs/character.es.png)
 
 Dale una ilustración de un personaje (de frente, erguido, sin pose) y obtienes una caminata en 8 orientaciones (8 fotogramas cada una) y 8 vistas en reposo, con el aspecto de esa
@@ -199,6 +209,37 @@ O `"facings": 4`: solo las cuatro diagonales (sureste, suroeste, noreste, noroes
 Con tu propio GLB con rig (`"rig_glb"`), salta directamente a `render`. Lo que cuesta un personaje: [la tabla de arriba](#cost).
 
 Más opciones (varios atuendos, el vídeo de vista previa, Meshy, el personaje de ejemplo con su esqueleto): [docs/guide/characters.md](docs/guide/characters.md#walking-characters) (en inglés).
+
+### Sin modelo 3D: un andar sobre un maniquí
+
+![un guardia del castillo caminando en 8 orientaciones visto desde arriba, cada una junto al maniquí liso sobre cuyo andar se dibujó](docs/mannequin-walk.gif)
+
+SpriteCast trae maniquíes lisos: un hombre, una mujer, un niño y un perro, calvos y grises, con las extremidades derechas en rojo y las
+izquierdas en azul. `creature.py` renderiza caminando, con la cámara del juego, el que nombra tu descripción (gratis), y el modelo de
+imagen dibuja tu personaje sobre sus poses: un diseño y luego una imagen por orientación. Sin Tripo y sin modelo del personaje: un andar
+en 8 orientaciones cuesta unos $0.54.
+
+```
+$PYTHON skills/spritecast/scripts/creature.py mannequin guard.json   # gratis: el maniquí caminando, una guía por orientación; luego design y walk (primero una orientación: --only south-east)
+```
+- `"view": "above"`: 8 orientaciones (o 4) vistas desde arriba, para un juego isométrico o cenital. `"view": "side"` (por defecto): una
+  orientación para un juego de scroll lateral ([abajo](#un-juego-de-scroll-lateral-una-orientación-y-monstruos-dibujados-en-2d)).
+- `"pixel": 96`: en pixel art: el maniquí reducido a píxeles de sprite y dibujado encima sobre esa cuadrícula (dos imágenes por orientación).
+- El guardia de arriba se dibujó a partir de un solo diseño visto de lado: el mismo hombre en las ocho orientaciones - su capa, sus hebillas
+  y sus llaves -, las del norte de espaldas. Cada fotograma trae un ancla (el suelo bajo él) y cuánto avanza en un paso, así que los pies
+  no resbalan.
+
+<details><summary>en pixel art: el maniquí reducido a píxeles de sprite, y el guardia dibujado sobre él</summary>
+
+![el maniquí caminando en pixel art, y el guardia dibujado en pixel art sobre sus poses](docs/mannequin-pixel.gif)
+
+</details>
+
+**Cuándo hacer su propio modelo 3D.** Sobre un maniquí, los andares salen bien, y otros movimientos (un salto, recibir un golpe) casi
+siempre, dibujados como una hoja de momentos. Pero para un personaje que va a llevar un arma y atacar - como Rain Girl blandiendo su
+paraguas - o que necesita muchas acciones (un combo, un clip de Mixamo, el efecto de un golpe), recomendamos hacerlo con Tripo desde el
+principio ([arriba](#personajes-que-caminan)): el rig lleva el objeto en cada fotograma y cada acción sale del movimiento real del mismo modelo, así que se
+mantiene coherente en cada pose, y cada acción nueva es un clip más sobre el mismo rig.
 
 ### Animales de cuatro patas
 
@@ -253,7 +294,9 @@ que haga (recibir un golpe, deshacerse, un salto) como una hoja de cuatro moment
 </details>
 
 Lo que se apoya con las patas hacia los lados (un lagarto, una araña) aún no tiene maniquí: una salamandra salió de pie sobre patas
-de perro. El personaje principal del juego, con muchas acciones y algo en la mano, se sigue haciendo con su propio modelo 3D.
+de perro.
+
+**¿Un maniquí o su propio modelo 3D?** Como con cualquier personaje: [cuándo hacer su propio modelo 3D](#sin-modelo-3d-un-andar-sobre-un-maniquí).
 Detalles: [reference/creature.md](skills/spritecast/reference/creature.md).
 
 **El escenario visto de lado también se dibuja sobre un modelo 3D.** La muralla que hay detrás es un prop: un modelo de Tripo hecho

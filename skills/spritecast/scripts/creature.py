@@ -1,6 +1,7 @@
-"""creature: a monster, an animal or a person for a side-scrolling game, drawn straight in 2D - no 3D model of it is made. One design in the
-look of a picture of yours; its walk drawn on the poses of a plain MANNEQUIN (a dog given the design's own proportions; a bald man, woman
-or child); any other animation as a sheet of four moments said in words. Frames face right - a game flips them.
+"""creature: a monster, an animal or a person drawn straight in 2D - no 3D model of it is made. One design in the look of a picture of yours;
+its walk drawn on the poses of a plain MANNEQUIN (a dog given the design's own proportions; a bald man, woman or child - chosen from "what"
+when the spec leaves "mannequin" out); any other animation as a sheet of four moments said in words. A side-scrolling game's frames face
+right - a game flips them; "view": "above" draws the walk seen from above in 8 facings (or 4), "pixel": 96 as pixel art.
 
   a four-legged creature ("mannequin": "dog")                 a person ("mannequin": "man" | "woman" | "child")
     design → mannequin (LOOK) → walk → sheets                   mannequin → design → walk → sheets
@@ -10,6 +11,7 @@ or child); any other animation as a sheet of four moments said in words. Frames 
     python creature.py mannequin MON.json                     free: the mannequin's walk rendered (<name>/mannequin/render) and laid out as the guide
                                                               <name>/walk-guide.png. An animal: given the design's leg length, body depth and neck - LOOK
     python creature.py walk      MON.json [--yes] [--again]   PAID (~$0.06): the design drawn on the guide's poses -> out/walk.png
+                     [--only south-east,east]                 (from above or as pixel art: one picture a facing - a sheet - each ~$0.07; --only for some)
     python creature.py sheet     MON.json KIND [--yes] [--again]
                                                               PAID (~$0.06): the spec's "sheets"[KIND] - four moments in words -> out/KIND.png
     python creature.py cut       MON.json                     free: every drawn sheet cut again -> out/*.png, out/creature.json
@@ -23,6 +25,10 @@ The spec: {"name": "boar", "style": "hero.png", "what": "a stout wild boar ... s
   mannequin  "dog" (every animal that stands on straight legs under its body - a wolf, a boar, a stag), "man", "woman", "child", a .glb of
              your own (an animal's), or false for a creature with no walk of this kind (a blob, a cloud: sheets only)
   turn       a person: degrees the body is turned toward the viewer as it walks sideways (45; 0 a flat profile)
+  view       "side" (default) or "above": a game seen from above ("pitch" 30) - "facings" 8 | 4 | "cardinal", "mirror": true flips the west ones
+  pixel      the figure's height in sprite pixels (64-192): the walk drawn as pixel art, on the mannequin reduced to those pixels ("colours": 32)
+  redo_below 0.5: a person's frame overlapping the mannequin less is named by `cut` (clothes and hair are not on the bare mannequin: 0.75 is a
+             render's). An animal has none - look at it
   style_words  how the style picture is drawn, in words, if the drawing drifts from it
 
 Files go to <the spec's folder>/<name>/. Reference: reference/creature.md."""
@@ -37,7 +43,18 @@ import charpipe as CP, charlib as CL          # noqa: E402
 STANCE = 0.62                                 # of a step, each paw is on the ground (render_char.html legPose: phase < STANCE)
 NEAR = {'fore': 0.75, 'hind': 0.5}            # the near legs' (red: the right ones, RF and RH) place in the step - render_char.html PHASE
 PEOPLE = ('man', 'woman', 'child'); PACE = 0.6                # the person mannequins; of a person's step, each foot is on the ground (only a fallback now)
+DIRS8 = ['south', 'south-east', 'east', 'north-east', 'north', 'north-west', 'west', 'south-west']
+ANGLE = {'east': 0, 'north-east': 45, 'north': 90, 'north-west': 135, 'west': 180, 'south-west': 225, 'south': 270, 'south-east': 315}   # on the ground, degrees
+VIEWS = {'south': "walks straight toward the viewer, DOWN the picture - a FRONT view: we see its face and its front",
+         'south-east': "walks toward the LOWER RIGHT of the picture - a three-quarter FRONT view: we see its front and its right side",
+         'east': "walks to the RIGHT - seen from its right side",
+         'north-east': "walks toward the UPPER RIGHT, AWAY from the viewer - a three-quarter BACK view: we see its back and its right side, the back of its head",
+         'north': "walks straight AWAY from the viewer, UP the picture - a BACK view: we see its back and the back of its head",
+         'north-west': "walks toward the UPPER LEFT, AWAY from the viewer - a three-quarter BACK view: we see its back and its left side, the back of its head",
+         'west': "walks to the LEFT - seen from its left side",
+         'south-west': "walks toward the LOWER LEFT of the picture - a three-quarter FRONT view: we see its front and its left side"}
 GRID = {4: (4, 1), 6: (3, 2), 8: (4, 2)}; SHEET = (1536, 1024)
+OVER = {}                                     # each facing's frames' overlap with the mannequin, as cut ("redo_below" - 0.5 - marks a frame that left the pose)
 HEAD_MAX = 64                                 # a person's frame is moved at most this far across to put its head over the mannequin's (px of the sheet)
 STYLE = ("in exactly the drawing style of image 1: the same line - its weight and its colour - the same way of shading, the same colours and the same degree of realism. "
          "A finished illustration: not pixel art, not a 3D render")
@@ -48,9 +65,34 @@ def load(path):
     for k in ('name', 'what'):
         if not s.get(k): sys.exit(f'spec: "{k}" is missing')
     s['height_given'] = bool(s.get('height'))
-    s.setdefault('frames', 8); s.setdefault('mannequin', 'dog'); s.setdefault('sheets', {}); s.setdefault('height', 96); s.setdefault('turn', 45); s['person'] = s['mannequin'] in PEOPLE
+    if 'mannequin' not in s: s['mannequin'], s['mannequin_by'] = CL.who_of(s['what'])          # left out: the one "what" names (a man, a woman, a child, a four-legged animal)
+    s.setdefault('frames', 8); s.setdefault('sheets', {}); s.setdefault('height', 96); s.setdefault('redo_below', 0.5); s['person'] = s['mannequin'] in PEOPLE
     if s['frames'] not in GRID: sys.exit('spec: "frames" is 4, 6 or 8')
+    s.setdefault('view', 'side')
+    if s['view'] not in ('side', 'above'): sys.exit('spec: "view" is "side" (the default: a side-scrolling game, the frames facing right) or "above" (a game seen from above, '
+                                                    '30° down: every facing drawn)')
+    s['above'] = s['view'] == 'above'
+    if s['above']:
+        if 'turn' in s: sys.exit('spec: "turn" (the body turned toward the viewer) goes with "view": "side" - seen from above every facing is drawn')
+        s['turn'] = None; s.setdefault('pitch', 30)
+        fc = {8: 8, '8': 8, 4: 'diagonal', '4': 'diagonal', 'diagonal': 'diagonal', 'cardinal': 'cardinal'}.get(s.get('facings', 8))
+        if fc is None: sys.exit('spec: "facings" is 8 (the default), 4 or "diagonal" (south-east, south-west, north-east, north-west) or "cardinal" (south, east, north, west)')
+        s['dirs'] = list(CP.DIAGONALS) if fc == 'diagonal' else list(CP.CARDINALS) if fc == 'cardinal' else list(DIRS8)
+        m = s.get('mirror', False); m = ['west', 'north-west', 'south-west'] if m is True else (m or [])
+        s['mirrored'] = [x for x in m if x in s['dirs'] and CP.PAIR.get(x) in s['dirs']]
+        bad = [x for x in s['mirrored'] if CP.PAIR[x] in s['mirrored']]
+        if bad: sys.exit(f'spec: "mirror" lists facings flipped from their pair, not both of a pair: {bad}')
+    else:
+        s.setdefault('turn', 45); s['dirs'] = ['east']; s['mirrored'] = []
+    s['drawn'] = [x for x in s['dirs'] if x not in s['mirrored']]
+    s['pixel'] = int(s.get('pixel') or 0)
+    if s['pixel'] and not 64 <= s['pixel'] <= 192: sys.exit('spec: "pixel" is the figure\'s height in sprite pixels, 64 to 192 (the image model keeps to its squares no smaller)')
     d = p.parent / s['name']; d.mkdir(parents=True, exist_ok=True); (d / 'out').mkdir(exist_ok=True); return s, d, p.parent
+
+
+def design_facing(s):
+    """the facing a person's design is drawn in: the side view's east; from above the three-quarter front (south-east), where face and side both show"""
+    return 'east' if not s['above'] else 'south-east' if 'south-east' in s['dirs'] else s['dirs'][0]
 
 
 def blank(d):
@@ -73,11 +115,12 @@ def design(s, d, root, args):
     if not CP.gate(args, 'design: one OpenAI picture, about $0.06'): return
     words = STYLE + (f" ({s['style_words']})" if s.get('style_words') else ''); imgs = [root / s['style']]
     if s['person']:                       # a person is drawn to the mannequin: standing as it stands, of its build (an animal's mannequin is fitted to the design instead)
-        idle = d / 'mannequin/render/idle-east.png'
+        idle = d / f'mannequin/render/idle-{design_facing(s)}.png'
         if not idle.exists(): sys.exit('design: a person - `mannequin` first (the design is drawn standing as the mannequin stands)')
         imgs.append(idle)
-        P = ("Image 1 is a character of a side-scrolling game, shown for its DRAWING STYLE only. Image 2 is a plain grey mannequin, shown for its VIEW and its BUILD only: the new "
-             "character stands exactly as the mannequin stands - turned the same way, facing the same way, the arms hanging at the sides - and has the mannequin's height, proportions "
+        game = 'game seen from above' if s['above'] else 'side-scrolling game'
+        P = (f"Image 1 is a character of a {game}, shown for its DRAWING STYLE only. Image 2 is a plain grey mannequin, shown for its VIEW and its BUILD only: the new "
+             "character stands exactly as the mannequin stands - seen from the same height, turned the same way, facing the same way, the arms hanging at the sides - and has the mannequin's height, proportions "
              f"and build under its clothes (the mannequin's red and blue only mark its right and left limbs). Draw a new CHARACTER for the same game {words}: {s['what']} "
              "ONE character, whole from head to feet, in the middle of the picture, small enough that there is white all round it. Plain pure white background, no ground, no shadow, "
              "no text, no frame, and nothing of image 1 or of the mannequin's grey, red or blue in the picture.")
@@ -176,6 +219,15 @@ def step_of(fr, person=False):
     return (max(xs) - min(xs)) / PACE, 'ROUGHLY: no foot was seen on the ground in two frames - the near foot\'s sweep / the share of the step it is down'
 
 
+def render_once(spec, text, copied=False):
+    """the mannequin rendered (charpipe.py render: ~5 minutes for eight facings) - unless its renders are there already, made from this same mannequin.json and rig
+    (the guides laid out again for other "frames"... no: those change the json. For another "pixel", "mirror", "facings" or "height" nothing is rendered again)"""
+    rj = spec.parent / 'mannequin/render/render.json'
+    if not copied and spec.exists() and spec.read_text() == text and rj.exists() and rj.stat().st_mtime > spec.stat().st_mtime:
+        print('mannequin: its renders are there, of this same mannequin - not rendered again (delete mannequin/render to render it anew)'); return ''
+    spec.write_text(text); return charpipe_render(spec)
+
+
 def charpipe_render(spec):
     r = subprocess.run([sys.executable, str(HERE / 'charpipe.py'), 'render', str(spec)], capture_output=True, text=True)
     if r.returncode: sys.exit(r.stdout[-600:] + r.stderr[-600:])
@@ -203,25 +255,32 @@ def mannequin(s, d, root, args):
     """FREE. An animal: the mannequin with THIS creature's proportions - its legs' length, its body's depth, how its head is carried, each read off the design as a ratio
     to the distance between its fore and hind feet - walking in the side view. A person: the bald man, woman or child as it is, walking turned `turn` degrees toward the
     viewer (the design is then drawn to IT). Either way its frames are laid out as the guide the walk is drawn on"""
+    if s['mannequin'] is None: sys.exit('mannequin: the spec leaves "mannequin" out, and "what" names no man, woman, child (a boy, a girl) or animal on four legs to '
+                                        'choose one by - give it: "mannequin": "man", "woman", "child", "dog" (any four-legged animal), an animal\'s .glb of yours, or '
+                                        'false (no walk of this kind: sheets only)')
     if not s['mannequin']: sys.exit('mannequin: this spec has "mannequin": false - its animations are "sheets"')
-    n = s['frames']; spec = d / 'mannequin.json'; base = {'name': 'mannequin', 'view': 'side', 'frames': n, 'mannequin': True, 'description': 'a plain mannequin'}
+    if s.get('mannequin_by'): print(f'mannequin: "{s["mannequin"]}" - the spec leaves "mannequin" out, and "what" says "{s["mannequin_by"]}" (give "mannequin" for another)')
+    n = s['frames']; spec = d / 'mannequin.json'; base = {'name': 'mannequin', 'frames': n, 'mannequin': True, 'description': 'a plain mannequin'}
+    base.update({'facings': 8, 'pitch': s['pitch']} if s['above'] else {'view': 'side'})      # (from above all eight are rendered, free: the step is measured on east)
     if s['person']:
         rig, src = d / 'mannequin-rig.glb', HERE.parent / 'mannequins' / f"{s['mannequin']}.glb"     # (a copy: the render writes a standing clip beside the rig it is given)
-        if not rig.exists() or not filecmp.cmp(src, rig, shallow=False):          # another mannequin than the copy's ("man" made "woman"): copied again, and
+        copied = not rig.exists() or not filecmp.cmp(src, rig, shallow=False)
+        if copied:                                                               # another mannequin than the copy's ("man" made "woman"): copied again, and
             for old in d.glob('mannequin-rig-idle*.glb'): old.unlink()            # the standing clips made from the old one go with it
             if rig.exists(): print(f'mannequin: the copy of the mannequin is not "{s["mannequin"]}" - copied again')
             shutil.copy(src, rig)
-        spec.write_text(json.dumps({**base, 'turn': s['turn'], 'rig_glb': str(rig), 'design': blank(d).name}, indent=1)); charpipe_render(spec); adv = lay_out(s, d, {})
-        return print(f'mannequin: {d / "walk-guide.png"} - {n} moments of one step, and mannequin/render/idle-east.png: the view the design is drawn in. Then `design`'
+        render_once(spec, json.dumps({**base, **({} if s['above'] else {'turn': s['turn']}), 'rig_glb': str(rig), 'design': blank(d).name}, indent=1), copied)
+        lay_out_any(s, d, {})
+        return print(f'mannequin: {guide_names(s, d)} - {n} moments of one step, and mannequin/render/idle-{design_facing(s)}.png: the view the design is drawn in. Then `design`'
                      + (' (there is a design already: drawn to this mannequin? else `design --again`)' if (d / 'design.png').exists() else ''))
     if not (d / 'design.png').exists(): sys.exit('mannequin: `design` first (or put your own design at <name>/design.png: the creature from the side, facing right, on white)')
     B = build(d); L = B['L']; fit = {k: round(B[v] / L, 3) for k, v in (('leg', 'leg'), ('body', 'depth'), ('nose_up', 'nose_up'), ('nose_out', 'nose_out'))}
     glb = HERE.parent / 'mannequins' / f"{s['mannequin']}.glb" if not str(s['mannequin']).endswith('.glb') else (root / s['mannequin'])
     if not glb.exists(): sys.exit(f'mannequin: {glb} is not there ("mannequin": "dog", "man", "woman", "child", or an animal\'s .glb of your own)')
-    spec.write_text(json.dumps({**base, 'kind': 'animal', 'fit': fit, 'model_glb': str(glb), 'design': 'design.png'}, indent=1))
     print(f'mannequin: the design asks for {fit} (each a ratio to the distance between its fore and hind feet)')
-    print('\n'.join(l for l in charpipe_render(spec).splitlines() if 'fitted' in l)); adv = lay_out(s, d, {'fit': fit})
-    print(f'mannequin: {d / "walk-guide.png"} - {n} moments of one step. LOOK: its legs as long and its body as deep as the design\'s? then `walk`')
+    print('\n'.join(l for l in render_once(spec, json.dumps({**base, 'kind': 'animal', 'fit': fit, 'model_glb': str(glb), 'design': 'design.png'},
+                                                         indent=1)).splitlines() if 'fitted' in l)); lay_out_any(s, d, {'fit': fit})
+    print(f'mannequin: {guide_names(s, d)} - {n} moments of one step. LOOK: its legs as long and its body as deep as the design\'s? then `walk`')
 
 
 def walk_prompt(n, person=False):
@@ -256,6 +315,7 @@ def person_prompt(n):
 
 
 def walk(s, d, root, args):
+    if s['above'] or s['pixel']: return walk_grid(s, d, root, args)
     out = d / 'walk-drawn.png'
     if out.exists() and not args.again: cut_walk(s, d); return print(f'walk: {out} is there (--again to draw it anew); cut')
     g, gj, ds = d / 'walk-guide.png', d / 'walk-guide.json', d / 'design.png'
@@ -347,29 +407,55 @@ def walk_step(s, d, info):
     info.update(advance_old=old, advance=v * k, advance_by=how); (d / 'walk-guide.json').write_text(json.dumps(info)); return v * k, old
 
 
+def low_overlap(s, what, ov, again):
+    """a walk's frames' overlap with the mannequin (the drawn figure's outline against the mannequin's in the guide: 1 = the same shape), printed, and the frames under
+    "redo_below" (0.5) named. Clothes, hair and a cloak are not on the bare mannequin, so a drawing in its pose overlaps it far less than a character's frame its own
+    render (charpipe.py's 0.75): drawings in the pose came to 0.54-0.86 (the lowest a cloak flared wide), a walk drawn on another guide 0.33.
+    AN ANIMAL HAS NO THRESHOLD (the user: "check it by eye"): antlers, a mane, a tail, a snout are not on the plain fitted dog, by a different
+    amount for every animal - its overlap is printed and kept, and it is looked at"""
+    if not s['person']:
+        return print(f'  {what}: overlap with the mannequin {ov} (1 = the same shape) - an animal has no threshold: LOOK at the strip and preview.gif yourself '
+                     f'(the legs where the mannequin\'s are, the same animal in every frame); {again} (PAID) to draw it anew')
+    lo = [i + 1 for i, v in enumerate(ov) if v < s['redo_below']]
+    print(f'  {what}: overlap with the mannequin {ov} (1 = the same shape)' + (f' - LOW, frame{"s" if len(lo) > 1 else ""} {lo} under {s["redo_below"]}: LOOK; {again} (PAID)' if lo else ''))
+
+
+def figure_in_cell(src, im, box, i, n, again):
+    """the figure drawn in one cell (cx, cy, cw, ch) of a walk's picture: (the cell's picture, its mask). Every piece stays (a drop, a leaf, a wisp of mist) but the
+    ones at the cell's left or right edge - a neighbour's nose or tail come over it; a cell with no figure stops the step"""
+    cx, cy, cw, ch = box; c = im.crop((cx, cy, cx + cw, cy + ch)); m = key(c, lambda: ai_mask(src, im, (cx, cy, cx + cw, cy + ch))); lab, cnt = ndimage.label(m)
+    if cnt > 1:
+        size = np.bincount(lab.ravel()); size[0] = 0; edge = np.zeros(cnt + 1, bool); edge[np.concatenate([lab[:, 0], lab[:, -1]])] = True
+        edge[0] = False; edge[int(np.argmax(size))] = False; m = m & ~edge[lab]
+    if not lab.any() or np.bincount(lab[m])[1:].max(initial=0) < 0.05 * cw * ch:          # (a drawn figure fills its cell as the mannequin does: 15-25 % of it)
+        sys.exit(f'cut: frame {i + 1} of the walk (row {i // GRID[n][0] + 1}, column {i % GRID[n][0] + 1} of {src.name}) has no figure in it - the drawing has fewer '
+                 f'than {n}, or one is out of its place. Look at {src.name}; draw it again with {again} (PAID)')
+    return c, m
+
+
+def head_dx(gm, m, P):
+    """how far across a person's drawn frame (mask m) is moved to put its head over the mannequin's in the guide (mask gm), at most P px. (The crown: a row 40 %
+    as wide as the mannequin's bald head)"""
+    ys = np.nonzero(gm.any(1))[0]; hw = max((w[1] - w[0] for w in map(widest, gm[ys[0]:ys[0] + round(0.15 * (ys[-1] - ys[0]))]) if w), default=0)
+    hg, hm = head_x(gm, 0.4 * hw), head_x(m, 0.4 * hw); return 0 if hg is None or hm is None else int(np.clip(round(hg - hm), -P, P))
+
+
 def cut_walk(s, d):
     """the drawn walk cut by the guide's cells: every frame keeps its place in its cell (the body does not jump about), its lowest point on the ground"""
     n = s['frames']; src = d / 'walk-drawn.png'; im = Image.open(src).convert('RGB'); info = json.loads((d / 'walk-guide.json').read_text())
     if info.get('n', n) != n: sys.exit(f'cut: walk-guide.png is of {info["n"]} frames, the spec\'s "frames" is {n} - put it back, or run `mannequin` and `walk --again`')
     if im.size != SHEET: im = im.resize(SHEET, Image.LANCZOS)
-    fr = []; moved = []; guide = Image.open(d / 'walk-guide.png').convert('RGB')
+    fr = []; moved = []; ov = []; guide = Image.open(d / 'walk-guide.png').convert('RGB')
     P = HEAD_MAX if s['person'] else 0                     # (a person's frames are moved across on a canvas this much wider each side: nothing is cut off)
     for i, (cx, cy, cw, ch) in enumerate(cells(n)):
-        c = im.crop((cx, cy, cx + cw, cy + ch)); m = key(c, lambda: ai_mask(src, im, (cx, cy, cx + cw, cy + ch))); lab, cnt = ndimage.label(m)
-        if cnt > 1:                   # every piece stays (a drop, a leaf, a wisp of mist) but the ones at the cell's left or right edge: a neighbour's nose or tail come over it
-            size = np.bincount(lab.ravel()); size[0] = 0; edge = np.zeros(cnt + 1, bool); edge[np.concatenate([lab[:, 0], lab[:, -1]])] = True
-            edge[0] = False; edge[int(np.argmax(size))] = False; m = m & ~edge[lab]
-        if not lab.any() or np.bincount(lab[m])[1:].max(initial=0) < 0.05 * cw * ch:          # (a drawn figure fills its cell as the mannequin does: 15-25 % of it)
-            sys.exit(f'cut: frame {i + 1} of the walk (row {i // GRID[n][0] + 1}, column {i % GRID[n][0] + 1} of walk-drawn.png) has no figure in it - the drawing has fewer '
-                     f'than {n}, or one is out of its place. Look at walk-drawn.png; draw it again with `walk --again` (PAID)')
-        f = cut_out(c, m); dx = 0
+        c, m = figure_in_cell(src, im, (cx, cy, cw, ch), i, n, '`walk --again`'); f = cut_out(c, m); dx = 0
+        gm = np.asarray(guide.crop((cx, cy, cx + cw, cy + ch))).min(2) < 245
         if s['person']:               # a person's drawing sits where it likes across its cell (a cloak behind pushes the body forward, by a different amount each frame - 17 to 49 px
-            gm = np.asarray(guide.crop((cx, cy, cx + cw, cy + ch))).min(2) < 245                     # on a guard and a herbalist): each frame is moved so that its HEAD is over the mannequin's
-            ys = np.nonzero(gm.any(1))[0]; hw = max((w[1] - w[0] for w in map(widest, gm[ys[0]:ys[0] + round(0.15 * (ys[-1] - ys[0]))]) if w), default=0)
-            hg, hm = head_x(gm, 0.4 * hw), head_x(m, 0.4 * hw)                                       # (the crown: a row 40 % as wide as the mannequin's bald head)
-            dx = 0 if hg is None or hm is None else int(np.clip(round(hg - hm), -P, P)); moved.append(dx)
+            dx = head_dx(gm, m, P); moved.append(dx)                                                   # on a guard and a herbalist): each frame is moved so that its HEAD is over the mannequin's
             w = Image.new('RGBA', (cw + 2 * P, ch), (0, 0, 0, 0)); w.paste(f, (P + dx, 0)); f = w
+        m2 = np.asarray(f)[:, P:P + cw, 3] > 128; ov.append(round(float((m2 & gm).sum() / max(1, (m2 | gm).sum())), 2))
         fr.append((f, f.getbbox()))
+    OVER['east'] = ov; low_overlap(s, 'walk', ov, '`walk --again`')
     if moved:
         print(f'  each frame moved across to put its head over the mannequin\'s: {moved} px')
         if max(moved) - min(moved) > 40 or max(map(abs, moved)) >= P:
@@ -384,6 +470,389 @@ def cut_walk(s, d):
     strip.save(d / 'out/walk.png', optimize=True); meta = {'cell': [cw2, ch2], 'n': n, 'align': 'bottom', 'step': round(adv * k, 1)}; note(d, 'walk', meta)
     if old is not None: print(f'  the walk\'s step in the game: {round(old * k, 1)} px (the old measure) -> {meta["step"]} px')
     print(f'cut: {d / "out/walk.png"}  cell {cw2}x{ch2}, {n} frames, one whole step carries it {meta["step"]} px - show the frame for how far it has walked, and its paws do not slide')
+
+
+# ---- seen from above, and pixel art: a guide for each facing (and each sheet of pixel art), the frames on one cell with the ground at one place ---
+# "view": "above" - the walk seen from a game's camera 30° (the spec's "pitch") above, in 8 facings (or 4), each drawn on the mannequin walking that way.
+# "pixel": N - the walk drawn as pixel art, the figure N sprite pixels tall, on the mannequin already reduced to those pixels (as pixelart.py draws a
+# character over its render), read back on the grid the image model drew it on (pixelgrid.py). Either way a frame is not stood on its lowest point: seen
+# from above a step goes up and down the picture. Every frame of every facing keeps the place the mannequin's has, the ground under it at one point
+# of the cell ("anchor" in out/creature.json) - where the game puts the figure's position.
+def guide_names(s, d):
+    if not s['above'] and not s['pixel']: return str(d / 'walk-guide.png')
+    return f'{d}/walk-guide-*.png ({len(list(d.glob("walk-guide-*.png")))} pictures)'
+
+
+def lay_out_any(s, d, extra):
+    return lay_out(s, d, extra) if not s['above'] and not s['pixel'] else lay_out_grid(s, d, extra)
+
+
+def renders(d, x, n):
+    return [Image.open(d / f'mannequin/render/walk-{x}-{k}.png').convert('RGBA') for k in range(n)]
+
+
+def anchor_of(d, size):
+    """the ground under the figure in its renders (px): the middle across, render.json's footY down (render_char.html: the camera looks at the ground's origin)"""
+    return size[0] / 2, json.loads((d / 'mannequin/render/render.json').read_text())['footY'] * size[1]
+
+
+def step_vec(s, v, x):
+    """a whole step's move on the picture, (across, down) px, of a walk facing `x` that goes v px a step along the ground - the ground seen `pitch`° from above"""
+    if not s['above']: return v, 0.0
+    a = np.radians(ANGLE[x]); return v * np.cos(a), -v * np.sin(a) * np.sin(np.radians(s['pitch']))
+
+
+def drawn_path(s, d, x, g=0):
+    return d / (f'walk-drawn-{x}-{g}.png' if s['pixel'] else f'walk-drawn-{x}.png')
+
+
+def guide_path(s, d, x, g=0):
+    return d / (f'walk-guide-{x}-{g}.png' if s['pixel'] else f'walk-guide-{x}.png')
+
+
+def lay_out_grid(s, d, extra):
+    """FREE. A guide for each facing drawn: walk-guide-<facing>.png, its 8 moments at ONE scale for every facing, the ground under the figure at the same point of
+    every cell - or for pixel art walk-guide-<facing>-<sheet>.png, a few frames a sheet already reduced to sprite pixels. The step is measured on east (rendered
+    from above as all eight are), the frame the walk stands still in is its narrowest there: the feet passing each other"""
+    n = s['frames']; fr = {x: renders(d, x, n) for x in s['drawn']}; east = fr['east'] if 'east' in fr else renders(d, 'east', n)
+    W, H = east[0].size; ax, ay = anchor_of(d, (W, H)); bb = [f.getbbox() for v in fr.values() for f in v]
+    half = max(max(ax - b[0], b[2] - ax) for b in bb); up = max(ay - b[1] for b in bb); dn = max(0.0, max(b[3] - ay for b in bb))
+    v, how = step_of(east, s['person']); stand = int(np.argmin([f.getbbox()[2] - f.getbbox()[0] for f in east]))
+    info = {'n': n, 'view': s['view'], 'mannequin': s['mannequin'], 'turn': s['turn'] if s['person'] else None, 'pixel': s['pixel'] or None, 'drawn': s['drawn'],
+            'step_render': v, 'advance_by': how, 'stand': stand, **extra}
+    for old in d.glob('walk-guide-*.png'): old.unlink()
+    (d / 'pixel-state.json').unlink(missing_ok=True)          # (the size the first sheet of pixel art was drawn at: of the old guides)
+    if s['pixel']: info.update(pixel_guides(s, d, fr, (ax, ay), half, up, dn))
+    else:
+        _, _, cw, ch = cells(n)[0]; k = min((cw - 60) / (2 * half), (ch - 60) / (up + dn)); gx, gy = cw / 2, ch - 30 - dn * k
+        for x, frs in fr.items():
+            g = Image.new('RGB', SHEET, 'white')
+            for f, (cx, cy, _, _) in zip(frs, cells(n)):
+                b = f.getbbox(); c = f.crop(b); c = c.resize((max(1, round(c.width * k)), max(1, round(c.height * k))), Image.LANCZOS)
+                g.paste(c, (cx + round(gx + (b[0] - ax) * k), cy + round(gy + (b[1] - ay) * k)), c)
+            g.save(guide_path(s, d, x))
+        info.update(k=k, anchor=[gx, gy])
+    (d / 'walk-guide.json').write_text(json.dumps(info))
+    print(f'mannequin: one whole step carries it {v:.0f} px of the renders along the ground - {how}; it stands still in frame {stand + 1}'); return v
+
+
+def pixel_frames(s, d, fr, anchor):
+    """the renders reduced to sprite pixels (area average, as pixelart.py's guide), the standing figure `pixel` px tall: {facing: [(rgb, mask)]}, the anchor, the factor"""
+    ref = Image.open(d / f'mannequin/render/idle-{design_facing(s)}.png').convert('RGBA').getbbox(); q = s['pixel'] / (ref[3] - ref[1]); out = {}
+    for x, frs in fr.items():
+        out[x] = []
+        for f in frs:
+            a = np.asarray(f, np.float32) / 255; pm = np.dstack([a[..., :3] * a[..., 3:], a[..., 3]]); w, h = round(f.width * q), round(f.height * q)
+            c = [np.asarray(Image.fromarray(pm[..., i]).resize((w, h), Image.BOX)) for i in range(4)]
+            out[x].append((np.clip(np.dstack(c[:3]) / np.maximum(c[3], 1e-4)[..., None], 0, 1), c[3] >= 0.5))
+    return out, (anchor[0] * q, anchor[1] * q), q
+
+
+def put(dst, src, m, ox, oy):
+    """src's pixels under mask m into dst at (ox, oy), what falls outside dst left out"""
+    H, W = dst.shape[:2]; h, w = m.shape; x0, y0 = max(0, -ox), max(0, -oy); x1, y1 = min(w, W - ox), min(h, H - oy)
+    if x1 <= x0 or y1 <= y0: return
+    sub = dst[oy + y0:oy + y1, ox + x0:ox + x1]; mm = m[y0:y1, x0:x1]; sub[mm] = src[y0:y1, x0:x1][mm]
+
+
+def pixel_guides(s, d, fr, anchor, half, up, dn):
+    """the pixel art's sheets, each facing its own: as many frames side by side as fit (4 if they can), each in the middle of its cell, the ground under them on one
+    line; squares of Z px (one sprite pixel) - pixelart.py's size (8 at 96 px; 6 at 128), made smaller down to 6 where that puts four frames on a sheet (a stride
+    seen from the side is wide: 2 a sheet at 8 px - and every sheet is a picture paid for)"""
+    pf, (pax, pay), q = pixel_frames(s, d, fr, anchor); H_ = s['pixel']; Zmax = 1024 // (H_ * 4 // 3); n = s['frames']; lay = {}
+    for x, frs in pf.items():
+        bb = [(lambda ys, xs: (xs.min(), xs.max() + 1, ys.min(), ys.max() + 1))(*np.nonzero(m)) for _, m in frs]; w = max(b[1] - b[0] for b in bb)
+        up_, dn_ = max(pay - b[2] for b in bb), max(0.0, max(b[3] - pay for b in bb))
+        fit = [(p_, Z) for p_ in (4, 3, 2, 1) for Z in range(Zmax, min(6, Zmax) - 1, -1) if (1536 // Z) // p_ >= w + 4 and up_ + dn_ <= 1024 // Z - 6]
+        if not fit: sys.exit(f'mannequin: a frame of {x} is too big for a sheet at "pixel": {H_} - a smaller "pixel"')
+        per, Z = fit[0]; SW, SH = 1536 // Z, 1024 // Z; CWp = SW // per; gy = round(SH - SH // 12 - dn_)
+        if gy - up_ < 2: gy = round(up_ + 2)
+        ox = [int((CWp - (b[1] - b[0])) // 2 - b[0]) for b in bb]; oy = int(round(gy - pay)); sheets = -(-n // per)
+        for g in range(sheets):
+            sh = np.ones((SH, SW, 3), np.float32)
+            for j, k in enumerate(range(g * per, min(n, g * per + per))): put(sh, frs[k][0], frs[k][1], j * CWp + ox[k], oy)
+            Image.fromarray((sh * 255).round().astype(np.uint8)).resize((SW * Z, SH * Z), Image.NEAREST).save(guide_path(s, d, x, g))
+        lay[x] = {'Z': Z, 'per': per, 'cwp': CWp, 'shp': SH, 'ox': ox, 'oy': oy, 'sheets': sheets}
+        print(f'mannequin: {x} in pixel art - squares of {Z} px, {per} frames a sheet: {sheets} sheets')
+    return {'px': lay, 'q': float(q), 'px_anchor': [float(pax), float(pay)]}
+
+
+def sheets_of(info, x):
+    return info['px'][x]['sheets'] if 'px' in info else 1
+
+
+def check_guide(s, info, name):
+    was = (info.get('n'), info.get('mannequin', s['mannequin']), info.get('view', 'side'), info.get('pixel'), info.get('turn', s['turn']) if s['person'] else None)
+    now = (s['frames'], s['mannequin'], s['view'], s['pixel'] or None, s['turn'] if s['person'] else None)
+    if was != now or (info.get('drawn') and not set(s['drawn']) <= set(info['drawn'])):
+        sys.exit(f'walk: {name} was laid out for {was[0]} frames of "{was[1]}", view "{was[2]}"{", pixel " + str(was[3]) if was[3] else ""} - the spec asks for '
+                 f'{now[0]} of "{now[1]}", view "{now[2]}"{", pixel " + str(now[3]) if now[3] else ""}{" (or other facings)" if was == now else ""}: run `mannequin` '
+                 'again (free) and look at the guides')
+
+
+def mannequin_words(s):
+    return ('a plain bald MANNEQUIN of a person', 'hair, no face and no clothes') if s['person'] else ('a plain MANNEQUIN of a four-legged animal', 'coat, no face and no tail')
+
+
+def limbs(s):
+    return ('RIGHT arm and RIGHT leg are RED, its LEFT arm and LEFT leg are BLUE' if s['person'] else 'RIGHT legs are RED, its LEFT legs are BLUE')
+
+
+def pose_words(s):
+    if s['person']: return ("Each arm and each leg where the mannequin's limb of the same colour is and bent as it is bent, each foot exactly where the mannequin's foot is, the "
+                            "head, the shoulders and the hips where the mannequin's are. The body under the clothes IS the mannequin's. ")
+    return ("Every leg where the mannequin's leg of the same colour is and bent as it is bent, each paw exactly where the mannequin's paw is, the back, the chest and the "
+            "neck where the mannequin's are, the legs exactly as long as the mannequin's. ")
+
+
+def own_words(s, x):
+    back = s['above'] and x.startswith('north')
+    if s['person']:
+        return ("On it, the character of image 2: its own head and hair, its own clothes and everything it wears"
+                + (" - seen from BEHIND: the back of its head and hair, the back of every garment, drawn as they must be to belong to what image 2 shows; its face does not show. "
+                   if back else " - its face, its hair and every garment turned to this view. ")
+                + "Hair and loose cloth (a cloak, a skirt, a braid, a strap) sway a little with the step. ")
+    return ("It is the creature of image 2 with its own build, its own head and face, its own coat and markings and its own TAIL, swaying a little from frame to frame"
+            + (" - seen from BEHIND: its back, its hindquarters and its tail, the back of its head; its face does not show. " if back else ". "))
+
+
+def above_prompt(s, x):
+    """the walk of ONE facing seen from above, drawn on its guide (image 1) as the design (image 2) - the sheet the user's isometric test drew a guard on"""
+    n = s['frames']; c, r = GRID[n]; man, bare = mannequin_words(s); w = 'character' if s['person'] else 'creature'
+    rows = f"in {r} row{'s' if r > 1 else ''} of {c} - {n} moments of one walking step, read left to right{', top row first' if r > 1 else ''}"
+    return (f"Image 1 is a POSE SHEET: {man} shown {n} times, {rows}. It has no {bare} - it shows only the pose and the VIEW. It is seen by a game's camera from ABOVE, "
+            f"looking about {s['pitch']} degrees down - {'the top of the head and the shoulders show' if s['person'] else 'the top of its back and of its head show'}, the "
+            f"legs are a little shortened. In every one it {VIEWS[x]}. Its {limbs(s)}; the rest of it is grey. Image 2 is a {w} of a game, drawn standing - it shows WHO "
+            f"it is, not the view. Draw the {w} of image 2 {n} times - one in place of each mannequin, at that mannequin's place and size on the sheet, in exactly that "
+            "mannequin's pose AND seen exactly as the mannequin is seen: from the same height above, turned the same way. " + pose_words(s) + own_words(s, x)
+            + f"It is the same {w} in all {n}: the same colours, the same drawing style and line as image 2, the same size. NOTHING of the mannequin shows in the finished "
+            f"sheet: none of its grey, red or blue, none of its smooth bare shape{', no bald head' if s['person'] else ''} - only the {w}s. Each one whole, none touching "
+            "another or the sheet's edge. Plain pure white background: no ground, no shadow, no lines, no numbers, no text.")
+
+
+def pixel_prompt(s, info, x, g):
+    """a sheet of the walk as pixel art, on the mannequin reduced to sprite pixels (image 1), as the design (image 2), going on from the first sheet (image 3)"""
+    n = s['frames']; per = info['px'][x]['per']; idx = list(range(g * per, min(n, g * per + per))); Z = info['px'][x]['Z']; man, bare = mannequin_words(s); w = 'character' if s['person'] else 'creature'
+    view = (f"seen by a game's camera from ABOVE, looking about {s['pitch']} degrees down; in every cell it {VIEWS[x]}" if s['above'] else
+            "seen straight from the side; in every cell it walks to the RIGHT" + (", its body turned a little toward the viewer" if s['person'] else ''))
+    return (f"Image 1 is a SHEET of {len(idx)} frames of one walking step, side by side, read left to right: {man} {view}, already reduced to LOW-RESOLUTION PIXELS - every "
+            f"square of {Z}x{Z} px in the picture is ONE sprite pixel, on a grid that starts at the picture's top-left corner; the figure is about {s['pixel']} sprite pixels "
+            f"tall. It has no {bare} - it shows only the pose and the view. Its {limbs(s)}; the rest of it is grey.\n"
+            f"Redraw EVERY cell as FINISHED PIXEL ART of the {w} of image 2, ON THE SAME GRID: every sprite pixel one flat {Z}x{Z} square of a single colour, its edges "
+            "exactly on the grid - no anti-aliasing, no blur, no gradients, no dithering, no half-pixels, no detail smaller than one square. Decide every pixel as a pixel "
+            "artist would: a dark outline one sprite pixel wide around the whole figure; one-pixel darker lines INSIDE the figure wherever one part passes in front of "
+            "another (an arm in front of the body, the near leg in front of the far one); each area in two or three flat tones (light, base, shadow) in clean large "
+            f"clusters; {'a face that reads at this size; ' if s['person'] else ''}about 16 colours in all, the SAME colours in every cell"
+            + (f" ({s['pixel_words']})" if s.get('pixel_words') else '') + ".\n"
+            "Keep the sheet exactly as it is: the same cells, each figure at exactly the same position, size and pose - the same pixels covered. " + pose_words(s) + own_words(s, x)
+            + f"The same {w} in every cell. NOTHING of the mannequin shows: none of its grey, red or blue{', no bald head' if s['person'] else ''}. Nothing between the cells, "
+            "no borders, no numbers.\n"
+            f"Image 2 is the {w} as a finished illustration: {'the face, the hair, the outfit' if s['person'] else 'the head, the coat, the markings'} and the colours to "
+            "match - NOT its drawing style, NOT its pose and NOT its view.\n"
+            + ("Image 3 is the FIRST frames of this same walk, already drawn as pixel art: continue it exactly - the same " + w + ", the same colours, outline and shading, "
+               "the same size of square - but in the poses of THIS sheet's cells (image 1).\n" if g else '')
+            + f"The {w}: {s['what']} Plain pure white background, no shadow on the ground, no text.")
+
+
+def walk_grid(s, d, root, args):
+    """PAID: each facing's walk (seen from above), or each sheet of pixel art, one OpenAI picture - `--only south-east,east` for some"""
+    gj, ds = d / 'walk-guide.json', d / 'design.png'
+    if not gj.exists(): sys.exit('walk: `mannequin` first - and look at the guides')
+    if not ds.exists(): sys.exit('walk: `design` first - the walk is drawn as the design')
+    info = json.loads(gj.read_text()); check_guide(s, info, 'the guides')
+    only = args.only.split(',') if args.only else s['drawn']; bad = [x for x in only if x not in s['drawn']]
+    if bad: sys.exit(f'walk: --only {",".join(bad)} - the facings drawn here are {", ".join(s["drawn"])}' + (f' ({", ".join(s["mirrored"])} flipped from their pairs)' if s['mirrored'] else ''))
+    jobs = [(x, g) for x in only for g in range(sheets_of(info, x)) if args.again or not drawn_path(s, d, x, g).exists()]
+    if not jobs: print('walk: every facing asked for is drawn (--again to draw anew); cut'); return cut_grid(s, d)
+    if not CP.gate(args, f'walk: {len(jobs)} OpenAI picture{"s" if len(jobs) > 1 else ""}, about ${0.07 * len(jobs):.2f} - '
+                         + ', '.join(f'{x}' + (f' sheet {g + 1}' if s['pixel'] else '') for x, g in jobs)): return
+    spent = 0.0
+    for x, g in jobs:
+        out = drawn_path(s, d, x, g); P = pixel_prompt(s, info, x, g) if s['pixel'] else above_prompt(s, x)
+        imgs = [guide_path(s, d, x, g), ds] + ([drawn_path(s, d, x, 0)] if s['pixel'] and g else [])
+        out.with_name(out.stem.replace('drawn', 'prompt') + '.txt').write_text(P); c = draw(f'walk {x}', P, imgs, out, f'{SHEET[0]}x{SHEET[1]}'); spent += c
+        print(f'walk: {out}  ${c:.2f}')
+    print(f'walk: ${spent:.2f} spent'); cut_grid(s, d)
+
+
+def head_dy(gm, m, P):
+    """how far down a frame drawn from above is moved to put its lowest point (the nearer foot) on the mannequin's, at most P px"""
+    a, b = np.nonzero(gm.any(1))[0], np.nonzero(m.any(1))[0]; return int(np.clip(int(a[-1]) - int(b[-1]), -P, P)) if len(a) and len(b) else 0
+
+
+def cut_grid(s, d):
+    """FREE: every facing drawn cut again -> out/walk-<facing>.png (a side view's pixel art: out/walk.png), out/stand-<facing>.png, out/creature.json"""
+    info = json.loads((d / 'walk-guide.json').read_text()); check_guide(s, info, 'the guides')
+    got = [x for x in s['drawn'] if all(drawn_path(s, d, x, g).exists() for g in range(sheets_of(info, x)))]
+    if not got: return print('cut: no facing drawn yet - `walk`')
+    front = design_facing(s) if design_facing(s) in got else got[0]; got = [front] + [x for x in got if x != front]
+    fr = cut_pixel(s, d, info, got) if s['pixel'] else cut_above(s, d, info, got)
+    assemble(s, d, info, fr)
+    low = [x for x in got if s['person'] and min(OVER.get(x) or [1]) < s['redo_below']]
+    if low: print(f'cut: {", ".join(low)} - a frame under {s["redo_below"]} overlap with the mannequin: LOOK at them; `walk --only {",".join(low)} --again` (PAID) draws them anew')
+
+
+def cut_above(s, d, info, got):
+    """each facing's painted walk cut by its guide's cells; a person's frame moved across to put its head over the mannequin's, every frame down to put its nearer foot
+    on the mannequin's; each facing's figures brought to one size (the image model draws each picture at a size of its own), the first facing's first frame `height`"""
+    n = s['frames']; gx, gy = info['anchor']; P = HEAD_MAX; out = {}; ratio = {}
+    for x in got:
+        src = drawn_path(s, d, x); im = Image.open(src).convert('RGB'); im = im if im.size == SHEET else im.resize(SHEET, Image.LANCZOS)
+        guide = Image.open(guide_path(s, d, x)).convert('RGB'); fs, hs, gh, mv, iou = [], [], [], [], []
+        for i, (cx, cy, cw, ch) in enumerate(cells(n)):
+            c, m = figure_in_cell(src, im, (cx, cy, cw, ch), i, n, f'`walk --only {x} --again`'); gm = np.asarray(guide.crop((cx, cy, cx + cw, cy + ch))).min(2) < 245
+            dx = head_dx(gm, m, P) if s['person'] else 0; dy = head_dy(gm, m, P); mv.append((dx, dy))
+            w = Image.new('RGBA', (cw + 2 * P, ch + 2 * P), (0, 0, 0, 0)); w.paste(cut_out(c, m), (P + dx, P + dy)); fs.append(w)
+            m2 = np.asarray(w)[P:P + ch, P:P + cw, 3] > 128; iou.append(round(float((m2 & gm).sum() / max(1, (m2 | gm).sum())), 2))
+            hs.append(np.ptp(np.nonzero(m.any(1))[0])); gh.append(np.ptp(np.nonzero(gm.any(1))[0]))
+        ratio[x] = float(np.median(hs) / np.median(gh)); out[x] = [(f, (gx + P, gy + P)) for f in fs]; OVER[x] = iou
+        print(f'  {x}: moved {mv} px (across: the head over the mannequin\'s; down: the nearer foot on its); {ratio[x]:.2f}x the mannequin\'s height')
+        low_overlap(s, x, iou, f'`walk --only {x} --again`')
+    R = float(np.median(list(ratio.values()))); h0 = (lambda b: b[3] - b[1])(out[got[0]][0][0].getbbox()) * R / ratio[got[0]]; G = s['height'] / h0
+    drift = {x: round(R / r, 3) for x, r in ratio.items() if abs(R / r - 1) > 0.03}
+    if drift: print(f'  brought to one size - each facing\'s figures made this many times as big: {drift}')
+    return {x: [(f, a, G * R / ratio[x]) for f, a in fl] for x, fl in out.items()} | {'_scale': G * info['k']}
+
+
+def px_lay(m, rm):
+    """a sprite's mask laid on the guide's where the two overlap most -> (overlap, row, column) (pixelart.py's lay)"""
+    y0, y1, x0, x1 = (lambda ys, xs: (ys.min(), ys.max() + 1, xs.min(), xs.max() + 1))(*np.nonzero(rm)); R = np.pad(rm, 12); best = (-1, 0, 0)
+    for oy in range(y0 + (y1 - y0 - m.shape[0]) // 2 - 6, y0 + (y1 - y0 - m.shape[0]) // 2 + 7):
+        for ox in range(x0 + (x1 - x0 - m.shape[1]) // 2 - 6, x0 + (x1 - x0 - m.shape[1]) // 2 + 7):
+            w = R[oy + 12:oy + 12 + m.shape[0], ox + 12:ox + 12 + m.shape[1]]
+            if w.shape != m.shape: continue
+            sc = (w & m).sum() / (rm.sum() + m.sum() - (w & m).sum())
+            if sc > best[0]: best = (sc, oy, ox)
+    return best
+
+
+def px_size(m, rm):
+    """how many times the guide's size a sprite was drawn: the guide's mask made bigger and smaller until the sprite lies on it best (pixelart.py's size_on_render)"""
+    best = (-1, 1.0)
+    for r in np.arange(0.86, 1.62, 0.02):
+        R = np.asarray(Image.fromarray(rm).resize((max(2, round(rm.shape[1] * r)), max(2, round(rm.shape[0] * r))), Image.NEAREST)); sc = px_lay(m, R)[0]
+        if sc > best[0]: best = (sc, float(r))
+    return best[1]
+
+
+def cut_pixel(s, d, info, got):
+    """each sheet of pixel art read on the grid it was drawn on (pixelgrid.py, the white shut in between the legs told from white things by the AI cut-out), every sheet
+    brought to the first's size, each sprite laid where it covers the guide's best; then one palette of "colours" (32) for every frame of every facing"""
+    import pixelgrid as PG, pixelkit as PK
+    n = s['frames']; pad = 12
+    fr = {x: renders(d, x, n) for x in got}; size = fr[got[0]][0].size; pf, (pax, pay), _ = pixel_frames(s, d, fr, anchor_of(d, size))
+    st = d / 'pixel-state.json'; state = json.loads(st.read_text()) if st.exists() else {}; out = {}; ref = None
+    for x in got:
+        fl = []; ovs = []; L = info['px'][x]; Z, per, CWp, SHp = L['Z'], L['per'], L['cwp'], L['shp']; PG.Z = Z
+        for g in range(L['sheets']):
+            src = drawn_path(s, d, x, g); im = Image.open(src).convert('RGB'); a = np.asarray(im, np.float32) / 255; idx = list(range(g * per, min(n, g * per + per)))
+            lab, _ = ndimage.label(ndimage.binary_opening(a.min(2) < 0.93, np.ones((3, 3)))); cw = CWp * Z * im.width / SHEET[0]; boxes = [None] * len(idx); big = [0] * len(idx)
+            for k, sl in enumerate(ndimage.find_objects(lab)):
+                npx = int((lab[sl] == k + 1).sum()); c_ = int((sl[1].start + sl[1].stop) / 2 // cw)
+                if npx < 40 or c_ >= len(idx): continue
+                b = boxes[c_]; big[c_] = max(big[c_], npx); bx = (sl[0].start, sl[0].stop, sl[1].start, sl[1].stop)
+                boxes[c_] = bx if b is None else (min(b[0], bx[0]), max(b[1], bx[1]), min(b[2], bx[2]), max(b[3], bx[3]))
+            if min(big) < 4000: sys.exit(f'cut: {src.name} has {sum(v >= 4000 for v in big)} figures for {len(idx)} frames - look at it; `walk --only {x} --again` (PAID)')
+            bxs = [(max(0, x0 - 12), max(0, y0 - 12), min(im.width, x1 + 12), min(im.height, y1 + 12)) for y0, y1, x0, x1 in boxes]
+            crops = [a[b[1]:b[3], b[0]:b[2]] for b in bxs]; fgs = [ai_mask(src, im, b) for b in bxs]; PG.PITCH_[0] = PG.pitch_of(crops)
+            gms = []; anc = []
+            for i in idx:
+                gm = np.zeros((SHp, CWp), bool); put(gm, np.ones_like(pf[x][i][1]), pf[x][i][1], L['ox'][i], L['oy']); gms.append(gm); anc.append((L['ox'][i] + pax, L['oy'] + pay))
+            reads = [PG.read(c, 0.0, 0.27, fg=q) for c, q in zip(crops, fgs)]; rs = [px_size(r[1], gm) for r, gm in zip(reads, gms)]; rsh = float(np.median(rs))
+            ref = state.setdefault('scale', round(rsh, 4)) if ref is None else ref; k_ = ref / rsh if abs(ref / rsh - 1) > 0.012 else 1.0
+            if k_ != 1.0:
+                sz = [(round(c.shape[1] * k_), round(c.shape[0] * k_)) for c in crops]
+                crops = [np.asarray(Image.fromarray((c * 255).round().astype(np.uint8)).resize(z, Image.LANCZOS), np.float32) / 255 for c, z in zip(crops, sz)]
+                fgs = [np.asarray(Image.fromarray(q).resize(z, Image.NEAREST)) for q, z in zip(fgs, sz)]; reads = [PG.read(c, 0.0, 0.27, fg=q) for c, q in zip(crops, fgs)]
+            print(f'  {x} sheet {g + 1}: squares of {PG.PITCH_[0]:.2f} px (asked {Z}), drawn {rsh:.2f}x the guide' + (f' - brought to {ref:.2f}x' if k_ != 1.0 else ''))
+            for (low, m, hr), gm, (ax, ay) in zip(reads, gms, anc):
+                # the sprite is drawn about `ref` times the guide's size (the image model's own: ~1.1): laid on the guide's middle, its ground is the guide's anchor moved
+                # out from that middle as much - so a sprite's feet stand on it, not 5 % under it
+                _, oy, ox = px_lay(m, gm); ys, xs = np.nonzero(gm); my, mx = (ys.min() + ys.max() + 1) / 2, (xs.min() + xs.max() + 1) / 2
+                cs = (SHp + 2 * pad, round(CWp * 1.3) + 2 * pad); sh_ = (cs[1] - 2 * pad - CWp) // 2
+                big_ = np.asarray(Image.fromarray(gm).resize((round(gm.shape[1] * ref), round(gm.shape[0] * ref)), Image.NEAREST)); ovs.append(round(float(px_lay(m, big_)[0]), 2))
+                fl.append((low, m, hr, cs, (ox + pad + sh_, oy + pad), (mx + (ax - mx) * ref + pad + sh_, my + (ay - my) * ref + pad)))
+        out[x] = fl; OVER[x] = ovs; low_overlap(s, x, ovs, f'`walk --only {x} --again`')
+    st.write_text(json.dumps(state))
+    # ONE PALETTE FOR THE BODIES, ONE FOR THE HEADS (pixelart.py's way: among a body's colours a face's few - the eyes, a brow, a beard's edge - were lost, and a
+    # face came back a blank of skin). The heads' rows are not cleaned of lone pixels either: an eye is one. White is kept white (k-means greys an eye's white)
+    nb = int(s.get('colours', 32)); nh = min(13, max(3, round(nb * 0.36))); nb = max(3, nb - nh)
+    def pal(pix, k):
+        pl = PK.palette(pix, k)
+        if (pix.min(1) > 0.9).sum() >= 2: pl = np.vstack([pl, PK.lab(np.ones((1, 3)))])
+        return pl, np.clip(PK.lab2rgb(pl), 0, 1)
+    body = lambda low, m, hr: np.concatenate([low[:hr[0]][m[:hr[0]]], low[hr[1]:][m[hr[1]:]]]); head = lambda low, m, hr: low[hr[0]:hr[1]][m[hr[0]:hr[1]]]
+    bl, br = pal(np.concatenate([body(*f[:3]) for fl in out.values() for f in fl]), nb); hl, hrgb = pal(np.concatenate([head(*f[:3]) for fl in out.values() for f in fl]), nh)
+    res = {}
+    for x, fl in out.items():
+        res[x] = []
+        for low, m, hr, cs, (px0, py0), a in fl:
+            ix = PK.clean(PK.snap(low, bl, br), m); rgb_ = br[ix]
+            if hr[1] > hr[0]: rgb_[hr[0]:hr[1]] = hrgb[PK.snap(low[hr[0]:hr[1]], hl, hrgb)]
+            c = np.zeros(cs + (4,), np.float32); put(c, np.dstack([rgb_, np.ones(m.shape)]), m, px0, py0)
+            res[x].append((Image.fromarray((c * 255).round().astype(np.uint8)), a, 1.0))
+    print(f'  {len(bl) + len(hl)} colours in all the frames ({len(hl)} of them the heads\')')
+    return res | {'_scale': info['q'] * ref}
+
+
+def assemble(s, d, info, fr):
+    """the cut frames of every facing on ONE cell size, the ground under the figure at one point of it ("anchor"): out/walk-<facing>.png (the side view's pixel art:
+    out/walk.png), a facing flipped from its pair where the spec says "mirror"; the frame the walk stands still in, out/stand-<facing>.png (stand.png); each
+    facing's step - how far ONE whole step carries it on the picture, across and down - in out/creature.json"""
+    n = s['frames']; scale = fr.pop('_scale'); L = {}
+    for x, fl in fr.items():
+        L[x] = []
+        for img, (ax, ay), t in fl:
+            if t != 1.0: img = img.resize((max(1, round(img.width * t)), max(1, round(img.height * t))), Image.LANCZOS); ax, ay = ax * t, ay * t
+            b = img.getbbox(); L[x].append((img.crop(b), ax - b[0], ay - b[1]))
+    half = max(max(ax, c.width - ax) for v in L.values() for c, ax, _ in v); up = max(ay for v in L.values() for _, _, ay in v)
+    dn = max(c.height - ay for v in L.values() for c, _, ay in v); cw, ch = int(np.ceil(2 * half)) + 4, int(np.ceil(up + dn)) + 4; A = (cw / 2, up + 2)
+    tag = (lambda x: f'-{x}') if s['above'] else (lambda x: '')
+    for x in s['dirs']:
+        src = x if x in L else CP.PAIR.get(x) if x in s['mirrored'] and CP.PAIR.get(x) in L else None
+        if src is None: continue
+        strip = Image.new('RGBA', (cw * n, ch), (0, 0, 0, 0)); fl = []
+        for i, (c, ax, ay) in enumerate(L[src]):
+            if src != x: c = c.transpose(Image.FLIP_LEFT_RIGHT); ax = c.width - ax
+            fl.append((c, ax, ay)); strip.alpha_composite(c, (i * cw + round(A[0] - ax), round(A[1] - ay)))
+        strip.save(d / f'out/walk{tag(x)}.png', optimize=True); st = [round(float(v * scale), 1) for v in step_vec(s, info["step_render"], x)]
+        note(d, f'walk{tag(x)}', {'cell': [cw, ch], 'n': n, 'align': 'anchor', 'anchor': [round(A[0], 1), round(A[1], 1)], 'step': st if s['above'] else st[0], 'overlap': OVER.get(src, []),
+                                 **({'flipped_from': src} if src != x else {}), **({'pixel': s['pixel']} if s['pixel'] else {})})
+        c, ax, ay = fl[info['stand']]; one = Image.new('RGBA', (cw, ch), (0, 0, 0, 0)); one.alpha_composite(c, (round(A[0] - ax), round(A[1] - ay)))
+        one.save(d / f'out/stand{tag(x)}.png', optimize=True); note(d, f'stand{tag(x)}', {'size': [cw, ch], 'align': 'anchor', 'anchor': [round(A[0], 1), round(A[1], 1)]})
+        print(f'cut: {d / f"out/walk{tag(x)}.png"}  cell {cw}x{ch}, {n} frames, one whole step carries it {st} px' + (f' (flipped from {src})' if src != x else ''))
+
+
+def preview_grid(s, d):
+    """out/preview.gif: every facing walking at its own step over dotted ground (does a foot slide?) - pixel art shown 3 times its size, square for square"""
+    j = json.loads((d / 'out/creature.json').read_text()); tag = (lambda x: f'walk-{x}') if s['above'] else (lambda x: 'walk')
+    ws = [x for x in s['dirs'] if tag(x) in j and (d / f'out/{tag(x)}.png').exists()]
+    if not ws: sys.exit('preview: no walk cut yet - `walk` or `cut` first')
+    m0 = j[tag(ws[0])]; cw, ch = m0['cell']; n = m0['n']
+    st = {x: (lambda v: v if isinstance(v, list) else [v, 0])(j[tag(x)]['step']) for x in ws}
+    z = 3 if s['pixel'] else min(1.0, 1600 / (min(4, len(ws)) * (cw + 3.2 * max(abs(v[0]) for v in st.values())) + 80))     # (a painted set: 4 tiles in 1600 px)
+    TW = round((cw + 3.2 * max(abs(v[0]) for v in st.values())) * z) + 20; TH = round((ch + 3.2 * max(abs(v[1]) for v in st.values())) * z) + 20
+    cols = min(4, len(ws)); rows = -(-len(ws) // cols); frames = []
+    strips = {x: Image.open(d / f'out/{tag(x)}.png').convert('RGBA') for x in ws}
+    cell = lambda x, k: (lambda c: c if z == 1 else c.resize((round(cw * z), round(ch * z)), Image.NEAREST if s['pixel'] else Image.LANCZOS))(strips[x].crop((k * cw, 0, (k + 1) * cw, ch)))
+    sin = np.sin(np.radians(s['pitch'])) if s['above'] else 0
+    for i in range(3 * n):
+        f = Image.new('RGBA', (TW * cols, TH * rows), (126, 140, 150, 255))
+        for t, x in enumerate(ws):
+            ox, oy = t % cols * TW, t // cols * TH; gxs, gys = max(4, round(28 * z)), max(1, round(28 * z * sin)) if sin else 0
+            if gys:
+                for yy in range(oy + 6, oy + TH - 6, gys):
+                    for xx in range(ox + 6 + (yy // gys % 2) * gxs // 2, ox + TW - 6, gxs): f.paste((96, 108, 118, 255), (xx, yy, xx + 3, yy + 2))
+            else:
+                gy_ = oy + TH - 10; f.paste((70, 80, 90, 255), (ox, gy_, ox + TW, gy_ + 2))
+                for xx in range(ox, ox + TW, gxs): f.paste((96, 108, 118, 255), (xx, gy_ + 2, xx + 3, gy_ + 10))
+            ax, ay = j[tag(x)]['anchor']; vx, vy = st[x]; k_ = i / n - 1.5                      # (it walks 3 steps, from 1.5 before the tile's middle to 1.5 past it)
+            px = ox + (TW - cw * z) / 2 + k_ * vx * z; py = oy + (TH - ch * z) / 2 + k_ * vy * z
+            if not gys: py = oy + TH - 10 - ay * z
+            f.alpha_composite(cell(x, i % n), (round(px), round(py)))
+        frames.append(f.convert('RGB'))
+    pal = frames[0].quantize(255, method=Image.MEDIANCUT, dither=Image.NONE); q = [f.quantize(palette=pal, dither=Image.NONE) for f in frames]
+    q[0].save(d / 'out/preview.gif', save_all=True, append_images=q[1:], duration=110, loop=0); print(f'preview: {d / "out/preview.gif"}  ({", ".join(ws)})')
 
 
 # ---- any other animation: four moments said in words ------------------------------------------------------------------------------------
@@ -458,14 +927,18 @@ def note(d, kind, meta):
 
 
 def cut(s, d, root, args):
-    if (d / 'walk-drawn.png').exists(): cut_walk(s, d)
-    if s['person'] and (d / 'design.png').exists(): cut_stand(s, d)
+    if s['above'] or s['pixel']:
+        if (d / 'walk-guide.json').exists(): cut_grid(s, d)
+    else:
+        if (d / 'walk-drawn.png').exists(): cut_walk(s, d)
+        if s['person'] and (d / 'design.png').exists(): cut_stand(s, d)
     for kind in s['sheets']:
         if (d / f'{kind}-drawn.png').exists(): cut_sheet(s, d, kind)
 
 
 def preview(s, d, root, args):
     """out/preview.gif: the walk moving at its own step over marked ground (do its paws slide?), then each sheet's four frames"""
+    if s['above'] or s['pixel']: return preview_grid(s, d)
     j = {k: v for k, v in json.loads((d / 'out/creature.json').read_text()).items() if 'cell' in v} if (d / 'out/creature.json').exists() else {}
     if not j: sys.exit('preview: no strip cut yet - `walk`, `sheet` or `cut` first')
     W = max(m['cell'][0] for m in j.values()) + 260; H = max(m['cell'][1] for m in j.values()) + 34; frames = []
@@ -486,7 +959,7 @@ def preview(s, d, root, args):
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('step', choices=['design', 'mannequin', 'walk', 'sheet', 'cut', 'preview']); ap.add_argument('spec'); ap.add_argument('kind', nargs='?')
-    ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', action='store_true'); A = ap.parse_args(); S, D, ROOT = load(A.spec)
+    ap.add_argument('--yes', action='store_true'); ap.add_argument('--again', action='store_true'); ap.add_argument('--only', default=''); A = ap.parse_args(); S, D, ROOT = load(A.spec)
     if A.step == 'sheet':
         if not A.kind: sys.exit('sheet: which one? `creature.py sheet MON.json hurt`')
         sheet(S, D, ROOT, A, A.kind)

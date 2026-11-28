@@ -145,7 +145,13 @@ def load_spec(path):
     spec = json.loads(Path(path).read_text(encoding='utf-8'))
     if spec.get('character') is not None:                       # a person: the mannequin as the guide, one view per facing
         c = spec['character'] = spec['character'] or {}
-        spec.setdefault('footprint', [0.5, 0.5]); body = c.get('body', 'man')
+        spec.setdefault('footprint', [0.5, 0.5]); body = c.get('body')
+        if body is None:                                          # left out: the mannequin the description names - a man, a woman, a child (a boy, a girl)
+            import charlib as CL
+            body, word = CL.who_of(spec.get('description', ''))
+            if body in BODIES: print(f'character: "body" "{body}" - left out, and the description says "{word}" (give "body" for another)')
+            else: print('character: "body" left out and the description names no man, woman or child (a boy, a girl) - the man ("body": "woman" | "child" for another)'); body = 'man'
+            c['body'] = body
         if body == 'blocks': spec['blocks'] = mannequin(c) + spec.get('blocks', [])        # the figure of boxes and round limbs, as before 0.29
         else:                                                                             # one of the mannequins that come with SpriteCast, in the pose
             if body not in BODIES: sys.exit(f'character body: "{body}" - one of {", ".join(BODIES)}, or "blocks"')

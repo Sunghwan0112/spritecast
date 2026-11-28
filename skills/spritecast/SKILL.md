@@ -1,6 +1,6 @@
 ---
 name: spritecast
-description: Make 2D game sprites at their real size and exact camera angle, in the user's art style, from a 3D guide that an image model redraws. Use when the user asks for an isometric or top-down prop, furniture or object sprite (painted or pixel art, from any side, with its shadow); a standing NPC from a description; a character walking in 8 or 4 facings from one illustration, or its run, jump, attack, throw or a Mixamo FBX clip; pixel-art sprites or a sprite sheet of a character; a seated or sitting character, or one put on a chair or bench; a character for a side-scrolling game or platformer; monsters, enemies, animals or townspeople for a side-view game, drawn straight in 2D on a mannequin's walk with no 3D model each; a four-legged animal's walk; a swing's effect, a meadow ground, or files for Godot, Unity, Phaser or Aseprite; or fixing a sprite by hand - pixel sprites in a local editor, a cut-out, a halo or what covers what on a touch-up page.
+description: Make 2D game sprites at their real size and exact camera angle, in the user's art style, from a 3D guide that an image model redraws. Use when the user asks for an isometric or top-down prop, furniture or object sprite (painted or pixel art, from any side, with its shadow); a standing NPC from a description; a character walking in 8 or 4 facings from one illustration, or its run, jump, attack, throw or a Mixamo FBX clip; pixel-art sprites or a sprite sheet of a character; a seated or sitting character, or one put on a chair or bench; a character for a side-scrolling game or platformer; monsters, enemies, animals or townspeople drawn straight in 2D on a mannequin's walk with no 3D model each (side view, from above in 8 facings, or pixel art); a four-legged animal's walk; a swing's effect, a meadow ground, or files for Godot, Unity, Phaser or Aseprite; or fixing a sprite by hand - pixel sprites in a local editor, a cut-out, a halo or what covers what on a touch-up page.
 license: MIT
 compatibility: Claude Code (runs Python, Playwright and a local Chrome/Chromium on the user's machine; calls the OpenAI Images API with the user's own key)
 ---
@@ -29,7 +29,7 @@ below and read its reference file before the first step** - this file says what 
 | one frame drawn alone (`charpipe.py frame`) | $0.08 |
 | a pixel-art sheet (`pixelart.py`) | $0.075 - a walk is 2 sheets a facing (~$1.35 in eight); an action with something held 4 |
 | a pixel prop's view (`proppixel.py`), a sheet of a prop's poses (`propanim.py`) | $0.08 |
-| a creature's design, its walk, a sheet of four moments (`creature.py`) | $0.06 each |
+| a creature's design, its walk, a sheet of four moments (`creature.py`) | $0.06 each (a walk seen from above: each facing; as pixel art: ~$0.07 a sheet, two a facing) |
 | Tripo | a character's model + rig + walk ~75 credits (~85 if it comes back uncoloured), each extra action ~10; an animal's model ~30 (~40); a prop's model 20-40 |
 
 ## Setup (once)
@@ -58,7 +58,7 @@ below and read its reference file before the first step** - this file says what 
 | a character that walks in 8 or 4 facings; its run, jump, attack | `charpipe.py` | character.md | OpenAI + Tripo | `turnaround`, `3d`, `draw`, `redraw` |
 | a four-legged animal walking in 8 facings | `charpipe.py`, `"kind": "animal"` | character.md "Animals" | OpenAI + Tripo | the same |
 | a side-scrolling game's hero - many moves, a thing in the hand | `charpipe.py`, `"view": "side"` | character.md | OpenAI + Tripo | the same, 3 sheets a walk |
-| a side-scrolling game's monsters, animals, townspeople | `creature.py` | creature.md | OpenAI | `design`, `walk`, `sheet` |
+| monsters, animals, townspeople with no 3D model each - a side-scrolling game's, or walking in 8 facings seen from above, or as pixel art | `creature.py` | creature.md | OpenAI | `design`, `walk`, `sheet` |
 | pixel art of a character; of a prop | `pixelart.py`; `proppixel.py` | pixel.md | OpenAI (Tripo for a prop seen from several sides) | the sheets |
 | an isometric prop that moves (a ghost's arms); see-through; wind; a lamp's light; where it blocks | `proprig.py` + `propanim.py`; spec keys; `propshade.py`, `lightedit.py` | pixel.md | OpenAI for `propanim.py` only | `propanim.py`'s sheets |
 | a character sitting, or put on the user's chair | `charpipe.py sit`, `seat.py` | sitting.md | OpenAI | `sit --draw` |
@@ -94,7 +94,8 @@ the arrangement and exact sizes matter more than surface detail. From several si
 
 ## A standing person (`isoprop.py`, a `character` spec)
 One of SpriteCast's mannequins (`"body"`: `"man"`, `"woman"`, `"child"` - bald, plain, a real figure) at their real height, put in the
-pose, one view a facing, the first drawn first and the rest from it. Ask the body, the height, the build, what they wear, and the
+pose, one view a facing, the first drawn first and the rest from it. The body is chosen from the description when `"body"` is left
+out (a man, a woman, a child - a boy or a girl); ask the height, the build, what they wear, and the
 facings (4 diagonals unless their game uses 8; the 4 cardinals for a game that moves up, down, left, right). Poses: stand, wave,
 point, hold, arms-crossed, walk (one mid-stride picture) - say the pose in the description too. Anything else: write the angles
 (spec.md "Custom poses"), render, look, adjust, and only then draw. A palm can be turned (`"palm"`); limbs that overlap are pushed
@@ -160,8 +161,8 @@ monsters, townspeople - use `creature.py` below, not a 3D model each.
 - The head in an action, what `redraw` does with a held thing, and what the prompt says: character.md "Actions: the head, `redraw`,
   the prompt".
 
-## Monsters, animals and people for a side-scrolling game (`creature.py`) - [reference/creature.md](reference/creature.md)
-For what a side-view game needs many of, no 3D model of each is made. A spec with `"style"` (a finished character of the game),
+## Monsters, animals and people on a mannequin's walk (`creature.py`) - [reference/creature.md](reference/creature.md)
+For what a game needs many of, no 3D model of each is made. A spec with `"style"` (a finished character of the game),
 `"what"`, `"height"` (px in the game) and `"sheets"`. **A person goes in another order than an animal - decide which first.**
 - **A four-legged one on straight legs** (wolf, boar, deer): `design` (PAID - one picture from the side, in the style picture's look;
   show it) → `mannequin` (free: SpriteCast's plain dog is given the design's leg length, body depth and neck, and its walk laid out as
@@ -169,7 +170,15 @@ For what a side-view game needs many of, no 3D model of each is made. A spec wit
   a dog's legs) → `walk` (PAID: 8 frames on those poses).
 - **A person** (`"mannequin": "man" | "woman" | "child"`): `mannequin` FIRST (free: the bald figure walking, and standing in the view
   the design is drawn in) → `design` (PAID: the character drawn standing as the mannequin stands, of its build) → `walk` (PAID). No
-  fitting for people: pick the body nearest the character.
+  fitting for people. Left out, `"mannequin"` is chosen from `"what"` - a man, a woman, a child (a boy, a girl), an animal on four legs
+  (the dog); `mannequin` prints the word that chose it.
+- **Seen from above** (`"view": "above"`, an isometric or top-down game): the walk in 8 facings (`"facings"`: 4, `"cardinal"`), ONE
+  PAID picture a facing (~$0.06 each; `walk --only south-east` first, show it, then the rest), the design may be the side view's.
+  `out/walk-<facing>.png`, `out/stand-<facing>.png`, an `anchor` (the ground under the figure) and a `[across, down]` step each.
+- **As pixel art** (`"pixel": 96`, the figure's sprite pixels; with either view): the mannequin reduced to sprite pixels, drawn over
+  as pixel art and read back on its grid - two PAID sheets a facing (~$0.07 each). Other moves (`sheet`) stay illustrations.
+- `cut` names a person's walk frame overlapping the mannequin under `"redo_below"` (0.5): look at it; `walk --again` (`--only` a
+  facing). An animal has no threshold: ALWAYS look at its strip and `preview.gif` yourself, and show them.
 - **Anything else it does** - struck, falling apart, a hop, a drift: `sheet <spec> <kind>` (PAID each), four moments said in words
   (FIRST ... FOURTH). A creature with no such walk (a blob, a cloud; `"mannequin": false`) is sheets only - then give each sheet its
   own `"height"`. What stands another way (a lizard, a spider) has no mannequin yet: its movement is a sheet.

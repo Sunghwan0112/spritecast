@@ -4,6 +4,10 @@
 
 ## Walking characters
 
+Two ways to make one walk: **on SpriteCast's mannequin** - no 3D model of the character, no Tripo, about $0.55 for 8 facings
+([below](#no-3d-model-a-walk-on-a-mannequin)) - or **with its own 3D model** made by Tripo, about $3: what a character that will hold
+a weapon and attack needs.
+
 ![an illustration → 3D → drawn frames → an 8-facing walk](../character.png)
 
 Give it one illustration of a character (facing front, standing straight, no pose) and you get a walk in 8 facings (8 frames each) and 8 standing views, in that
@@ -47,6 +51,37 @@ every frame - a flaw in the model fixed in the drawing, not in 3D.
 
 </details>
 
+## No 3D model: a walk on a mannequin
+
+![a castle guard walking in 8 facings seen from above, each beside the plain mannequin whose walk he was drawn on](../mannequin-walk.gif)
+
+SpriteCast comes with plain mannequins - a man, a woman, a child and a dog: bald, grey, the right limbs red and the left blue.
+`creature.py` renders the one your description names walking, with the game's camera (free), and the image model draws your
+character over its poses: one design, then one picture a facing. No Tripo and no model of the character: a walk in 8 facings is
+about $0.54.
+
+```
+$PYTHON skills/spritecast/scripts/creature.py mannequin guard.json   # free: the mannequin walking, a guide per facing; then design, and walk (one facing first: --only south-east)
+```
+- `"view": "above"`: 8 facings (or 4) seen from above, for an isometric or top-down game. `"view": "side"` (the default): one facing
+  for a side-scroller ([below](#a-side-scrolling-game-one-facing-and-monsters-drawn-in-2d)).
+- `"pixel": 96`: as pixel art - the mannequin reduced to sprite pixels and drawn over on that grid (two pictures a facing).
+- The guard above was drawn from one design seen from the side: the same man in all eight facings - his cloak, buckles and keys -
+  the north ones from behind. Each frame comes with an anchor (the ground under him) and how far a step carries him, so the feet do
+  not slide.
+
+<details><summary>as pixel art: the mannequin reduced to sprite pixels, and the guard drawn on it</summary>
+
+![the mannequin walking as pixel art, and the guard drawn as pixel art on its poses](../mannequin-pixel.gif)
+
+</details>
+
+**When to make its own 3D model instead.** On a mannequin, walks come out well, and other moves (a jump, being struck) mostly do,
+drawn as a sheet of moments. But for a character that will hold a weapon and attack - like Rain Girl swinging her umbrella - or that
+needs many actions (a combo, a Mixamo clip, a swing's effect), we recommend making it with Tripo from the start
+([above](#walking-characters)): the rig carries the held thing in every frame and every action comes from the same model's real
+motion, so it stays consistent in every pose, and each new action is one more clip on the same rig.
+
 ## Four-legged animals
 
 Tripo's rig for four-legged animals walks badly (no backbone, the shoulders hung off the neck), so an animal gets no bought rig.
@@ -71,8 +106,9 @@ frames fit their renders at 0.76-0.97 (north-east and north-west mixed frame by 
 ## A side-scrolling game: one facing, and monsters drawn in 2D
 
 For a platformer or a side-view RPG, `"view": "side"` puts the camera level, straight from the side. ONE facing is drawn - walking
-right - and the other is its mirror: a walk and the standing view are 3 sheets (~$0.33) where eight facings take 18. `"turn": 45`
-turns the body toward the viewer, so both eyes show and a swing across the body is not hidden behind it. Actions work as before:
+right - and the other is its mirror: a walk and the standing view are 3 sheets (~$0.33) where eight facings take 18. The body is
+turned 45° toward the viewer by default, so both eyes show and a swing across the body is not hidden behind it (`"turn": 0` for a
+strict profile). Actions work as before:
 a cut with its water, a jump (`"air"`), a ladder climbed with her back to us (`"face": "away"`).
 
 <details><summary>a side-scrolling game: the rain girl at the foot of a castle wall in the rain, a stag beside her, a stone wolf on the wall, a storm cloud over a wooden ledge</summary>
@@ -104,7 +140,7 @@ words. About $0.06 a picture.
 </details>
 
 What stands with its legs out to the sides (a lizard, a spider) has no mannequin yet: a salamander came out standing on dog legs.
-The game's main character, with many actions and a thing in her hand, is still made from her own 3D model. Details:
+**A mannequin or its own 3D model?** As for any character: [when to make its own 3D model](#no-3d-model-a-walk-on-a-mannequin). Details:
 [reference/creature.md](../../skills/spritecast/reference/creature.md).
 
 ## More actions: run, jump, slash
