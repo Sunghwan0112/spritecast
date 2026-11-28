@@ -108,7 +108,7 @@ volver a dibujar, nunca se fuerza para que encaje. Los props funcionan igual, co
 
 ## Hecho con SpriteCast
 
-Dos juegos pequeños, con todas sus imágenes hechas con SpriteCast.
+Dos juegos pequeños hechos como ejemplo, cada uno en más o menos un día, con todas sus imágenes hechas con SpriteCast: para mostrar lo que puedes construir con él.
 
 ### Rain Girl: pixel art isométrico
 
@@ -152,23 +152,25 @@ fuego con el agua de su paraguas antes de que arda el bosque.</i></p>
 
 </details>
 
-- Más - una sola paleta, la niña oscureciéndose a la sombra de los árboles, la cobertura que para una bola de fuego, el viento, lo que costó un objeto: [cómo se hizo](docs/guide/rain-girl.md) (en inglés).
+- Más - una sola paleta, la niña oscureciéndose a la sombra de los árboles, la cobertura que para una bola de fuego, el viento: [cómo se hizo](docs/guide/rain-girl.md) (en inglés).
 
-### The Castle Wall: un juego de scroll lateral por unos $3.40
+### The Castle Wall: un juego de scroll lateral
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/side-game.png" alt="The Castle Wall: la niña de la lluvia en la puerta del castillo con un guardia y una herbolaria, un lobo de piedra en el adarve, una nube de tormenta sobre una pasarela de madera, lluvia" width="100%"></a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/castle-wall-play.gif" alt="The Castle Wall: la niña de la lluvia en la puerta del castillo con un guardia y una herbolaria, un lobo de piedra en el adarve, una nube de tormenta sobre una pasarela de madera, lluvia" width="100%"></a></p>
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ Juégalo en el navegador</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">el código del juego, y cómo se hizo cada imagen</a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ Juégalo en el navegador</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">el código del juego, y cómo se hizo cada imagen</a><br>Sin instalar nada y sin cuenta. Publica tu puntuación y sales en la clasificación de abajo.</p>
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl-castle-wall/master/leaderboard.svg" alt="La clasificación de The Castle Wall: los diez mejores del mes y los tres mejores de siempre, redibujada cada media hora"></a></p>
 
 La misma niña en un mundo pintado de scroll lateral: caza lo que la lluvia ha despertado en la muralla de un castillo, ronda tras
-ronda, cada una más difícil que la anterior. Todas sus imágenes costaron unos **$3.40 de dibujo** (y 115 créditos de Tripo):
+ronda, cada una más difícil que la anterior. Así se hicieron sus imágenes:
 
-| | cómo | coste |
-|---|---|---|
-| **La protagonista** - andar, dos cortes con agua, un salto, un corte en el aire, una escalera, un agarre; recibir un golpe, agotada | su propio modelo 3D visto de lado (`"view": "side"`); los dos últimos dibujados en 2D a partir de su imagen de pie | ~$1.70 + 75 créditos de Tripo |
-| **Cinco monstruos** - un lobo de piedra, un jabalí, un ciervo, un charco, una nube de tormenta | un diseño cada uno, un andar sobre el maniquí ajustado a él, una hoja para cuando recibe un golpe (`creature.py`) | $0.90 |
-| **Tres personas del pueblo** - un guardia, una herbolaria, un niño | lo mismo, sobre el hombre, la mujer y el niño calvos | $0.39 |
-| **El escenario** - la muralla, el cielo, las colinas lejanas, el suelo, escaleras, pasarelas | pintado en 2D; la muralla y los faroles, dibujados sobre sus propios modelos 3D vistos como los personajes | ~$0.40 + 40 créditos de Tripo |
+| | cómo |
+|---|---|
+| **La protagonista** - andar, dos cortes con agua, un salto, un corte en el aire, una escalera, un agarre; recibir un golpe, agotada | su propio modelo 3D visto de lado (`"view": "side"`); los dos últimos dibujados en 2D a partir de su imagen de pie |
+| **Cinco monstruos** - un lobo de piedra, un jabalí, un ciervo, un charco, una nube de tormenta | un diseño cada uno, un andar sobre el maniquí ajustado a él, una hoja para cuando recibe un golpe (`creature.py`) |
+| **Tres personas del pueblo** - un guardia, una herbolaria, un niño | lo mismo, sobre el hombre, la mujer y el niño calvos |
+| **El escenario** - la muralla, el cielo, las colinas lejanas, el suelo, escaleras, pasarelas | pintado en 2D; la muralla y los faroles, dibujados sobre sus propios modelos 3D vistos como los personajes |
 
 Ningún monstruo ni persona del pueblo tiene un modelo 3D propio; cómo se dibujaron: [Un juego de scroll lateral](#un-juego-de-scroll-lateral-una-orientación-y-monstruos-dibujados-en-2d).
 

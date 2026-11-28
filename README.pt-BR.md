@@ -108,7 +108,7 @@ ser redesenhado, nunca espremido para caber. Os props funcionam do mesmo jeito, 
 
 ## Feito com SpriteCast
 
-Dois jogos pequenos, com todas as imagens feitas com o SpriteCast.
+Dois jogos pequenos feitos como exemplo, cada um em mais ou menos um dia, com todas as imagens feitas com o SpriteCast: para mostrar o que você pode construir com ele.
 
 ### Rain Girl: pixel art isométrica
 
@@ -152,23 +152,25 @@ fogo com a água do guarda-chuva antes que a floresta queime.</i></p>
 
 </details>
 
-- Mais - uma paleta só, a menina escurecendo à sombra das árvores, a cobertura que para uma bola de fogo, o vento, quanto custou um objeto: [como foi feito](docs/guide/rain-girl.md) (em inglês).
+- Mais - uma paleta só, a menina escurecendo à sombra das árvores, a cobertura que para uma bola de fogo, o vento: [como foi feito](docs/guide/rain-girl.md) (em inglês).
 
-### The Castle Wall: um jogo de rolagem lateral por cerca de $3.40
+### The Castle Wall: um jogo de rolagem lateral
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/side-game.png" alt="The Castle Wall: a menina da chuva no portão do castelo com um guarda e uma herborista, um lobo de pedra no adarve, uma nuvem de tempestade sobre uma passarela de madeira, chuva" width="100%"></a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/castle-wall-play.gif" alt="The Castle Wall: a menina da chuva no portão do castelo com um guarda e uma herborista, um lobo de pedra no adarve, uma nuvem de tempestade sobre uma passarela de madeira, chuva" width="100%"></a></p>
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ Jogue no navegador</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">o código do jogo, e como cada imagem foi feita</a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ Jogue no navegador</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">o código do jogo, e como cada imagem foi feita</a><br>Sem instalar nada e sem conta. Envie sua pontuação e você aparece no ranking abaixo.</p>
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl-castle-wall/master/leaderboard.svg" alt="O placar de The Castle Wall: os dez melhores do mês e os três melhores de sempre, redesenhado a cada meia hora"></a></p>
 
 A mesma menina num mundo pintado, de rolagem lateral: ela caça o que a chuva despertou na muralha de um castelo, rodada após
-rodada, cada uma mais difícil que a anterior. Todas as imagens do jogo custaram cerca de **$3.40 de desenho** (e 115 créditos Tripo):
+rodada, cada uma mais difícil que a anterior. Assim foram feitas as imagens:
 
-| | como | custo |
-|---|---|---|
-| **A heroína** - andar, dois cortes com água, um pulo, um corte no ar, uma escada, um agarrão; levar um golpe, exausta | o próprio modelo 3D dela visto de lado (`"view": "side"`); os dois últimos desenhados em 2D a partir da imagem dela parada | ~$1.70 + 75 créditos Tripo |
-| **Cinco monstros** - um lobo de pedra, um javali, um cervo, uma poça, uma nuvem de tempestade | um design para cada um, um andar sobre o manequim ajustado a ele, uma folha para levar um golpe (`creature.py`) | $0.90 |
-| **Três moradores da vila** - um guarda, uma herborista, um menino | o mesmo, sobre o homem, a mulher e a criança carecas | $0.39 |
-| **O cenário** - a muralha, o céu, as colinas ao longe, o chão, escadas, passarelas | pintado em 2D; a muralha e as lanternas desenhadas sobre os próprios modelos 3D, vistos como os personagens | ~$0.40 + 40 créditos Tripo |
+| | como |
+|---|---|
+| **A heroína** - andar, dois cortes com água, um pulo, um corte no ar, uma escada, um agarrão; levar um golpe, exausta | o próprio modelo 3D dela visto de lado (`"view": "side"`); os dois últimos desenhados em 2D a partir da imagem dela parada |
+| **Cinco monstros** - um lobo de pedra, um javali, um cervo, uma poça, uma nuvem de tempestade | um design para cada um, um andar sobre o manequim ajustado a ele, uma folha para levar um golpe (`creature.py`) |
+| **Três moradores da vila** - um guarda, uma herborista, um menino | o mesmo, sobre o homem, a mulher e a criança carecas |
+| **O cenário** - a muralha, o céu, as colinas ao longe, o chão, escadas, passarelas | pintado em 2D; a muralha e as lanternas desenhadas sobre os próprios modelos 3D, vistos como os personagens |
 
 Nenhum monstro ou morador da vila tem um modelo 3D próprio - como foram desenhados: [Um jogo de rolagem lateral](#um-jogo-de-rolagem-lateral-uma-direção-e-monstros-desenhados-em-2d).
 

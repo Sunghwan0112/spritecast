@@ -108,7 +108,7 @@ claude plugin install spritecast@spritecast
 
 ## 用它做的游戏
 
-两个小游戏，里面的每一张图都出自 SpriteCast。
+两个作为示例做的小游戏，各花了大约一天，里面的每一张图都出自 SpriteCast——用来展示你能用它做出什么。
 
 ### Rain Girl：等距像素画
 
@@ -146,23 +146,25 @@ claude plugin install spritecast@spritecast
 
 </details>
 
-- 更多 —— 统一的调色板、走进树荫会变暗、挡住火球的掩体、风、一个道具的花费：[制作过程](docs/guide/rain-girl.md)（英文）。
+- 更多 —— 统一的调色板、走进树荫会变暗、挡住火球的掩体、风：[制作过程](docs/guide/rain-girl.md)（英文）。
 
-### The Castle Wall：约 $3.40 做出的横版卷轴游戏
+### The Castle Wall：横版卷轴游戏
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/side-game.png" alt="The Castle Wall：城门口的雨衣女孩，身边有一名卫兵和一名草药商，城墙顶的走道上一只石狼，木栈道上方一朵雨云，下着雨" width="100%"></a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/castle-wall-play.gif" alt="The Castle Wall：城门口的雨衣女孩，身边有一名卫兵和一名草药商，城墙顶的走道上一只石狼，木栈道上方一朵雨云，下着雨" width="100%"></a></p>
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ 在浏览器里直接玩</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">游戏代码，以及每张图是怎么做的</a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ 在浏览器里直接玩</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">游戏代码，以及每张图是怎么做的</a><br>不用安装,不用注册。提交分数就会出现在下面的排行榜上。</p>
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl-castle-wall/master/leaderboard.svg" alt="The Castle Wall 排行榜：本月前十和历史前三，每半小时重画一次"></a></p>
 
 同一个女孩来到一个手绘的横版卷轴世界：她在城墙上猎杀被雨唤醒的东西，一轮接一轮，一轮比一轮难。里面的每一张图
-一共花了约 **$3.40 的绘制费用**（外加 115 Tripo 积分）：
+图是这样做的：
 
-| | 做法 | 费用 |
-|---|---|---|
-| **女主角** —— 走路、两种带水的斩击、跳跃、空中斩、梯子、抓取；被击中、精疲力竭 | 从侧面看她自己的 3D 模型（`"view": "side"`）；最后两个由她的站立图直接用 2D 画出 | 约 $1.70 + 75 Tripo 积分 |
-| **五种怪物** —— 石狼、野猪、鹿、水洼、雨云 | 每种一张设计图，在按它调整过的人偶上画走路，再画一张被击中的图（`creature.py`） | $0.90 |
-| **三个镇民** —— 卫兵、草药商、男孩 | 同样的做法，画在没有头发的男人、女人和孩子人偶上 | $0.39 |
-| **场景** —— 城墙、天空、远山、地面、梯子、栈道 | 用 2D 绘制；城墙和灯笼画在各自的 3D 模型上，视角与角色相同 | 约 $0.40 + 40 Tripo 积分 |
+| | 做法 |
+|---|---|
+| **女主角** —— 走路、两种带水的斩击、跳跃、空中斩、梯子、抓取；被击中、精疲力竭 | 从侧面看她自己的 3D 模型（`"view": "side"`）；最后两个由她的站立图直接用 2D 画出 |
+| **五种怪物** —— 石狼、野猪、鹿、水洼、雨云 | 每种一张设计图，在按它调整过的人偶上画走路，再画一张被击中的图（`creature.py`） |
+| **三个镇民** —— 卫兵、草药商、男孩 | 同样的做法，画在没有头发的男人、女人和孩子人偶上 |
+| **场景** —— 城墙、天空、远山、地面、梯子、栈道 | 用 2D 绘制；城墙和灯笼画在各自的 3D 模型上，视角与角色相同 |
 
 没有一个怪物或镇民有自己的 3D 模型 —— 它们是怎么画的：[横版卷轴游戏](#横版卷轴游戏只画一个朝向怪物用-2d-画)。
 

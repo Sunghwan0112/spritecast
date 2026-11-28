@@ -104,7 +104,7 @@ times line up on one floor, all lit by the same light.
 
 ## Made with it
 
-Two small games, every picture in them from SpriteCast.
+Two small games made as examples, each in about a day, with every picture from SpriteCast - to show what you can build with it.
 
 ### Rain Girl: isometric pixel art
 
@@ -146,23 +146,25 @@ water before the forest burns.</i></p>
 
 </details>
 
-- More - one palette, her shade under the trees, the cover that stops a fireball, the wind, what a prop cost: [how it was made](docs/guide/rain-girl.md).
+- More - one palette, her shade under the trees, the cover that stops a fireball, the wind: [how it was made](docs/guide/rain-girl.md).
 
-### The Castle Wall: a side-scroller for about $3.40
+### The Castle Wall: a side-scroller
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/side-game.png" alt="The Castle Wall: the rain girl at the castle gate with a guard and a herbalist, a stone wolf on the wall-walk, a storm cloud over a wooden ledge, rain" width="100%"></a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/castle-wall-play.gif" alt="The Castle Wall: the rain girl at the castle gate with a guard and a herbalist, a stone wolf on the wall-walk, a storm cloud over a wooden ledge, rain" width="100%"></a></p>
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ Play it in your browser</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">the game's code, and how each picture was made</a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ Play it in your browser</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">the game's code, and how each picture was made</a><br>No install, no account. Post your score and you are on the board below.</p>
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl-castle-wall/master/leaderboard.svg" alt="The Castle Wall's leaderboard: this month's best ten and the best three ever, redrawn every half hour"></a></p>
 
 The same girl in a painted, side-scrolling world: she hunts what the rain has woken on a castle wall, round after round, each
-harder than the last. Every picture in it cost about **$3.40 of drawing** (and 115 Tripo credits):
+harder than the last. How its pictures were made:
 
-| | how | cost |
-|---|---|---|
-| **The heroine** - walk, two cuts with water, a jump, a cut from the air, a ladder, a grab; struck, worn out | her own 3D model seen from the side (`"view": "side"`); the last two drawn in 2D from her standing picture | ~$1.70 + Tripo 75 credits |
-| **Five monsters** - a stone wolf, a boar, a stag, a puddle, a storm cloud | one design each, a walk on the mannequin fitted to it, a sheet for being struck (`creature.py`) | $0.90 |
-| **Three townspeople** - a guard, a herbalist, a boy | the same, on the bald man, woman and child | $0.39 |
-| **The board** - the castle wall, sky, far hills, ground, ladders, ledges | painted in 2D; the wall and the lanterns drawn over their own 3D models, seen as the characters are | ~$0.40 + Tripo 40 credits |
+| | how |
+|---|---|
+| **The heroine** - walk, two cuts with water, a jump, a cut from the air, a ladder, a grab; struck, worn out | her own 3D model seen from the side (`"view": "side"`); the last two drawn in 2D from her standing picture |
+| **Five monsters** - a stone wolf, a boar, a stag, a puddle, a storm cloud | one design each, a walk on the mannequin fitted to it, a sheet for being struck (`creature.py`) |
+| **Three townspeople** - a guard, a herbalist, a boy | the same, on the bald man, woman and child |
+| **The board** - the castle wall, sky, far hills, ground, ladders, ledges | painted in 2D; the wall and the lanterns drawn over their own 3D models, seen as the characters are |
 
 No monster or townsperson has a 3D model of its own - how they were drawn: [A side-scrolling game](#a-side-scrolling-game-one-facing-and-monsters-drawn-in-2d).
 

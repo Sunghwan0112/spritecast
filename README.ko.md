@@ -108,7 +108,7 @@ claude plugin install spritecast@spritecast
 
 ## 만든 게임
 
-작은 게임 두 개예요. 안에 든 그림은 전부 SpriteCast로 만들었어요.
+예시로 만든 작은 게임 두 개예요. 각각 하루쯤 걸렸고, 안에 든 그림은 전부 SpriteCast로 만들었어요. SpriteCast로 무엇을 만들 수 있는지 보여 주려고 만들었어요.
 
 ### 우비소녀의 여행: 아이소메트릭 픽셀아트
 
@@ -150,23 +150,25 @@ claude plugin install spritecast@spritecast
 
 </details>
 
-- 더 보기 - 팔레트 하나, 나무 그늘에서 어두워지는 소녀, 불덩이를 막는 엄폐, 바람, 소품 하나의 비용: [제작기](docs/guide/rain-girl.md) (영어).
+- 더 보기 - 팔레트 하나, 나무 그늘에서 어두워지는 소녀, 불덩이를 막는 엄폐, 바람: [제작기](docs/guide/rain-girl.md) (영어).
 
-### The Castle Wall: 약 $3.40에 만든 횡스크롤 게임
+### The Castle Wall: 횡스크롤 게임
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/side-game.png" alt="The Castle Wall: 성문 앞에서 경비병, 약초 상인과 함께 있는 레인걸, 성벽 위 통로의 돌늑대, 나무 발판 위의 비구름, 비" width="100%"></a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/castle-wall-play.gif" alt="The Castle Wall: 성문 앞에서 경비병, 약초 상인과 함께 있는 레인걸, 성벽 위 통로의 돌늑대, 나무 발판 위의 비구름, 비" width="100%"></a></p>
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ 브라우저에서 바로 플레이</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">게임 코드와 그림마다 만든 방법</a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ 브라우저에서 바로 플레이</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">게임 코드와 그림마다 만든 방법</a><br>설치도 가입도 필요 없어요. 점수를 올리면 아래 랭킹에 나와요.</p>
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl-castle-wall/master/leaderboard.svg" alt="The Castle Wall 순위판: 이번 달 10위와 역대 3위, 30분마다 다시 그려져요"></a></p>
 
 같은 소녀가 이번에는 물감으로 칠한 횡스크롤 세계에 있어요. 성벽 위에서 비가 깨운 것들을 사냥해요. 라운드가 이어질수록 더
-어려워져요. 안에 든 그림 전부에 **그리기 약 $3.40**(그리고 Tripo 115크레딧)이 들었어요.
+어려워져요. 그림은 이렇게 만들었어요.
 
-| | 방법 | 비용 |
-|---|---|---|
-| **주인공** - 걷기, 물이 붙는 베기 두 가지, 점프, 공중 베기, 사다리, 잡기. 맞기, 지쳐 주저앉기 | 옆에서 본 자기 3D 모델(`"view": "side"`). 마지막 둘은 서 있는 그림에서 2D로 그림 | 약 $1.70 + Tripo 75크레딧 |
-| **몬스터 다섯 종** - 돌늑대, 멧돼지, 사슴, 물웅덩이, 비구름 | 하나마다 디자인 한 장, 거기에 맞춘 마네킹 위의 걷기, 맞는 동작 시트(`creature.py`) | $0.90 |
-| **마을 사람 세 명** - 경비병, 약초 상인, 소년 | 같은 방법으로, 머리카락 없는 남자·여자·아이 마네킹 위에 | $0.39 |
-| **맵** - 성벽, 하늘, 먼 언덕, 땅, 사다리, 발판 | 2D로 칠함. 성벽과 랜턴은 캐릭터와 같은 시점으로 본 자기 3D 모델 위에 그림 | 약 $0.40 + Tripo 40크레딧 |
+| | 방법 |
+|---|---|
+| **주인공** - 걷기, 물이 붙는 베기 두 가지, 점프, 공중 베기, 사다리, 잡기. 맞기, 지쳐 주저앉기 | 옆에서 본 자기 3D 모델(`"view": "side"`). 마지막 둘은 서 있는 그림에서 2D로 그림 |
+| **몬스터 다섯 종** - 돌늑대, 멧돼지, 사슴, 물웅덩이, 비구름 | 하나마다 디자인 한 장, 거기에 맞춘 마네킹 위의 걷기, 맞는 동작 시트(`creature.py`) |
+| **마을 사람 세 명** - 경비병, 약초 상인, 소년 | 같은 방법으로, 머리카락 없는 남자·여자·아이 마네킹 위에 |
+| **맵** - 성벽, 하늘, 먼 언덕, 땅, 사다리, 발판 | 2D로 칠함. 성벽과 랜턴은 캐릭터와 같은 시점으로 본 자기 3D 모델 위에 그림 |
 
 몬스터도 마을 사람도 자기 3D 모델이 없어요. 어떻게 그렸는지는 [횡스크롤 게임](#횡스크롤-게임-한-방향만-그리고-몬스터는-2d로)에 있어요.
 

@@ -108,7 +108,7 @@ claude plugin install spritecast@spritecast
 
 ## 作ったゲーム
 
-小さなゲームが2つ。中の絵はすべて SpriteCast で作りました。
+例として作った小さなゲームが2つ。どちらも1日ほどで作り、中の絵はすべて SpriteCast で作りました。SpriteCast で何が作れるかを見せるためのものです。
 
 ### Rain Girl: アイソメトリックのピクセルアート
 
@@ -150,23 +150,25 @@ claude plugin install spritecast@spritecast
 
 </details>
 
-- さらに - ひとつのパレット、木陰で暗くなる少女、火の玉を止める遮蔽、風、小物ひとつの費用: [制作記](docs/guide/rain-girl.md) (英語)。
+- さらに - ひとつのパレット、木陰で暗くなる少女、火の玉を止める遮蔽、風: [制作記](docs/guide/rain-girl.md) (英語)。
 
-### The Castle Wall: 約 $3.40 で作った横スクロールのゲーム
+### The Castle Wall: 横スクロールのゲーム
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/side-game.png" alt="The Castle Wall: 城門で衛兵と薬草売りと一緒にいるレインガール、城壁の上の通路にいる石のオオカミ、木の足場の上の雨雲、雨" width="100%"></a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="docs/castle-wall-play.gif" alt="The Castle Wall: 城門で衛兵と薬草売りと一緒にいるレインガール、城壁の上の通路にいる石のオオカミ、木の足場の上の雨雲、雨" width="100%"></a></p>
 
-<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ ブラウザですぐ遊ぶ</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">ゲームのコードと、それぞれの絵の作り方</a></p>
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><b>▶ ブラウザですぐ遊ぶ</b></a> &nbsp;·&nbsp; <a href="https://github.com/Sunghwan0112/rain-girl-castle-wall">ゲームのコードと、それぞれの絵の作り方</a><br>インストールも登録もいりません。スコアを送ると下のランキングに載ります。</p>
+
+<p align="center"><a href="https://sunghwan0112.github.io/rain-girl-castle-wall/"><img src="https://raw.githubusercontent.com/Sunghwan0112/rain-girl-castle-wall/master/leaderboard.svg" alt="The Castle Wall のランキング: 今月のトップ10と歴代トップ3、30分ごとに描き直し"></a></p>
 
 同じ少女が、描き込んだ絵の横スクロールの世界にやって来ました。雨が目覚めさせたものを城壁の上で狩ります。ラウンドを重ねるごとに
-難しくなります。中の絵はすべて合わせて**描画代約 $3.40** (と Tripo 115 クレジット) でした:
+難しくなります。絵の作り方:
 
-| | 作り方 | 費用 |
-|---|---|---|
-| **主人公** - 歩き、水の付く斬り2種、ジャンプ、空中斬り、はしご、つかみ。殴られる、へたり込む | 横から見た自分の3Dモデル (`"view": "side"`)。最後の2つは立ち姿の絵から2Dで描いた | 約 $1.70 + Tripo 75 クレジット |
-| **モンスター5種** - 石のオオカミ、イノシシ、鹿、水たまり、雨雲 | それぞれデザイン1枚、それに合わせたマネキンの上の歩き、殴られるシート (`creature.py`) | $0.90 |
-| **町の人3人** - 衛兵、薬草売り、少年 | 同じやり方で、髪のない男性・女性・子どものマネキンの上に | $0.39 |
-| **マップ** - 城壁、空、遠くの丘、地面、はしご、足場 | 2Dで描いた。城壁とランタンはキャラクターと同じ視点で見た自分の3Dモデルの上に描いた | 約 $0.40 + Tripo 40 クレジット |
+| | 作り方 |
+|---|---|
+| **主人公** - 歩き、水の付く斬り2種、ジャンプ、空中斬り、はしご、つかみ。殴られる、へたり込む | 横から見た自分の3Dモデル (`"view": "side"`)。最後の2つは立ち姿の絵から2Dで描いた |
+| **モンスター5種** - 石のオオカミ、イノシシ、鹿、水たまり、雨雲 | それぞれデザイン1枚、それに合わせたマネキンの上の歩き、殴られるシート (`creature.py`) |
+| **町の人3人** - 衛兵、薬草売り、少年 | 同じやり方で、髪のない男性・女性・子どものマネキンの上に |
+| **マップ** - 城壁、空、遠くの丘、地面、はしご、足場 | 2Dで描いた。城壁とランタンはキャラクターと同じ視点で見た自分の3Dモデルの上に描いた |
 
 モンスターにも町の人にも自分の3Dモデルはありません。どう描いたかは [横スクロールのゲーム](#横スクロールのゲーム-1方向だけ描きモンスターは2dで) にあります。
 

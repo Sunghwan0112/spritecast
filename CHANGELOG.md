@@ -40,7 +40,7 @@ Changes made because of a report or a request are marked *(feedback)*.
   quoted two sheets where one is drawn. It checks the first facing's render and draws one sheet for four facings (~$0.11).
 - **Costs agree everywhere** - the README, the guides and SKILL.md quote what each script's gate prints (a prop $0.08, a further facing
   $0.09; a walk's drawing ~$2.1; a side view's walk and standing ~$0.33); a side-scroller's monster ($0.18) and hero rows added.
-- **README**: a second game made with it - *The Castle Wall*, a side-scroller whose every picture cost about $3.40; the banner's second
+- **README**: a second game made with it - *The Castle Wall*, a side-scroller made in about a day as an example of what you can build; the banner's second
   scene is that game (filmed from it, the title washed by its rain and wetted by her cut); the first picture gained a row of the
   side-scroller's creatures and people beside the mannequins they were drawn on; scenery seen from the side drawn over its own lit 3D
   model (drawn over grey blocks, the castle wall came out flat).
